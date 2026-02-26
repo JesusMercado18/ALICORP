@@ -1,5 +1,7 @@
+//----VARIABLES DE DISEÑO----
 Set(Var_ColorNavegarCabecera;"#766F6F");;
 Set(Var_ColorNavegarCabeceraSeleccionado;"#E62020");;
+
 // color boton Nuevo
 Set(Var_ColorFadeBoton;"#FAEFEF");;
 Set(Var_ColorBoton;"#E62020");;
@@ -35,6 +37,7 @@ Set(Var_ColorIconTicketRojo;"#E62020");;
 // colorMorado
 Set(Var_ColorFadeIconTicketMorado;"#F5EDFF");;
 Set(Var_ColorIconTicketMorado;"#6C19DF");;
+
 // colorMoradoButton
 Set(Var_ColorFadeBotonMorado;"#F4EDFF");;
 
@@ -54,19 +57,15 @@ Set(Var_ColorFondoLateral; "#F9F9FB");;
 Set(Var_ColorTitulo;"#202020");;
 
 // colorGridGallery
-
 Set(Var_ColorGridGallery;"#F9F9FB");;
 
 // colorPuntuacion
-
 Set(Var_ColorPuntuacion; "#FFB300");;
 
 // colorBordeButton
-
 Set(Var_ColorBordeBoton;"#6C6C6C");; //Neutral Dark
 
 // color #6C6C6C
-
 Set(Var_ColorGray;"#6C6C6C");;
 
 // colorEstadoCerrado
@@ -91,55 +90,45 @@ Set(Var_ColorFondoEstadoRechazado; "#F787BC52");; //Support Light
 Set(Var_ColorLine;"#EFEFF3");;
 
 // #545454 Button Estado Detalle Ticket
-
 Set(Var_ColorLineEstado;"#545454");;
+
 // colorFondoSeleccionMultiple
 Set(Var_ColorFondoSeleccionMultiple;"#111928");;
 
 // colorFondoBotonSeleccionMultiple
-
 Set(Var_ColorBotonFadeSeleccionMultiple;"#343b48");;
 
 //colorFondoAdjuntos
 Set(Var_ColorFondoAdjuntos; "#E96767");;
 
 // colorBlanco
-
 Set(Var_ColorBlanco; "#FCFCFC");;
 
 // Titulo bold
 Set(Var_TituloBold;25);;
 
 // Titulo NavBar
-
 Set(Var_TituloNavBar; 12);;
 
 // Tamaño indicadores
-
 Set(Var_TituloIndicadores; 12);;
 
 // Font Size Botones
-
 Set(Var_FontSizeBoton; 14);;
 
 // Font Size 12px Header Detalle Ticket
-
 Set(Var_FontSizeTitleHeaderDetalleTicket;12);;
 
 // Font Size Filtros
-
 Set(Var_FontSizeFiltros; 12);;
 
 // Font Size HeaderTable
-
 Set(Var_FontSizeHeaderTable;12);;
 
 // Font Size Cuerpo Table
-
 Set(Var_FontSizeCuerpoTable; 12);;
 
 // Espacio Interno Entre Contenedores
-
 Set(Var_EspaciadoInterno; 24);;
 
 // Espacio Padding 
@@ -147,22 +136,36 @@ Set(Var__Paddding;24);;
 
 // Titulo Contador Estilo Bold
 Set(Var_TituloContadorBold;24);;
+
 // Tamaño Subtitulo
 Set(Var_Subtitle;16);;
+
 // Tamaño del cuerpo de texto
 Set(Var_CuerpoTexto;14);;
+
 // FontSize Title Attachment
 Set(Var_FontTitleAttachment;14);;
+
 // FontSize Cuerpo Pestaña Discusión y Cambios
 Set(Var_CuerpoDiscusionCambio;14);;
+
 // FontSize Title Pestaña Discusión y Cambios
 Set(Var_TituloBoldDiscusionCambio;14);;
+
 // FontSize Etiqueta Tiempo de Atención: Pantalla Detalle Ticket
 Set(Var_TiempoAtencion;12);;
+
 // FontSize Section Title o Heading
 Set(Var_AgregarComentario;14);;
+//----FIN VARIABLES DE DISEÑO----
 
-// Colección de Querys
+//----VARIABLES DE DATOS----
+Set(Var_UserProfile; User());;
+Set(Var_OpenMenu; true);;
+//----FIN VARIABLES DE DATOS----
+
+//----QUERYS----
+//----Query Tickets----
 ClearCollect(
     colQuerysSpvTicket;
     { input: "Codigo";            mark: false; query: "" };
@@ -198,42 +201,6 @@ ClearCollect(
     { input: "Recurrente";          mark: false; query: "" };
     { input: "DatosAdjuntos";       mark: false; query: "" }
 );;
-//With(
-//    {
-//        // 1. Calculamos los valores de hoy para inyectarlos en la consulta
-//        DiaActual: Text(Day(Today())); 
-//        FechaActualISO: Text(Today(); "yyyy-MM-dd")
-//    };
-//
-//    // 2. Creamos la colección con la regla OData ya integrada
-//    ClearCollect(
-//        colQuerysSpvComunicados;
-//        { input: "ID";                  mark: false; query: "" };
-//        { input: "Gerencia";            mark: false; query: "" };
-//        { input: "Area";                mark: false; query: "" };
-//        { input: "Cabecera";            mark: false; query: "" };
-//        { input: "Cuerpo";              mark: false; query: "" };
-//        { input: "Imagen";              mark: false; query: "" };
-//        { input: "UsuarioCreador";      mark: false; query: "" };
-//        { input: "FechaCreacion";       mark: false; query: "" };
-//        { input: "FechaFin";            mark: false; query: "" };
-//        { input: "Estado";              mark: false; query: "" };
-//        { input: "Creado";              mark: false; query: "" };
-//        { input: "FechaInicio";         mark: false; query: "" };
-//        { input: "DiaInicio";           mark: false; query: "" };
-//        { input: "DiaFin";              mark: false; query: "" };
-//        
-//        // 🌟 AQUÍ INYECTAMOS TU FILTRO TRADUCIDO A ODATA 🌟
-//        { 
-//            input: "EstadoComunicado";    
-//            mark: true; 
-//            query: "EstadoComunicado eq 'Activo' and ((Recurrente eq 1 and DiaInicio le " & DiaActual & " and DiaFin ge " & DiaActual & ") or (Recurrente eq 0 and FechaInicio le '" & FechaActualISO & "' and FechaFin ge '" & FechaActualISO & "'))" 
-//        };
-//        
-//        { input: "Recurrente";          mark: false; query: "" };
-//        { input: "DatosAdjuntos";       mark: false; query: "" }
-//    )
-//);;
 //----Query Soluciones----
 ClearCollect(
     colQuerysSpvSoluciones;
@@ -245,7 +212,10 @@ ClearCollect(
     { input: "Area";                mark: false; query: "" };
     { input: "Autor";               mark: false; query: "" }
 );;
-//-----------------
+//----FIN QUERYS----
+
+//----COLECCIONES----
+//----Coleccion Menu----
 ClearCollect(colMenuSpv;
 {Title: "Home";          Id: 1; Pantalla: Spv_Home; Ico: home; child: false; itemsSubChild: Table()};
 {Title: "Catálogo";      Id: 2; Pantalla: Spv_Catalogo; Ico: catalogo; child: false; itemsSubChild: Table()};
@@ -260,12 +230,6 @@ ClearCollect(colMenuSpv;
 {Title: "Comunicados";   Id: 5; Pantalla: Spv_Comunicados; Ico: comunicados; child: false; itemsSubChild: Table()};
 {Title: "Soluciones";    Id: 6; Pantalla: Spv_Soluciones; Ico: soluciones; child: false; itemsSubChild: Table()}
 );;
-
-Set(Var_UserProfile; User());;
-Set(Var_OpenMenu; true);;
-Set(Var_ConexionLista;"LCP-001_Site_Ticketing_DEV");;
-
-// colPrioridades
 
 ClearCollect(colPrioridades; ["Alta";"Media";"Baja"]);;
 ClearCollect(colCategorias;[
@@ -290,3 +254,25 @@ ClearCollect(colSpvCmcArea; ["Créditos Back Office";"Tesorería Operativa";"Ges
 ClearCollect(colSpvCmcEstado; ["Vigente";"Vencido"]);;
 //----Datos para los filtros de Soluciones----
 ClearCollect(colSpvSlcEstado; ["Publicado";"Borrador"]);;
+//----FIN COLECCIONES----
+
+//----Flujo para consultar el Rol del usuario----
+Set(Var_EmailUser;"test@alicorp.pe");;
+Set(Var_ProfileUser; LookUp('LCP-001_List_Usuarios'; CorreoUsuario = Var_EmailUser) );;
+ClearCollect(
+    colRolesUsuario;
+    ForAll(
+        ParseJSON(Var_ProfileUser.RolSistema);
+        {
+            Rol: Text(ThisRecord.Rol)
+        }
+    )
+);;
+Set(
+    Var_RolSistema;
+    LookUp(
+        colRolesUsuario;
+        Rol = "Analista"
+    )
+);;
+//----Fin Flujo para consultar el Rol del usuario---------------
