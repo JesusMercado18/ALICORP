@@ -1,0 +1,20 @@
+Screens:
+  Spv_Home:
+    Properties:
+      LoadingSpinnerColor: =RGBA(56, 96, 178, 1)
+      OnVisible: |-
+        =UpdateContext({ menuSelected: 1});
+    Children:
+      - Gbl_MenuSpvHome:
+          Control: CanvasComponent
+          ComponentName: Gbl_Menu
+          ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
+          Properties:
+            Height: =768
+            Width: =If(Gbl_MenuSpvHome.verMenu,250,70)
+            WidthMenu: =Parent.Width
+            displayNameUser: =User().FullName
+            itemsMenu: =colMenuSpv
+            menuSelected: =menuSelected
+            openMenu: =Set(Var_OpenMenu, !Var_OpenMenu)
+            verMenu: =Var_OpenMenu

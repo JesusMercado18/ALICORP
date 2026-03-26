@@ -1,0 +1,1506 @@
+Screens:
+  Adm_Usuarios:
+    Properties:
+      Fill: =ColorValue(Var_ColorFondoLateral)
+      LoadingSpinnerColor: =RGBA(0, 120, 212, 1)
+      OnVisible: |-
+        =//----Variables-----
+        UpdateContext({menuSelected: 7});
+        UpdateContext({Var_Ctx_MostrarItems : false });
+        //----Flujo----
+        Set(Var_GridPageSizeAdmUsuarios, 5);
+        Set(Var_ResponseAdmUsuarios,
+            'LCP-001_Flow_AdmPaginacionUsuarios'.Run(
+                Var_GridPageSizeAdmUsuarios,
+                0,
+                Concat(
+                    Filter(colQuerysAdmUsuarios, mark),
+                    query,
+                    " and "
+                ),
+                "NEXT"
+            )
+        );
+        //----Variables respuesta flujo----
+        Set(TotalItemAdmUsuarios, Value(ParseJSON(Var_ResponseAdmUsuarios.totalitems)));
+        Set(Var_DataAdmUsuarios, Table(ParseJSON(Var_ResponseAdmUsuarios.response)));
+        //----Datos para llenar galeria de comunicados----
+        Clear(objGalleryDataAdmUsuarios);
+        ForAll(
+            FirstN(Var_DataAdmUsuarios,Var_GridPageSizeAdmUsuarios),
+            Collect(
+                objGalleryDataAdmUsuarios,
+                {
+                    ID:                ThisRecord.Value.ID,
+                    Codigo:            ThisRecord.Value.Codigo,
+                    Nombre:            ThisRecord.Value.Nombre,
+                    Apellido:          ThisRecord.Value.Apellido,
+                    CorreoUsuario:     ThisRecord.Value.CorreoUsuario,
+                    RolSistema:        ThisRecord.Value.RolSistema,
+                    EstadoSistema:     ThisRecord.Value.EstadoSistema,
+                    Estado:            ThisRecord.Value.Estado,
+                    Gerencia:          ThisRecord.Value.Gerencia,
+                    RolPerfil:         ThisRecord.Value.RolPerfil,
+                    Vicepresidencia:   ThisRecord.Value.Vicepresidencia,
+                    Direccion:         ThisRecord.Value.Direccion,
+                    Area:              ThisRecord.Value.Area,
+                    Pais:              ThisRecord.Value.Pais,
+                    Sociedad:          ThisRecord.Value.Sociedad,
+                    NombreJefeDirecto: ThisRecord.Value.NombreJefeDirecto,
+                    CorreoJefeDirecto: ThisRecord.Value.CorreoJefeDirecto
+                }
+            )
+        );
+        //----Guardamos el primer ID REAL de todo el dataset----
+        Set(Var_FirstIDAdmUsuarios, Min(objGalleryDataAdmUsuarios, ID));
+        //----Control real de NEXT (Top + 1)----
+        Set(Var_HasPrevAdmUsuarios, false);
+        Set(Var_HasNextAdmUsuarios, CountRows(Var_DataAdmUsuarios) > Var_GridPageSizeAdmUsuarios);
+        Set(Var_CurrentPageAdmUsuarios, 1);
+    Children:
+      - AdmUsr_ScreenContainer:
+          Control: GroupContainer@1.5.0
+          Variant: AutoLayout
+          Properties:
+            DropShadow: =DropShadow.None
+            Height: =Parent.Height
+            LayoutAlignItems: =LayoutAlignItems.Stretch
+            LayoutDirection: =LayoutDirection.Vertical
+            LayoutGap: =16
+            Width: =Parent.Width
+          Children:
+            - AdmUsr_BottomContainer:
+                Control: GroupContainer@1.5.0
+                Variant: AutoLayout
+                Properties:
+                  DropShadow: =DropShadow.None
+                  LayoutAlignItems: =LayoutAlignItems.Stretch
+                  LayoutDirection: =LayoutDirection.Horizontal
+                  LayoutMinHeight: =16
+                  LayoutMinWidth: =16
+                  LayoutWrap: =true
+                Children:
+                  - AdmUsr_CtnSidebar:
+                      Control: GroupContainer@1.5.0
+                      Variant: AutoLayout
+                      Properties:
+                        DropShadow: =DropShadow.Semibold
+                        Fill: =RGBA(255, 255, 255, 1)
+                        FillPortions: =0
+                        LayoutDirection: =LayoutDirection.Vertical
+                        LayoutMinHeight: =16
+                        LayoutMinWidth: =16
+                        Width: =If(Var_OpenMenu,250,70)
+                      Children:
+                        - Gbl_MenuAdmUsuarios:
+                            Control: CanvasComponent
+                            ComponentName: Gbl_Menu
+                            ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
+                            Properties:
+                              Height: =768
+                              Width: =If(Gbl_MenuAdmUsuarios.verMenu,250,70)
+                              WidthMenu: =Parent.Width
+                              displayNameUser: =User().FullName
+                              itemsMenu: =colMenuAdm
+                              menuSelected: =menuSelected
+                              openMenu: =Set(Var_OpenMenu, !Var_OpenMenu)
+                              verMenu: =Var_OpenMenu
+                  - AdmUsr_CtnMain:
+                      Control: GroupContainer@1.5.0
+                      Variant: AutoLayout
+                      Properties:
+                        DropShadow: =DropShadow.None
+                        FillPortions: =0
+                        LayoutAlignItems: =LayoutAlignItems.Center
+                        LayoutDirection: =LayoutDirection.Vertical
+                        LayoutMinHeight: =250
+                        LayoutMinWidth: =16
+                        LayoutOverflowX: =LayoutOverflow.Scroll
+                        PaddingBottom: =20
+                        PaddingLeft: =20
+                        PaddingRight: =20
+                        PaddingTop: =8
+                        Width: =Parent.Width - AdmUsr_CtnSidebar.Width
+                      Children:
+                        - Gbl_HeaderAdmUsr:
+                            Control: CanvasComponent
+                            ComponentName: Gbl_Header
+                            ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
+                            Properties:
+                              AlignInContainer: =AlignInContainer.End
+                              Height: =60
+                              Perfil: =App.ActiveScreen
+                              X: =726
+                        - AdmUsr_CtnPaginaActual:
+                            Control: GroupContainer@1.5.0
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              FillPortions: =0
+                              Height: =24
+                              LayoutAlignItems: =LayoutAlignItems.Center
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutMinHeight: =16
+                              LayoutMinWidth: =16
+                              PaddingBottom: =8
+                              PaddingRight: =8
+                              PaddingTop: =8
+                            Children:
+                              - AdmUsr_BtnPaginaInicio:
+                                  Control: Classic/Button@2.2.0
+                                  Properties:
+                                    Align: =Align.Left
+                                    BorderColor: =ColorValue(Var_ColorHoverBoton)
+                                    BorderStyle: =BorderStyle.None
+                                    BorderThickness: =0
+                                    Color: =ColorValue(Var_ColorNavegarCabecera)
+                                    DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                                    Fill: =Color.Transparent
+                                    FillPortions: =1
+                                    Font: =Font.'Open Sans'
+                                    FontWeight: =FontWeight.Normal
+                                    Height: '=Parent.Height   '
+                                    HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                                    HoverColor: =ColorValue(Var_ColorNavegarCabecera)
+                                    HoverFill: =Color.Transparent
+                                    LayoutMinWidth: =50
+                                    OnSelect: =Blank()
+                                    PressedBorderColor: =Self.Fill
+                                    PressedColor: =ColorValue(Var_ColorNavegarCabecera)
+                                    PressedFill: =
+                                    RadiusBottomLeft: =8
+                                    RadiusBottomRight: =8
+                                    RadiusTopLeft: =8
+                                    RadiusTopRight: =8
+                                    Size: =Var_TituloNavBar
+                                    Text: ="Inicio"
+                                    Width: '=Len(Self.Text) * 8.5 '
+                                    X: =40
+                                    Y: =40
+                              - AdmUsr_CtnFlechaPaginaActual:
+                                  Control: GroupContainer@1.5.0
+                                  Variant: ManualLayout
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.SetByContainer
+                                    BorderStyle: =BorderStyle.None
+                                    DropShadow: =DropShadow.None
+                                    FillPortions: =0
+                                    Height: =Parent.Height
+                                    LayoutMinHeight: =Parent.LayoutMinHeight
+                                    LayoutMinWidth: =Parent.LayoutMinWidth
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Width: =11
+                                  Children:
+                                    - AdmUsr_IcnPaginaActual:
+                                        Control: Classic/Icon@2.5.0
+                                        Properties:
+                                          BorderColor: =RGBA(0, 18, 107, 1)
+                                          Color: =ColorValue(Var_ColorNavegarCabecera)
+                                          Height: =13
+                                          Icon: =Icon.ChevronRight
+                                          Width: =11
+                                          X: =(AdmUsr_CtnFlechaPaginaActual.Width - Self.Width) / 2
+                                          Y: =6
+                              - AdmUsr_LblPaginaActual:
+                                  Control: Label@2.5.1
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Center
+                                    BorderColor: =RGBA(0, 18, 107, 1)
+                                    Color: =ColorValue(Var_ColorNavegarCabeceraSeleccionado)
+                                    FillPortions: =22
+                                    Font: =Font.'Open Sans'
+                                    FontWeight: =FontWeight.Bold
+                                    Height: =24
+                                    LayoutMinHeight: =16
+                                    LayoutMinWidth: =16
+                                    PaddingBottom: =3
+                                    PaddingLeft: =6
+                                    Size: =Var_TituloNavBar
+                                    Text: ="Usuarios"
+                                    Width: =1152
+                                    X: =76
+                        - AdmUsr_CtnTituloBoton:
+                            Control: GroupContainer@1.5.0
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              FillPortions: =0
+                              Height: =60
+                              LayoutAlignItems: =LayoutAlignItems.Center
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutJustifyContent: =LayoutJustifyContent.SpaceBetween
+                              LayoutMinHeight: =16
+                              LayoutMinWidth: =16
+                              PaddingLeft: =3
+                              PaddingRight: =8
+                            Children:
+                              - AdmUsr_CtnTitulo:
+                                  Control: GroupContainer@1.5.0
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    FillPortions: =0
+                                    LayoutDirection: =LayoutDirection.Vertical
+                                    LayoutJustifyContent: =LayoutJustifyContent.Center
+                                    LayoutMaxHeight: =100
+                                    LayoutMinHeight: =16
+                                    LayoutMinWidth: =16
+                                    PaddingBottom: =8
+                                    PaddingRight: =8
+                                    PaddingTop: =8
+                                  Children:
+                                    - AdmUsr_LblTituloUsuarios:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                          BorderColor: =RGBA(0, 0, 0, 0)
+                                          BorderStyle: =BorderStyle.None
+                                          BorderThickness: =2
+                                          Color: =RGBA(50, 49, 48, 1)
+                                          DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                                          DisabledColor: =RGBA(161, 159, 157, 1)
+                                          FocusedBorderThickness: =4
+                                          Font: =Font.'Open Sans'
+                                          FontWeight: =FontWeight.Bold
+                                          LayoutMinHeight: =16
+                                          LayoutMinWidth: =16
+                                          Size: =Var_TituloBold
+                                          Text: ="Usuarios"
+                                          Width: =365
+                                          X: =40
+                                          Y: =40
+                              - AdmUsr_CtnNuevo:
+                                  Control: GroupContainer@1.5.0
+                                  Variant: ManualLayout
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Center
+                                    BorderColor: =RGBA(255, 255, 255, 1)
+                                    DropShadow: =DropShadow.None
+                                    Fill: =RGBA(255, 255, 255, 1)
+                                    FillPortions: =0
+                                    Height: =42
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =16
+                                    RadiusBottomLeft: =8
+                                    RadiusBottomRight: =8
+                                    RadiusTopLeft: =8
+                                    RadiusTopRight: =8
+                                    Width: =110
+                                  Children:
+                                    - AdmUsr_BtnNuevaUsuarios:
+                                        Control: Classic/Button@2.2.0
+                                        Properties:
+                                          Align: =Align.Left
+                                          BorderColor: =ColorValue(Var_ColorHoverBoton)
+                                          BorderThickness: =1
+                                          Color: =RGBA(255, 255, 255, 1)
+                                          DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                                          DisabledFill: =RGBA(0, 0, 0, 0)
+                                          Fill: =ColorValue(Var_ColorBoton)
+                                          Font: =Font.'Open Sans'
+                                          Height: =Parent.Height
+                                          HoverBorderColor: '=ColorFade(Self.BorderColor, 20%)                       '
+                                          HoverColor: =ColorValue(Var_ColorBlanco)
+                                          HoverFill: =ColorValue(Var_ColorHoverBoton)
+                                          OnSelect: |-
+                                            =UpdateContext({ Var_Ctx_AdmModal_AgregarUsuarios: !Var_Ctx_AdmModal_AgregarUsuarios })
+                                          PaddingLeft: =10
+                                          PressedBorderColor: =Self.PressedFill
+                                          PressedColor: =ColorValue(Var_ColorBlanco)
+                                          PressedFill: =ColorValue(Var_ColorPressedBoton)
+                                          RadiusBottomLeft: =8
+                                          RadiusBottomRight: =8
+                                          RadiusTopLeft: =8
+                                          RadiusTopRight: =8
+                                          Size: =Var_FontSizeBoton
+                                          Text: ="Nuevo"
+                                          Width: =Parent.Width
+                                    - AdmUsr_IconPlusNuevaUsuarios:
+                                        Control: Classic/Icon@2.5.0
+                                        Properties:
+                                          BorderColor: =RGBA(0, 0, 0, 0)
+                                          Color: =RGBA(255, 255, 255, 1)
+                                          DisabledColor: =RGBA(225, 223, 221, 1)
+                                          FocusedBorderThickness: =4
+                                          Height: =20
+                                          Icon: =Icon.Add
+                                          PressedBorderColor: =RGBA(0, 0, 0, 0)
+                                          PressedColor: =ColorValue(Var_ColorBoton)
+                                          PressedFill: =RGBA(0, 0, 0, 0)
+                                          Width: =20
+                                          X: =76
+                                          Y: =10
+                        - AdmUsr_CtnMainDatos:
+                            Control: GroupContainer@1.5.0
+                            Variant: ManualLayout
+                            Properties:
+                              Fill: =RGBA(255, 255, 255, 1)
+                              FillPortions: =0
+                              Height: =AdmUsr_CtnDatos.Height + 24*2
+                              LayoutMinHeight: =16
+                              LayoutMinWidth: =16
+                              PaddingBottom: =24
+                              PaddingLeft: =24
+                              PaddingRight: =24
+                              PaddingTop: =24
+                              RadiusBottomLeft: =24
+                              RadiusBottomRight: =24
+                              RadiusTopLeft: =24
+                              RadiusTopRight: =24
+                            Children:
+                              - AdmUsr_CtnDatos:
+                                  Control: GroupContainer@1.5.0
+                                  Variant: ManualLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    Height: =560
+                                    Width: =Parent.Width -48
+                                    X: =24
+                                    Y: =24
+                                  Children:
+                                    - AdmUsr_CtnPaginacionUsuarios:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: ManualLayout
+                                        Properties:
+                                          DropShadow: =DropShadow.None
+                                          Height: =50
+                                          Width: =Parent.Width
+                                          Y: =AdmUsr_CtnDatosFiltrados.Height + Self.Height + 60
+                                        Children:
+                                          - AdmUsr_BtnAnterior:
+                                              Control: Button@0.0.45
+                                              Properties:
+                                                Appearance: ='ButtonCanvas.Appearance'.Outline
+                                                BorderStyle: =BorderStyle.None
+                                                DisplayMode: =If(Var_HasPrevAdmUsuarios, DisplayMode.Edit, DisplayMode.Disabled)
+                                                FontColor: =ColorValue(Var_ColorBoton)
+                                                Icon: ="ChevronLeft"
+                                                OnSelect: |-
+                                                  =Set(
+                                                      Var_ResponseAdmUsuarios,
+                                                      'LCP-001_Flow_AdmPaginacionUsuarios'.Run(
+                                                          Var_GridPageSizeAdmUsuarios,
+                                                          Text(First(AdmUsr_GlrUsuarios.AllItems).ID),
+                                                          Concat(
+                                                              Filter(colQuerysAdmUsuarios, mark),
+                                                              query,
+                                                              " and "
+                                                          ),
+                                                          "PREV"
+                                                      )
+                                                  );
+
+                                                  Set(
+                                                      Var_DataAdmUsuarios,
+                                                      Table(ParseJSON(Var_ResponseAdmUsuarios.response))
+                                                  );
+
+                                                  Clear(objGalleryDataAdmUsuarios);
+                                                  ForAll(
+                                                      FirstN(Var_DataAdmUsuarios, Var_GridPageSizeAdmUsuarios),
+                                                      Collect(
+                                                          objGalleryDataAdmUsuarios,
+                                                          {
+                                                              ID:                ThisRecord.Value.ID,
+                                                              Codigo:            ThisRecord.Value.Codigo,
+                                                              Nombre:            ThisRecord.Value.Nombre,
+                                                              Apellido:          ThisRecord.Value.Apellido,
+                                                              CorreoUsuario:     ThisRecord.Value.CorreoUsuario,
+                                                              RolSistema:        ThisRecord.Value.RolSistema,
+                                                              EstadoSistema:     ThisRecord.Value.EstadoSistema,
+                                                              Estado:            ThisRecord.Value.Estado,
+                                                              Gerencia:          ThisRecord.Value.Gerencia,
+                                                              RolPerfil:         ThisRecord.Value.RolPerfil,
+                                                              Vicepresidencia:   ThisRecord.Value.Vicepresidencia,
+                                                              Direccion:         ThisRecord.Value.Direccion,
+                                                              Area:              ThisRecord.Value.Area,
+                                                              Pais:              ThisRecord.Value.Pais,
+                                                              Sociedad:          ThisRecord.Value.Sociedad,
+                                                              NombreJefeDirecto: ThisRecord.Value.NombreJefeDirecto,
+                                                              CorreoJefeDirecto: ThisRecord.Value.CorreoJefeDirecto
+                                                          }
+                                                      )
+                                                  );
+
+                                                  Set(Var_HasPrevAdmUsuarios, CountRows(Var_DataAdmUsuarios) > Var_GridPageSizeAdmUsuarios);
+                                                  Set(Var_HasNextAdmUsuarios, true);
+                                                  Set(Var_CurrentPageAdmUsuarios, Var_CurrentPageAdmUsuarios - 1)
+                                                Text: ="Anterior"
+                                                Y: =9
+                                          - AdmUsr_BtnSiguiente:
+                                              Control: Button@0.0.45
+                                              Properties:
+                                                Appearance: ='ButtonCanvas.Appearance'.Outline
+                                                BorderStyle: =BorderStyle.None
+                                                DisplayMode: |-
+                                                  =If(
+                                                      Var_HasNextAdmUsuarios,
+                                                      DisplayMode.Edit,
+                                                      DisplayMode.Disabled
+                                                  )
+                                                FontColor: =ColorValue(Var_ColorBoton)
+                                                Icon: ="ChevronRight"
+                                                Layout: ='ButtonCanvas.Layout'.IconAfter
+                                                OnSelect: |-
+                                                  =Set(
+                                                      Var_ResponseAdmUsuarios,
+                                                      'LCP-001_Flow_AdmPaginacionUsuarios'.Run(
+                                                          Var_GridPageSizeAdmUsuarios,
+                                                          Text(Last(AdmUsr_GlrUsuarios.AllItems).ID),
+                                                          Concat(
+                                                              Filter(colQuerysAdmUsuarios, mark),
+                                                              query,
+                                                              " and "
+                                                          ),
+                                                          "NEXT"
+                                                      )
+                                                  );
+
+                                                  Set(
+                                                      Var_DataAdmUsuarios,
+                                                      Table(ParseJSON(Var_ResponseAdmUsuarios.response))
+                                                  );
+
+                                                  Clear(objGalleryDataAdmUsuarios);
+                                                  ForAll(
+                                                      FirstN(Var_DataAdmUsuarios, Var_GridPageSizeAdmUsuarios),
+                                                      Collect(
+                                                          objGalleryDataAdmUsuarios,
+                                                          {
+                                                              ID:                ThisRecord.Value.ID,
+                                                              Codigo:            ThisRecord.Value.Codigo,
+                                                              Nombre:            ThisRecord.Value.Nombre,
+                                                              Apellido:          ThisRecord.Value.Apellido,
+                                                              CorreoUsuario:     ThisRecord.Value.CorreoUsuario,
+                                                              RolSistema:        ThisRecord.Value.RolSistema,
+                                                              EstadoSistema:     ThisRecord.Value.EstadoSistema,
+                                                              Estado:            ThisRecord.Value.Estado,
+                                                              Gerencia:          ThisRecord.Value.Gerencia,
+                                                              RolPerfil:         ThisRecord.Value.RolPerfil,
+                                                              Vicepresidencia:   ThisRecord.Value.Vicepresidencia,
+                                                              Direccion:         ThisRecord.Value.Direccion,
+                                                              Area:              ThisRecord.Value.Area,
+                                                              Pais:              ThisRecord.Value.Pais,
+                                                              Sociedad:          ThisRecord.Value.Sociedad,
+                                                              NombreJefeDirecto: ThisRecord.Value.NombreJefeDirecto,
+                                                              CorreoJefeDirecto: ThisRecord.Value.CorreoJefeDirecto
+                                                          }
+                                                      )
+                                                  );
+
+                                                  Set(Var_HasNextAdmUsuarios, CountRows(Var_DataAdmUsuarios) > Var_GridPageSizeAdmUsuarios);
+                                                  Set(Var_HasPrevAdmUsuarios, true);
+                                                  Set(Var_CurrentPageAdmUsuarios, Var_CurrentPageAdmUsuarios + 1)
+                                                Text: ="Siguiente"
+                                                X: |-
+                                                  =AdmUsr_CtnPaginacionUsuarios.Width
+                                                  - Self.Width
+                                                  - AdmUsr_CtnPaginacionUsuarios.PaddingRight
+                                                Y: =9
+                                          - AdmUsr_GlrNumeroPaginas:
+                                              Control: Gallery@2.15.0
+                                              Variant: Horizontal
+                                              Properties:
+                                                BorderColor: =RGBA(0, 18, 107, 1)
+                                                Height: =50
+                                                Items: =Sequence(RoundUp(TotalItemAdmUsuarios/Var_GridPageSizeAdmUsuarios, 0), 1)
+                                                ShowNavigation: =true
+                                                TemplateSize: =30
+                                                Width: |
+                                                  =With(
+                                                      {
+                                                          totalPages: RoundUp(TotalItemAdmUsuarios / Var_GridPageSizeAdmUsuarios, 0),
+                                                          maxVisible: 15,
+                                                          itemWidth: Self.TemplateWidth + Self.TemplatePadding
+                                                      },
+                                                      If(
+                                                          totalPages <= maxVisible,
+                                                          totalPages * itemWidth + itemWidth, // margen extra
+                                                          maxVisible * itemWidth
+                                                      )
+                                                  )
+                                                X: =(AdmUsr_CtnPaginacionUsuarios.Width - Self.Width) / 2
+                                              Children:
+                                                - Container8_4:
+                                                    Control: GroupContainer@1.5.0
+                                                    Variant: ManualLayout
+                                                    Properties:
+                                                      DropShadow: =DropShadow.None
+                                                      Height: =6
+                                                      Width: =Parent.TemplateWidth
+                                                      Y: =SpvCmc_BtnNumPagSelec.Height
+                                                    Children:
+                                                      - Label1_7:
+                                                          Control: Label@2.5.1
+                                                          Properties:
+                                                            Align: =Align.Center
+                                                            BorderColor: =RGBA(0, 18, 107, 1)
+                                                            Fill: =If(ThisItem.Value = Var_CurrentPageAdmUsuarios,ColorValue(Var_ColorBoton), Color.Transparent)
+                                                            Font: =Font.'Open Sans'
+                                                            Height: =6
+                                                            OnSelect: =
+                                                            Text: =
+                                                            Width: =Parent.Width
+                                                - AdmUsr_BtnNumPagSelec:
+                                                    Control: Classic/Button@2.2.0
+                                                    Properties:
+                                                      BorderColor: =ColorFade(Self.Fill, -15%)
+                                                      Color: =If(ThisItem.IsSelected,ColorValue(Var_ColorIconNegro),ColorValue(Var_ColorGray))
+                                                      DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                                                      Fill: =RGBA(0, 0, 0, 0)
+                                                      Font: =Font.'Open Sans'
+                                                      FontWeight: |
+                                                        =If(ThisItem.IsSelected,FontWeight.Semibold,FontWeight.Normal)
+                                                      Height: =32
+                                                      HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                                                      HoverColor: =ColorValue(Var_ColorBoton)
+                                                      HoverFill: =Color.Transparent
+                                                      OnSelect: "=Set(\r\n    Var_StartIDAdmUsuarios,\r\n    If(\r\n        ThisItem.Value = 1,\r\n        0, // Primera página siempre empieza en 0 para tu flujo\r\n        Last(\r\n            FirstN(\r\n                Table(ParseJSON('LCP-001_Flow_AdmPaginacionUsuarios'.Run(\r\n                    Var_GridPageSizeAdmUsuarios * (ThisItem.Value - 1),\r\n                    0,\r\n                    Concat(Filter(colQuerysAdmUsuarios, mark), query, \" and \"),\r\n                    \"NEXT\"\r\n                ).response)),\r\n                Var_GridPageSizeAdmUsuarios * (ThisItem.Value - 1)\r\n            )\r\n        ).Value.ID\r\n    )\r\n);\r\n\r\nSet(\r\n    Var_ResponseAdmUsuarios,\r\n\r\n        'LCP-001_Flow_AdmPaginacionUsuarios'.Run(\r\n            Var_GridPageSizeAdmUsuarios,\r\n            Var_StartIDAdmUsuarios,\r\n            Concat(Filter(colQuerysAdmUsuarios, mark), query, \" and \"),\r\n            \"NEXT\"\r\n        \r\n    )\r\n);\r\n\r\nSet(\r\n    Var_DataAdmUsuarios,\r\n    Table(ParseJSON(Var_ResponseAdmUsuarios.response))\r\n);\r\n\r\nClear(objGalleryDataAdmUsuarios);\r\nForAll(\r\n    FirstN(Var_DataAdmUsuarios, Var_GridPageSizeAdmUsuarios),\r\n    Collect(\r\n        objGalleryDataAdmUsuarios,\r\n        {\r\n            ID:                ThisRecord.Value.ID,\r\n            Codigo:            ThisRecord.Value.Codigo,\r\n            Nombre:            ThisRecord.Value.Nombre,\r\n            Apellido:          ThisRecord.Value.Apellido,\r\n            CorreoUsuario:     ThisRecord.Value.CorreoUsuario,\r\n            RolSistema:        ThisRecord.Value.RolSistema,\r\n            EstadoSistema:     ThisRecord.Value.EstadoSistema,\r\n            Estado:            ThisRecord.Value.Estado,\r\n            Gerencia:          ThisRecord.Value.Gerencia,\r\n            RolPerfil:         ThisRecord.Value.RolPerfil,\r\n            Vicepresidencia:   ThisRecord.Value.Vicepresidencia,\r\n            Direccion:         ThisRecord.Value.Direccion,\r\n            Area:              ThisRecord.Value.Area,\r\n            Pais:              ThisRecord.Value.Pais,\r\n            Sociedad:          ThisRecord.Value.Sociedad,\r\n            NombreJefeDirecto: ThisRecord.Value.NombreJefeDirecto,\r\n            CorreoJefeDirecto: ThisRecord.Value.CorreoJefeDirecto\r\n        }\r\n    )\r\n);\r\n\r\nSet(Var_HasPrevAdmUsuarios, ThisItem.Value > 1);\r\nSet(Var_HasNextAdmUsuarios, ThisItem.Value < RoundUp(TotalItemAdmUsuarios / Var_GridPageSizeAdmUsuarios, 0));\r\nSet(Var_CurrentPageAdmUsuarios, ThisItem.Value); // Actualiza la página seleccionada"
+                                                      PressedBorderColor: =Self.Fill
+                                                      PressedColor: =ColorValue(Var_ColorPressedBoton)
+                                                      PressedFill: =Color.Transparent
+                                                      Size: =12
+                                                      Text: =ThisItem.Value
+                                                      Width: =Parent.TemplateWidth
+                                    - AdmUsr_CtnDatosFiltrados:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: AutoLayout
+                                        Properties:
+                                          DropShadow: =DropShadow.None
+                                          Height: =AdmUsr_CtnCabeceraDatos.Height + AdmUsr_GlrUsuarios.Height
+                                          LayoutAlignItems: =LayoutAlignItems.Stretch
+                                          LayoutDirection: =LayoutDirection.Vertical
+                                          LayoutOverflowX: =LayoutOverflow.Scroll
+                                          Width: |
+                                            =Parent.Width
+                                          Y: =AdmUsr_CtnFiltros.Height + 50
+                                        Children:
+                                          - AdmUsr_CtnCabeceraDatos:
+                                              Control: GroupContainer@1.5.0
+                                              Variant: AutoLayout
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.SetByContainer
+                                                DropShadow: =DropShadow.None
+                                                FillPortions: =0
+                                                Height: =50
+                                                LayoutAlignItems: =LayoutAlignItems.Stretch
+                                                LayoutDirection: =LayoutDirection.Horizontal
+                                                LayoutGap: =5
+                                                LayoutMinWidth: =If(Gbl_Menu_Spv_Ticket.verMenu,Parent.Width + 150 ,Parent.Width)
+                                                LayoutWrap: =true
+                                                PaddingBottom: =8
+                                                PaddingLeft: =18
+                                                PaddingRight: =8
+                                                PaddingTop: =8
+                                                X: =40
+                                                Y: =40
+                                              Children:
+                                                - AdmUsr_CtnColCodPersonal:
+                                                    Control: GroupContainer@1.5.0
+                                                    Variant: ManualLayout
+                                                    Properties:
+                                                      AlignInContainer: =AlignInContainer.SetByContainer
+                                                      DropShadow: =DropShadow.None
+                                                      FillPortions: =0.6
+                                                      Height: =Parent.Height
+                                                      LayoutMinHeight: =Parent.Height
+                                                      LayoutMinWidth: =0
+                                                      Width: =300
+                                                    Children:
+                                                      - AdmUsr_LblColCodPersonal:
+                                                          Control: Label@2.5.1
+                                                          Properties:
+                                                            BorderColor: =RGBA(0, 18, 107, 1)
+                                                            Font: =Font.'Open Sans'
+                                                            FontWeight: =FontWeight.Semibold
+                                                            Height: =Parent.Height
+                                                            Size: =Var_FontSizeHeaderTable
+                                                            Text: ="Cod. Personal"
+                                                            Width: =Parent.Width
+                                                - AdmUsr_CtnColNombre:
+                                                    Control: GroupContainer@1.5.0
+                                                    Variant: ManualLayout
+                                                    Properties:
+                                                      AlignInContainer: =AlignInContainer.SetByContainer
+                                                      DropShadow: =DropShadow.None
+                                                      FillPortions: =0.466
+                                                      Height: =Parent.Height
+                                                      LayoutMaxWidth: =90
+                                                      LayoutMinHeight: =16
+                                                      LayoutMinWidth: =0
+                                                      Width: =110
+                                                    Children:
+                                                      - AdmUsr_LblColNombre:
+                                                          Control: Label@2.5.1
+                                                          Properties:
+                                                            BorderColor: =RGBA(0, 18, 107, 1)
+                                                            Font: =Font.'Open Sans'
+                                                            FontWeight: =FontWeight.Semibold
+                                                            Height: =Parent.Height
+                                                            Size: =Var_FontSizeHeaderTable
+                                                            Text: ="Nombre"
+                                                            Width: =Parent.Width
+                                                - AdmUsr_CtnColApellido:
+                                                    Control: GroupContainer@1.5.0
+                                                    Variant: ManualLayout
+                                                    Properties:
+                                                      AlignInContainer: =AlignInContainer.SetByContainer
+                                                      DropShadow: =DropShadow.None
+                                                      FillPortions: =0.393
+                                                      Height: =Parent.Height
+                                                      LayoutMinHeight: =16
+                                                      LayoutMinWidth: =16
+                                                      Width: =200
+                                                    Children:
+                                                      - AdmUsr_LblColApellido:
+                                                          Control: Label@2.5.1
+                                                          Properties:
+                                                            BorderColor: =RGBA(0, 18, 107, 1)
+                                                            Font: =Font.'Open Sans'
+                                                            FontWeight: =FontWeight.Semibold
+                                                            Height: =Parent.Height
+                                                            Size: =Var_FontSizeHeaderTable
+                                                            Text: ="Apellido"
+                                                            Width: =Parent.Width
+                                                - AdmUsr_CtnColCorreo:
+                                                    Control: GroupContainer@1.5.0
+                                                    Variant: ManualLayout
+                                                    Properties:
+                                                      AlignInContainer: =AlignInContainer.SetByContainer
+                                                      DropShadow: =DropShadow.None
+                                                      Height: =Parent.Height
+                                                      LayoutMaxWidth: =250
+                                                      LayoutMinHeight: =16
+                                                      LayoutMinWidth: =16
+                                                    Children:
+                                                      - AdmUsr_LblColCorreo:
+                                                          Control: Label@2.5.1
+                                                          Properties:
+                                                            BorderColor: =RGBA(0, 18, 107, 1)
+                                                            Font: =Font.'Open Sans'
+                                                            FontWeight: =FontWeight.Semibold
+                                                            Height: =Parent.Height
+                                                            Size: =Var_FontSizeHeaderTable
+                                                            Text: ="Correo"
+                                                            Width: =Parent.Width
+                                                - AdmUsr_CtnColRol:
+                                                    Control: GroupContainer@1.5.0
+                                                    Variant: ManualLayout
+                                                    Properties:
+                                                      AlignInContainer: =AlignInContainer.SetByContainer
+                                                      DropShadow: =DropShadow.None
+                                                      Height: =Parent.Height
+                                                      LayoutMaxWidth: =250
+                                                      LayoutMinHeight: =16
+                                                      LayoutMinWidth: =16
+                                                      Width: =120
+                                                    Children:
+                                                      - AdmUsr_LblColRol:
+                                                          Control: Label@2.5.1
+                                                          Properties:
+                                                            BorderColor: =RGBA(0, 18, 107, 1)
+                                                            Font: =Font.'Open Sans'
+                                                            FontWeight: =FontWeight.Semibold
+                                                            Height: =Parent.Height
+                                                            Size: =Var_FontSizeHeaderTable
+                                                            Text: ="Rol"
+                                                            Width: =Parent.Width
+                                                - AdmUsr_CtnColEstado:
+                                                    Control: GroupContainer@1.5.0
+                                                    Variant: ManualLayout
+                                                    Properties:
+                                                      AlignInContainer: =AlignInContainer.SetByContainer
+                                                      DropShadow: =DropShadow.None
+                                                      Height: =Parent.Height
+                                                      LayoutMaxWidth: =100
+                                                      LayoutMinHeight: =16
+                                                      LayoutMinWidth: =16
+                                                      Width: =120
+                                                    Children:
+                                                      - AdmUsr_LblColEstado:
+                                                          Control: Label@2.5.1
+                                                          Properties:
+                                                            Align: =Align.Center
+                                                            BorderColor: =RGBA(0, 18, 107, 1)
+                                                            Font: =Font.'Open Sans'
+                                                            FontWeight: =FontWeight.Semibold
+                                                            Height: =Parent.Height
+                                                            Size: =Var_FontSizeHeaderTable
+                                                            Text: ="Estado"
+                                                            Width: =Parent.Width
+                                                - AdmUsr_CtnColGerencia:
+                                                    Control: GroupContainer@1.5.0
+                                                    Variant: ManualLayout
+                                                    Properties:
+                                                      AlignInContainer: =AlignInContainer.SetByContainer
+                                                      DropShadow: =DropShadow.None
+                                                      Height: =Parent.Height
+                                                      LayoutMaxWidth: =100
+                                                      LayoutMinHeight: =16
+                                                      LayoutMinWidth: =16
+                                                      Width: =120
+                                                    Children:
+                                                      - AdmUsr_LblColGerencia:
+                                                          Control: Label@2.5.1
+                                                          Properties:
+                                                            Align: =Align.Center
+                                                            BorderColor: =RGBA(0, 18, 107, 1)
+                                                            Font: =Font.'Open Sans'
+                                                            FontWeight: =FontWeight.Semibold
+                                                            Height: =Parent.Height
+                                                            Size: =Var_FontSizeHeaderTable
+                                                            Text: ="Gerencia"
+                                                            Width: =Parent.Width
+                                                - AdmUsr_CtnColAcciones:
+                                                    Control: GroupContainer@1.5.0
+                                                    Variant: ManualLayout
+                                                    Properties:
+                                                      AlignInContainer: =AlignInContainer.SetByContainer
+                                                      DropShadow: =DropShadow.None
+                                                      Height: =Parent.Height
+                                                      LayoutMaxWidth: =100
+                                                      LayoutMinHeight: =16
+                                                      LayoutMinWidth: =16
+                                                      Width: =120
+                                                    Children:
+                                                      - AdmUsr_LblColAcciones:
+                                                          Control: Label@2.5.1
+                                                          Properties:
+                                                            Align: =Align.Center
+                                                            BorderColor: =RGBA(0, 18, 107, 1)
+                                                            Font: =Font.'Open Sans'
+                                                            FontWeight: =FontWeight.Semibold
+                                                            Height: =Parent.Height
+                                                            Size: =Var_FontSizeHeaderTable
+                                                            Text: ="Acciones"
+                                                            Width: =Parent.Width
+                                          - AdmUsr_GlrUsuarios:
+                                              Control: Gallery@2.15.0
+                                              Variant: VariableHeight
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.SetByContainer
+                                                BorderColor: =RGBA(0, 18, 107, 1)
+                                                FillPortions: =0
+                                                Height: =350
+                                                Items: =Sort(objGalleryDataAdmUsuarios,Value(ThisRecord.ID), SortOrder.Ascending)
+                                                LayoutMinHeight: =16
+                                                LayoutMinWidth: =If(Gbl_Menu_Spv_Ticket.verMenu,Parent.Width + 150 ,Parent.Width)
+                                                OnSelect: =
+                                                TemplatePadding: =10
+                                                TemplateSize: =60
+                                              Children:
+                                                - AdmUsr_CtnFilaDatosUsuarios:
+                                                    Control: GroupContainer@1.5.0
+                                                    Variant: AutoLayout
+                                                    Properties:
+                                                      Fill: =ColorValue(Var_ColorGridGallery)
+                                                      Height: =54
+                                                      LayoutAlignItems: =LayoutAlignItems.Stretch
+                                                      LayoutDirection: =LayoutDirection.Horizontal
+                                                      LayoutGap: =5
+                                                      LayoutWrap: =true
+                                                      PaddingBottom: =8
+                                                      PaddingLeft: =10
+                                                      PaddingTop: =8
+                                                      RadiusBottomLeft: =8
+                                                      RadiusBottomRight: =8
+                                                      RadiusTopLeft: =8
+                                                      RadiusTopRight: =8
+                                                      Width: |-
+                                                        =//1008
+                                                        Parent.Width - 20
+                                                    Children:
+                                                      - AdmUsr_CtnCodPersonal:
+                                                          Control: GroupContainer@1.5.0
+                                                          Variant: ManualLayout
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.SetByContainer
+                                                            DropShadow: =DropShadow.None
+                                                            FillPortions: =0.3
+                                                            LayoutMinHeight: =0
+                                                            LayoutMinWidth: =0
+                                                          Children:
+                                                            - AdmUsr_LblCodPersonal:
+                                                                Control: Label@2.5.1
+                                                                Properties:
+                                                                  BorderColor: =RGBA(0, 0, 0, 0)
+                                                                  BorderStyle: =BorderStyle.None
+                                                                  BorderThickness: =2
+                                                                  Color: =RGBA(50, 49, 48, 1)
+                                                                  DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                                                                  DisabledColor: =RGBA(161, 159, 157, 1)
+                                                                  FocusedBorderThickness: =4
+                                                                  Font: =Font.'Segoe UI'
+                                                                  Height: =Parent.Height - 10
+                                                                  Size: =Var_FontSizeCuerpoTable
+                                                                  Text: =ThisItem.Codigo
+                                                                  Tooltip: =ThisItem.Codigo
+                                                                  Width: =Parent.Width
+                                                                  Y: =5
+                                                      - AdmUsr_CtnInfoNombre:
+                                                          Control: GroupContainer@1.5.0
+                                                          Variant: ManualLayout
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.SetByContainer
+                                                            DropShadow: =DropShadow.None
+                                                            FillPortions: =0.78
+                                                            LayoutMinHeight: =0
+                                                            LayoutMinWidth: =0
+                                                            Width: =200
+                                                          Children:
+                                                            - AdmUsr_LblInfoNombre:
+                                                                Control: Label@2.5.1
+                                                                Properties:
+                                                                  BorderColor: =RGBA(0, 18, 107, 1)
+                                                                  Font: =Font.'Open Sans'
+                                                                  Height: |-
+                                                                    =//40
+                                                                    Parent.Height - 10
+                                                                  OnSelect: =Select(AdmUsr_GlrUsuarios)
+                                                                  Overflow: =Overflow.Scroll
+                                                                  Size: =Var_FontSizeCuerpoTable
+                                                                  Text: =ThisItem.Nombre
+                                                                  Tooltip: =ThisItem.Nombre
+                                                                  Width: |-
+                                                                    =//150
+                                                                    Parent.Width
+                                                                  Y: =5
+                                                      - AdmUsr_CtnInfoApellido:
+                                                          Control: GroupContainer@1.5.0
+                                                          Variant: ManualLayout
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.SetByContainer
+                                                            DropShadow: =DropShadow.None
+                                                            FillPortions: =0.85
+                                                            LayoutMinHeight: =0
+                                                            LayoutMinWidth: =0
+                                                            Width: =100
+                                                          Children:
+                                                            - AdmUsr_LblInfoApellido:
+                                                                Control: Label@2.5.1
+                                                                Properties:
+                                                                  BorderColor: =RGBA(0, 18, 107, 1)
+                                                                  Font: =Font.'Open Sans'
+                                                                  FontWeight: =FontWeight.Semibold
+                                                                  Height: =Parent.Height - 10
+                                                                  OnSelect: =Select(AdmUsr_GlrUsuarios)
+                                                                  PaddingLeft: =10
+                                                                  Size: =Var_FontSizeCuerpoTable
+                                                                  Text: =ThisItem.Apellido
+                                                                  Width: =Parent.Width
+                                                                  Y: =5
+                                                      - AdmUsr_CtnInfoCorreo:
+                                                          Control: GroupContainer@1.5.0
+                                                          Variant: ManualLayout
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.SetByContainer
+                                                            DropShadow: =DropShadow.None
+                                                            FillPortions: =1.5
+                                                            LayoutMinHeight: =0
+                                                            LayoutMinWidth: =0
+                                                            Width: =100
+                                                          Children:
+                                                            - AdmUsr_LblInfoCorreo:
+                                                                Control: Label@2.5.1
+                                                                Properties:
+                                                                  BorderColor: =RGBA(0, 18, 107, 1)
+                                                                  Font: =Font.'Open Sans'
+                                                                  Height: =Parent.Height
+                                                                  OnSelect: =Select(AdmUsr_GlrUsuarios)
+                                                                  Overflow: =Overflow.Scroll
+                                                                  Size: =Var_FontSizeCuerpoTable
+                                                                  Text: =ThisItem.CorreoUsuario
+                                                                  Width: =Parent.Width
+                                                      - AdmUsr_CtnInfoRol:
+                                                          Control: GroupContainer@1.5.0
+                                                          Variant: ManualLayout
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.SetByContainer
+                                                            DropShadow: =DropShadow.None
+                                                            FillPortions: =1.5
+                                                            LayoutMinHeight: =0
+                                                            LayoutMinWidth: =0
+                                                            Width: =100
+                                                          Children:
+                                                            - AdmUsr_LblInfoRol:
+                                                                Control: Label@2.5.1
+                                                                Properties:
+                                                                  BorderColor: =RGBA(0, 18, 107, 1)
+                                                                  Font: =Font.'Open Sans'
+                                                                  Height: =Parent.Height
+                                                                  OnSelect: =Select(AdmUsr_GlrUsuarios)
+                                                                  Size: =Var_FontSizeCuerpoTable
+                                                                  Text: =ThisItem.RolPerfil
+                                                                  Width: =Parent.Width
+                                                      - AdmUsr_CtnInfoEstado:
+                                                          Control: GroupContainer@1.5.0
+                                                          Variant: ManualLayout
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.SetByContainer
+                                                            DropShadow: =DropShadow.None
+                                                            Height: =30
+                                                            LayoutMinHeight: =0
+                                                            LayoutMinWidth: =0
+                                                            RadiusBottomLeft: =10
+                                                            RadiusBottomRight: =10
+                                                            RadiusTopLeft: =10
+                                                            RadiusTopRight: =10
+                                                            Width: =100
+                                                          Children:
+                                                            - AdmUsr_LblInfoEstado:
+                                                                Control: Label@2.5.1
+                                                                Properties:
+                                                                  Align: =Align.Center
+                                                                  AutoHeight: =true
+                                                                  BorderColor: =RGBA(0, 18, 107, 1)
+                                                                  Color: =Switch(Text(ThisItem.Estado),"Publicado",ColorValue(Var_ColorIconTicketVerde),"Borrador",ColorValue(Var_ColorIconTicketNaranja))
+                                                                  Fill: =Switch(Text(ThisItem.Estado),"Inactivo",ColorValue(Var_ColorFadeIconTicketNaranja),"Activo",ColorValue(Var_ColorFadeIconTicketVerde))
+                                                                  Font: =Font.'Open Sans'
+                                                                  FontWeight: =FontWeight.Semibold
+                                                                  Height: =Parent.Height
+                                                                  OnSelect: =Select(AdmUsr_GlrUsuarios)
+                                                                  Size: =Var_FontSizeCuerpoTable
+                                                                  Text: =Upper(Left(ThisItem.Estado, 1)) & Lower(Mid(ThisItem.Estado, 2))
+                                                                  Width: =Parent.Width
+                                                      - AdmUsr_CtnGerencia:
+                                                          Control: GroupContainer@1.5.0
+                                                          Variant: ManualLayout
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.SetByContainer
+                                                            DropShadow: =DropShadow.None
+                                                            FillPortions: =2.5
+                                                            LayoutMinHeight: =0
+                                                            LayoutMinWidth: =0
+                                                          Children:
+                                                            - AdmUsr_LblGerencia:
+                                                                Control: Label@2.5.1
+                                                                Properties:
+                                                                  BorderColor: =RGBA(0, 0, 0, 0)
+                                                                  BorderStyle: =BorderStyle.None
+                                                                  BorderThickness: =2
+                                                                  Color: =RGBA(50, 49, 48, 1)
+                                                                  DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                                                                  DisabledColor: =RGBA(161, 159, 157, 1)
+                                                                  FocusedBorderThickness: =4
+                                                                  Font: =Font.'Segoe UI'
+                                                                  Height: '=Parent.Height '
+                                                                  Size: =Var_FontSizeCuerpoTable
+                                                                  Text: =ThisItem.Gerencia
+                                                                  Tooltip: =ThisItem.Codigo
+                                                                  Width: =Parent.Width
+                                                      - AdmUsr_CtnInfAcciones:
+                                                          Control: GroupContainer@1.5.0
+                                                          Variant: ManualLayout
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.SetByContainer
+                                                            DropShadow: =DropShadow.None
+                                                            FillPortions: =0.5
+                                                            LayoutMinHeight: =0
+                                                            LayoutMinWidth: =0
+                                                            Width: =80
+                                                          Children:
+                                                            - AdmUsr_IcnEditar:
+                                                                Control: Image@2.2.3
+                                                                Properties:
+                                                                  BorderColor: =RGBA(0, 0, 0, 0)
+                                                                  BorderStyle: =BorderStyle.None
+                                                                  BorderThickness: =2
+                                                                  DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                                                                  DisabledFill: =RGBA(0, 0, 0, 0)
+                                                                  FocusedBorderThickness: =4
+                                                                  Height: =20
+                                                                  HoverBorderColor: =RGBA(0, 0, 0, 0)
+                                                                  HoverFill: =RGBA(0, 0, 0, 0)
+                                                                  Image: =PENCIL
+                                                                  PressedBorderColor: =RGBA(0, 0, 0, 0)
+                                                                  PressedFill: =RGBA(0, 0, 0, 0)
+                                                                  Width: =20
+                                                                  X: =17
+                                                                  Y: =8
+                                                            - AdmUsr_IcnInformacion:
+                                                                Control: Classic/Icon@2.5.0
+                                                                Properties:
+                                                                  BorderColor: =RGBA(0, 0, 0, 0)
+                                                                  Color: =RGBA(0, 0, 0, 1)
+                                                                  DisabledBorderColor: =RGBA(245, 245, 245, 1)
+                                                                  DisabledColor: =RGBA(0, 0, 0, 1)
+                                                                  DisabledFill: =RGBA(0, 0, 0, 0)
+                                                                  FocusedBorderThickness: =4
+                                                                  Height: =20
+                                                                  HoverBorderColor: =RGBA(0, 0, 0, 0)
+                                                                  HoverColor: =RGBA(0, 0, 0, 1)
+                                                                  HoverFill: =RGBA(0, 0, 0, 0)
+                                                                  Icon: =Icon.Information
+                                                                  PressedBorderColor: =RGBA(0, 0, 0, 0)
+                                                                  PressedColor: =RGBA(0, 0, 0, 1)
+                                                                  PressedFill: =RGBA(0, 0, 0, 0)
+                                                                  Width: =20
+                                                                  X: =61
+                                                                  Y: =8
+                                    - AdmUsr_CtnEstados:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: ManualLayout
+                                        Properties:
+                                          DropShadow: =DropShadow.Semilight
+                                          Fill: =RGBA(255, 255, 255, 1)
+                                          Height: =CountRows(AdmUsr_GlrEstados.AllItems) * 37
+                                          Visible: =varOpenDropDownEstadoSpvSlc
+                                          Width: =162
+                                          Y: =55
+                                        Children:
+                                          - AdmUsr_GlrEstados:
+                                              Control: Gallery@2.15.0
+                                              Variant: VariableHeight
+                                              Properties:
+                                                BorderColor: =RGBA(0, 18, 107, 1)
+                                                Height: =Parent.Height
+                                                Items: =Filter(colSpvSlcEstado, AdmUsr_LblCampoSeleccionarEstado.Value in ThisRecord.Value Or IsBlank(AdmUsr_LblCampoSeleccionarEstado.Value))
+                                                TemplateSize: =30
+                                                Visible: =varOpenDropDownEstadoSpvSlc
+                                                Width: =Parent.Width
+                                              Children:
+                                                - AdmUsr_BtnEstadoSeleccionado:
+                                                    Control: Classic/Button@2.2.0
+                                                    Properties:
+                                                      Align: =Align.Left
+                                                      BorderColor: =ColorFade(Self.Fill, -15%)
+                                                      BorderThickness: =0
+                                                      Color: =ColorValue(Var_ColorGray)
+                                                      DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                                                      Fill: =Color.Transparent
+                                                      Font: =Font.'Open Sans'
+                                                      Height: =30
+                                                      HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                                                      HoverColor: =ColorValue(Var_ColorGray)
+                                                      HoverFill: =ColorValue(Var_ColorFadeBoton)
+                                                      OnSelect: |-
+                                                        =UpdateContext({varEstadoSelectedSpvSlc : ThisItem , varOpenDropDownEstadoSpvSlc: false});
+                                                        IfError(
+                                                            If(
+                                                                IsBlank(Trim(Self.Text)),
+                                                                Patch(
+                                                                    colQuerysAdmUsuarios,
+                                                                    {input: "Estado"},
+                                                                    {
+                                                                        mark: false,
+                                                                        query: ""
+                                                                    }
+                                                                ),
+                                                                Patch(
+                                                                    colQuerysAdmUsuarios,
+                                                                    {input: "Estado"},
+                                                                    {
+                                                                        mark: true,
+                                                                        query: "substringof('" & Self.Text & "', Estado)"
+                                                                    }
+                                                                )
+                                                            ),
+                                                            false,
+                                                            Select(AdmUsr_BtnRefreshBusquedaEstado),
+                                                            false
+                                                        )
+                                                      PressedBorderColor: =Self.Fill
+                                                      PressedColor: =ColorValue(Var_ColorGray)
+                                                      PressedFill: =ColorValue(Var_ColorFadeBoton)
+                                                      Size: =12
+                                                      Text: =ThisItem.Value
+                                                      Width: =Parent.TemplateWidth
+                                    - AdmUsr_CtnFiltros:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: AutoLayout
+                                        Properties:
+                                          DropShadow: =DropShadow.None
+                                          Height: =60
+                                          LayoutAlignItems: =LayoutAlignItems.Center
+                                          LayoutDirection: =LayoutDirection.Horizontal
+                                          LayoutGap: =10
+                                          PaddingBottom: =8
+                                          PaddingLeft: =1
+                                          PaddingRight: =1
+                                          PaddingTop: =8
+                                          Width: =Parent.Width
+                                        Children:
+                                          - AdmUsr_CtnBuscarDocumento:
+                                              Control: GroupContainer@1.5.0
+                                              Variant: ManualLayout
+                                              Properties:
+                                                BorderColor: =ColorValue(Var_ColorBordeBoton)
+                                                BorderThickness: =1
+                                                DropShadow: =DropShadow.None
+                                                LayoutMaxWidth: =1000
+                                                LayoutMinHeight: =35
+                                                LayoutMinWidth: =0
+                                                RadiusBottomLeft: =8
+                                                RadiusBottomRight: =8
+                                                RadiusTopLeft: =8
+                                                RadiusTopRight: =8
+                                                Width: =2000
+                                              Children:
+                                                - AdmUsr_TxtIBuscarDocumento:
+                                                    Control: Classic/TextInput@2.3.2
+                                                    Properties:
+                                                      BorderColor: =ColorValue(Var_ColorBordeBoton)
+                                                      BorderStyle: =BorderStyle.None
+                                                      BorderThickness: =1
+                                                      Default: =
+                                                      Fill: =RGBA(0, 0, 0, 0)
+                                                      Font: =Font.'Open Sans'
+                                                      Height: =Parent.Height - 2
+                                                      HintText: ="Buscar por documento"
+                                                      HoverBorderColor: =RGBA(79, 90, 94, 1)
+                                                      HoverFill: =RGBA(0, 0, 0, 0)
+                                                      OnChange: |-
+                                                        =IfError(
+                                                            If(
+                                                                IsBlank(Trim(Self.Text)),
+                                                                Patch(
+                                                                    colQuerysAdmUsuarios,
+                                                                    {input: "NombreAdjunto"},
+                                                                    {
+                                                                        mark: false,
+                                                                        query: ""
+                                                                    }
+                                                                ),
+                                                                Patch(
+                                                                    colQuerysAdmUsuarios,
+                                                                    {input: "NombreAdjunto"},
+                                                                    {
+                                                                        mark: true,
+                                                                        query: "substringof('" & Self.Text & "', NombreArchivo)"
+                                                                    }
+                                                                )
+                                                            ),
+                                                            false,
+                                                            Select(AdmUsr_BtnRefreshBusquedaDocumento),
+                                                            false
+                                                        )
+                                                      PaddingLeft: =AdmUsr_IcnBuscarDocumento.Width + 15
+                                                      RadiusBottomLeft: =8
+                                                      RadiusBottomRight: =8
+                                                      RadiusTopLeft: =8
+                                                      RadiusTopRight: =8
+                                                      Size: =Var_FontSizeFiltros
+                                                      Width: =Parent.Width - 2
+                                                - AdmUsr_BtnRefreshBusquedaDocumento:
+                                                    Control: Classic/Button@2.2.0
+                                                    Properties:
+                                                      BorderColor: =RGBA(0, 0, 0, 0)
+                                                      BorderStyle: =BorderStyle.None
+                                                      Color: =RGBA(255, 255, 255, 1)
+                                                      DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                                                      DisabledColor: =RGBA(161, 159, 157, 1)
+                                                      DisabledFill: =RGBA(242, 242, 241, 0)
+                                                      Fill: =RGBA(0, 120, 212, 1)
+                                                      Font: =Font.'Segoe UI'
+                                                      HoverBorderColor: =RGBA(0, 0, 0, 0)
+                                                      HoverColor: =RGBA(255, 255, 255, 1)
+                                                      HoverFill: =RGBA(16, 110, 190, 1)
+                                                      OnSelect: |
+                                                        =Set(Var_GridPageSizeAdmUsuarios,5);
+                                                        Set(Var_ResponseAdmUsuarios, 'LCP-001_Flow_AdmPaginacionUsuarios'.Run(Var_GridPageSizeAdmUsuarios,0,
+                                                                Concat(
+                                                                    Filter(
+                                                                        colQuerysAdmUsuarios,
+                                                                        mark
+                                                                    ),
+                                                                    query,
+                                                                    " and "
+                                                                ),
+                                                                "NEXT"
+                                                            )
+                                                        );
+                                                        Set(
+                                                            Var_DataAdmUsuarios,
+                                                            Table(ParseJSON(Var_ResponseAdmUsuarios.response))
+                                                        );
+                                                        Set(
+                                                            TotalItemAdmUsuarios,
+                                                            Value(ParseJSON(Var_ResponseAdmUsuarios.totalitems))
+                                                        );
+                                                        Clear(objGalleryDataAdmUsuarios);
+                                                        ForAll(
+                                                            FirstN(
+                                                                Var_DataAdmUsuarios,
+                                                                Var_GridPageSizeAdmUsuarios
+                                                            ),
+                                                            Collect(
+                                                                objGalleryDataAdmUsuarios,
+                                                                {
+                                                                    ID: ThisRecord.Value.ID,
+                                                                    NombreAdjunto: If(
+                                                                                        // Verificamos si hay adjuntos para evitar errores
+                                                                        Boolean(ThisRecord.Value.Attachments),
+                                                                        Text(First(Table(ThisRecord.Value.AttachmentFiles)).Value.FileName),
+                                                                        Blank()
+                                                                    ),
+                                                                    RutaAdjunto: If(
+                                                                        Boolean(ThisRecord.Value.Attachments),
+                                                                        Text(First(Table(ThisRecord.Value.AttachmentFiles)).Value.ServerRelativeUrl),
+                                                                        Blank()
+                                                                    ),
+                                                                    Estado: ThisRecord.Value.Estado,
+                                                                    Gerencia: ThisRecord.Value.Gerencia,
+                                                                    Torre: ThisRecord.Value.Torre,
+                                                                    Autor: ThisRecord.Value.Autor
+                                                                }
+                                                            )
+                                                        );
+                                                        // Guardamos el primer ID REAL de todo el dataset
+                                                        Set(Var_FirstIDAdmUsuarios,Min(objGalleryDataAdmUsuarios,ID));
+                                                        // Control real de NEXT (Top + 1)
+                                                        Set(Var_HasNextAdmUsuarios,CountRows(Var_DataAdmUsuarios) > Var_GridPageSizeAdmUsuarios);
+                                                      PressedBorderColor: =RGBA(0, 69, 120, 1)
+                                                      PressedColor: =RGBA(255, 255, 255, 1)
+                                                      PressedFill: =RGBA(16, 110, 190, 1)
+                                                      RadiusBottomLeft: =0
+                                                      RadiusBottomRight: =0
+                                                      RadiusTopLeft: =0
+                                                      RadiusTopRight: =0
+                                                      Visible: =false
+                                                      X: =40
+                                                      Y: =4
+                                                - AdmUsr_IcnBuscarDocumento:
+                                                    Control: Classic/Icon@2.5.0
+                                                    Properties:
+                                                      BorderColor: =RGBA(0, 18, 107, 1)
+                                                      Color: =ColorValue(Var_ColorBoton)
+                                                      Height: =25
+                                                      Icon: =Icon.Search
+                                                      Width: =25
+                                                      X: =10
+                                                      Y: =10
+                                          - AdmUsr_CtnSeleccionarEstado:
+                                              Control: GroupContainer@1.5.0
+                                              Variant: ManualLayout
+                                              Properties:
+                                                BorderColor: =ColorValue(Var_ColorBordeBoton)
+                                                BorderThickness: =1
+                                                ContentLanguage: =""//Steve BOURDIN MOCA by ASI
+                                                DropShadow: =DropShadow.None
+                                                Height: =If(AdmUsr_GlrEstados.Visible,34 ,36)
+                                                LayoutMaxWidth: =250
+                                                LayoutMinHeight: =35
+                                                LayoutMinWidth: =210
+                                                PaddingLeft: =5
+                                                PaddingRight: =5
+                                                RadiusBottomLeft: =8
+                                                RadiusBottomRight: =8
+                                                RadiusTopLeft: =8
+                                                RadiusTopRight: =8
+                                                Width: =260
+                                                X: =571
+                                                Y: =181
+                                              Children:
+                                                - AdmUsr_CtnEstado:
+                                                    Control: GroupContainer@1.5.0
+                                                    Variant: AutoLayout
+                                                    Properties:
+                                                      BorderColor: =ColorValue(Var_ColorBordeBoton)
+                                                      Fill: =RGBA(255, 255, 255, 0.8)
+                                                      Height: =Parent.Height
+                                                      LayoutAlignItems: =LayoutAlignItems.Center
+                                                      LayoutDirection: =LayoutDirection.Horizontal
+                                                      LayoutJustifyContent: =LayoutJustifyContent.Center
+                                                      PaddingBottom: =8
+                                                      PaddingLeft: =8
+                                                      PaddingRight: =8
+                                                      PaddingTop: =8
+                                                      RadiusBottomLeft: =8
+                                                      RadiusBottomRight: =8
+                                                      RadiusTopLeft: =8
+                                                      RadiusTopRight: =8
+                                                      Width: =Parent.Width - 2
+                                                      Y: '=0   '
+                                                    Children:
+                                                      - AdmUsr_LblEstado:
+                                                          Control: Label@2.5.1
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.Center
+                                                            BorderColor: =RGBA(0, 18, 107, 1)
+                                                            Color: =ColorValue(Var_ColorGray)
+                                                            Font: =Font.'Open Sans'
+                                                            Height: =Parent.Height
+                                                            LayoutMinHeight: =16
+                                                            LayoutMinWidth: =16
+                                                            PaddingBottom: =0
+                                                            PaddingLeft: =0
+                                                            PaddingRight: =0
+                                                            PaddingTop: =0
+                                                            Size: =Var_FontSizeFiltros
+                                                            Text: ="Estado:"
+                                                            Width: =60
+                                                      - AdmUsr_LblCampoSeleccionarEstado:
+                                                          Control: TextInput@0.0.54
+                                                          Properties:
+                                                            AccessibleLabel: =
+                                                            AlignInContainer: =AlignInContainer.Center
+                                                            Appearance: ='TextInputCanvas.Appearance'.Outline
+                                                            BasePaletteColor: =RGBA(249, 83, 109, 1)
+                                                            BorderStyle: =BorderStyle.None
+                                                            FillPortions: =1
+                                                            Font: =Font.'Open Sans'
+                                                            FontSize: =Var_FontSizeFiltros + 3.5
+                                                            Height: =30
+                                                            LayoutMinHeight: =16
+                                                            LayoutMinWidth: =16
+                                                            PaddingBottom: =3
+                                                            PaddingLeft: =0
+                                                            Placeholder: ="Seleccionar"
+                                                            TriggerOutput: ='TextInputCanvas.TriggerOutput'.Keypress
+                                                            Value: =varEstadoSelectedSpvSlc.Value
+                                                            Width: =110
+                                                      - AdmUsr_IcnFlechaAbajoSeleccionarEstado:
+                                                          Control: Classic/Icon@2.5.0
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.Center
+                                                            BorderColor: =RGBA(0, 18, 107, 1)
+                                                            Color: =ColorValue(Var_ColorIconNegro)
+                                                            Height: =AdmUsr_IcnRazUser.Height
+                                                            Icon: =If(!varOpenDropDownEstadoSpvSlc,Icon.ChevronDown,Icon.ChevronUp)
+                                                            OnSelect: |-
+                                                              =UpdateContext({varOpenDropDownEstadoSpvSlc: !varOpenDropDownEstadoSpvSlc})
+                                                            PaddingBottom: =5
+                                                            PaddingLeft: =5
+                                                            PaddingRight: =5
+                                                            PaddingTop: =5
+                                                            Visible: =Len(AdmUsr_LblCampoSeleccionarEstado.Value)=0
+                                                            Width: =AdmUsr_IcnRazUser.Width
+                                                      - AdmUsr_IcnBorrarSeleccionEstado:
+                                                          Control: Classic/Icon@2.5.0
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.Center
+                                                            BorderColor: =RGBA(0, 18, 107, 1)
+                                                            BorderStyle: =BorderStyle.None
+                                                            BorderThickness: =1
+                                                            Color: =ColorValue(Var_ColorIconNegro)
+                                                            Fill: =RGBA(255, 255, 255, 1)
+                                                            Height: =AdmUsr_IcnRazUser.Height
+                                                            Icon: =Icon.ChevronUp
+                                                            OnSelect: =Reset(AdmUsr_LblCampoSeleccionarEstado);SetFocus(AdmUsr_LblCampoSeleccionarEstado)
+                                                            PaddingBottom: =5
+                                                            PaddingLeft: =5
+                                                            PaddingRight: =5
+                                                            PaddingTop: =5
+                                                            Visible: =IsBlank(varEstadoSelectedSpvSlc)&&Len(AdmUsr_LblCampoSeleccionarEstado.Value)>0
+                                                            Width: =AdmUsr_IcnRazUser.Width
+                                                      - AdmUsr_IcnRazUser:
+                                                          Control: Classic/Icon@2.5.0
+                                                          Properties:
+                                                            AlignInContainer: =AlignInContainer.Center
+                                                            BorderColor: =RGBA(0, 18, 107, 1)
+                                                            Color: =ColorValue(Var_ColorIconNegro)
+                                                            Height: =25
+                                                            Icon: =Icon.Cancel
+                                                            LayoutMinHeight: =40
+                                                            OnSelect: |-
+                                                              =UpdateContext({varRazSpvSlc : true});UpdateContext({varEstadoSelectedSpvSlc:Blank()});SetFocus(AdmUsr_LblCampoSeleccionarEstado);UpdateContext({varRazSpvSlc : false});
+                                                              IfError(
+                                                                  If(
+                                                                      IsBlank(Trim(AdmUsr_LblCampoSeleccionarEstado.Value)),
+                                                                      Patch(
+                                                                          colQuerysAdmUsuarios,
+                                                                          {input: "Estado"},
+                                                                          {
+                                                                              mark: false,
+                                                                              query: ""
+                                                                          }
+                                                                      ),
+                                                                      Patch(
+                                                                          colQuerysAdmUsuarios,
+                                                                          {input: "Estado"},
+                                                                          {
+                                                                              mark: true,
+                                                                              query: "substringof('" & AdmUsr_LblCampoSeleccionarEstado.Value & "', Estado)"
+                                                                          }
+                                                                      )
+                                                                  ),
+                                                                  false,
+                                                                  Select(AdmUsr_BtnRefreshBusquedaEstado),
+                                                                  false
+                                                              )
+                                                            PaddingBottom: =5
+                                                            PaddingLeft: =5
+                                                            PaddingRight: =5
+                                                            PaddingTop: =5
+                                                            Visible: =IsBlank(varEstadoSelectedSpvSlc)=false
+                                                            Width: =25
+                                                - AdmUsr_BtnRefreshBusquedaEstado:
+                                                    Control: Classic/Button@2.2.0
+                                                    Properties:
+                                                      BorderColor: =RGBA(0, 0, 0, 0)
+                                                      BorderStyle: =BorderStyle.None
+                                                      Color: =RGBA(255, 255, 255, 1)
+                                                      DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                                                      DisabledColor: =RGBA(161, 159, 157, 1)
+                                                      DisabledFill: =RGBA(242, 242, 241, 0)
+                                                      Fill: =RGBA(0, 120, 212, 1)
+                                                      Font: =Font.'Segoe UI'
+                                                      HoverBorderColor: =RGBA(0, 0, 0, 0)
+                                                      HoverColor: =RGBA(255, 255, 255, 1)
+                                                      HoverFill: =RGBA(16, 110, 190, 1)
+                                                      OnSelect: |
+                                                        =Set(Var_GridPageSizeAdmUsuarios,5);
+                                                        Set(Var_ResponseAdmUsuarios, 'LCP-001_Flow_AdmPaginacionUsuarios'.Run(Var_GridPageSizeAdmUsuarios,0,
+                                                                Concat(
+                                                                    Filter(
+                                                                        colQuerysAdmUsuarios,
+                                                                        mark
+                                                                    ),
+                                                                    query,
+                                                                    " and "
+                                                                ),
+                                                                "NEXT"
+                                                            )
+                                                        );
+                                                        Set(
+                                                            Var_DataAdmUsuarios,
+                                                            Table(ParseJSON(Var_ResponseAdmUsuarios.response))
+                                                        );
+                                                        Set(
+                                                            TotalItemAdmUsuarios,
+                                                            Value(ParseJSON(Var_ResponseAdmUsuarios.totalitems))
+                                                        );
+                                                        Clear(objGalleryDataAdmUsuarios);
+                                                        ForAll(
+                                                            FirstN(
+                                                                Var_DataAdmUsuarios,
+                                                                Var_GridPageSizeAdmUsuarios
+                                                            ),
+                                                            Collect(
+                                                                objGalleryDataAdmUsuarios,
+                                                                {
+                                                                    ID: ThisRecord.Value.ID,
+                                                                    NombreAdjunto: If(
+                                                                                        // Verificamos si hay adjuntos para evitar errores
+                                                                        Boolean(ThisRecord.Value.Attachments),
+                                                                        Text(First(Table(ThisRecord.Value.AttachmentFiles)).Value.FileName),
+                                                                        Blank()
+                                                                    ),
+                                                                    RutaAdjunto: If(
+                                                                        Boolean(ThisRecord.Value.Attachments),
+                                                                        Text(First(Table(ThisRecord.Value.AttachmentFiles)).Value.ServerRelativeUrl),
+                                                                        Blank()
+                                                                    ),
+                                                                    Estado: ThisRecord.Value.Estado,
+                                                                    Gerencia: ThisRecord.Value.Gerencia,
+                                                                    Torre: ThisRecord.Value.Torre,
+                                                                    Autor: ThisRecord.Value.Autor
+                                                                }
+                                                            )
+                                                        );
+                                                        // Guardamos el primer ID REAL de todo el dataset
+                                                        Set(Var_FirstIDAdmUsuarios,Min(objGalleryDataAdmUsuarios,ID));
+                                                        // Control real de NEXT (Top + 1)
+                                                        Set(Var_HasNextAdmUsuarios,CountRows(Var_DataAdmUsuarios) > Var_GridPageSizeAdmUsuarios);
+                                                      PressedBorderColor: =RGBA(0, 69, 120, 1)
+                                                      PressedColor: =RGBA(255, 255, 255, 1)
+                                                      PressedFill: =RGBA(16, 110, 190, 1)
+                                                      RadiusBottomLeft: =0
+                                                      RadiusBottomRight: =0
+                                                      RadiusTopLeft: =0
+                                                      RadiusTopRight: =0
+                                                      Visible: =false
+                                                      X: =40
+                                                      Y: =4

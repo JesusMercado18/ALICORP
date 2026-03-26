@@ -1,0 +1,661 @@
+Screens:
+  Spv_Catalogo:
+    Properties:
+      Fill: =ColorValue(Var_ColorFondoLateral)
+      LoadingSpinnerColor: =RGBA(0, 120, 212, 1)
+      OnVisible: |-
+        =UpdateContext({ menuSelected: 2});
+        UpdateContext({ Var_Ctx_MostrarItemsCatalogoSpv : false });
+    Children:
+      - SpvCtg_ScreenContainer:
+          Control: GroupContainer@1.5.0
+          Variant: AutoLayout
+          Properties:
+            DropShadow: =DropShadow.None
+            Height: =Parent.Height
+            LayoutAlignItems: =LayoutAlignItems.Stretch
+            LayoutDirection: =LayoutDirection.Vertical
+            LayoutGap: =16
+            Width: =Parent.Width
+          Children:
+            - SpvCtg_BottomContainer:
+                Control: GroupContainer@1.5.0
+                Variant: AutoLayout
+                Properties:
+                  DropShadow: =DropShadow.None
+                  LayoutAlignItems: =LayoutAlignItems.Stretch
+                  LayoutDirection: =LayoutDirection.Horizontal
+                  LayoutMinHeight: =16
+                  LayoutMinWidth: =16
+                  LayoutWrap: =true
+                Children:
+                  - SpvCtg_CtnSidebar:
+                      Control: GroupContainer@1.5.0
+                      Variant: AutoLayout
+                      Properties:
+                        DropShadow: =DropShadow.Semibold
+                        Fill: =ColorValue(Var_ColorBlanco)
+                        FillPortions: =0
+                        LayoutDirection: =LayoutDirection.Vertical
+                        LayoutMinHeight: =16
+                        LayoutMinWidth: =16
+                        Width: =If(Var_OpenMenu,250,100)
+                      Children:
+                        - Gbl_Menu_6:
+                            Control: CanvasComponent
+                            ComponentName: Gbl_Menu
+                            ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
+                            Properties:
+                              Height: =768
+                              Width: =If(Gbl_Menu_6.verMenu,250,70)
+                              WidthMenu: =Parent.Width
+                              displayNameUser: =User().FullName
+                              itemsMenu: =colMenuSpv
+                              menuSelected: =menuSelected
+                              openMenu: =Set(Var_OpenMenu, !Var_OpenMenu)
+                              verMenu: =Var_OpenMenu
+                  - SpvCtg_CtnMain:
+                      Control: GroupContainer@1.5.0
+                      Variant: AutoLayout
+                      Properties:
+                        Fill: =ColorValue(Var_ColorFondoLateral)
+                        FillPortions: =0
+                        LayoutAlignItems: =LayoutAlignItems.Center
+                        LayoutDirection: =LayoutDirection.Vertical
+                        LayoutMinHeight: =250
+                        LayoutMinWidth: =16
+                        PaddingBottom: =20
+                        PaddingLeft: =20
+                        PaddingRight: =20
+                        PaddingTop: =8
+                        Width: =Parent.Width - SpvCtg_CtnSidebar.Width
+                      Children:
+                        - Gbl_Header_2:
+                            Control: CanvasComponent
+                            ComponentName: Gbl_Header
+                            ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
+                            Properties:
+                              AlignInContainer: =AlignInContainer.End
+                              Height: =60
+                              Perfil: =App.ActiveScreen
+                              X: =726
+                        - SpvCtg_CtnPaginaActual:
+                            Control: GroupContainer@1.5.0
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              FillPortions: =0
+                              Height: =24
+                              LayoutAlignItems: =LayoutAlignItems.Center
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutMinHeight: =16
+                              LayoutMinWidth: =16
+                              PaddingBottom: =8
+                              PaddingRight: =8
+                              PaddingTop: =8
+                            Children:
+                              - SpvCtg_BtnPaginaInicio:
+                                  Control: Classic/Button@2.2.0
+                                  Properties:
+                                    Align: =Align.Left
+                                    BorderColor: =ColorValue(Var_ColorHoverBoton)
+                                    BorderStyle: =BorderStyle.None
+                                    BorderThickness: =0
+                                    Color: =ColorValue(Var_ColorNavegarCabecera)
+                                    DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                                    Fill: =Color.Transparent
+                                    FillPortions: =1
+                                    Font: =Font.'Open Sans'
+                                    FontWeight: =FontWeight.Normal
+                                    Height: '=Parent.Height   '
+                                    HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                                    HoverColor: =ColorValue(Var_ColorNavegarCabecera)
+                                    HoverFill: =Color.Transparent
+                                    LayoutMinWidth: =50
+                                    OnSelect: =Blank()
+                                    PressedBorderColor: =Self.Fill
+                                    PressedColor: =ColorValue(Var_ColorNavegarCabecera)
+                                    PressedFill: =
+                                    RadiusBottomLeft: =8
+                                    RadiusBottomRight: =8
+                                    RadiusTopLeft: =8
+                                    RadiusTopRight: =8
+                                    Size: =Var_TituloNavBar
+                                    Text: ="Inicio"
+                                    Width: '=Len(Self.Text) * 8.5 '
+                                    X: =40
+                                    Y: =40
+                              - SpvCtg_CtnFlechaPaginaActual:
+                                  Control: GroupContainer@1.5.0
+                                  Variant: ManualLayout
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.SetByContainer
+                                    BorderStyle: =BorderStyle.None
+                                    DropShadow: =DropShadow.None
+                                    FillPortions: =0
+                                    Height: =Parent.Height
+                                    LayoutMinHeight: =Parent.LayoutMinHeight
+                                    LayoutMinWidth: =Parent.LayoutMinWidth
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Width: =11
+                                  Children:
+                                    - SpvCtg_IcnPaginaActual:
+                                        Control: Classic/Icon@2.5.0
+                                        Properties:
+                                          BorderColor: =RGBA(0, 18, 107, 1)
+                                          Color: =ColorValue(Var_ColorNavegarCabecera)
+                                          Height: =13
+                                          Icon: =Icon.ChevronRight
+                                          Width: =12
+                                          X: =(SpvCtg_CtnFlechaPaginaActual.Width - Self.Width) / 2
+                                          Y: =6
+                              - SpvCtg_LblPaginaActual:
+                                  Control: Label@2.5.1
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Center
+                                    BorderColor: =RGBA(0, 18, 107, 1)
+                                    Color: =ColorValue(Var_ColorNavegarCabeceraSeleccionado)
+                                    FillPortions: =22
+                                    Font: =Font.'Open Sans'
+                                    FontWeight: =FontWeight.Bold
+                                    Height: =24
+                                    LayoutMinHeight: =16
+                                    LayoutMinWidth: =16
+                                    PaddingBottom: =3
+                                    PaddingLeft: =6
+                                    Size: =Var_TituloNavBar
+                                    Text: ="Catálogo"
+                                    Width: =1152
+                                    X: =76
+                        - SpvCtg_CtnTituloBuscador:
+                            Control: GroupContainer@1.5.0
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              FillPortions: =0
+                              Height: =100
+                              LayoutAlignItems: =LayoutAlignItems.Center
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutGap: =100
+                              LayoutMinHeight: =16
+                              LayoutMinWidth: =16
+                              PaddingRight: =8
+                            Children:
+                              - SpvCtg_CtnTituloSubTitulo:
+                                  Control: GroupContainer@1.5.0
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    FillPortions: =0
+                                    LayoutDirection: =LayoutDirection.Vertical
+                                    LayoutJustifyContent: =LayoutJustifyContent.Center
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =16
+                                    PaddingBottom: =8
+                                    PaddingRight: =8
+                                    PaddingTop: =8
+                                  Children:
+                                    - SpvCtg_LblTituloCatalogo:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                          BorderColor: =RGBA(0, 0, 0, 0)
+                                          BorderStyle: =BorderStyle.None
+                                          BorderThickness: =2
+                                          Color: =RGBA(50, 49, 48, 1)
+                                          DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                                          DisabledColor: =RGBA(161, 159, 157, 1)
+                                          FocusedBorderThickness: =4
+                                          Font: =Font.'Open Sans'
+                                          FontWeight: =FontWeight.Bold
+                                          Height: =45
+                                          LayoutMinHeight: =16
+                                          LayoutMinWidth: =16
+                                          PaddingBottom: =0
+                                          PaddingLeft: =0
+                                          PaddingRight: =0
+                                          PaddingTop: =0
+                                          Size: =Var_TituloBold
+                                          Text: ="Catálogo de Servicios"
+                                          Width: =365
+                                          X: =40
+                                          Y: =40
+                                    - SpvCtg_LblSubMensaje:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                          BorderColor: =RGBA(0, 0, 0, 0)
+                                          BorderStyle: =BorderStyle.None
+                                          BorderThickness: =2
+                                          Color: =ColorValue(Var_ColorBordeBoton)
+                                          DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                                          DisabledColor: =RGBA(161, 159, 157, 1)
+                                          FocusedBorderThickness: =4
+                                          Font: =Font.'Open Sans'
+                                          Height: =20
+                                          LayoutMinHeight: =16
+                                          LayoutMinWidth: =16
+                                          Size: =Var_TituloIndicadores
+                                          Text: ="Por favor, revisa nuestra lista de servicios y genera un ticket"
+                                          Width: =500
+                              - SpvCtg_Buscador:
+                                  Control: GroupContainer@1.5.0
+                                  Variant: AutoLayout
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Center
+                                    BorderColor: =ColorValue(Var_ColorBordeBoton)
+                                    BorderThickness: =2
+                                    DropShadow: =DropShadow.None
+                                    Fill: =RGBA(255, 255, 255, 1)
+                                    FillPortions: =0
+                                    Height: =48
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    PaddingBottom: =8
+                                    PaddingLeft: =8
+                                    PaddingRight: =8
+                                    PaddingTop: =8
+                                    Width: =450
+                                    X: =1019
+                                    Y: =105
+                                  Children:
+                                    - SpvCtg_ImgLupa:
+                                        Control: Image@2.2.3
+                                        Properties:
+                                          BorderColor: =RGBA(0, 0, 0, 0)
+                                          BorderStyle: =BorderStyle.None
+                                          BorderThickness: =2
+                                          DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                                          DisabledFill: =RGBA(0, 0, 0, 0)
+                                          Fill: =RGBA(255, 255, 255, 1)
+                                          FocusedBorderThickness: =4
+                                          Height: =24
+                                          HoverBorderColor: =RGBA(0, 0, 0, 0)
+                                          HoverFill: =RGBA(0, 0, 0, 0)
+                                          Image: =Lupa
+                                          LayoutMinHeight: =16
+                                          LayoutMinWidth: =16
+                                          PressedBorderColor: =RGBA(0, 0, 0, 0)
+                                          PressedFill: =RGBA(0, 0, 0, 0)
+                                          Width: =24
+                                    - SpvCtg_TxtIBuscar:
+                                        Control: Classic/TextInput@2.3.2
+                                        Properties:
+                                          BorderColor: =RGBA(245, 245, 245, 1)
+                                          BorderThickness: =0
+                                          Color: =RGBA(50, 49, 48, 1)
+                                          Default: =
+                                          DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                                          DisabledColor: =RGBA(161, 159, 157, 1)
+                                          DisabledFill: =RGBA(242, 242, 241, 0)
+                                          FillPortions: =1
+                                          Font: =Font.'Open Sans'
+                                          Height: =50
+                                          HintText: ="Buscar servicio"
+                                          HoverBorderColor: =RGBA(16, 110, 190, 1)
+                                          HoverColor: =RGBA(50, 49, 48, 1)
+                                          HoverFill: =RGBA(255, 255, 255, 1)
+                                          LayoutMinHeight: =16
+                                          LayoutMinWidth: =16
+                                          PressedBorderColor: =RGBA(0, 120, 212, 1)
+                                          PressedColor: =RGBA(50, 49, 48, 1)
+                                          PressedFill: =RGBA(255, 255, 255, 1)
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                        - SpvCtg_CtnCuerpo:
+                            Control: GroupContainer@1.5.0
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              FillPortions: =0
+                              Height: =530
+                              LayoutAlignItems: =LayoutAlignItems.Center
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutGap: =15
+                              LayoutMinHeight: =16
+                              LayoutMinWidth: =16
+                              PaddingBottom: =8
+                              PaddingLeft: =8
+                              PaddingRight: =8
+                              PaddingTop: =8
+                            Children:
+                              - SpvCtg_CtnOpciones:
+                                  Control: GroupContainer@1.5.0
+                                  Variant: AutoLayout
+                                  Properties:
+                                    Fill: =RGBA(255, 255, 255, 1)
+                                    FillPortions: =0
+                                    LayoutAlignItems: =LayoutAlignItems.Stretch
+                                    LayoutDirection: =LayoutDirection.Vertical
+                                    LayoutGap: =10
+                                    LayoutMinHeight: =16
+                                    LayoutMinWidth: =16
+                                    PaddingBottom: =8
+                                    PaddingLeft: =15
+                                    PaddingRight: =15
+                                    PaddingTop: =8
+                                    Width: =348
+                                  Children:
+                                    - SpvCtg_CtnPrimero:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: ManualLayout
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.SetByContainer
+                                          DropShadow: =DropShadow.None
+                                          Fill: =ColorValue(Var_ColorFondoLateral)
+                                          FillPortions: =0
+                                          Height: =38
+                                          LayoutMinHeight: =16
+                                          LayoutMinWidth: =0
+                                          RadiusBottomLeft: =10
+                                          RadiusBottomRight: =10
+                                          RadiusTopLeft: =10
+                                          RadiusTopRight: =10
+                                          Width: =300
+                                        Children:
+                                          - SpvCtg_LblFirst:
+                                              Control: Label@2.5.1
+                                              Properties:
+                                                BorderColor: =RGBA(0, 0, 0, 0)
+                                                BorderStyle: =BorderStyle.None
+                                                BorderThickness: =2
+                                                Color: =RGBA(50, 49, 48, 1)
+                                                DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                                                DisabledColor: =RGBA(161, 159, 157, 1)
+                                                FocusedBorderThickness: =4
+                                                Font: =Font.'Open Sans'
+                                                Height: =Parent.Height
+                                                PaddingLeft: =20
+                                                Size: =Var_TituloIndicadores
+                                                Text: ="Tickets populares"
+                                                Width: =Parent.Width
+                                    - SpvCtg_CtnSegundo:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: ManualLayout
+                                        Properties:
+                                          DropShadow: =DropShadow.None
+                                          FillPortions: =0
+                                          Height: =38
+                                          LayoutMinHeight: =16
+                                          LayoutMinWidth: =16
+                                        Children:
+                                          - SpvCtg_ImgFlechaAbajoCRE:
+                                              Control: Image@2.2.3
+                                              Properties:
+                                                BorderColor: =RGBA(0, 0, 0, 0)
+                                                BorderStyle: =BorderStyle.None
+                                                BorderThickness: =2
+                                                DisabledBorderColor: =RGBA(255, 255, 255, 1)
+                                                DisabledFill: =RGBA(0, 0, 0, 0)
+                                                FocusedBorderThickness: =4
+                                                Height: =24
+                                                HoverBorderColor: =RGBA(255, 255, 255, 1)
+                                                HoverFill: =RGBA(0, 0, 0, 0)
+                                                Image: =FlechaAbajoBlack
+                                                PressedBorderColor: =RGBA(0, 0, 0, 0)
+                                                PressedFill: =RGBA(0, 0, 0, 0)
+                                                Width: =24
+                                                X: =283
+                                                Y: =8
+                                          - SpvCtg_BtnCRE:
+                                              Control: Classic/Button@2.2.0
+                                              Properties:
+                                                Align: =Align.Left
+                                                BorderColor: =RGBA(0, 0, 0, 0)
+                                                BorderStyle: =BorderStyle.None
+                                                Color: =RGBA(0, 0, 0, 1)
+                                                DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                                                DisabledColor: =RGBA(161, 159, 157, 1)
+                                                DisabledFill: =RGBA(242, 242, 241, 0)
+                                                Fill: =RGBA(0, 0, 0, 0)
+                                                Font: =Font.'Open Sans'
+                                                HoverBorderColor: =RGBA(0, 0, 0, 0)
+                                                HoverColor: =RGBA(0, 0, 0, 1)
+                                                HoverFill: =RGBA(0, 0, 0, 0)
+                                                PaddingLeft: =10
+                                                PressedBorderColor: =RGBA(255, 255, 255, 1)
+                                                PressedColor: =RGBA(0, 0, 0, 1)
+                                                PressedFill: =RGBA(0, 0, 0, 0)
+                                                RadiusBottomLeft: =0
+                                                RadiusBottomRight: =0
+                                                RadiusTopLeft: =0
+                                                RadiusTopRight: =0
+                                                Size: =12
+                                                Text: ="CRE - Gerencia de Créditos Back"
+                                                Width: =307
+                                    - SpvCtg_CtnTercero:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: ManualLayout
+                                        Properties:
+                                          DropShadow: =DropShadow.None
+                                          FillPortions: =0
+                                          Height: =38
+                                          LayoutMinHeight: =16
+                                          LayoutMinWidth: =16
+                                        Children:
+                                          - SpvCtg_ImgFlechaAbajoP2P:
+                                              Control: Image@2.2.3
+                                              Properties:
+                                                BorderColor: =RGBA(0, 0, 0, 0)
+                                                BorderStyle: =BorderStyle.None
+                                                BorderThickness: =2
+                                                DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                                                DisabledFill: =RGBA(0, 0, 0, 0)
+                                                FocusedBorderThickness: =4
+                                                Height: =24
+                                                HoverBorderColor: =RGBA(0, 0, 0, 0)
+                                                HoverFill: =RGBA(0, 0, 0, 0)
+                                                Image: =FlechaAbajoBlack
+                                                PressedBorderColor: =RGBA(0, 0, 0, 0)
+                                                PressedFill: =RGBA(0, 0, 0, 0)
+                                                Width: =24
+                                                X: =283
+                                                Y: =8
+                                          - SpvCtg_BtnP2P:
+                                              Control: Classic/Button@2.2.0
+                                              Properties:
+                                                BorderColor: =RGBA(0, 0, 0, 0)
+                                                BorderStyle: =BorderStyle.None
+                                                Color: =RGBA(0, 0, 0, 1)
+                                                DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                                                DisabledColor: =RGBA(161, 159, 157, 1)
+                                                DisabledFill: =RGBA(242, 242, 241, 0)
+                                                Fill: =RGBA(0, 0, 0, 0)
+                                                Font: =Font.'Open Sans'
+                                                HoverBorderColor: =RGBA(0, 0, 0, 0)
+                                                HoverColor: =RGBA(0, 0, 0, 1)
+                                                HoverFill: =RGBA(0, 0, 0, 0)
+                                                PaddingRight: =50
+                                                PressedBorderColor: =RGBA(0, 69, 120, 1)
+                                                PressedColor: =RGBA(0, 0, 0, 1)
+                                                PressedFill: =RGBA(0, 0, 0, 0)
+                                                RadiusBottomLeft: =0
+                                                RadiusBottomRight: =0
+                                                RadiusTopLeft: =0
+                                                RadiusTopRight: =0
+                                                Size: =12
+                                                Text: ="P2P - Gerencia de Tesorería Ope"
+                                                Width: =307
+                                    - SpvCtg_CtnCuarto:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: ManualLayout
+                                        Properties:
+                                          DropShadow: =DropShadow.None
+                                          FillPortions: =0
+                                          Height: =38
+                                          LayoutMinHeight: =16
+                                          LayoutMinWidth: =16
+                                        Children:
+                                          - SpvCtg_ImgFlechaAbajoGSC:
+                                              Control: Image@2.2.3
+                                              Properties:
+                                                BorderColor: =RGBA(0, 0, 0, 0)
+                                                BorderStyle: =BorderStyle.None
+                                                BorderThickness: =2
+                                                DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                                                DisabledFill: =RGBA(0, 0, 0, 0)
+                                                FocusedBorderThickness: =4
+                                                Height: =24
+                                                HoverBorderColor: =RGBA(0, 0, 0, 0)
+                                                HoverFill: =RGBA(0, 0, 0, 0)
+                                                Image: =FlechaAbajoBlack
+                                                PressedBorderColor: =RGBA(0, 0, 0, 0)
+                                                PressedFill: =RGBA(0, 0, 0, 0)
+                                                Width: =24
+                                                X: =283
+                                                Y: =8
+                                          - SpvCtg_BtnGSC:
+                                              Control: Classic/Button@2.2.0
+                                              Properties:
+                                                BorderColor: =RGBA(0, 0, 0, 0)
+                                                BorderStyle: =BorderStyle.None
+                                                Color: =RGBA(0, 0, 0, 1)
+                                                DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                                                DisabledColor: =RGBA(161, 159, 157, 1)
+                                                DisabledFill: =RGBA(242, 242, 241, 0)
+                                                Fill: =RGBA(0, 0, 0, 0)
+                                                Font: =Font.'Open Sans'
+                                                HoverBorderColor: =RGBA(0, 0, 0, 0)
+                                                HoverColor: =RGBA(0, 0, 0, 1)
+                                                HoverFill: =RGBA(0, 0, 0, 0)
+                                                PaddingRight: =50
+                                                PressedBorderColor: =RGBA(0, 69, 120, 1)
+                                                PressedColor: =RGBA(0, 0, 0, 1)
+                                                PressedFill: =RGBA(0, 0, 0, 0)
+                                                RadiusBottomLeft: =0
+                                                RadiusBottomRight: =0
+                                                RadiusTopLeft: =0
+                                                RadiusTopRight: =0
+                                                Size: =12
+                                                Text: ="GSC - Gerencia de Gestion de Se"
+                                                Width: =307
+                              - SpvCtg_CtnDatosTicket:
+                                  Control: GroupContainer@1.5.0
+                                  Variant: AutoLayout
+                                  Properties:
+                                    Fill: =RGBA(255, 255, 255, 1)
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutDirection: =LayoutDirection.Vertical
+                                    LayoutMinHeight: =16
+                                    LayoutMinWidth: =16
+                                    PaddingBottom: =8
+                                    PaddingLeft: =8
+                                    PaddingRight: =8
+                                    PaddingTop: =8
+                                  Children:
+                                    - SpvCtg_CtnDatosTituloSubTitulo:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: AutoLayout
+                                        Properties:
+                                          DropShadow: =DropShadow.None
+                                          FillPortions: =0
+                                          Height: =55
+                                          LayoutAlignItems: =LayoutAlignItems.Stretch
+                                          LayoutDirection: =LayoutDirection.Vertical
+                                          LayoutGap: =5
+                                          LayoutJustifyContent: =LayoutJustifyContent.Center
+                                          LayoutMinHeight: =16
+                                          LayoutMinWidth: =16
+                                          PaddingLeft: =8
+                                        Children:
+                                          - Label13:
+                                              Control: Label@2.5.1
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                BorderColor: =RGBA(0, 0, 0, 0)
+                                                BorderStyle: =BorderStyle.None
+                                                BorderThickness: =2
+                                                Color: =RGBA(50, 49, 48, 1)
+                                                DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                                                DisabledColor: =RGBA(161, 159, 157, 1)
+                                                FocusedBorderThickness: =4
+                                                Font: =Font.'Open Sans'
+                                                FontWeight: =FontWeight.Bold
+                                                Height: =16
+                                                LayoutMinHeight: =16
+                                                LayoutMinWidth: =16
+                                                PaddingBottom: =0
+                                                PaddingLeft: =0
+                                                PaddingRight: =0
+                                                PaddingTop: =0
+                                                Size: =Var_TituloIndicadores
+                                                Text: ="Tickets populares"
+                                          - Label2:
+                                              Control: Label@2.5.1
+                                              Properties:
+                                                BorderColor: =RGBA(0, 0, 0, 0)
+                                                BorderStyle: =BorderStyle.None
+                                                BorderThickness: =2
+                                                Color: =RGBA(50, 49, 48, 1)
+                                                DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                                                DisabledColor: =RGBA(161, 159, 157, 1)
+                                                FocusedBorderThickness: =4
+                                                Font: =Font.'Open Sans'
+                                                Height: =16
+                                                LayoutMinHeight: =16
+                                                LayoutMinWidth: =16
+                                                PaddingBottom: =0
+                                                PaddingLeft: =0
+                                                PaddingRight: =0
+                                                PaddingTop: =0
+                                                Size: =12
+                                                Text: ="Revisa nuestra lista de tickets que se generan con mayor frecuencia"
+                                    - SpvCtg_CtnSinActividad:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: AutoLayout
+                                        Properties:
+                                          DropShadow: =DropShadow.None
+                                          Fill: =RGBA(255, 255, 255, 1)
+                                          LayoutAlignItems: =LayoutAlignItems.Center
+                                          LayoutDirection: =LayoutDirection.Vertical
+                                          LayoutJustifyContent: =LayoutJustifyContent.Center
+                                          LayoutMinHeight: =16
+                                          LayoutMinWidth: =16
+                                          PaddingBottom: =8
+                                          PaddingLeft: =8
+                                          PaddingRight: =8
+                                          PaddingTop: =8
+                                        Children:
+                                          - SpvCtg_ImgSinActvidadCatalogo:
+                                              Control: Image@2.2.3
+                                              Properties:
+                                                BorderColor: =RGBA(0, 0, 0, 0)
+                                                BorderStyle: =BorderStyle.None
+                                                BorderThickness: =2
+                                                DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                                                DisabledFill: =RGBA(0, 0, 0, 0)
+                                                FocusedBorderThickness: =4
+                                                Height: =300
+                                                HoverBorderColor: =RGBA(0, 0, 0, 0)
+                                                HoverFill: =RGBA(0, 0, 0, 0)
+                                                Image: =SinActividadCatalogo
+                                                LayoutMinHeight: =16
+                                                LayoutMinWidth: =16
+                                                PressedBorderColor: =RGBA(0, 0, 0, 0)
+                                                PressedFill: =RGBA(0, 0, 0, 0)
+                                                Width: =300
+                                                X: =40
+                                                Y: =40
+                                          - SpvCtg_LblSinActividadCatalogo:
+                                              Control: Label@2.5.1
+                                              Properties:
+                                                Align: =Align.Center
+                                                BorderColor: =RGBA(0, 0, 0, 0)
+                                                BorderStyle: =BorderStyle.None
+                                                BorderThickness: =2
+                                                Color: =RGBA(50, 49, 48, 1)
+                                                DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                                                DisabledColor: =RGBA(161, 159, 157, 1)
+                                                FocusedBorderThickness: =4
+                                                Font: =Font.'Open Sans'
+                                                LayoutMinHeight: =16
+                                                LayoutMinWidth: =16
+                                                Size: =Var_CuerpoTexto
+                                                Text: ="Aún no tienes actividades"
+                                                Width: =235
+                                                Wrap: =false
