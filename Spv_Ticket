@@ -2680,13 +2680,13 @@ Screens:
                                                                         BorderColor: =RGBA(0, 18, 107, 1)
                                                                         Color: =ColorValue(Var_ColorBoton)
                                                                         Font: =Font.'Open Sans'
-                                                                        Height: =10
+                                                                        Height: =Parent.TemplateHeight
                                                                         OnSelect: =Select(Parent)
                                                                         Size: =12
                                                                         Text: ="•"
                                                                         Visible: =ThisItem.Value = Today()
                                                                         Width: =Parent.TemplateWidth
-                                                                        Y: =20
+                                                                        Y: =11.428571428571427
                                                                   - Spv_BtnDiaTicket:
                                                                       Control: Classic/Button@2.2.0
                                                                       Properties:
