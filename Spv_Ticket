@@ -3163,8 +3163,12 @@ Screens:
                                                   =
                                                   With(
                                                       {
-                                                          _FechaInicio: Text(DateValue(var_RangeDatePicker_DateStart); "yyyy-mm-dd") & "T00:00:00Z",
-                                                          _FechaFin: If(IsBlank(var_RangeDatePicker_DateEnd), Blank(), Text(DateValue(var_RangeDatePicker_DateEnd), "yyyy-mm-dd") & "T23:59:59Z")
+                                                          _FechaInicio: Text(var_RangeDatePicker_DateStart, "yyyy-mm-dd") & "T00:00:00Z",
+                                                          _FechaFin: If(
+                                                              IsBlank(var_RangeDatePicker_DateEnd), 
+                                                              Blank(), 
+                                                              Text(var_RangeDatePicker_DateEnd, "yyyy-mm-dd") & "T23:59:59Z"
+                                                          )
                                                       },
                                                       If(
                                                           Spv_LblMostrarFechaTicket.Text = "Seleccionar",
@@ -3173,7 +3177,6 @@ Screens:
                                                       )
                                                   );
 
-                                                  Patch(Col_Spv_QueryTicket, LookUp(Col_Spv_QueryTicket, input = "TipoSolicitud"), If(IsBlank(Var_TipoSolicitud) || Var_TipoSolicitud = "Todos", { mark: false, query: "" }, { mark: true, query: "substringof('" & Var_TipoSolicitud & "'; TipoSolicitud)" }));
                                                   Patch(Col_Spv_QueryTicket, LookUp(Col_Spv_QueryTicket, input = "Gerencia"), If(IsBlank(Var_FiltroGerencia) || Var_FiltroGerencia = "Todos", { mark: false, query: "" }, { mark: true, query: "Gerencia eq '" & Var_FiltroGerencia & "'" }));
                                                   Patch(Col_Spv_QueryTicket, LookUp(Col_Spv_QueryTicket, input = "Area"), If(IsBlank(Var_FiltroArea) || Var_FiltroArea = "Todos", { mark: false, query: "" }, { mark: true, query: "Area eq '" & Var_FiltroArea & "'" }));
                                                   Patch(Col_Spv_QueryTicket, LookUp(Col_Spv_QueryTicket, input = "SubArea"), If(IsBlank(Var_FiltroSubArea) || Var_FiltroSubArea = "Todos", { mark: false, query: "" }, { mark: true, query: "SubArea eq '" & Var_FiltroSubArea & "'" }));
