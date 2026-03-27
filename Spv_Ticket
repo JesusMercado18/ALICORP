@@ -5747,107 +5747,6 @@ Screens:
             X: =15
             Y: =310
           Children:
-            - Spv_GalOtrosFiltrosTicket_3:
-                Control: Gallery@2.15.0
-                Variant: VariableHeight
-                Properties:
-                  BorderColor: =RGBA(0, 18, 107, 1)
-                  Height: =298
-                  Items: =colFiltrosTicketSpv
-                  TemplateSize: =247
-                  Width: =257
-                  X: =11
-                  Y: =53
-                Children:
-                  - Spv_GalSubFiltrosTicket_3:
-                      Control: Gallery@2.15.0
-                      Variant: Vertical
-                      Properties:
-                        BorderColor: =RGBA(0, 18, 107, 1)
-                        Height: =CountRows(Self.AllItems) * Self.TemplateHeight + 30
-                        Items: |-
-                          =Filter(
-                              colFiltrosTicketChildSpv,
-                              Title = ThisItem.Title,
-                              If(
-                                  ThisItem.Title = "Área",
-                                  IsBlank(Var_FiltroGerencia) Or ParentGerencia = Var_FiltroGerencia,
-                                  ThisItem.Title = "Subárea",
-                                  IsBlank(Var_FiltroArea) Or ParentArea = Var_FiltroArea,
-                                  true
-                              )
-                          )
-                        TemplateSize: =35
-                        Visible: =ThisItem.Open
-                        Width: =162
-                        Y: =23
-                      Children:
-                        - Spv_ChkSeleccionarFiltroTicket_3:
-                            Control: CheckBox@0.0.30
-                            Properties:
-                              BasePaletteColor: =ColorValue(Var_ColorBoton)
-                              Checked: |-
-                                =Switch(
-                                    ThisItem.Title,
-                                    "Gerencia", Var_FiltroGerencia = ThisItem.Value,
-                                    "Área", Var_FiltroArea = ThisItem.Value,
-                                    "Subárea", Var_FiltroSubArea = ThisItem.Value,
-                                    "Requerimiento", Var_FiltroRequerimiento = ThisItem.Value,
-                                    "Atendido por", Var_AtendidoPor = ThisItem.Value,
-                                    "Tipo de solicitud", Var_TipoSolicitud = ThisItem.Value,
-                                    false
-                                )
-                              FontSize: =11
-                              Height: =30
-                              Label: =ThisItem.Value
-                              OnCheck: |-
-                                =Switch(
-                                    ThisItem.Title,
-                                    "Gerencia", Set(Var_FiltroGerencia, ThisItem.Value),
-                                    "Área", Set(Var_FiltroArea, ThisItem.Value),
-                                    "Subárea", Set(Var_FiltroSubArea, ThisItem.Value),
-                                    "Requerimiento", Set(Var_FiltroRequerimiento, ThisItem.Value),
-                                    "Atendido por", Set(Var_AtendidoPor, ThisItem.Value),
-                                    "Tipo de solicitud", Set(Var_TipoSolicitud, ThisItem.Value)
-                                )
-                              OnSelect: =Select(Parent)
-                              OnUncheck: |-
-                                =Switch(
-                                    ThisItem.Title,
-                                    "Gerencia", Concurrent(Set(Var_FiltroGerencia, Blank()), Set(Var_FiltroArea, Blank()), Set(Var_FiltroSubArea, Blank())),
-                                    "Área", Concurrent(Set(Var_FiltroArea, Blank()), Set(Var_FiltroSubArea, Blank())),
-                                    "Subárea", Set(Var_FiltroSubArea, Blank()),
-                                    "Requerimiento", Set(Var_FiltroRequerimiento, Blank()),
-                                    "Atendido por", Set(Var_AtendidoPor, Blank()),
-                                    "Tipo de solicitud", Set(Var_TipoSolicitud, Blank())
-                                )
-                              Width: =152
-                  - Spv_TituloFiltroTicket_3:
-                      Control: Text@0.0.51
-                      Properties:
-                        Align: ='TextCanvas.Align'.Start
-                        AutoHeight: =true
-                        Font: =Font.'Open Sans'
-                        Height: =27
-                        PaddingLeft: =5
-                        Size: =12
-                        Text: =ThisItem.Title
-                        VerticalAlign: =VerticalAlign.Middle
-                        Width: =128
-                        X: =21
-                        Y: =8
-                  - Spv_IcoExpandirFiltroTicket_3:
-                      Control: Classic/Icon@2.5.0
-                      Properties:
-                        BorderColor: =RGBA(0, 18, 107, 1)
-                        Color: =RGBA(0, 0, 0, 1)
-                        Height: =15
-                        Icon: =If(!ThisItem.Open,Icon.ChevronDown,Icon.ChevronUp)
-                        OnSelect: |-
-                          =Patch(colFiltrosTicketSpv,ThisItem,{ Open: !ThisItem.Open })
-                        Width: =15
-                        X: =6
-                        Y: =8
             - Spv_LblFiltrosTicket_4:
                 Control: Label@2.5.1
                 Properties:
@@ -5989,3 +5888,357 @@ Screens:
                   Width: =92
                   X: =176
                   Y: =7
+            - Container12_4:
+                Control: GroupContainer@1.5.0
+                Variant: ManualLayout
+                Properties:
+                  Fill: =RGBA(255, 255, 255, 1)
+                  Height: =405
+                  RadiusBottomLeft: =8
+                  RadiusBottomRight: =8
+                  RadiusTopLeft: =8
+                  RadiusTopRight: =8
+                  Width: =280
+                Children:
+                  - Spv_GalOtrosFiltrosTicket_2:
+                      Control: Gallery@2.15.0
+                      Variant: VariableHeight
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Height: =335
+                        Items: =colFiltrosTicketSpv
+                        TemplateSize: =247
+                        Width: =257
+                        X: =11
+                        Y: =53
+                      Children:
+                        - Spv_GalSubFiltrosTicket_2:
+                            Control: Gallery@2.15.0
+                            Variant: Vertical
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Height: =CountRows(Self.AllItems) * Self.TemplateHeight + 30
+                              Items: |-
+                                =Filter(
+                                    colFiltrosTicketChildSpv,
+                                    Title = ThisItem.Title,
+                                    If(
+                                        ThisItem.Title = "Área",
+                                        IsBlank(Var_FiltroGerencia) Or ParentGerencia = Var_FiltroGerencia,
+                                        ThisItem.Title = "Subárea",
+                                        IsBlank(Var_FiltroArea) Or ParentArea = Var_FiltroArea,
+                                        true
+                                    )
+                                )
+                              TemplateSize: =35
+                              Visible: =ThisItem.Open
+                              Width: |-
+                                =//162
+                                Parent.Width - 20
+                              Y: =23
+                            Children:
+                              - Spv_CtnCustomChk_1:
+                                  Control: GroupContainer@1.5.0
+                                  Variant: ManualLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    Height: =25
+                                    Width: =25
+                                    X: =5
+                                    Y: =(Parent.TemplateHeight - Self.Height) / 2
+                                  Children:
+                                    - Spv_BtnCustomChk_1:
+                                        Control: Classic/Button@2.2.0
+                                        Properties:
+                                          BorderColor: |-
+                                            =If(
+                                                Switch(
+                                                    ThisItem.Title,
+                                                    "Gerencia", Var_FiltroGerencia = ThisItem.Value,
+                                                    "Área", Var_FiltroArea = ThisItem.Value,
+                                                    "Subárea", Var_FiltroSubArea = ThisItem.Value,
+                                                    "Requerimiento", Var_FiltroRequerimiento = ThisItem.Value,
+                                                    "Atendido por", Var_AtendidoPor = ThisItem.Value,
+                                                    "Tipo de solicitud", Var_TipoSolicitud = ThisItem.Value,
+                                                    false
+                                                ),
+                                                Color.Transparent,
+                                                ColorValue("#6C6C6C")
+                                            )
+                                          BorderThickness: =1
+                                          Color: =RGBA(0, 0, 0, 0)
+                                          DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                                          Fill: |-
+                                            =If(
+                                                Switch(
+                                                    ThisItem.Title,
+                                                    "Gerencia", Var_FiltroGerencia = ThisItem.Value,
+                                                    "Área", Var_FiltroArea = ThisItem.Value,
+                                                    "Subárea", Var_FiltroSubArea = ThisItem.Value,
+                                                    "Requerimiento", Var_FiltroRequerimiento = ThisItem.Value,
+                                                    "Atendido por", Var_AtendidoPor = ThisItem.Value,
+                                                    "Tipo de solicitud", Var_TipoSolicitud = ThisItem.Value,
+                                                    false
+                                                ),
+                                                ColorValue("#E72025"),
+                                                Color.White
+                                            )
+                                          Font: =Font.'Open Sans'
+                                          Height: =Parent.Height - 2
+                                          HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                                          HoverColor: =RGBA(255, 255, 255, 1)
+                                          HoverFill: =ColorValue(Var_ColorFadeBoton)
+                                          OnSelect: |-
+                                            =If(
+                                                Switch(
+                                                    ThisItem.Title,
+                                                    "Gerencia", Var_FiltroGerencia = ThisItem.Value,
+                                                    "Área", Var_FiltroArea = ThisItem.Value,
+                                                    "Subárea", Var_FiltroSubArea = ThisItem.Value,
+                                                    "Requerimiento", Var_FiltroRequerimiento = ThisItem.Value,
+                                                    "Atendido por", Var_AtendidoPor = ThisItem.Value,
+                                                    "Tipo de solicitud", Var_TipoSolicitud = ThisItem.Value,
+                                                    false
+                                                ),
+                                                Switch(
+                                                    ThisItem.Title,
+                                                    "Gerencia", Concurrent(Set(Var_FiltroGerencia, Blank()), Set(Var_FiltroArea, Blank()), Set(Var_FiltroSubArea, Blank())),
+                                                    "Área", Concurrent(Set(Var_FiltroArea, Blank()), Set(Var_FiltroSubArea, Blank())),
+                                                    "Subárea", Set(Var_FiltroSubArea, Blank()),
+                                                    "Requerimiento", Set(Var_FiltroRequerimiento, Blank()),
+                                                    "Atendido por", Set(Var_AtendidoPor, Blank()),
+                                                    "Tipo de solicitud", Set(Var_TipoSolicitud, Blank())
+                                                ),
+                                                Switch(
+                                                    ThisItem.Title,
+                                                    "Gerencia", Set(Var_FiltroGerencia, ThisItem.Value),
+                                                    "Área", Set(Var_FiltroArea, ThisItem.Value),
+                                                    "Subárea", Set(Var_FiltroSubArea, ThisItem.Value),
+                                                    "Requerimiento", Set(Var_FiltroRequerimiento, ThisItem.Value),
+                                                    "Atendido por", Set(Var_AtendidoPor, ThisItem.Value)//;
+                                                    //"Tipo de solicitud"; Var_TipoSolicitud = Set(Var_TipoSolicitud; ThisItem.Value)
+                                                )
+                                            )
+                                          PaddingBottom: =0
+                                          PaddingLeft: =0
+                                          PaddingRight: =0
+                                          PaddingTop: =0
+                                          PressedBorderColor: =ColorValue(Var_ColorBordeBoton)
+                                          PressedColor: =Self.Fill
+                                          PressedFill: =Self.Color
+                                          RadiusBottomLeft: =8
+                                          RadiusBottomRight: =8
+                                          RadiusTopLeft: =8
+                                          RadiusTopRight: =8
+                                          Text: =""
+                                          Width: =Parent.Width - 2
+                                          X: =1
+                                          Y: =1
+                                    - Spv_CtnIcoChk_1:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: ManualLayout
+                                        Properties:
+                                          Height: =25
+                                          Visible: |-
+                                            =Switch(
+                                                ThisItem.Title,
+                                                "Gerencia", Var_FiltroGerencia = ThisItem.Value,
+                                                "Área", Var_FiltroArea = ThisItem.Value,
+                                                "Subárea", Var_FiltroSubArea = ThisItem.Value,
+                                                "Requerimiento", Var_FiltroRequerimiento = ThisItem.Value,
+                                                "Atendido por", Var_AtendidoPor = ThisItem.Value,
+                                                "Tipo de solicitud", Var_TipoSolicitud = ThisItem.Value,
+                                                false
+                                            )
+                                          Width: =25
+                                        Children:
+                                          - Spv_ImgCustomChk_1:
+                                              Control: Image@2.2.3
+                                              Properties:
+                                                BorderColor: =RGBA(0, 18, 107, 1)
+                                                Height: =15
+                                                Image: =ico_check
+                                                OnSelect: =Select(Spv_BtnCustomChk_1)
+                                                Width: =15
+                                                X: =(Parent.Width - Self.Width ) / 2
+                                                Y: =(Parent.Height - Self.Height ) / 2
+                              - Spv_LblCustomChk_1:
+                                  Control: Label@2.5.1
+                                  Properties:
+                                    BorderColor: =RGBA(0, 18, 107, 1)
+                                    Color: =ColorValue(Var_ColorIconNegro)
+                                    Font: =Font.'Open Sans'
+                                    Height: =30
+                                    OnSelect: =Select(Spv_BtnCustomChk_1)
+                                    Size: =11
+                                    Text: =ThisItem.Value
+                                    Width: =120
+                                    X: =32
+                                    Y: =(Parent.TemplateHeight - Self.Height) / 2
+                        - Spv_TituloFiltroTicket_2:
+                            Control: Text@0.0.51
+                            Properties:
+                              Align: ='TextCanvas.Align'.Start
+                              AutoHeight: =true
+                              Font: =Font.'Open Sans'
+                              Height: =27
+                              PaddingLeft: =5
+                              Size: =12
+                              Text: =ThisItem.Title
+                              VerticalAlign: =VerticalAlign.Middle
+                              Width: =128
+                              X: =21
+                              Y: =8
+                        - Spv_IcoExpandirFiltroTicket_2:
+                            Control: Classic/Icon@2.5.0
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Color: =RGBA(0, 0, 0, 1)
+                              Height: =15
+                              Icon: =If(!ThisItem.Open,Icon.ChevronDown,Icon.ChevronUp)
+                              OnSelect: |-
+                                =Patch(colFiltrosTicketSpv,ThisItem,{ Open: !ThisItem.Open })
+                              Width: =15
+                              X: =6
+                              Y: =8
+                  - Spv_LblFiltrosTicket_3:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Font: =Font.'Open Sans'
+                        Height: =32
+                        Size: =12
+                        Text: ="Filtros"
+                        X: =11
+                        Y: =7
+                  - Spv_BtnAplicarFiltroTicket_3:
+                      Control: Classic/Button@2.2.0
+                      Properties:
+                        BorderColor: =ColorValue(Var_ColorHoverBoton)
+                        BorderThickness: =1
+                        Color: =RGBA(255, 255, 255, 1)
+                        DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                        Fill: =ColorValue(Var_ColorBoton)
+                        Font: =Font.'Open Sans'
+                        Height: =32
+                        HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                        HoverColor: =ColorValue(Var_ColorBlanco)
+                        HoverFill: =ColorValue(Var_ColorHoverBoton)
+                        OnSelect: |-
+                          =With(
+                              {
+                                  _FechaInicio: Text(DateValue(var_RangeDatePicker_DateStart); "yyyy-mm-dd") & "T00:00:00Z",
+                                  _FechaFin: If(
+                                      IsBlank(var_RangeDatePicker_DateEnd),
+                                      Blank(),
+                                      Text(DateValue(var_RangeDatePicker_DateEnd), "yyyy-mm-dd") & "T23:59:59Z"
+                                  )
+                              },
+                              If(
+                                  Spv_LblMostrarFechaTicket_2.Text = "Seleccionar",
+                                  Patch(
+                                      Col_Spv_QueryTicket,
+                                      LookUp(Col_Spv_QueryTicket, input = "FechaCreado"),
+                                      {
+                                          mark: false,
+                                          query: ""
+                                      }
+                                  ),
+                                  Patch(
+                                      Col_Spv_QueryTicket,
+                                      LookUp(Col_Spv_QueryTicket, input = "FechaCreado"),
+                                      {
+                                          mark: true,
+                                          query:
+                                              If(
+                                                  IsBlank(_FechaFin),
+                                                  "FechaCreado ge datetime'" & _FechaInicio & "'",
+                                                  "FechaCreado ge datetime'" & _FechaInicio &
+                                                  "' and FechaCreado le datetime'" & _FechaFin & "'"
+                                              )
+                                      }
+                                  )
+                              )
+                          );
+
+                          Patch(
+                              Col_Spv_QueryTicket,
+                              LookUp(Col_Spv_QueryTicket, input = "TipoSolicitud"),
+                              If(
+                                  IsBlank(Var_TipoSolicitud) || Var_TipoSolicitud = "Todos",
+                                  {
+                                      mark: false,
+                                      query: ""
+                                  },
+                                  {
+                                      mark: true,
+                                      query: "substringof('" & Var_TipoSolicitud & "', TipoSolicitud)"
+                                  }
+                              )
+                          );
+
+                          Patch(
+                              Col_Spv_QueryTicket,
+                              LookUp(Col_Spv_QueryTicket, input = "Gerencia"),
+                              If(
+                                  IsBlank(Var_FiltroGerencia) || Var_FiltroGerencia = "Todos",
+                                  { mark: false, query: "" },
+                                  { mark: true, query: "Gerencia eq '" & Var_FiltroGerencia & "'" }
+                              )
+                          );
+
+                          Patch(
+                              Col_Spv_QueryTicket,
+                              LookUp(Col_Spv_QueryTicket, input = "Area"),
+                              If(
+                                  IsBlank(Var_FiltroArea) || Var_FiltroArea = "Todos",
+                                  { mark: false, query: "" },
+                                  { mark: true, query: "Area eq '" & Var_FiltroArea & "'" }
+                              )
+                          );
+
+                          Patch(
+                              Col_Spv_QueryTicket,
+                              LookUp(Col_Spv_QueryTicket, input = "SubArea"),
+                              If(
+                                  IsBlank(Var_FiltroSubArea) || Var_FiltroSubArea = "Todos",
+                                  { mark: false, query: "" },
+                                  { mark: true, query: "SubArea eq '" & Var_FiltroSubArea & "'" }
+                              )
+                          );
+
+                          Patch(
+                              Col_Spv_QueryTicket,
+                              LookUp(Col_Spv_QueryTicket, input = "Requerimiento");
+                              If(
+                                  IsBlank(Var_FiltroRequerimiento) || Var_FiltroRequerimiento = "Todos",
+                                  { mark: false, query: "" },
+                                  { mark: true, query: "Requerimiento eq '" & Var_FiltroRequerimiento & "'" }
+                              )
+                          );
+
+                          Patch(
+                              Col_Spv_QueryTicket,
+                              LookUp(Col_Spv_QueryTicket, input = "NombreAtendidoPor"),
+                              If(
+                                  IsBlank(Var_AtendidoPor) || Var_AtendidoPor = "Todos",
+                                  { mark: false, query: "" };
+                                  { mark: true, query: "NombreAtendidoPor eq '" & Var_AtendidoPor & "'" }
+                              )
+                          );
+
+                          Select(Spv_BtnActualizarFiltrosTicket);
+
+                          UpdateContext({ Var_Ctx_MostrarFiltrosTicket: false })
+                        PressedBorderColor: =Self.PressedFill
+                        PressedColor: =ColorValue(Var_ColorBlanco)
+                        PressedFill: =ColorValue(Var_ColorPressedBoton)
+                        RadiusBottomLeft: =8
+                        RadiusBottomRight: =8
+                        RadiusTopLeft: =8
+                        RadiusTopRight: =8
+                        Size: =Var_FontSizeBoton - 2
+                        Text: ="Aplicar"
+                        Width: =92
+                        X: =176
+                        Y: =7
