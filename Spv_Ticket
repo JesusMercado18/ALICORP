@@ -2072,7 +2072,72 @@ Screens:
                                                       HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
                                                       HoverColor: =RGBA(255, 255, 255, 1)
                                                       HoverFill: =ColorFade(RGBA(56, 96, 178, 1), -20%)
-                                                      OnSelect: "=Set(Var_GridPageSizeSpv,5);\nSet(Var_ResponseSpv, 'LCP-001_Flow_SpvPaginacionTicket'.Run(Var_GridPageSizeSpv,0,\n        Concat(\n            Filter(\n                Col_Spv_QueryTicket,\n                mark\n            ),\n            query,\n            \" and \"\n        ),\"NEXT\"));\n\n\n\nSet(\n    Var_DataSpv,\n    Table(ParseJSON(Var_ResponseSpv.response))\n);\nSet(TotalItemSpv, Value(ParseJSON(Var_ResponseSpv.totalitems)));\nClear(objGalleryDataSpv);\nForAll(\n    FirstN(Var_DataSpv, Var_GridPageSizeSpv),\n    Collect(\n        objGalleryDataSpv,\n{\n            ID: Value(ThisRecord.Value.ID),\n            \n            Gerencia: Text(ThisRecord.Value.Gerencia),\n            Area: Text(ThisRecord.Value.Area),\n            SubArea: Text(ThisRecord.Value.SubArea),\n            Pais: Text(ThisRecord.Value.Pais),\n            Sociedad: Text(ThisRecord.Value.Sociedad),\n            Prioridad: Text(ThisRecord.Value.Prioridad),\n            AnalistaRol: Text(ThisRecord.Value.AnalistaRol),\n            Aprobacion: Text(ThisRecord.Value.Aprobacion),\n            \n            SLA: Value(ThisRecord.Value.SLA),\n            \n            SolicitanteCorreo: Text(ThisRecord.Value.SolicitanteCorreo),\n            SolicitanteNombre: Text(ThisRecord.Value.SolicitanteNombre),\n            SolicitantePais: Text(ThisRecord.Value.SolicitantePais),\n            SolicitanteSociedad: Text(ThisRecord.Value.SolicitanteSociedad),\n            AnalistaCorreo: Text(ThisRecord.Value.AnalistaCorreo),\n            AnalistaNombre: Text(ThisRecord.Value.AnalistaNombre),\n            \n            Detalle: Text(ThisRecord.Value.Detalle),\n            \n            AprobadorCorreo: Text(ThisRecord.Value.AprobadorCorreo),\n            AprobadorNombre: Text(ThisRecord.Value.AprobadorNombre),\n            \n            Var_iosAprobadores: Text(ThisRecord.Value.Var_iosAprobadores),\n            \n            FechaCreado: DateTimeValue(ThisRecord.Value.FechaCreado),\n            FechaVencimiento: DateTimeValue(ThisRecord.Value.FechaVencimiento),\n            FechaModificado: DateTimeValue(ThisRecord.Value.FechaModificado),\n            \n            Codigo: Text(ThisRecord.Value.Codigo),\n            Requerimiento: Text(ThisRecord.Value.Requerimiento),\n            TipoSolicitud: Text(ThisRecord.Value.TipoSolicitud),\n            \n            AprobadoresCheck: Text(ThisRecord.Value.AprobadoresCheck),\n            \n            Estado: Text(ThisRecord.Value.EstadoActual),\n            Asunto: Text(ThisRecord.Value.Asunto),\n            Descripcion: Text(ThisRecord.Value.Descripcion),\n            \n            ConfiguracionTicket: Text(ThisRecord.Value.ConfiguracionTicket)\n        }\n    )\n);\n\n// Guardamos el primer ID REAL de todo el dataset\nSet(Var_FirstIDSpv, Min(objGalleryDataSpv, ID));\n\n// Control real de NEXT (Top + 1)\nSet(Var_HasNextSpv, CountRows(Var_DataSpv) > Var_GridPageSizeSpv);\n"
+                                                      OnSelect: |
+                                                        =Set(Var_GridPageSizeSpv,5);
+                                                        Set(Var_ResponseSpv, 'LCP-001_Flow_SpvPaginacionTicket'.Run(Var_GridPageSizeSpv,0,
+                                                                Concat(
+                                                                    Filter(
+                                                                        Col_Spv_QueryTicket,
+                                                                        mark
+                                                                    ),
+                                                                    query,
+                                                                    " and "
+                                                                ),"NEXT"));
+
+                                                        Set(
+                                                            Var_DataSpv,
+                                                            Table(ParseJSON(Var_ResponseSpv.response))
+                                                        );
+                                                        Set(TotalItemSpv, Value(ParseJSON(Var_ResponseSpv.totalitems)));
+                                                        Clear(objGalleryDataSpv);
+                                                        ForAll(
+                                                            FirstN(Var_DataSpv, Var_GridPageSizeSpv),
+                                                            Collect(
+                                                                objGalleryDataSpv,
+                                                                {
+                                                                    ID: Value(ThisRecord.Value.ID),
+                                                                    Gerencia: Text(ThisRecord.Value.Gerencia),
+                                                                    Area: Text(ThisRecord.Value.Area),
+                                                                    SubArea: Text(ThisRecord.Value.SubArea),
+                                                                    Pais: Text(ThisRecord.Value.Pais),
+                                                                    Sociedad: Text(ThisRecord.Value.Sociedad),
+                                                                    Prioridad: Text(ThisRecord.Value.Prioridad),
+                                                                    AnalistaRol: Text(ThisRecord.Value.AnalistaRol),
+                                                                    Aprobacion: Text(ThisRecord.Value.Aprobacion),
+                                                                    SLA: Value(ThisRecord.Value.SLA),
+                                                                    SolicitanteCorreo: Text(ThisRecord.Value.SolicitanteCorreo),
+                                                                    SolicitanteNombre: Text(ThisRecord.Value.SolicitanteNombre),
+                                                                    SolicitantePais: Text(ThisRecord.Value.SolicitantePais),
+                                                                    SolicitanteSociedad: Text(ThisRecord.Value.SolicitanteSociedad),
+                                                                    AnalistaCorreo: Text(ThisRecord.Value.AnalistaCorreo),
+                                                                    AnalistaNombre: Text(ThisRecord.Value.AnalistaNombre),
+                                                                    NombreAtendidoPor: Text(ThisRecord.Value.NombreAtendidoPor),
+                                                                    CorreoAtendidoPor: Text(ThisRecord.Value.CorreoAtendidoPor),
+                                                                    Detalle: Text(ThisRecord.Value.Detalle),
+                                                                    AprobadorCorreo: Text(ThisRecord.Value.AprobadorCorreo),
+                                                                    AprobadorNombre: Text(ThisRecord.Value.AprobadorNombre),
+                                                                    Var_iosAprobadores: Text(ThisRecord.Value.Var_iosAprobadores),
+                                                                    FechaCreado: DateTimeValue(ThisRecord.Value.FechaCreado),
+                                                                    FechaVencimiento: DateTimeValue(ThisRecord.Value.FechaVencimiento),
+                                                                    FechaModificado: DateTimeValue(ThisRecord.Value.FechaModificado),
+                                                                    Codigo: Text(ThisRecord.Value.Codigo),
+                                                                    Requerimiento: Text(ThisRecord.Value.Requerimiento),
+                                                                    TipoSolicitud: Text(ThisRecord.Value.TipoSolicitud),
+                                                                    AprobadoresCheck: Text(ThisRecord.Value.AprobadoresCheck),
+                                                                    Estado: Text(ThisRecord.Value.EstadoActual),
+                                                                    Asunto: Text(ThisRecord.Value.Asunto),
+                                                                    Descripcion: Text(ThisRecord.Value.Descripcion),
+                                                                    MotivoDerivacion: Text(ThisRecord.Value.MotivoDerivacion),
+                                                                    ConfiguracionTicket: Text(ThisRecord.Value.ConfiguracionTicket)
+                                                                }
+                                                            )
+                                                        );
+
+                                                        // Guardamos el primer ID REAL de todo el dataset
+                                                        Set(Var_FirstIDSpv, Min(objGalleryDataSpv, ID));
+
+                                                        // Control real de NEXT (Top + 1)
+                                                        Set(Var_HasNextSpv, CountRows(Var_DataSpv) > Var_GridPageSizeSpv);
                                                       PressedBorderColor: =Self.Fill
                                                       PressedColor: =Self.Fill
                                                       PressedFill: =Self.Color
