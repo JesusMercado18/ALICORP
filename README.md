@@ -1,2 +1,4 @@
 # ALICORP
 PROYECTO CANVA APP
+Prompt:
+Hola, necesito que comprendas y leas totalmente el repositorio de Alicorp que te adjunte como conocimiento. NEcesito que entiendas cada archivo y el contenido YAML que hay dentro. Ya que me ayudaras a mejorar este proyecto, necesito que mantengas los mismos lineamientos que se usan por ejemplo los combobox personalizados que se crearon con contenedores y galerias, los inputtext que se crearon con contenedores, etc. Necesito que te tomes todo el tiempo posible para entender todo el repositorio para que no me des informacion erronea. Me confirmas cuando te hayas leido todo el repositorio y que hayas comprendido todo y que tengas todo el conocimiento del codigo YAML. Toma tu tiempo para comprender todo y me confirmas con un "Estoy listo"
