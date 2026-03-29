@@ -2173,16 +2173,7 @@ Screens:
                                                             HoverColor: =Color.White
                                                             HoverFill: =Color.Transparent
                                                             OnSelect: |-
-                                                              =//Set(Var_AnlGerenciaSeleccionada; Text(First(Distinct(colSeleccionados;ThisRecord.Gerencia)).Value));;
-
-
-
-
-
-                                                              //UpdateContext({ varGerenciaSelected : { Value: Var_AnlGerenciaSeleccionada} });;
-
-
-                                                              UpdateContext({
+                                                              =UpdateContext({
                                                                   varGerenciaSelected: Blank(),
                                                                   varUpdateAreaSelected: Blank(),
                                                                   varUpdateSubAreaSelected: Blank(),
@@ -2299,7 +2290,7 @@ Screens:
                                           X: =Spv_CtnFiltrosTicket.Width - Self.Width - 1
                                           Y: =Spv_CtnFiltrosTicket.Height
                                         Children:
-                                          - Anl_LblFiltrosTicket:
+                                          - Spv_LblFiltrosTicket:
                                               Control: Label@2.5.1
                                               Properties:
                                                 BorderColor: =RGBA(0, 18, 107, 1)
@@ -2309,7 +2300,7 @@ Screens:
                                                 Text: ="Filtros"
                                                 X: =12
                                                 Y: =12
-                                          - Anl_BtnAplicarFiltroTicket:
+                                          - Spv_BtnAplicarFiltroTicket:
                                               Control: Classic/Button@2.2.0
                                               Properties:
                                                 BorderColor: =ColorValue(Var_ColorHoverBoton)
