@@ -3598,7 +3598,7 @@ Screens:
                                           RadiusBottomRight: =8
                                           RadiusTopLeft: =8
                                           RadiusTopRight: =8
-                                          Visible: =false//Var_Ctx_MostrarFiltrosTicket
+                                          Visible: =Var_Ctx_MostrarFiltrosTicket
                                           Width: =280
                                           X: =Spv_CtnFiltrosTicket.Width - Self.Width - 1
                                           Y: =Spv_CtnFiltrosTicket.Height
@@ -3629,71 +3629,36 @@ Screens:
                                                 OnSelect: |-
                                                   =With(
                                                       {
-                                                          _FechaInicio: Text(DateValue(var_RangeDatePicker_DateStart), "yyyy-mm-dd") & "T00:00:00Z",
+                                                          _FechaInicio: Text(var_RangeDatePicker_DateStart, "yyyy-mm-dd") & "T00:00:00Z",
                                                           _FechaFin: If(
                                                               IsBlank(var_RangeDatePicker_DateEnd),
                                                               Blank(),
-                                                              Text(DateValue(var_RangeDatePicker_DateEnd), "yyyy-mm-dd") & "T23:59:59Z"
+                                                              Text(var_RangeDatePicker_DateEnd, "yyyy-mm-dd") & "T23:59:59Z"
                                                           )
                                                       },
                                                       If(
-                                                          IsBlank(var_RangeDatePicker_DateStart),
-                                                          Patch(
-                                                              Col_Anl_QueryTicket,
-                                                              LookUp(Col_Anl_QueryTicket, input = "FechaCreado"),
-                                                              { mark: false, query: "" }
-                                                          ),
-                                                          Patch(
-                                                              Col_Anl_QueryTicket,
-                                                              LookUp(Col_Anl_QueryTicket, input = "FechaCreado"),
-                                                              {
-                                                                  mark: true,
-                                                                  query: If(
-                                                                      IsBlank(_FechaFin),
-                                                                      "FechaCreado ge datetime'" & _FechaInicio & "'",
-                                                                      "FechaCreado ge datetime'" & _FechaInicio & "' and FechaCreado le datetime'" & _FechaFin & "'"
-                                                                  )
-                                                              }
-                                                          )
+                                                          IsBlank(var_RangeDatePicker_DateStart) || Anl_LblMostrarFechaTicket_1.Text = "Seleccionar",
+                                                          Patch(Col_Spv_QueryTicket, LookUp(Col_Spv_QueryTicket, input = "FechaCreado"), { mark: false, query: "" }),
+                                                          Patch(Col_Spv_QueryTicket, LookUp(Col_Spv_QueryTicket, input = "FechaCreado"), { mark: true, query: If(IsBlank(_FechaFin), "FechaCreado ge datetime'" & _FechaInicio & "'", "FechaCreado ge datetime'" & _FechaInicio & "' and FechaCreado le datetime'" & _FechaFin & "'") })
                                                       )
                                                   );
-                                                  Patch(
-                                                      Col_Anl_QueryTicket,
-                                                      { input: "Gerencia" },
-                                                      If(
-                                                          IsBlank(Var_FiltroGerencia),
-                                                          { mark: false, query: "" },
-                                                          { mark: true, query: "Gerencia eq '" & Var_FiltroGerencia & "'" }
-                                                      )
-                                                  );
-                                                  Patch(
-                                                      Col_Anl_QueryTicket,
-                                                      { input: "Area" },
-                                                      If(
-                                                          IsBlank(Var_FiltroArea),
-                                                          { mark: false, query: "" },
-                                                          { mark: true, query: "Area eq '" & Var_FiltroArea & "'" }
-                                                      )
-                                                  );
-                                                  Patch(
-                                                      Col_Anl_QueryTicket,
-                                                      { input: "SubArea" },
-                                                      If(
-                                                          IsBlank(Var_FiltroSubArea),
-                                                          { mark: false, query: "" },
-                                                          { mark: true, query: "SubArea eq '" & Var_FiltroSubArea & "'" }
-                                                      )
-                                                  );
-                                                  Patch(
-                                                      Col_Anl_QueryTicket,
-                                                      { input: "TipoSolicitud" },
-                                                      If(
-                                                          IsBlank(Var_TipoSolicitud),
-                                                          { mark: false, query: "" },
-                                                          { mark: true, query: "TipoSolicitud eq '" & Var_TipoSolicitud & "'" }
-                                                      )
-                                                  );
+
+                                                  Patch(Col_Spv_QueryTicket, LookUp(Col_Spv_QueryTicket, input = "Gerencia"), If(IsBlank(Var_FiltroGerencia) || Var_FiltroGerencia = "Todos", { mark: false, query: "" }, { mark: true, query: "Gerencia eq '" & Var_FiltroGerencia & "'" }));
+
+                                                  Patch(Col_Spv_QueryTicket, LookUp(Col_Spv_QueryTicket, input = "Area"), If(IsBlank(Var_FiltroArea) || Var_FiltroArea = "Todos", { mark: false, query: "" }, { mark: true, query: "Area eq '" & Var_FiltroArea & "'" }));
+
+
+                                                  Patch(Col_Spv_QueryTicket, LookUp(Col_Spv_QueryTicket, input = "SubArea"), If(IsBlank(Var_FiltroSubArea) || Var_FiltroSubArea = "Todos", { mark: false, query: "" }, { mark: true, query: "SubArea eq '" & Var_FiltroSubArea & "'" }));
+
+
+                                                  Patch(Col_Spv_QueryTicket, LookUp(Col_Spv_QueryTicket, input = "TipoSolicitud"), If(IsBlank(Var_FiltroRequerimiento) || Var_FiltroRequerimiento = "Todos", { mark: false, query: "" }, { mark: true, query: "TipoSolicitud eq '" & Var_FiltroRequerimiento & "'" }));
+
+
+                                                  Patch(Col_Spv_QueryTicket, LookUp(Col_Spv_QueryTicket, input = "NombreAtendidoPor"), If(IsBlank(Var_AtendidoPor) || Var_AtendidoPor = "Todos", { mark: false, query: "" }, { mark: true, query: "NombreAtendidoPor eq '" & Var_AtendidoPor & "'" }));
+
+
                                                   Select(Spv_BtnActualizarFiltrosTicket);
+
                                                   UpdateContext({ Var_Ctx_MostrarFiltrosTicket: false })
                                                 PressedBorderColor: =Self.PressedFill
                                                 PressedColor: =ColorValue(Var_ColorBlanco)
@@ -3763,15 +3728,18 @@ Screens:
                                                     Control: Label@2.5.1
                                                     Properties:
                                                       Align: =Align.Center
-                                                      BorderColor: =RGBA(0, 18, 107, 1)
+                                                      BorderColor: =RGBA(0, 0, 0, 0)
                                                       Color: |-
                                                         =If(
                                                             IsBlank(var_RangeDatePicker_DateStart),
                                                             ColorValue(Var_ColorGray),
                                                             ColorValue(Var_ColorIconNegro)
                                                         )
+                                                      DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                                                      FocusedBorderColor: =
                                                       Font: =Font.'Open Sans'
                                                       Height: =Parent.Height
+                                                      HoverBorderColor: =
                                                       PaddingLeft: =0
                                                       PaddingRight: =0
                                                       Size: =10
@@ -3821,11 +3789,12 @@ Screens:
                                                     Properties:
                                                       BorderColor: =ColorFade(Self.Fill, -15%)
                                                       Color: =RGBA(122, 138, 143, 1)
-                                                      DisabledBorderColor: =RGBA(166, 166, 166, 1)
-                                                      Fill: =RGBA(255, 255, 255, 0)
+                                                      DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                                                      DisabledFill: =RGBA(0, 0, 0, 0)
+                                                      Fill: =RGBA(0, 0, 0, 0)
                                                       Font: =Font.'Open Sans'
                                                       Height: =Parent.Height
-                                                      HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                                                      HoverBorderColor: =
                                                       HoverColor: =RGBA(255, 255, 255, 1)
                                                       HoverFill: =RGBA(0, 0, 0, 0)
                                                       OnSelect: |-
@@ -3838,10 +3807,12 @@ Screens:
                                                             }
                                                         );
                                                         Select(Anl_IcoActualizarMesTicket_1)
-                                                      PressedBorderColor: =Self.Fill
+                                                      PressedBorderColor: =
                                                       PressedColor: =Self.Fill
+                                                      PressedFill: =
                                                       Text: =""
-                                                      Width: =Parent.Width
+                                                      Width: =Parent.Width - Anl_IcoLimpiarFechaTicket_1.Width - 10
+                                                      X: =40
                                           - Spv_GalOtrosFiltrosTicket_2:
                                               Control: Gallery@2.15.0
                                               Variant: VariableHeight
@@ -4195,7 +4166,6 @@ Screens:
                                                                   TemplatePadding: =0
                                                                   TemplateSize: =Self.Height / If(Self.AllItemsCount > 0, Self.AllItemsCount, 1)
                                                                   Width: =Parent.TemplateWidth
-                                                                  X: =40
                                                                   Y: =Anl_LblDiaSemanaTicket_1.Height
                                                                 Children:
                                                                   - Anl_LblSeleccionarFechaTicket_1:
@@ -4322,7 +4292,7 @@ Screens:
                                                                         BorderColor: =RGBA(0, 18, 107, 1)
                                                                         Color: =ColorValue(Var_ColorBoton)
                                                                         Font: =Font.'Open Sans'
-                                                                        Height: =10
+                                                                        Height: =Parent.TemplateHeight + 25
                                                                         OnSelect: =Select(Parent)
                                                                         Size: =12
                                                                         Text: ="•"
