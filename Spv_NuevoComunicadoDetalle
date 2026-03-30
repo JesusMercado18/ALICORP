@@ -2687,7 +2687,7 @@ Screens:
                                                             Color: =RGBA(180, 214, 250, 1)
                                                             Fill: =ColorValue(Var_ColorFadeBoton)
                                                             Font: =Font.'Open Sans'
-                                                            Height: =Parent.Height -139
+                                                            Height: =Parent.Height - 170
                                                             OnSelect: =Select(Parent)
                                                             Text: =""
                                                             Visible: |-
