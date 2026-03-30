@@ -1372,6 +1372,94 @@ Screens:
                                                                   Text: '=Var_SpvTicketSeleccionada.Descripcion '
                                                                   VerticalAlign: =VerticalAlign.Top
                                                                   Width: =Parent.Width
+                                                      - Sol_DatosDinamicos:
+                                                          Control: Gallery@2.15.0
+                                                          Variant: Vertical
+                                                          Properties:
+                                                            BorderColor: =RGBA(0, 18, 107, 1)
+                                                            FillPortions: =0
+                                                            Height: |-
+                                                              =With(
+                                                                  {
+                                                                      // 1. Primero obtenemos el conteo total
+                                                                      TotalItems: CountRows(
+                                                                          Filter(
+                                                                              Table(ParseJSON(Var_SpvTicketSeleccionada.CamposAdicionalesTicket)),
+                                                                              !IsBlank(ThisRecord.Value.ID) &&
+                                                                              Text(ThisRecord.Value.Tipo) <> Var_JSONConfigurarTipoCampo.Adjunto && 
+                                                                              !IsBlank(Text(ThisRecord.Value.ValorSeleccionad)) && 
+                                                                              Text(ThisRecord.Value.ValorSeleccionad) <> ""
+                                                                          )
+                                                                      )
+                                                                  },
+                                                                  With(
+                                                                      {
+                                                                          // 2. Ahora que TotalItems ya existe, calculamos las filas
+                                                                          Rows: RoundUp(TotalItems / 2, 0)
+                                                                      },
+                                                                      // 3. Aplicamos la lógica de altura (TemplateSize o TemplateHeight)
+                                                                      Min(Rows * Self.TemplateHeight, 600) + 5
+                                                                  )
+                                                              )
+                                                            Items: |-
+                                                              =Filter(
+                                                                  Table(ParseJSON(Var_SpvTicketSeleccionada.CamposAdicionalesTicket)),
+                                                                  // 1. Asegurar que es un campo válido (que tenga ID)
+                                                                  !IsBlank(ThisRecord.Value.ID) &&
+                                                                  // 2. Que no sea de tipo Adjunto
+                                                                  Text(ThisRecord.Value.Tipo) <> Var_JSONConfigurarTipoCampo.Adjunto && 
+                                                                  // 3. Que tenga contenido real
+                                                                  !IsBlank(Text(ThisRecord.Value.ValorSeleccionad)) && 
+                                                                  Text(ThisRecord.Value.ValorSeleccionad) <> ""
+                                                              )
+                                                            LayoutMinHeight: =16
+                                                            LayoutMinWidth: =16
+                                                            TemplatePadding: =1
+                                                            TemplateSize: =120
+                                                            WrapCount: =2
+                                                          Children:
+                                                            - Container55:
+                                                                Control: GroupContainer@1.5.0
+                                                                Variant: AutoLayout
+                                                                Properties:
+                                                                  Height: =Parent.TemplateHeight - 10
+                                                                  LayoutAlignItems: =LayoutAlignItems.Center
+                                                                  LayoutDirection: =LayoutDirection.Vertical
+                                                                  PaddingBottom: =10
+                                                                  PaddingLeft: =10
+                                                                  PaddingRight: =10
+                                                                  PaddingTop: =10
+                                                                  Width: =Parent.TemplateWidth - 10
+                                                                Children:
+                                                                  - Label36:
+                                                                      Control: Label@2.5.1
+                                                                      Properties:
+                                                                        AlignInContainer: =AlignInContainer.Stretch
+                                                                        AutoHeight: =true
+                                                                        BorderColor: =RGBA(0, 18, 107, 1)
+                                                                        FillPortions: =1
+                                                                        Font: =Font.'Open Sans'
+                                                                        FontWeight: =FontWeight.Semibold
+                                                                        Height: =51
+                                                                        OnSelect: =//Select(Parent)
+                                                                        Size: =12
+                                                                        Text: =ThisItem.Value.Label
+                                                                        Width: =339
+                                                                        X: =40
+                                                                        Y: =40
+                                                                  - Label37:
+                                                                      Control: Label@2.5.1
+                                                                      Properties:
+                                                                        AlignInContainer: =AlignInContainer.Stretch
+                                                                        BorderColor: =RGBA(0, 18, 107, 1)
+                                                                        Color: =ColorValue(Var_ColorBordeBoton)
+                                                                        FillPortions: =1
+                                                                        Font: =Font.'Open Sans'
+                                                                        OnSelect: =//Select(Parent)
+                                                                        Text: =ThisItem.Value.ValorSeleccionad
+                                                                        Width: =187
+                                                                        X: =40
+                                                                        Y: =40
                                                       - Spv_GalAdjuntosComentariosDetalleTicket:
                                                           Control: Gallery@2.15.0
                                                           Variant: Vertical
