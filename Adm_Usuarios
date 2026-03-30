@@ -356,7 +356,7 @@ Screens:
                                   Properties:
                                     DropShadow: =DropShadow.None
                                     Height: =560
-                                    Width: =Parent.Width -48
+                                    Width: =Parent.Width - 45
                                     X: =24
                                     Y: =24
                                   Children:
@@ -573,9 +573,8 @@ Screens:
                                           LayoutAlignItems: =LayoutAlignItems.Stretch
                                           LayoutDirection: =LayoutDirection.Vertical
                                           LayoutOverflowX: =LayoutOverflow.Scroll
-                                          Width: |
-                                            =Parent.Width
-                                          Y: =AdmUsr_CtnFiltros.Height + 50
+                                          Width: = Parent .Width + 200
+                                          Y: =AdmUsr_CtnFiltros.Height + 25
                                         Children:
                                           - AdmUsr_CtnCabeceraDatos:
                                               Control: GroupContainer@1.5.0
@@ -588,34 +587,26 @@ Screens:
                                                 LayoutAlignItems: =LayoutAlignItems.Stretch
                                                 LayoutDirection: =LayoutDirection.Horizontal
                                                 LayoutGap: =5
-                                                LayoutMinWidth: =If(Gbl_Menu_Spv_Ticket.verMenu,Parent.Width + 150 ,Parent.Width)
-                                                LayoutWrap: =true
+                                                LayoutMinWidth: |-
+                                                  =//1225
+                                                  Parent.Width + 210
                                                 PaddingBottom: =8
                                                 PaddingLeft: =18
                                                 PaddingRight: =8
                                                 PaddingTop: =8
-                                                X: =40
-                                                Y: =40
                                               Children:
                                                 - AdmUsr_CtnColCodPersonal:
                                                     Control: GroupContainer@1.5.0
                                                     Variant: ManualLayout
                                                     Properties:
-                                                      AlignInContainer: =AlignInContainer.SetByContainer
                                                       DropShadow: =DropShadow.None
-                                                      FillPortions: =0.6
-                                                      Height: =Parent.Height
-                                                      LayoutMinHeight: =Parent.Height
-                                                      LayoutMinWidth: =0
-                                                      Width: =300
+                                                      FillPortions: =0
+                                                      Width: =120
                                                     Children:
                                                       - AdmUsr_LblColCodPersonal:
                                                           Control: Label@2.5.1
                                                           Properties:
-                                                            BorderColor: =RGBA(0, 18, 107, 1)
-                                                            Font: =Font.'Open Sans'
                                                             FontWeight: =FontWeight.Semibold
-                                                            Height: =Parent.Height
                                                             Size: =Var_FontSizeHeaderTable
                                                             Text: ="Cod. Personal"
                                                             Width: =Parent.Width
@@ -623,22 +614,14 @@ Screens:
                                                     Control: GroupContainer@1.5.0
                                                     Variant: ManualLayout
                                                     Properties:
-                                                      AlignInContainer: =AlignInContainer.SetByContainer
                                                       DropShadow: =DropShadow.None
-                                                      FillPortions: =0.466
-                                                      Height: =Parent.Height
-                                                      LayoutMaxWidth: =90
-                                                      LayoutMinHeight: =16
-                                                      LayoutMinWidth: =0
-                                                      Width: =110
+                                                      FillPortions: =0
+                                                      Width: =150
                                                     Children:
                                                       - AdmUsr_LblColNombre:
                                                           Control: Label@2.5.1
                                                           Properties:
-                                                            BorderColor: =RGBA(0, 18, 107, 1)
-                                                            Font: =Font.'Open Sans'
                                                             FontWeight: =FontWeight.Semibold
-                                                            Height: =Parent.Height
                                                             Size: =Var_FontSizeHeaderTable
                                                             Text: ="Nombre"
                                                             Width: =Parent.Width
@@ -646,21 +629,14 @@ Screens:
                                                     Control: GroupContainer@1.5.0
                                                     Variant: ManualLayout
                                                     Properties:
-                                                      AlignInContainer: =AlignInContainer.SetByContainer
                                                       DropShadow: =DropShadow.None
-                                                      FillPortions: =0.393
-                                                      Height: =Parent.Height
-                                                      LayoutMinHeight: =16
-                                                      LayoutMinWidth: =16
-                                                      Width: =200
+                                                      FillPortions: =0
+                                                      Width: =150
                                                     Children:
                                                       - AdmUsr_LblColApellido:
                                                           Control: Label@2.5.1
                                                           Properties:
-                                                            BorderColor: =RGBA(0, 18, 107, 1)
-                                                            Font: =Font.'Open Sans'
                                                             FontWeight: =FontWeight.Semibold
-                                                            Height: =Parent.Height
                                                             Size: =Var_FontSizeHeaderTable
                                                             Text: ="Apellido"
                                                             Width: =Parent.Width
@@ -668,20 +644,14 @@ Screens:
                                                     Control: GroupContainer@1.5.0
                                                     Variant: ManualLayout
                                                     Properties:
-                                                      AlignInContainer: =AlignInContainer.SetByContainer
                                                       DropShadow: =DropShadow.None
-                                                      Height: =Parent.Height
-                                                      LayoutMaxWidth: =250
-                                                      LayoutMinHeight: =16
-                                                      LayoutMinWidth: =16
+                                                      FillPortions: =0
+                                                      Width: =250
                                                     Children:
                                                       - AdmUsr_LblColCorreo:
                                                           Control: Label@2.5.1
                                                           Properties:
-                                                            BorderColor: =RGBA(0, 18, 107, 1)
-                                                            Font: =Font.'Open Sans'
                                                             FontWeight: =FontWeight.Semibold
-                                                            Height: =Parent.Height
                                                             Size: =Var_FontSizeHeaderTable
                                                             Text: ="Correo"
                                                             Width: =Parent.Width
@@ -689,21 +659,14 @@ Screens:
                                                     Control: GroupContainer@1.5.0
                                                     Variant: ManualLayout
                                                     Properties:
-                                                      AlignInContainer: =AlignInContainer.SetByContainer
                                                       DropShadow: =DropShadow.None
-                                                      Height: =Parent.Height
-                                                      LayoutMaxWidth: =250
-                                                      LayoutMinHeight: =16
-                                                      LayoutMinWidth: =16
-                                                      Width: =120
+                                                      FillPortions: =0
+                                                      Width: =150
                                                     Children:
                                                       - AdmUsr_LblColRol:
                                                           Control: Label@2.5.1
                                                           Properties:
-                                                            BorderColor: =RGBA(0, 18, 107, 1)
-                                                            Font: =Font.'Open Sans'
                                                             FontWeight: =FontWeight.Semibold
-                                                            Height: =Parent.Height
                                                             Size: =Var_FontSizeHeaderTable
                                                             Text: ="Rol"
                                                             Width: =Parent.Width
@@ -711,22 +674,15 @@ Screens:
                                                     Control: GroupContainer@1.5.0
                                                     Variant: ManualLayout
                                                     Properties:
-                                                      AlignInContainer: =AlignInContainer.SetByContainer
                                                       DropShadow: =DropShadow.None
-                                                      Height: =Parent.Height
-                                                      LayoutMaxWidth: =100
-                                                      LayoutMinHeight: =16
-                                                      LayoutMinWidth: =16
+                                                      FillPortions: =0
                                                       Width: =120
                                                     Children:
                                                       - AdmUsr_LblColEstado:
                                                           Control: Label@2.5.1
                                                           Properties:
                                                             Align: =Align.Center
-                                                            BorderColor: =RGBA(0, 18, 107, 1)
-                                                            Font: =Font.'Open Sans'
                                                             FontWeight: =FontWeight.Semibold
-                                                            Height: =Parent.Height
                                                             Size: =Var_FontSizeHeaderTable
                                                             Text: ="Estado"
                                                             Width: =Parent.Width
@@ -734,22 +690,15 @@ Screens:
                                                     Control: GroupContainer@1.5.0
                                                     Variant: ManualLayout
                                                     Properties:
-                                                      AlignInContainer: =AlignInContainer.SetByContainer
                                                       DropShadow: =DropShadow.None
-                                                      Height: =Parent.Height
-                                                      LayoutMaxWidth: =100
-                                                      LayoutMinHeight: =16
-                                                      LayoutMinWidth: =16
-                                                      Width: =120
+                                                      FillPortions: =0
+                                                      Width: =150
                                                     Children:
                                                       - AdmUsr_LblColGerencia:
                                                           Control: Label@2.5.1
                                                           Properties:
                                                             Align: =Align.Center
-                                                            BorderColor: =RGBA(0, 18, 107, 1)
-                                                            Font: =Font.'Open Sans'
                                                             FontWeight: =FontWeight.Semibold
-                                                            Height: =Parent.Height
                                                             Size: =Var_FontSizeHeaderTable
                                                             Text: ="Gerencia"
                                                             Width: =Parent.Width
@@ -757,22 +706,15 @@ Screens:
                                                     Control: GroupContainer@1.5.0
                                                     Variant: ManualLayout
                                                     Properties:
-                                                      AlignInContainer: =AlignInContainer.SetByContainer
                                                       DropShadow: =DropShadow.None
-                                                      Height: =Parent.Height
-                                                      LayoutMaxWidth: =100
-                                                      LayoutMinHeight: =16
-                                                      LayoutMinWidth: =16
-                                                      Width: =120
+                                                      FillPortions: =0
+                                                      Width: =100
                                                     Children:
                                                       - AdmUsr_LblColAcciones:
                                                           Control: Label@2.5.1
                                                           Properties:
                                                             Align: =Align.Center
-                                                            BorderColor: =RGBA(0, 18, 107, 1)
-                                                            Font: =Font.'Open Sans'
                                                             FontWeight: =FontWeight.Semibold
-                                                            Height: =Parent.Height
                                                             Size: =Var_FontSizeHeaderTable
                                                             Text: ="Acciones"
                                                             Width: =Parent.Width
@@ -786,7 +728,7 @@ Screens:
                                                 Height: =350
                                                 Items: =Sort(objGalleryDataAdmUsuarios,Value(ThisRecord.ID), SortOrder.Ascending)
                                                 LayoutMinHeight: =16
-                                                LayoutMinWidth: =If(Gbl_Menu_Spv_Ticket.verMenu,Parent.Width + 150 ,Parent.Width)
+                                                LayoutMinWidth: =If(Gbl_Menu_Spv_Ticket.verMenu,Parent.Width + 150 ,Parent.Width) + 40
                                                 OnSelect: =
                                                 TemplatePadding: =10
                                                 TemplateSize: =60
@@ -800,116 +742,70 @@ Screens:
                                                       LayoutAlignItems: =LayoutAlignItems.Stretch
                                                       LayoutDirection: =LayoutDirection.Horizontal
                                                       LayoutGap: =5
-                                                      LayoutWrap: =true
                                                       PaddingBottom: =8
                                                       PaddingLeft: =10
                                                       PaddingTop: =8
-                                                      RadiusBottomLeft: =8
-                                                      RadiusBottomRight: =8
-                                                      RadiusTopLeft: =8
-                                                      RadiusTopRight: =8
+                                                      RadiusBottomLeft: =5
+                                                      RadiusBottomRight: =5
+                                                      RadiusTopLeft: =5
+                                                      RadiusTopRight: =5
                                                       Width: |-
-                                                        =//1008
-                                                        Parent.Width - 20
+                                                        =//1158
+                                                        Parent.Width - 200
                                                     Children:
                                                       - AdmUsr_CtnCodPersonal:
                                                           Control: GroupContainer@1.5.0
                                                           Variant: ManualLayout
                                                           Properties:
-                                                            AlignInContainer: =AlignInContainer.SetByContainer
                                                             DropShadow: =DropShadow.None
-                                                            FillPortions: =0.3
-                                                            LayoutMinHeight: =0
-                                                            LayoutMinWidth: =0
+                                                            FillPortions: =0
+                                                            Width: =120
                                                           Children:
                                                             - AdmUsr_LblCodPersonal:
                                                                 Control: Label@2.5.1
                                                                 Properties:
-                                                                  BorderColor: =RGBA(0, 0, 0, 0)
-                                                                  BorderStyle: =BorderStyle.None
-                                                                  BorderThickness: =2
-                                                                  Color: =RGBA(50, 49, 48, 1)
-                                                                  DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                                                                  DisabledColor: =RGBA(161, 159, 157, 1)
-                                                                  FocusedBorderThickness: =4
-                                                                  Font: =Font.'Segoe UI'
-                                                                  Height: =Parent.Height - 10
                                                                   Size: =Var_FontSizeCuerpoTable
                                                                   Text: =ThisItem.Codigo
-                                                                  Tooltip: =ThisItem.Codigo
                                                                   Width: =Parent.Width
-                                                                  Y: =5
                                                       - AdmUsr_CtnInfoNombre:
                                                           Control: GroupContainer@1.5.0
                                                           Variant: ManualLayout
                                                           Properties:
-                                                            AlignInContainer: =AlignInContainer.SetByContainer
                                                             DropShadow: =DropShadow.None
-                                                            FillPortions: =0.78
-                                                            LayoutMinHeight: =0
-                                                            LayoutMinWidth: =0
-                                                            Width: =200
+                                                            FillPortions: =0
+                                                            Width: =150
                                                           Children:
                                                             - AdmUsr_LblInfoNombre:
                                                                 Control: Label@2.5.1
                                                                 Properties:
-                                                                  BorderColor: =RGBA(0, 18, 107, 1)
-                                                                  Font: =Font.'Open Sans'
-                                                                  Height: |-
-                                                                    =//40
-                                                                    Parent.Height - 10
-                                                                  OnSelect: =Select(AdmUsr_GlrUsuarios)
-                                                                  Overflow: =Overflow.Scroll
                                                                   Size: =Var_FontSizeCuerpoTable
                                                                   Text: =ThisItem.Nombre
-                                                                  Tooltip: =ThisItem.Nombre
-                                                                  Width: |-
-                                                                    =//150
-                                                                    Parent.Width
-                                                                  Y: =5
+                                                                  Width: =Parent.Width
                                                       - AdmUsr_CtnInfoApellido:
                                                           Control: GroupContainer@1.5.0
                                                           Variant: ManualLayout
                                                           Properties:
-                                                            AlignInContainer: =AlignInContainer.SetByContainer
                                                             DropShadow: =DropShadow.None
-                                                            FillPortions: =0.85
-                                                            LayoutMinHeight: =0
-                                                            LayoutMinWidth: =0
-                                                            Width: =100
+                                                            FillPortions: =0
+                                                            Width: =150
                                                           Children:
                                                             - AdmUsr_LblInfoApellido:
                                                                 Control: Label@2.5.1
                                                                 Properties:
-                                                                  BorderColor: =RGBA(0, 18, 107, 1)
-                                                                  Font: =Font.'Open Sans'
-                                                                  FontWeight: =FontWeight.Semibold
-                                                                  Height: =Parent.Height - 10
-                                                                  OnSelect: =Select(AdmUsr_GlrUsuarios)
-                                                                  PaddingLeft: =10
                                                                   Size: =Var_FontSizeCuerpoTable
                                                                   Text: =ThisItem.Apellido
                                                                   Width: =Parent.Width
-                                                                  Y: =5
                                                       - AdmUsr_CtnInfoCorreo:
                                                           Control: GroupContainer@1.5.0
                                                           Variant: ManualLayout
                                                           Properties:
-                                                            AlignInContainer: =AlignInContainer.SetByContainer
                                                             DropShadow: =DropShadow.None
-                                                            FillPortions: =1.5
-                                                            LayoutMinHeight: =0
-                                                            LayoutMinWidth: =0
-                                                            Width: =100
+                                                            FillPortions: =0
+                                                            Width: =250
                                                           Children:
                                                             - AdmUsr_LblInfoCorreo:
                                                                 Control: Label@2.5.1
                                                                 Properties:
-                                                                  BorderColor: =RGBA(0, 18, 107, 1)
-                                                                  Font: =Font.'Open Sans'
-                                                                  Height: =Parent.Height
-                                                                  OnSelect: =Select(AdmUsr_GlrUsuarios)
-                                                                  Overflow: =Overflow.Scroll
                                                                   Size: =Var_FontSizeCuerpoTable
                                                                   Text: =ThisItem.CorreoUsuario
                                                                   Width: =Parent.Width
@@ -917,20 +813,13 @@ Screens:
                                                           Control: GroupContainer@1.5.0
                                                           Variant: ManualLayout
                                                           Properties:
-                                                            AlignInContainer: =AlignInContainer.SetByContainer
                                                             DropShadow: =DropShadow.None
-                                                            FillPortions: =1.5
-                                                            LayoutMinHeight: =0
-                                                            LayoutMinWidth: =0
-                                                            Width: =100
+                                                            FillPortions: =0
+                                                            Width: =150
                                                           Children:
                                                             - AdmUsr_LblInfoRol:
                                                                 Control: Label@2.5.1
                                                                 Properties:
-                                                                  BorderColor: =RGBA(0, 18, 107, 1)
-                                                                  Font: =Font.'Open Sans'
-                                                                  Height: =Parent.Height
-                                                                  OnSelect: =Select(AdmUsr_GlrUsuarios)
                                                                   Size: =Var_FontSizeCuerpoTable
                                                                   Text: =ThisItem.RolPerfil
                                                                   Width: =Parent.Width
@@ -938,29 +827,14 @@ Screens:
                                                           Control: GroupContainer@1.5.0
                                                           Variant: ManualLayout
                                                           Properties:
-                                                            AlignInContainer: =AlignInContainer.SetByContainer
                                                             DropShadow: =DropShadow.None
-                                                            Height: =30
-                                                            LayoutMinHeight: =0
-                                                            LayoutMinWidth: =0
-                                                            RadiusBottomLeft: =10
-                                                            RadiusBottomRight: =10
-                                                            RadiusTopLeft: =10
-                                                            RadiusTopRight: =10
-                                                            Width: =100
+                                                            FillPortions: =0
+                                                            Width: =120
                                                           Children:
                                                             - AdmUsr_LblInfoEstado:
                                                                 Control: Label@2.5.1
                                                                 Properties:
                                                                   Align: =Align.Center
-                                                                  AutoHeight: =true
-                                                                  BorderColor: =RGBA(0, 18, 107, 1)
-                                                                  Color: =Switch(Text(ThisItem.Estado),"Publicado",ColorValue(Var_ColorIconTicketVerde),"Borrador",ColorValue(Var_ColorIconTicketNaranja))
-                                                                  Fill: =Switch(Text(ThisItem.Estado),"Inactivo",ColorValue(Var_ColorFadeIconTicketNaranja),"Activo",ColorValue(Var_ColorFadeIconTicketVerde))
-                                                                  Font: =Font.'Open Sans'
-                                                                  FontWeight: =FontWeight.Semibold
-                                                                  Height: =Parent.Height
-                                                                  OnSelect: =Select(AdmUsr_GlrUsuarios)
                                                                   Size: =Var_FontSizeCuerpoTable
                                                                   Text: =Upper(Left(ThisItem.Estado, 1)) & Lower(Mid(ThisItem.Estado, 2))
                                                                   Width: =Parent.Width
@@ -968,77 +842,39 @@ Screens:
                                                           Control: GroupContainer@1.5.0
                                                           Variant: ManualLayout
                                                           Properties:
-                                                            AlignInContainer: =AlignInContainer.SetByContainer
                                                             DropShadow: =DropShadow.None
-                                                            FillPortions: =2.5
-                                                            LayoutMinHeight: =0
-                                                            LayoutMinWidth: =0
+                                                            FillPortions: =0
+                                                            Width: =150
                                                           Children:
                                                             - AdmUsr_LblGerencia:
                                                                 Control: Label@2.5.1
                                                                 Properties:
-                                                                  BorderColor: =RGBA(0, 0, 0, 0)
-                                                                  BorderStyle: =BorderStyle.None
-                                                                  BorderThickness: =2
-                                                                  Color: =RGBA(50, 49, 48, 1)
-                                                                  DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                                                                  DisabledColor: =RGBA(161, 159, 157, 1)
-                                                                  FocusedBorderThickness: =4
-                                                                  Font: =Font.'Segoe UI'
-                                                                  Height: '=Parent.Height '
                                                                   Size: =Var_FontSizeCuerpoTable
                                                                   Text: =ThisItem.Gerencia
-                                                                  Tooltip: =ThisItem.Codigo
                                                                   Width: =Parent.Width
                                                       - AdmUsr_CtnInfAcciones:
                                                           Control: GroupContainer@1.5.0
                                                           Variant: ManualLayout
                                                           Properties:
-                                                            AlignInContainer: =AlignInContainer.SetByContainer
                                                             DropShadow: =DropShadow.None
-                                                            FillPortions: =0.5
-                                                            LayoutMinHeight: =0
-                                                            LayoutMinWidth: =0
-                                                            Width: =80
+                                                            FillPortions: =0
+                                                            Width: =100
                                                           Children:
-                                                            - AdmUsr_IcnEditar:
-                                                                Control: Image@2.2.3
-                                                                Properties:
-                                                                  BorderColor: =RGBA(0, 0, 0, 0)
-                                                                  BorderStyle: =BorderStyle.None
-                                                                  BorderThickness: =2
-                                                                  DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                                                                  DisabledFill: =RGBA(0, 0, 0, 0)
-                                                                  FocusedBorderThickness: =4
-                                                                  Height: =20
-                                                                  HoverBorderColor: =RGBA(0, 0, 0, 0)
-                                                                  HoverFill: =RGBA(0, 0, 0, 0)
-                                                                  Image: =PENCIL
-                                                                  PressedBorderColor: =RGBA(0, 0, 0, 0)
-                                                                  PressedFill: =RGBA(0, 0, 0, 0)
-                                                                  Width: =20
-                                                                  X: =17
-                                                                  Y: =8
                                                             - AdmUsr_IcnInformacion:
                                                                 Control: Classic/Icon@2.5.0
                                                                 Properties:
-                                                                  BorderColor: =RGBA(0, 0, 0, 0)
                                                                   Color: =RGBA(0, 0, 0, 1)
-                                                                  DisabledBorderColor: =RGBA(245, 245, 245, 1)
-                                                                  DisabledColor: =RGBA(0, 0, 0, 1)
-                                                                  DisabledFill: =RGBA(0, 0, 0, 0)
-                                                                  FocusedBorderThickness: =4
                                                                   Height: =20
-                                                                  HoverBorderColor: =RGBA(0, 0, 0, 0)
-                                                                  HoverColor: =RGBA(0, 0, 0, 1)
-                                                                  HoverFill: =RGBA(0, 0, 0, 0)
                                                                   Icon: =Icon.Information
-                                                                  PressedBorderColor: =RGBA(0, 0, 0, 0)
-                                                                  PressedColor: =RGBA(0, 0, 0, 1)
-                                                                  PressedFill: =RGBA(0, 0, 0, 0)
                                                                   Width: =20
-                                                                  X: =61
-                                                                  Y: =8
+                                                                  X: =55
+                                                            - AdmUsr_IcnEditar:
+                                                                Control: Image@2.2.3
+                                                                Properties:
+                                                                  Height: =20
+                                                                  Image: =PENCIL
+                                                                  Width: =20
+                                                                  X: =20
                                     - AdmUsr_CtnEstados:
                                         Control: GroupContainer@1.5.0
                                         Variant: ManualLayout
@@ -1047,8 +883,9 @@ Screens:
                                           Fill: =RGBA(255, 255, 255, 1)
                                           Height: =CountRows(AdmUsr_GlrEstados.AllItems) * 37
                                           Visible: =varOpenDropDownEstadoSpvSlc
-                                          Width: =162
-                                          Y: =55
+                                          Width: =AdmUsr_CtnSeleccionarEstado.Width
+                                          X: =AdmUsr_CtnSeleccionarEstado.X
+                                          Y: =AdmUsr_CtnSeleccionarEstado.Y + 50
                                         Children:
                                           - AdmUsr_GlrEstados:
                                               Control: Gallery@2.15.0
@@ -1148,7 +985,7 @@ Screens:
                                                       Fill: =RGBA(0, 0, 0, 0)
                                                       Font: =Font.'Open Sans'
                                                       Height: =Parent.Height - 2
-                                                      HintText: ="Buscar por documento"
+                                                      HintText: ="Buscar por nombre o apellido"
                                                       HoverBorderColor: =RGBA(79, 90, 94, 1)
                                                       HoverFill: =RGBA(0, 0, 0, 0)
                                                       OnChange: |-
