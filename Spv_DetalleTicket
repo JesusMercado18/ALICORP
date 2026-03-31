@@ -4,7 +4,7 @@ Screens:
       LoadingSpinnerColor: =RGBA(56, 96, 178, 1)
       OnVisible: |+
         =Reset(Spv_RichComentariosDetalleTicket);
-        Clear(Var_uploadFile_listeAttachmentSpv);
+        Clear(Var_uploadFile_listeAttachment);
         Set(Var_EstadoTicketSeleccionado,Var_SpvTicketSeleccionada.Estado);
 
         UpdateContext({
@@ -73,7 +73,7 @@ Screens:
 
         ClearCollect(colCambiosTicketSpv, colTrackingTicketsSpv );
 
-        ClearCollect(colTransicionEstadoSpv, Switch(Text(Var_SpvTicketSeleccionada.Estado),Var_EstadosApp.EstadoEnRevision,[Var_EstadosApp.EstadoEnProceso, Var_EstadosApp.EstadoObservado, Var_EstadosApp.EstadoDerivado, Var_EstadosApp.EstadoCerrado],Var_EstadosApp.EstadoCerrado,[""],Var_EstadosApp.EstadoEnProceso,[Var_EstadosApp.EstadoResuelto, Var_EstadosApp.EstadoEnEsperaAprobacion,Var_EstadosApp.EstadoCerrado],Var_EstadosApp.EstadoRechazado,[""],Var_EstadosApp.EstadoObservado,[Var_EstadosApp.EstadoEnRevision,Var_EstadosApp.EstadoCerrado],Var_EstadosApp.EstadoEnEsperaAprobacion,[Var_EstadosApp.EstadoResuelto,Var_EstadosApp.EstadoCerrado],Var_EstadosApp.EstadoResuelto,[Var_EstadosApp.EstadoCerrado],Var_EstadosApp.EstadoDerivado,[""]));
+        ClearCollect(colTransicionEstadoSpv, Switch(Text(Var_SpvTicketSeleccionada.Estado),Var_EstadosApp.EstadoEnRevision,[Var_EstadosApp.EstadoEnProceso, Var_EstadosApp.EstadoObservado, Var_EstadosApp.EstadoDerivado, Var_EstadosApp.EstadoCerrado],Var_EstadosApp.EstadoCerrado,[""],Var_EstadosApp.EstadoEnProceso,[Var_EstadosApp.EstadoResuelto, Var_EstadosApp.EstadoEnEsperaAprobacion,Var_EstadosApp.EstadoCerrado],Var_EstadosApp.EstadoRechazado,[""],Var_EstadosApp.EstadoObservado,[Var_EstadosApp.EstadoEnRevision,Var_EstadosApp.EstadoCerrado],Var_EstadosApp.EstadoEnEsperaAprobacion,[Var_EstadosApp.EstadoResuelto,Var_EstadosApp.EstadoCerrado,Var_EstadosApp.EstadoEnProceso],Var_EstadosApp.EstadoResuelto,[Var_EstadosApp.EstadoCerrado],Var_EstadosApp.EstadoDerivado,[""]));
 
         ClearCollect(
             colAreasSpv,
@@ -631,12 +631,8 @@ Screens:
                                                                               Align: =Align.Center
                                                                               AutoHeight: =true
                                                                               BorderColor: =RGBA(0, 18, 107, 1)
-                                                                              Color: |-
-                                                                                =Switch(Text(Var_SpvTicketSeleccionada.Estado),Var_EstadosApp.EstadoEnRevision,ColorValue(Var_ColorIconTicketMorado),Var_EstadosApp.EstadoCerrado,ColorValue(Var_ColorIconTicketVerde),Var_EstadosApp.EstadoEnProceso,ColorValue(Var_ColorIconTicketCeleste),Var_EstadosApp.EstadoRechazado,ColorValue(Var_ColorIconTicketMagenta),Var_EstadosApp.EstadoObservado,ColorValue(Var_ColorIconTicketNaranja),Var_EstadosApp.EstadoEnEsperaAprobacion,ColorValue(Var_ColorIconTicketRojo),Var_EstadosApp.EstadoResuelto,ColorValue(Var_ColorIconTicketVerde),Var_EstadosApp.EstadoDerivado,ColorValue(Var_ColorIconTicketMorado),Var_EstadosApp.EstadoCreado,
-                                                                                    ColorValue(Var_ColorFontEstadoCreado))
-                                                                              Fill: |-
-                                                                                =Switch(Text(Var_SpvTicketSeleccionada.Estado),Var_EstadosApp.EstadoEnRevision,ColorValue(Var_ColorFadeBotonMorado),Var_EstadosApp.EstadoCerrado,ColorValue(Var_ColorFondoEstadoCerrado),Var_EstadosApp.EstadoEnProceso,ColorValue(Var_ColorFadeIconTicketCeleste),Var_EstadosApp.EstadoRechazado,ColorValue(Var_ColorFadeIconTicketMagenta),Var_EstadosApp.EstadoObservado,ColorValue(Var_ColorFadeIconTicketNaranja),Var_EstadosApp.EstadoEnEsperaAprobacion,ColorValue(Var_ColorFadeIconTicketRojo),Var_EstadosApp.EstadoResuelto,ColorValue(Var_ColorFadeIconTicketVerde),Var_EstadosApp.EstadoDerivado,ColorValue(Var_ColorFadeBotonMorado),Var_EstadosApp.EstadoCreado,
-                                                                                    ColorValue(Var_ColorFondoEstadoCreado))
+                                                                              Color: =Switch(Text(Var_SpvTicketSeleccionada.Estado),Var_EstadosApp.EstadoEnRevision,ColorValue(Var_ColorIconTicketMorado),Var_EstadosApp.EstadoCerrado,ColorValue(Var_ColorIconTicketVerde),Var_EstadosApp.EstadoEnProceso,ColorValue(Var_ColorIconTicketCeleste),Var_EstadosApp.EstadoRechazado,ColorValue(Var_ColorIconTicketMagenta),Var_EstadosApp.EstadoObservado,ColorValue(Var_ColorIconTicketNaranja),Var_EstadosApp.EstadoEnEsperaAprobacion,ColorValue(Var_ColorIconTicketRojo),Var_EstadosApp.EstadoResuelto,ColorValue(Var_ColorIconTicketVerde),Var_EstadosApp.EstadoDerivado,ColorValue(Var_ColorIconTicketMorado))
+                                                                              Fill: =Switch(Text(Var_SpvTicketSeleccionada.Estado),Var_EstadosApp.EstadoEnRevision,ColorValue(Var_ColorFadeBotonMorado),Var_EstadosApp.EstadoCerrado,ColorValue(Var_ColorFondoEstadoCerrado),Var_EstadosApp.EstadoEnProceso,ColorValue(Var_ColorFadeIconTicketCeleste),Var_EstadosApp.EstadoRechazado,ColorValue(Var_ColorFadeIconTicketMagenta),Var_EstadosApp.EstadoObservado,ColorValue(Var_ColorFadeIconTicketNaranja),Var_EstadosApp.EstadoEnEsperaAprobacion,ColorValue(Var_ColorFadeIconTicketRojo),Var_EstadosApp.EstadoResuelto,ColorValue(Var_ColorFadeIconTicketVerde),Var_EstadosApp.EstadoDerivado,ColorValue(Var_ColorFadeBotonMorado))
                                                                               Font: =Font.'Open Sans'
                                                                               FontWeight: =FontWeight.Semibold
                                                                               Size: =Var_FontSizeCuerpoTable
@@ -697,8 +693,12 @@ Screens:
                                                                         LayoutMinWidth: =16
                                                                         Size: =Var_FontSizeTitleHeaderDetalleTicket
                                                                         Text: |
-                                                                          =Upper(Left(First(Split(Var_SpvTicketSeleccionada.SolicitanteNombre, " ")).Value, 1)) & Lower(Last(Split(Var_SpvTicketSeleccionada.SolicitanteNombre, " ")).Value)
+                                                                          =Upper(Left(First(Split(Var_SpvTicketSeleccionada.SolicitanteNombre, " ")).Value, 1)) 
+                                                                          & 
+                                                                          Lower(Last(Split(Var_SpvTicketSeleccionada.SolicitanteNombre, " ")).Value)
+                                                                        Tooltip: =Self.Text
                                                                         Width: =Max(60,Len(Self.Text) * 11)
+                                                                        Wrap: =false
                                                                   - Spv_CtnAccionesDetalleTicket:
                                                                       Control: GroupContainer@1.5.0
                                                                       Variant: AutoLayout
@@ -729,11 +729,12 @@ Screens:
                                                                               HoverBorderColor: =ColorValue(Var_ColorBorderBotonHover)
                                                                               HoverColor: =ColorValue(Var_ColorFontBotonHover)
                                                                               HoverFill: =ColorValue(Var_ColorBackgroundBotonHover)
-                                                                              OnSelect: |-
+                                                                              OnSelect: |
                                                                                 =UpdateContext(
                                                                                     {
                                                                                         Var_Ctx_ModalConfirmacion: true,
                                                                                         Var_Ctx_OperacionCatalogo: true,
+                                                                                        Var_Ctx_Reactivar: false,
                                                                                         Var_Ctx_DataModal: {
                                                                                             Title: "Rechazar ticket",
                                                                                             SubTitle: "Se procederá a rechazar el ticket",
@@ -760,7 +761,7 @@ Screens:
                                                                               RadiusTopRight: =8
                                                                               Size: =Var_FontSizeBoton
                                                                               Text: ="Rechazar"
-                                                                              Visible: =If(Text(Var_SpvTicketSeleccionada.Estado) in [Var_EstadosApp.EstadoEnRevision, Var_EstadosApp.EstadoEnEsperaAprobacion],true,false)
+                                                                              Visible: =If(Text(Var_SpvTicketSeleccionada.Estado) = Var_EstadosApp.EstadoEnRevision,true,false)
                                                                               Width: =100
                                                                         - Spv_BtnAccionReactivarDetalleTicket:
                                                                             Control: Classic/Button@2.2.0
@@ -775,24 +776,23 @@ Screens:
                                                                               HoverBorderColor: =ColorValue(Var_ColorBorderBotonHover)
                                                                               HoverColor: =ColorValue(Var_ColorFontBotonHover)
                                                                               HoverFill: =ColorValue(Var_ColorBackgroundBotonHover)
-                                                                              OnSelect: |-
+                                                                              OnSelect: |+
                                                                                 =UpdateContext(
                                                                                     {
                                                                                         Var_Ctx_ModalConfirmacion: true,
                                                                                         Var_Ctx_OperacionCatalogo: true,
+                                                                                        Var_Ctx_Reactivar: false,
                                                                                         Var_Ctx_DataModal: {
                                                                                             Title: "Reactivar ticket",
-                                                                                            SubTitle: "Se procederá a reactivar el ticket",
+                                                                                            SubTitle: "Se procederá a Reactivar el ticket",
                                                                                             Menu: [
-                                                                                                "Información incompleta",
-                                                                                                "No corresponde al servicio",
-                                                                                                "No autorizado",
-                                                                                                "Incumple políticas",
-                                                                                                "Solicitud inválida",
+                                                                                                "Solución no conforme",
+                                                                                                "Resolución vacía",
+                                                                                                "Información adicional",
                                                                                                 "Otro"
                                                                                             ],
-                                                                                            Placeholder: "Seleccione motivo de reactivación",
-                                                                                            ButtonOk: "Sí, reactivar"
+                                                                                            Placeholder: "Seleccione motivo de Reactivar",
+                                                                                            ButtonOk: "Sí, Reactivar"
                                                                                         },
                                                                                         Var_Ctx_AccionEstado: Var_EstadosApp.EstadoReactivado
                                                                                     }
@@ -1041,7 +1041,12 @@ Screens:
                                                                                     Align: =Align.Right
                                                                                     BorderColor: =RGBA(0, 18, 107, 1)
                                                                                     BorderStyle: =BorderStyle.None
-                                                                                    Default: ="3"
+                                                                                    Default: |-
+                                                                                      =With({
+
+                                                                                      SLADefault: LookUp('LCP-001_List_EstadosProceso', ConfiguracionTicket = Var_SpvTicketSeleccionada.ConfiguracionTicket && EstadoActual = Var_EstadosApp.EstadoObservado && EstadoSiguiente = Var_EstadosApp.EstadoEnRevision).SLA
+
+                                                                                      }, If(IsBlank(SLADefault),0,SLADefault) )
                                                                                     Font: =Font.'Open Sans'
                                                                                     Format: =TextFormat.Number
                                                                                     Height: =Parent.Height
@@ -1307,7 +1312,7 @@ Screens:
                                                                                     AlignInContainer: =AlignInContainer.Center
                                                                                     BorderColor: =RGBA(0, 18, 107, 1)
                                                                                     Height: =Parent.Height
-                                                                                    Items: =colUsuariosSeleccionadasSpv
+                                                                                    Items: =colUsuariosSeleccionadas
                                                                                     LayoutMinWidth: =150
                                                                                     ShowScrollbar: =false
                                                                                     TemplateSize: =140
@@ -1359,7 +1364,7 @@ Screens:
                                                                                                 Icon: =Icon.Cancel
                                                                                                 LayoutMinHeight: =16
                                                                                                 LayoutMinWidth: =15
-                                                                                                OnSelect: =Remove(colUsuariosSeleccionadasSpv, ThisItem)
+                                                                                                OnSelect: =Remove(colUsuariosSeleccionadas, ThisItem)
                                                                                                 Width: =10
                                                                               - Spv_IcoOpenItemsUsuariosDetalleTicket:
                                                                                   Control: Classic/Icon@2.5.0
@@ -1432,99 +1437,12 @@ Screens:
                                                                         Text: '=Var_SpvTicketSeleccionada.Descripcion '
                                                                         VerticalAlign: =VerticalAlign.Top
                                                                         Width: =Parent.Width
-                                                            - Sol_DatosDinamicos:
-                                                                Control: Gallery@2.15.0
-                                                                Variant: Vertical
-                                                                Properties:
-                                                                  BorderColor: =RGBA(0, 18, 107, 1)
-                                                                  FillPortions: =0
-                                                                  Height: |-
-                                                                    =With(
-                                                                        {
-                                                                            // 1. Primero obtenemos el conteo total
-                                                                            TotalItems: CountRows(
-                                                                                Filter(
-                                                                                    Table(ParseJSON(Var_SpvTicketSeleccionada.CamposAdicionalesTicket)),
-                                                                                    !IsBlank(ThisRecord.Value.ID) &&
-                                                                                    Text(ThisRecord.Value.Tipo) <> Var_JSONConfigurarTipoCampo.Adjunto && 
-                                                                                    !IsBlank(Text(ThisRecord.Value.ValorSeleccionad)) && 
-                                                                                    Text(ThisRecord.Value.ValorSeleccionad) <> ""
-                                                                                )
-                                                                            )
-                                                                        },
-                                                                        With(
-                                                                            {
-                                                                                // 2. Ahora que TotalItems ya existe, calculamos las filas
-                                                                                Rows: RoundUp(TotalItems / 2, 0)
-                                                                            },
-                                                                            // 3. Aplicamos la lógica de altura (TemplateSize o TemplateHeight)
-                                                                            Min(Rows * Self.TemplateHeight, 600) + 5
-                                                                        )
-                                                                    )
-                                                                  Items: |-
-                                                                    =Filter(
-                                                                        Table(ParseJSON(Var_SpvTicketSeleccionada.CamposAdicionalesTicket)),
-                                                                        // 1. Asegurar que es un campo válido (que tenga ID)
-                                                                        !IsBlank(ThisRecord.Value.ID) &&
-                                                                        // 2. Que no sea de tipo Adjunto
-                                                                        Text(ThisRecord.Value.Tipo) <> Var_JSONConfigurarTipoCampo.Adjunto && 
-                                                                        // 3. Que tenga contenido real
-                                                                        !IsBlank(Text(ThisRecord.Value.ValorSeleccionad)) && 
-                                                                        Text(ThisRecord.Value.ValorSeleccionad) <> ""
-                                                                    )
-                                                                  LayoutMinHeight: =16
-                                                                  LayoutMinWidth: =16
-                                                                  TemplatePadding: =1
-                                                                  TemplateSize: =120
-                                                                  WrapCount: =2
-                                                                Children:
-                                                                  - Container55:
-                                                                      Control: GroupContainer@1.5.0
-                                                                      Variant: AutoLayout
-                                                                      Properties:
-                                                                        Height: =Parent.TemplateHeight - 10
-                                                                        LayoutAlignItems: =LayoutAlignItems.Center
-                                                                        LayoutDirection: =LayoutDirection.Vertical
-                                                                        PaddingBottom: =10
-                                                                        PaddingLeft: =10
-                                                                        PaddingRight: =10
-                                                                        PaddingTop: =10
-                                                                        Width: =Parent.TemplateWidth - 10
-                                                                      Children:
-                                                                        - Label36:
-                                                                            Control: Label@2.5.1
-                                                                            Properties:
-                                                                              AlignInContainer: =AlignInContainer.Stretch
-                                                                              AutoHeight: =true
-                                                                              BorderColor: =RGBA(0, 18, 107, 1)
-                                                                              FillPortions: =1
-                                                                              Font: =Font.'Open Sans'
-                                                                              FontWeight: =FontWeight.Semibold
-                                                                              Height: =51
-                                                                              OnSelect: =//Select(Parent)
-                                                                              Size: =12
-                                                                              Text: =ThisItem.Value.Label
-                                                                              Width: =339
-                                                                              X: =40
-                                                                              Y: =40
-                                                                        - Label37:
-                                                                            Control: Label@2.5.1
-                                                                            Properties:
-                                                                              AlignInContainer: =AlignInContainer.Stretch
-                                                                              BorderColor: =RGBA(0, 18, 107, 1)
-                                                                              Color: =ColorValue(Var_ColorBordeBoton)
-                                                                              FillPortions: =1
-                                                                              Font: =Font.'Open Sans'
-                                                                              OnSelect: =//Select(Parent)
-                                                                              Text: =ThisItem.Value.ValorSeleccionad
-                                                                              Width: =187
-                                                                              X: =40
-                                                                              Y: =40
                                                             - Spv_GalAdjuntosComentariosDetalleTicket:
                                                                 Control: Gallery@2.15.0
                                                                 Variant: Vertical
                                                                 Properties:
                                                                   BorderColor: =RGBA(0, 18, 107, 1)
+                                                                  FillPortions: =0
                                                                   Height: |
                                                                     =With(
                                                                         {
@@ -1537,13 +1455,12 @@ Screens:
                                                                     )
                                                                   Items: =colAdjuntosDetalleTicketSpv
                                                                   LayoutMinHeight: =35
+                                                                  LayoutMinWidth: =16
                                                                   TemplatePadding: =3
                                                                   TemplateSize: =45
                                                                   WrapCount: =3
-                                                                  X: =40
-                                                                  Y: =40
                                                                 Children:
-                                                                  - Spv_CtnAdjuntosComentariosDetalleTicket:
+                                                                  - Spv_CtnAdjuntosComentariosDetalleTicket_1:
                                                                       Control: GroupContainer@1.5.0
                                                                       Variant: AutoLayout
                                                                       Properties:
@@ -1559,9 +1476,10 @@ Screens:
                                                                         RadiusTopLeft: =8
                                                                         RadiusTopRight: =8
                                                                         Width: '=Parent.TemplateWidth - 10 '
-                                                                        X: =1
+                                                                        X: =10
+                                                                        Y: =10
                                                                       Children:
-                                                                        - Spv_IcoAdjuntosComentariosDetalleTicket:
+                                                                        - Spv_IcoAdjuntosComentariosDetalleTicket_1:
                                                                             Control: Classic/Icon@2.5.0
                                                                             Properties:
                                                                               BorderColor: =RGBA(0, 18, 107, 1)
@@ -1572,7 +1490,7 @@ Screens:
                                                                               Width: =48
                                                                               X: =8
                                                                               Y: =8
-                                                                        - Spv_LblAdjuntosComentariosDetalleTicket:
+                                                                        - Spv_LblAdjuntosComentariosDetalleTicket_1:
                                                                             Control: Label@2.5.1
                                                                             Properties:
                                                                               AlignInContainer: =AlignInContainer.Center
@@ -1600,7 +1518,7 @@ Screens:
                                                                               Tooltip: =ThisItem.Nombre
                                                                               VerticalAlign: =VerticalAlign.Top
                                                                               Wrap: =false
-                                                                        - Spv_IcoDescargarAdjuntosComentariosDetalleTicket:
+                                                                        - Spv_IcoDescargarAdjuntosComentariosDetalleTicket_1:
                                                                             Control: Classic/Icon@2.5.0
                                                                             Properties:
                                                                               BorderColor: =RGBA(0, 18, 107, 1)
@@ -1682,7 +1600,7 @@ Screens:
                                                                         Height: =Parent.Height - 50
                                                                         Items: =Sort(Filter(colCambiosTicketSpv,Evento = "Estado" Or Derivado = true),FechaModificado,SortOrder.Descending)
                                                                         TemplateSize: =40
-                                                                        Visible: =Spv_GalHeaderTrackingDetalleTicket.Selected.Value <> "Discusión"
+                                                                        Visible: =If(Spv_GalHeaderTrackingDetalleTicket.Selected.Value <> "Discusión",true,false)
                                                                         Width: =Parent.Width
                                                                         Y: =50
                                                                       Children:
@@ -1849,7 +1767,7 @@ Screens:
                                                                         Height: =Parent.Height - 50
                                                                         Items: =Sort(colDiscusionTicketSpv,FechaCreado,SortOrder.Descending)
                                                                         TemplateSize: =70
-                                                                        Visible: =Spv_GalHeaderTrackingDetalleTicket.Selected.Value = "Discusión"
+                                                                        Visible: =If(Spv_GalHeaderTrackingDetalleTicket.Selected.Value = "Discusión",true,false)
                                                                         Width: =Parent.Width
                                                                         Y: =50
                                                                       Children:
@@ -2182,11 +2100,12 @@ Screens:
                                                                             Properties:
                                                                               BorderColor: =RGBA(0, 18, 107, 1)
                                                                               Height: =148
-                                                                              Items: =Var_uploadFile_listeAttachmentSpv
+                                                                              Items: =Var_uploadFile_listeAttachment
                                                                               TemplateSize: =45
-                                                                              Visible: =CountRows(Var_uploadFile_listeAttachmentSpv)>0
+                                                                              Visible: =CountRows(Var_uploadFile_listeAttachment)>0
                                                                               Width: =Parent.Width
-                                                                              Y: =102
+                                                                              X: =2
+                                                                              Y: =Spv_CtnFilesSubirArchivoDetalleTicket.Y + Spv_CtnFilesSubirArchivoDetalleTicket.Height + 2
                                                                             Children:
                                                                               - Spv_CtnVerAdjuntosDetalleTicket:
                                                                                   Control: GroupContainer@1.5.0
@@ -2239,11 +2158,20 @@ Screens:
                                                                                           LayoutMinWidth: =20
                                                                                           OnSelect: |
                                                                                             =Remove(
-                                                                                                Var_uploadFile_listeAttachmentSpv,
+                                                                                                Var_uploadFile_listeAttachment,
                                                                                                 ThisItem
                                                                                             );
                                                                                           Width: =30
                                                                                           X: =9*Spv_GalVerAdjuntosDetalleTicket.TemplateWidth/10
+                                                                                    - Spv_ImgVerAdjuntosDetalleTicket:
+                                                                                        Control: Image@2.2.3
+                                                                                        Properties:
+                                                                                          AlignInContainer: =AlignInContainer.Stretch
+                                                                                          BorderColor: =RGBA(0, 18, 107, 1)
+                                                                                          Image: =ThisItem.contenido
+                                                                                          LayoutMinHeight: =16
+                                                                                          LayoutMinWidth: =16
+                                                                                          Visible: =false
                                                                         - Spv_CtnFilesSubirArchivoDetalleTicket:
                                                                             Control: GroupContainer@1.5.0
                                                                             Variant: ManualLayout
@@ -2324,7 +2252,7 @@ Screens:
                                                                                           FocusedBorderColor: =Blank()
                                                                                           FocusedBorderThickness: =0
                                                                                           Font: =Font.'Open Sans'
-                                                                                          Height: =60
+                                                                                          Height: =90
                                                                                           HoverColor: =ColorValue(Var_ColorBlanco)
                                                                                           HoverFill: =ColorFade(ColorValue(Var_ColorFondoAdjuntos),20%)
                                                                                           ItemColor: =Blank()
@@ -2348,7 +2276,7 @@ Screens:
                                                                                             Set(
                                                                                                 totalMB;
                                                                                                 Sum(
-                                                                                                    Var_uploadFile_listeAttachmentSpv;
+                                                                                                    Var_uploadFile_listeAttachment;
                                                                                                     Len(ThisRecord.contenido) * 0,75 / (1024 * 1024)
                                                                                                 )
                                                                                             );;
@@ -2360,7 +2288,7 @@ Screens:
                                                                                                 If(
                                                                                                     IsBlank(
                                                                                                         LookUp(
-                                                                                                            Var_uploadFile_listeAttachmentSpv As A;
+                                                                                                            Var_uploadFile_listeAttachment As A;
                                                                                                             A.nombre = Fila.Name
                                                                                                         )
                                                                                                     );
@@ -2392,7 +2320,7 @@ Screens:
                                                                                                             Collect(colErroresAdjuntos; { Tipo: "Formato" });
 
                                                                                                             If(
-                                                                                                                CountRows(Var_uploadFile_listeAttachmentSpv) >= Self.MaxAttachments;
+                                                                                                                CountRows(Var_uploadFile_listeAttachment) >= Self.MaxAttachments;
                                                                                                                 Collect(colErroresAdjuntos; { Tipo: "Cantidad" });
 
                                                                                                                 If(
@@ -2400,7 +2328,7 @@ Screens:
                                                                                                                     Collect(colErroresAdjuntos; { Tipo: "Tamano" });
 
                                                                                                                     Collect(
-                                                                                                                        Var_uploadFile_listeAttachmentSpv;
+                                                                                                                        Var_uploadFile_listeAttachment;
                                                                                                                         {
                                                                                                                             nombre: Fila.Name;
                                                                                                                             contenido: nuevoArchivo
@@ -2460,7 +2388,7 @@ Screens:
                                                                                                 If(
                                                                                                     IsBlank(
                                                                                                         LookUp(
-                                                                                                            Var_uploadFile_listeAttachmentSpv As A,
+                                                                                                            Var_uploadFile_listeAttachment As A,
                                                                                                             A.nombre = Fila.Name
                                                                                                         )
                                                                                                     ),
@@ -2514,19 +2442,19 @@ Screens:
                                                                                                                 Collect(colErroresAdjuntos, { Tipo: "Formato" }),
 
                                                                                                                 If(
-                                                                                                                    CountRows(Var_uploadFile_listeAttachmentSpv) >= Self.MaxAttachments,
+                                                                                                                    CountRows(Var_uploadFile_listeAttachment) >= Self.MaxAttachments,
                                                                                                                     Collect(colErroresAdjuntos, { Tipo: "Cantidad" }),
 
                                                                                                                     If(
                                                                                                                         varBytesExistentes +
-                                                                                                                        Sum(Var_uploadFile_listeAttachmentSpv, PesoBytes) +
+                                                                                                                        Sum(Var_uploadFile_listeAttachment, PesoBytes) +
                                                                                                                         nuevoBytes
                                                                                                                         > varLimiteBytes,
 
                                                                                                                         Collect(colErroresAdjuntos, { Tipo: "Tamano" }),
 
                                                                                                                         Collect(
-                                                                                                                            Var_uploadFile_listeAttachmentSpv,
+                                                                                                                            Var_uploadFile_listeAttachment,
                                                                                                                             {
                                                                                                                                 nombre: Fila.Name,
                                                                                                                                 contenido: base64Contenido,
@@ -2574,6 +2502,7 @@ Screens:
                                                                                           Size: =12
                                                                                           Tooltip: =Blank()
                                                                                           Width: =Parent.Width
+                                                                                          Y: =-30
                                                             - Spv_CtnAccionesFooterDetalleTicket:
                                                                 Control: GroupContainer@1.5.0
                                                                 Variant: AutoLayout
@@ -2629,7 +2558,7 @@ Screens:
                                                                         HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
                                                                         HoverColor: =ColorValue(Var_ColorBlanco)
                                                                         HoverFill: =ColorValue(Var_ColorHoverBoton)
-                                                                        OnSelect: "=//Se calcula el valor que toma el SLA del estado\r\nIf(\r\n\r\nIsEmpty(Filter('LCP-001_List_EstadosProceso',ConfiguracionTicket = Var_SpvTicketSeleccionada.ConfiguracionTicket)),\r\nUpdateContext({Var_SLACalculado: 0, FechaVencimientoEstado: Var_SpvTicketSeleccionada.FechaVencimiento}),\r\n\r\nIf(\r\nIsBlank(varEstadoSelected.Value),  \r\nUpdateContext({ CloseAlert: true, Mensaje: \"Debes seleccionar un estado.\" }), \r\nSwitch(\r\n    varEstadoSelected.Value,\r\n    //Caso Switch\r\n    Var_EstadosApp.EstadoObservado,\r\n    \r\n    With(\r\n    {\r\n        auxSLA: LookUp('LCP-001_List_EstadosProceso', EstadoActual = Var_EstadosApp.EstadoObservado && EstadoSiguiente = Var_EstadosApp.EstadoEnRevision).SLA\r\n\r\n    },\r\n    UpdateContext({Var_SLACalculado: If(Or(IsBlank(auxSLA), auxSLA = 0 ), 0, If( Value(Spv_TxtAsignarSLATiempoAtencionDetalleTicket.Text) <>  auxSLA, Value(Spv_TxtAsignarSLATiempoAtencionDetalleTicket.Text), auxSLA))    });\r\n\r\n    If(\r\n    Var_SLACalculado = 0,\r\n    0, \r\n    // Calculamos la fecha de vencimiento del SLA para insertarlo en Tracking\r\n    ClearCollect( colFechas, AddColumns( Sequence(Var_SLACalculado * 3), Fecha, DateAdd(Now(), Value, TimeUnit.Days) ) ); \r\n    ClearCollect( colDiasHabiles, FirstN( Filter( colFechas, Weekday(Fecha, StartOfWeek.Monday) <= 5 && IsBlank( LookUp( colFeriados, FechaCompleta = Fecha ) ) ), Var_SLACalculado))\r\n    );\r\n\r\n    UpdateContext({FechaVencimientoEstado: If(Var_SLACalculado = 0 , Var_SpvTicketSeleccionada.FechaVencimiento, Last(colDiasHabiles).Fecha)})\r\n    )\r\n    ,\r\n\r\n\r\n    //Caso Switch\r\n    //1.Si no hay analista asignado -> No hay modificacion se encarga el balanceador\r\n    //2.Si hay analista seleccionado -> Busco el SLA en revisión \r\n\r\n    Var_EstadosApp.EstadoDerivado,\r\n    \r\n    With(\r\n    {\r\n        auxSLA: LookUp('LCP-001_List_EstadosProceso', EstadoActual = Var_EstadosApp.EstadoEnRevision && EstadoSiguiente = Blank()).SLA\r\n    },\r\n\r\n    UpdateContext({Var_SLACalculado: If(Or(IsBlank(auxSLA), auxSLA = 0 ), 0, auxSLA)});\r\n    If(\r\n    Var_SLACalculado = 0,\r\n    0, \r\n    // Calculamos la fecha de vencimiento del SLA para insertarlo en Tracking\r\n    ClearCollect( colFechas, AddColumns( Sequence(auxSLA * 3), Fecha, DateAdd(Now(), Value, TimeUnit.Days) ) ); \r\n    ClearCollect( colDiasHabiles, FirstN( Filter( colFechas, Weekday(Fecha, StartOfWeek.Monday) <= 5 && IsBlank( LookUp( colFeriados, FechaCompleta = Fecha ) ) ), auxSLA))\r\n    );\r\n    UpdateContext({FechaVencimientoEstado: If( Var_SLACalculado = 0, Var_SpvTicketSeleccionada.FechaVencimiento, Last(colDiasHabiles).Fecha)})\r\n    )\r\n\r\n    ,\r\n    //Caso Switch\r\n    Var_EstadosApp.EstadoEnProceso,\r\n    true\r\n    ,\r\n    //Caso Switch\r\n    Var_EstadosApp.EstadoEnEsperaAprobacion,\r\n    \r\n\r\n    With(\r\n    {\r\n        auxSLA: LookUp('LCP-001_List_EstadosProceso', EstadoActual = Var_EstadosApp.EstadoEnEsperaAprobacion && EstadoSiguiente = Var_EstadosApp.EstadoEnProceso).SLA\r\n    },\r\n\r\n    UpdateContext({Var_SLACalculado: If(Or(IsBlank(auxSLA), auxSLA = 0 ), 0, auxSLA)});\r\n    If(\r\n    Var_SLACalculado = 0,\r\n    0, \r\n    // Calculamos la fecha de vencimiento del SLA para insertarlo en Tracking\r\n    ClearCollect( colFechas, AddColumns( Sequence(auxSLA * 3), Fecha, DateAdd(Now(), Value, TimeUnit.Days) ) ); \r\n    ClearCollect( colDiasHabiles, FirstN( Filter( colFechas, Weekday(Fecha, StartOfWeek.Monday) <= 5 && IsBlank( LookUp( colFeriados, FechaCompleta = Fecha ) ) ), auxSLA))\r\n    );\r\n    UpdateContext({FechaVencimientoEstado: If( Var_SLACalculado = 0, Var_SpvTicketSeleccionada.FechaVencimiento, Last(colDiasHabiles).Fecha)})\r\n    )\r\n\r\n    ,\r\n    //Caso Switch\r\n    Var_EstadosApp.EstadoResuelto,\r\n    true\r\n    ,\r\n    //Caso Switch\r\n    Var_EstadosApp.EstadoEnRevision,\r\n    true\r\n)\r\n)\r\n);\r\n\r\nIf(IsBlank(varEstadoSelected.Value),  UpdateContext({ CloseAlert: true, Mensaje: \"Debes seleccionar un estado.\" }), \r\nSwitch(\r\n    varEstadoSelected.Value,\r\n    //Caso Switch\r\n    Var_EstadosApp.EstadoObservado,\r\n\r\n    If(\r\n    (varUpdateMotivoDerivacionSelected.Value = \"Otro\" && IsBlank(Trim(Spv_TxtOtroMotivoDerivacionDerivarDetalleTicket.Text))) || \r\n    IsBlank(varUpdateMotivoDerivacionSelected.Value),\r\n    \r\n    UpdateContext({\r\n        CloseAlert: true,\r\n        Mensaje: If(IsBlank(varUpdateMotivoDerivacionSelected.Value), \"Debes seleccionar el motivo\", \"Debes ingresar el motivo de cierre.\")\r\n    }),\r\n    \r\n    /* 2. SI LAS VALIDACIONES PASAN, PROCEDEMOS */\r\n    IfError(\r\n        Patch(\r\n            'LCP-001_List_TicketSolicitudes',\r\n            {ID: Var_SpvTicketSeleccionada.ID},\r\n            {\r\n                EstadoActual: Var_EstadosApp.EstadoObservado,\r\n                MotivoObservado: If(\r\n                    varUpdateMotivoDerivacionSelected.Value = \"Otro\",\r\n                    Spv_TxtOtroMotivoDerivacionDerivarDetalleTicket.Text,\r\n                    varUpdateMotivoDerivacionSelected.Value\r\n                ),\r\n                Comentario: Spv_RichComentariosDetalleTicket.HtmlText,\r\n                FechaModificado: Now(),\r\n                FechaVencimientoEstado: FechaVencimientoEstado,\r\n                SLAEstado: Var_SLACalculado,\r\n                Accionador: \"Analista\",\r\n                \r\n                Evento: Var_EventoTrazabilidadApp.Estado\r\n                \r\n            }\r\n        ),\r\n        \r\n        /* 3. MANEJO DE ERRORES (Si el Patch falla) */\r\n        Set(_varError, {\r\n            Fecha: Now(),\r\n            Usuario: {\r\n                Codigo: Var_ProfileUser.Codigo,\r\n                Nombre: Var_ProfileUser.NombreApellido\r\n            },\r\n            CodigoTicket: Var_SpvTicketSeleccionada.Codigo,\r\n            Error: FirstError.Message\r\n        });\r\n        Patch('LCP-001_List_ErroresSolicitud', Defaults('LCP-001_List_ErroresSolicitud'), {\r\n            TipoSolicitud: Var_TipoOperacionApp.Actualizar,\r\n            FechaError: Now(),\r\n            Error: JSON(_varError, JSONFormat.Compact),\r\n            CodigoUsuario: Var_ProfileUser.Codigo\r\n        });\r\n        UpdateContext({ CloseAlert: true, Mensaje: \"Error al guardar: \" & FirstError.Message }),\r\n\r\n        \r\n        /* 4. ÉXITO: CONTINUACIÓN SOLO SI NO HUBO ERROR */\r\n        If(\r\n            !IsEmpty(Var_uploadFile_listeAttachmentSpv),\r\n            'LCP-001_Flow_SubirAdjuntos'.Run(\r\n                JSON(Var_uploadFile_listeAttachmentSpv),\r\n                \"COMENTARIOS\",\r\n                Text(Var_SpvTicketSeleccionada.ID)\r\n            )\r\n        );\r\n        UpdateContext({Var_Ctx_ModalConfirmacion: false});\r\n        Navigate(\r\n            Spv_Ticket,\r\n            ScreenTransition.Fade,\r\n            {\r\n                AlertaSatisfactoria: true,\r\n                MensajeSatisfactorio: \"Se actualizó el estado del ticket.\"\r\n            }\r\n        )\r\n    )\r\n)\r\n\r\n      ,\r\n        //Caso Switch\r\n        Var_EstadosApp.EstadoDerivado,\r\n\r\n        UpdateContext(\r\n            {\r\n                Var_Ctx_ModalConfirmacion: true,\r\n                Var_Ctx_OperacionCatalogo: true,\r\n                Var_Ctx_DataModal: {\r\n                    Title: \"Derivar ticket\",\r\n                    SubTitle: \"Se procederá a derivar el ticket\",\r\n                    Menu: [\r\n        \"Especialización técnica\",\r\n        \"Capacidad\",\r\n        \"Nivel de autorización\",\r\n        \"Error de asignación\",\r\n        \"Dependencia externa\",\r\n        \"Otro\"\r\n        ],\r\n                    Placeholder: \"Seleccione motivo de derivación\",\r\n                    ButtonOk: \"Sí, derivar\"\r\n                },\r\n                Var_Ctx_AccionEstado: Var_EstadosApp.EstadoDerivado\r\n            }\r\n        );\r\n\r\n\r\n        \r\n        ,\r\n        //Caso Switch\r\n        Var_EstadosApp.EstadoEnProceso,\r\n\r\nIfError(\r\n        // Poner el control de errores, remover el Set Var_EstadoEnProceso\r\n    Set(\r\n        Var_EstadoEnProceso,\r\n        Patch(\r\n            'LCP-001_List_TicketSolicitudes',\r\n            { ID: Value(Var_SpvTicketSeleccionada.ID) },\r\n            {\r\n                Codigo: Text(Var_SpvTicketSeleccionada.Codigo),\r\n                EstadoActual: varEstadoSelected.Value,\r\n                MotivoDerivacion: If(\r\n                    varUpdateMotivoDerivacionSelected.Value = \"Otro\",\r\n                    Spv_TxtOtroMotivoDerivacionDerivarDetalleTicket.Text,\r\n                    varUpdateMotivoDerivacionSelected.Value\r\n                ),\r\n                Comentario: Spv_RichComentariosDetalleTicket.HtmlText,\r\n                FechaModificado: Now()\r\n            }\r\n        )\r\n    ),\r\n    UpdateContext({ CloseAlert: true, Mensaje: \"Error al actualizar el ticket.\" }),\r\n    If(\r\n        !IsEmpty(Var_uploadFile_listeAttachmentSpv),\r\n        'LCP-001_Flow_SubirAdjuntos'.Run(\r\n            JSON(Var_uploadFile_listeAttachmentSpv),\r\n            \"COMENTARIOS\",\r\n            Text(Var_SpvTicketSeleccionada.ID)\r\n        )\r\n    ),\r\n    UpdateContext({ CloseAlert: true, Mensaje: \"Error al subir los adjuntos.\" }),\r\n\r\n    Navigate(\r\n        Spv_Ticket,\r\n        ScreenTransition.Fade,\r\n        {\r\n            AlertaSatisfactoria: true,\r\n            MensajeSatisfactorio: \"Se actualizó el estado del ticket.\"\r\n        }\r\n    )\r\n)\r\n,\r\n        \r\n        \r\n//Caso Switch  En Proceso (Estado Actual) -> En Espera de Aprobación (Estado Actual)\r\n        Var_EstadosApp.EstadoEnEsperaAprobacion,\r\n\r\nIf(\r\n    IsEmpty(colUsuariosSeleccionadasSpv),\r\n    UpdateContext({ CloseAlert: true, Mensaje: \"Debes seleccionar un usuario.\" }),\r\n\r\n    IfError(\r\n        Patch(\r\n            'LCP-001_List_TicketSolicitudes',\r\n            {ID: Var_SpvTicketSeleccionada.ID},\r\n            {\r\n                EstadoActual: Var_EstadosApp.EstadoEnEsperaAprobacion,\r\n                Comentario: Spv_RichComentariosDetalleTicket.HtmlText,\r\n                FechaModificado: Now(),\r\n                FechaVencimientoEstado: FechaVencimientoEstado,\r\n                SLAEstado: Var_SLACalculado,\r\n                Accionador: \"Analista\",\r\n                AprobadorCorreo: First(colUsuariosSeleccionadasSpv).CorreoUsuario,\r\n                AprobadorNombre: First(colUsuariosSeleccionadasSpv).Nombre,\r\n                Evento: Var_EventoTrazabilidadApp.Estado\r\n                \r\n            }\r\n        ),\r\n        \r\n        /* 3. MANEJO DE ERRORES (Si el Patch falla) */\r\n        Set(_varError, {\r\n            Fecha: Now(),\r\n            Usuario: {\r\n                Codigo: Var_ProfileUser.Codigo,\r\n                Nombre: Var_ProfileUser.NombreApellido\r\n            },\r\n            CodigoTicket: Var_SpvTicketSeleccionada.Codigo,\r\n            Error: FirstError.Message\r\n        });\r\n        Patch('LCP-001_List_ErroresSolicitud', Defaults('LCP-001_List_ErroresSolicitud'), {\r\n            TipoSolicitud: Var_TipoOperacionApp.Actualizar,\r\n            FechaError: Now(),\r\n            Error: JSON(_varError, JSONFormat.Compact),\r\n            CodigoUsuario: Var_ProfileUser.Codigo\r\n        });\r\n        UpdateContext({ CloseAlert: true, Mensaje: \"Error al guardar: \" & FirstError.Message }),\r\n\r\n        \r\n        /* 4. ÉXITO: CONTINUACIÓN SOLO SI NO HUBO ERROR */\r\n        If(\r\n            !IsEmpty(Var_uploadFile_listeAttachmentSpv),\r\n            'LCP-001_Flow_SubirAdjuntos'.Run(\r\n                JSON(Var_uploadFile_listeAttachmentSpv),\r\n                \"COMENTARIOS\",\r\n                Text(Var_SpvTicketSeleccionada.ID)\r\n            )\r\n        );\r\n        UpdateContext({Var_Ctx_ModalConfirmacion: false});\r\n        Navigate(\r\n            Spv_Ticket,\r\n            ScreenTransition.Fade,\r\n            {\r\n                AlertaSatisfactoria: true,\r\n                MensajeSatisfactorio: \"Se actualizó el estado del ticket.\"\r\n            }\r\n        )\r\n    )\r\n)\r\n,\r\n//Caso Switch\r\nVar_EstadosApp.EstadoResuelto,\r\n\r\nIfError(\r\n\r\n    Set(\r\n        Var_EstadoResuelto,\r\n        Patch(\r\n            'LCP-001_List_TicketSolicitudes',\r\n            { ID: Value(Var_SpvTicketSeleccionada.ID) },\r\n            {\r\n                EstadoActual: varEstadoSelected.Value,\r\n                Comentario: Spv_RichComentariosDetalleTicket.HtmlText,\r\n                FechaModificado: Now()\r\n            }\r\n        )\r\n    ),\r\n    UpdateContext({ CloseAlert: true, Mensaje: \"Error al actualizar el ticket.\" }),\r\n    If(\r\n        !IsEmpty(Var_uploadFile_listeAttachmentSpv),\r\n        'LCP-001_Flow_SubirAdjuntos'.Run(\r\n            JSON(Var_uploadFile_listeAttachmentSpv),\r\n            \"COMENTARIOS\",\r\n            Text(Var_SpvTicketSeleccionada.ID)\r\n        )\r\n    ),\r\n    UpdateContext({ CloseAlert: true, Mensaje: \"Error al subir los adjuntos.\" }),\r\n\r\n    Navigate(\r\n        Spv_Ticket,\r\n        ScreenTransition.Fade,\r\n        {\r\n            AlertaSatisfactoria: true,\r\n            MensajeSatisfactorio: \"Se actualizó el estado del ticket.\"\r\n        }\r\n    )\r\n),\r\n//Caso Switch\r\nVar_EstadosApp.EstadoEnRevision,\r\n\r\nIf(IsBlank(Spv_RichComentariosDetalleTicket.HtmlText),\r\n        UpdateContext({ CloseAlert: true, Mensaje: \"Debes ingresar un comentario.\" }),\r\n\r\n    IsEmpty(Var_uploadFile_listeAttachmentSpv),\r\n        UpdateContext({ CloseAlert: true, Mensaje: \"Debes ingresar un documento adjunto.\" }),\r\n\r\n\r\n    IfError(\r\n\r\n    Set(\r\n        Var_EstadoEnRevision,\r\n        Patch(\r\n            'LCP-001_List_TicketSolicitudes',\r\n            { ID: Value(Var_SpvTicketSeleccionada.ID) },\r\n            {\r\n                EstadoActual: varEstadoSelected.Value,\r\n                Comentario: Spv_RichComentariosDetalleTicket.HtmlText,\r\n                FechaModificado: Now(),\r\n                SLAEstado: LookUp(\r\n                        'LCP-001_List_EstadosProceso',\r\n                        EstadoActual = Var_EstadosApp.EstadoEnRevision,\r\n                        SLA\r\n                    )\r\n            }\r\n        )\r\n    ),\r\n    UpdateContext({ CloseAlert: true, Mensaje: \"Error al actualizar el ticket.\" }),\r\n\r\n    Set(DiasHabiles, Var_EstadoEnRevision.SLAEstado); \r\n                    ClearCollect( colFechas, AddColumns( Sequence(DiasHabiles * 3), Fecha, DateAdd(Now(), Value, TimeUnit.Days) ) ); \r\n                    ClearCollect( colDiasHabiles, FirstN( Filter( colFechas, Weekday(Fecha, StartOfWeek.Monday) <= 5 && IsBlank( LookUp( colFeriados, FechaCompleta = Fecha ) ) ), DiasHabiles ) ); \r\n                    Set( Var_FechaVencimientoEstadoTracking, Last(colDiasHabiles).Fecha )\r\n                    \r\n                    \r\n                    ,false,\r\n\r\n    If(\r\n        !IsEmpty(Var_uploadFile_listeAttachmentSpv),\r\n        'LCP-001_Flow_SubirAdjuntos'.Run(\r\n            JSON(Var_uploadFile_listeAttachmentSpv),\r\n            \"COMENTARIOS\",\r\n            Text(Var_SpvTicketSeleccionada.ID)\r\n        )\r\n    ),\r\n    UpdateContext({ CloseAlert: true, Mensaje: \"Error al subir los adjuntos.\" }),\r\n\r\n    Navigate(\r\n        Spv_Ticket,\r\n        ScreenTransition.Fade,\r\n        {\r\n            AlertaSatisfactoria: true,\r\n            MensajeSatisfactorio: \"Se actualizó el estado del ticket.\"\r\n        }\r\n    )\r\n)\r\n        \r\n)\r\n      \r\n)\r\n\r\n)"
+                                                                        OnSelect: "=//Se calcula el valor que toma el SLA del estado\r\n\r\n// LookUp('LCP-001_List_TicketSolicitudes';ID = Var_SpvTicketSeleccionada.ID);\r\n\r\nRefresh('LCP-001_List_TicketSolicitudes');\r\n\r\nIf(\r\n\r\nIsEmpty(Filter('LCP-001_List_EstadosProceso',ConfiguracionTicket = Var_SpvTicketSeleccionada.ConfiguracionTicket)),\r\nUpdateContext({Var_SLACalculado: 0, FechaVencimientoEstado: Var_SpvTicketSeleccionada.FechaVencimiento}),\r\n\r\nIf(\r\nIsBlank(varEstadoSelected.Value),  \r\nUpdateContext({ CloseAlert: true, Mensaje: \"Debes seleccionar un estado.\" }), \r\nSwitch(\r\n    varEstadoSelected.Value,\r\n    //Caso Switch\r\n    Var_EstadosApp.EstadoObservado,\r\n    \r\n    With(\r\n    {\r\n        auxSLA: LookUp('LCP-001_List_EstadosProceso', EstadoActual = Var_EstadosApp.EstadoObservado && EstadoSiguiente = Var_EstadosApp.EstadoEnRevision).SLA\r\n\r\n    },\r\n    UpdateContext({Var_SLACalculado: If(Or(IsBlank(auxSLA), auxSLA = 0 ), 0, \r\n    \r\n    If( Value(Spv_TxtAsignarSLATiempoAtencionDetalleTicket.Text) <>  auxSLA, Value(Spv_TxtAsignarSLATiempoAtencionDetalleTicket.Text), auxSLA))    });\r\n\r\n    If(\r\n    Var_SLACalculado = 0,\r\n    0, \r\n    // Calculamos la fecha de vencimiento del SLA para insertarlo en Tracking\r\n    ClearCollect( colFechas, AddColumns( Sequence(Var_SLACalculado * 3), Fecha, DateAdd(Now(), Value, TimeUnit.Days) ) ); \r\n    ClearCollect( colDiasHabiles, FirstN( Filter( colFechas, Weekday(Fecha, StartOfWeek.Monday) <= 5 && IsBlank( LookUp( colFeriados, FechaCompleta = Fecha ) ) ), Var_SLACalculado))\r\n    );\r\n\r\n    UpdateContext({FechaVencimientoEstado: If(Var_SLACalculado = 0 , Var_SpvTicketSeleccionada.FechaVencimiento, Last(colDiasHabiles).Fecha)})\r\n    )\r\n    ,\r\n\r\n\r\n    //Caso Switch\r\n    //1.Si no hay analista asignado -> No hay modificacion se encarga el balanceador\r\n    //2.Si hay analista seleccionado -> Busco el SLA en revisión \r\n\r\n    Var_EstadosApp.EstadoDerivado,\r\n    \r\n    With(\r\n    {\r\n        auxSLA: LookUp('LCP-001_List_EstadosProceso', EstadoActual = Var_EstadosApp.EstadoEnRevision && EstadoSiguiente = Blank()).SLA\r\n    },\r\n\r\n    UpdateContext({Var_SLACalculado: If(Or(IsBlank(auxSLA), auxSLA = 0 ), 0, auxSLA)});\r\n    If(\r\n    Var_SLACalculado = 0,\r\n    0, \r\n    // Calculamos la fecha de vencimiento del SLA para insertarlo en Tracking\r\n    ClearCollect( colFechas, AddColumns( Sequence(auxSLA * 3), Fecha, DateAdd(Now(), Value, TimeUnit.Days) ) ); \r\n    ClearCollect( colDiasHabiles, FirstN( Filter( colFechas, Weekday(Fecha, StartOfWeek.Monday) <= 5 && IsBlank( LookUp( colFeriados, FechaCompleta = Fecha ) ) ), auxSLA))\r\n    );\r\n    UpdateContext({FechaVencimientoEstado: If( Var_SLACalculado = 0, Var_SpvTicketSeleccionada.FechaVencimiento, Last(colDiasHabiles).Fecha)})\r\n    )\r\n\r\n    ,\r\n    //Caso Switch\r\n    Var_EstadosApp.EstadoEnProceso,\r\n    With(\r\n    {\r\n        auxSLA: LookUp('LCP-001_List_EstadosProceso', EstadoActual = Var_EstadosApp.EstadoEnProceso && EstadoSiguiente = Blank()).SLA\r\n    },\r\n\r\n    UpdateContext({Var_SLACalculado: If(Or(IsBlank(auxSLA), auxSLA = 0 ), 0, auxSLA)});\r\n    If(\r\n    Var_SLACalculado = 0,\r\n    0, \r\n    // Calculamos la fecha de vencimiento del SLA para insertarlo en Tracking\r\n    ClearCollect( colFechas, AddColumns( Sequence(auxSLA * 3), Fecha, DateAdd(Now(), Value, TimeUnit.Days) ) ); \r\n    ClearCollect( colDiasHabiles, FirstN( Filter( colFechas, Weekday(Fecha, StartOfWeek.Monday) <= 5 && IsBlank( LookUp( colFeriados, FechaCompleta = Fecha ) ) ), auxSLA))\r\n    );\r\n    UpdateContext({FechaVencimientoEstado: If( Var_SLACalculado = 0, Var_SpvTicketSeleccionada.FechaVencimiento, Last(colDiasHabiles).Fecha)})\r\n    )\r\n    ,\r\n    //Caso Switch\r\n    Var_EstadosApp.EstadoEnEsperaAprobacion,\r\n    \r\n\r\n    With(\r\n    {\r\n        auxSLA: LookUp('LCP-001_List_EstadosProceso', EstadoActual = Var_EstadosApp.EstadoEnEsperaAprobacion && EstadoSiguiente = Var_EstadosApp.EstadoEnProceso).SLA\r\n    },\r\n\r\n    UpdateContext({Var_SLACalculado: If(Or(IsBlank(auxSLA), auxSLA = 0 ), 0, auxSLA)});\r\n    If(\r\n    Var_SLACalculado = 0,\r\n    0, \r\n    // Calculamos la fecha de vencimiento del SLA para insertarlo en Tracking\r\n    ClearCollect( colFechas, AddColumns( Sequence(auxSLA * 3), Fecha, DateAdd(Now(), Value, TimeUnit.Days) ) ); \r\n    ClearCollect( colDiasHabiles, FirstN( Filter( colFechas, Weekday(Fecha, StartOfWeek.Monday) <= 5 && IsBlank( LookUp( colFeriados, FechaCompleta = Fecha ) ) ), auxSLA))\r\n    );\r\n    UpdateContext({FechaVencimientoEstado: If( Var_SLACalculado = 0, Var_SpvTicketSeleccionada.FechaVencimiento, Last(colDiasHabiles).Fecha)})\r\n    )\r\n\r\n    ,\r\n    //Caso Switch\r\n    Var_EstadosApp.EstadoResuelto,\r\n    With(\r\n    {\r\n        auxSLA: LookUp('LCP-001_List_EstadosProceso', EstadoActual = Var_EstadosApp.EstadoResuelto && EstadoSiguiente = Var_EstadosApp.EstadoCerrado).SLA\r\n    },\r\n\r\n    UpdateContext({Var_SLACalculado: If(Or(IsBlank(auxSLA), auxSLA = 0 ), 0, auxSLA)});\r\n    If(\r\n    Var_SLACalculado = 0,\r\n    0, \r\n    // Calculamos la fecha de vencimiento del SLA para insertarlo en Tracking\r\n    ClearCollect( colFechas, AddColumns( Sequence(auxSLA * 3), Fecha, DateAdd(Now(), Value, TimeUnit.Days) ) ); \r\n    ClearCollect( colDiasHabiles, FirstN( Filter( colFechas, Weekday(Fecha, StartOfWeek.Monday) <= 5 && IsBlank( LookUp( colFeriados, FechaCompleta = Fecha ) ) ), auxSLA))\r\n    );\r\n    UpdateContext({FechaVencimientoEstado: If( Var_SLACalculado = 0, Var_SpvTicketSeleccionada.FechaVencimiento, Last(colDiasHabiles).Fecha)})\r\n    )\r\n    ,\r\n    //Caso Switch\r\n    Var_EstadosApp.EstadoEnRevision,\r\n    true\r\n)\r\n)\r\n);\r\n\r\nIf(IsBlank(varEstadoSelected.Value),  UpdateContext({ CloseAlert: true, Mensaje: \"Debes seleccionar un estado.\" }), \r\nSwitch(\r\n    varEstadoSelected.Value,\r\n    //Caso Switch\r\n    Var_EstadosApp.EstadoObservado,\r\n\r\n    If(\r\n    (varUpdateMotivoDerivacionSelected.Value = \"Otro\" && IsBlank(Trim(Spv_TxtOtroMotivoDerivacionDerivarDetalleTicket.Text))) || \r\n    IsBlank(varUpdateMotivoDerivacionSelected.Value),\r\n    \r\n    UpdateContext({\r\n        CloseAlert: true,\r\n        Mensaje: If(IsBlank(varUpdateMotivoDerivacionSelected.Value), \"Debes seleccionar el motivo\", \"Debes ingresar el motivo de cierre.\")\r\n    }),\r\n    \r\n    /* 2. SI LAS VALIDACIONES PASAN, PROCEDEMOS */\r\n    IfError(\r\n        Patch(\r\n            'LCP-001_List_TicketSolicitudes',\r\n            LookUp('LCP-001_List_TicketSolicitudes',ID = Var_SpvTicketSeleccionada.ID),\r\n            {\r\n                EstadoActual: Var_EstadosApp.EstadoObservado,\r\n                MotivoObservado: If(\r\n                    varUpdateMotivoDerivacionSelected.Value = \"Otro\",\r\n                    Spv_TxtOtroMotivoDerivacionDerivarDetalleTicket.Text,\r\n                    varUpdateMotivoDerivacionSelected.Value\r\n                ),\r\n                Comentario: Spv_RichComentariosDetalleTicket.HtmlText,\r\n                FechaModificado: Now(),\r\n                FechaVencimientoEstado: FechaVencimientoEstado,\r\n                SLAEstado: Var_SLACalculado,\r\n                Accionador: \"Analista\",\r\n                Derivado: false,\r\n                \r\n                Evento: Var_EventoTrazabilidadApp.Estado\r\n                \r\n            }\r\n        ),\r\n        /* 3. MANEJO DE ERRORES (Si el Patch falla) */\r\n        Set(_varError, {\r\n            Fecha: Now(),\r\n            Usuario: {\r\n                Codigo: Var_ProfileUser.Codigo,\r\n                Nombre: Var_ProfileUser.NombreApellido\r\n            },\r\n            CodigoTicket: Var_SpvTicketSeleccionada.Codigo,\r\n            Error: FirstError.Message,\r\n            Details: FirstError.Details,\r\n            Source: FirstError.Source,\r\n            Kind: FirstError.Kind\r\n        });\r\n        Patch('LCP-001_List_ErroresSolicitud', Defaults('LCP-001_List_ErroresSolicitud'), {\r\n            TipoSolicitud: Var_TipoOperacionApp.Actualizar,\r\n            FechaError: Now(),\r\n            Error: JSON(_varError, JSONFormat.Compact),\r\n            CodigoUsuario: Var_ProfileUser.Codigo\r\n        });\r\n        UpdateContext({ CloseAlert: true, Mensaje: \"Error al guardar: \" & FirstError.Message }),\r\n\r\n        \r\n        /* 4. ÉXITO: CONTINUACIÓN SOLO SI NO HUBO ERROR */\r\n        If(\r\n            !IsEmpty(Var_uploadFile_listeAttachment),\r\n            'LCP-001_Flow_SubirAdjuntos'.Run(\r\n                JSON(Var_uploadFile_listeAttachment),\r\n                \"COMENTARIOS\",\r\n                Text(Var_SpvTicketSeleccionada.ID)\r\n            )\r\n        );\r\n        UpdateContext({Var_Ctx_ModalConfirmacion: false});\r\n        Navigate(\r\n            Spv_Ticket,\r\n            ScreenTransition.Fade,\r\n            {\r\n                AlertaSatisfactoria: true,\r\n                MensajeSatisfactorio: \"Se actualizó el estado del ticket.\"\r\n            }\r\n        )\r\n    )\r\n)\r\n\r\n      ,\r\n        //Caso Switch\r\n        Var_EstadosApp.EstadoDerivado,\r\n\r\n        UpdateContext(\r\n            {\r\n                Var_Ctx_ModalConfirmacion: true,\r\n                Var_Ctx_OperacionCatalogo: true,\r\n                Var_Ctx_DataModal: {\r\n                    Title: \"Derivar ticket\",\r\n                    SubTitle: \"Se procederá a derivar el ticket\",\r\n                    Menu: [\r\n        \"Especialización técnica\",\r\n        \"Capacidad\",\r\n        \"Nivel de autorización\",\r\n        \"Error de asignación\",\r\n        \"Dependencia externa\",\r\n        \"Otro\"\r\n        ],\r\n                    Placeholder: \"Seleccione motivo de derivación\",\r\n                    ButtonOk: \"Sí, derivar\"\r\n                },\r\n                Var_Ctx_AccionEstado: Var_EstadosApp.EstadoDerivado\r\n            }\r\n        );\r\n\r\n\r\n        \r\n        ,\r\n        //Caso Switch\r\n        Var_EstadosApp.EstadoEnProceso,\r\n\r\nIfError(\r\n        Patch(\r\n            'LCP-001_List_TicketSolicitudes',\r\n            LookUp('LCP-001_List_TicketSolicitudes',ID = Var_SpvTicketSeleccionada.ID),\r\n            {\r\n                EstadoActual: Var_EstadosApp.EstadoEnProceso,\r\n                Comentario: Spv_RichComentariosDetalleTicket.HtmlText,\r\n                FechaModificado: Now(),\r\n                FechaVencimientoEstado: FechaVencimientoEstado,\r\n                SLAEstado: Var_SLACalculado,\r\n                Accionador: \"Analista\",\r\n                Evento: Var_EventoTrazabilidadApp.Estado,\r\n                Derivado: false\r\n                \r\n            }\r\n        ),\r\n        \r\n        /* 3. MANEJO DE ERRORES (Si el Patch falla) */\r\n        Set(_varError, {\r\n            Fecha: Now(),\r\n            Usuario: {\r\n                Codigo: Var_ProfileUser.Codigo,\r\n                Nombre: Var_ProfileUser.NombreApellido\r\n            },\r\n            CodigoTicket: Var_SpvTicketSeleccionada.Codigo,\r\n            Error: FirstError.Message,\r\n            Details: FirstError.Details,\r\n            Source: FirstError.Source,\r\n            Kind: FirstError.Kind\r\n        });\r\n        Patch('LCP-001_List_ErroresSolicitud', Defaults('LCP-001_List_ErroresSolicitud'), {\r\n            TipoSolicitud: Var_TipoOperacionApp.Actualizar,\r\n            FechaError: Now(),\r\n            Error: JSON(_varError, JSONFormat.Compact),\r\n            CodigoUsuario: Var_ProfileUser.Codigo\r\n        });\r\n        UpdateContext({ CloseAlert: true, Mensaje: \"Error al guardar: \" & FirstError.Message }),\r\n\r\n        \r\n        /* 4. ÉXITO: CONTINUACIÓN SOLO SI NO HUBO ERROR */\r\n        If(\r\n            !IsEmpty(Var_uploadFile_listeAttachment),\r\n            'LCP-001_Flow_SubirAdjuntos'.Run(\r\n                JSON(Var_uploadFile_listeAttachment),\r\n                \"COMENTARIOS\",\r\n                Text(Var_SpvTicketSeleccionada.ID)\r\n            )\r\n        );\r\n        UpdateContext({Var_Ctx_ModalConfirmacion: false});\r\n        Navigate(\r\n            Spv_Ticket,\r\n            ScreenTransition.Fade,\r\n            {\r\n                AlertaSatisfactoria: true,\r\n                MensajeSatisfactorio: \"Se actualizó el estado del ticket.\"\r\n            }\r\n        )\r\n    )\r\n,\r\n        \r\n        \r\n//Caso Switch  En Proceso (Estado Actual) -> En Espera de Aprobación (Estado Actual)\r\n        Var_EstadosApp.EstadoEnEsperaAprobacion,\r\n\r\nIf(\r\n    IsEmpty(colUsuariosSeleccionadas),\r\n    UpdateContext({ CloseAlert: true, Mensaje: \"Debes seleccionar un usuario.\" }),\r\n\r\n    IfError(\r\n        Patch(\r\n            'LCP-001_List_TicketSolicitudes',\r\n            LookUp('LCP-001_List_TicketSolicitudes',ID = Var_SpvTicketSeleccionada.ID),\r\n            {\r\n                EstadoActual: Var_EstadosApp.EstadoEnEsperaAprobacion,\r\n                Comentario: Spv_RichComentariosDetalleTicket.HtmlText,\r\n                FechaModificado: Now(),\r\n                FechaVencimientoEstado: FechaVencimientoEstado,\r\n                SLAEstado: Var_SLACalculado,\r\n                Accionador: \"Analista\",\r\n                AprobadorCorreo: First(colUsuariosSeleccionadas).CorreoUsuario,\r\n                AprobadorNombre: First(colUsuariosSeleccionadas).Nombre,\r\n                \r\n                Evento: Var_EventoTrazabilidadApp.Estado\r\n                \r\n            }\r\n        ),\r\n        \r\n        /* 3. MANEJO DE ERRORES (Si el Patch falla) */\r\n        Set(_varError, {\r\n            Fecha: Now(),\r\n            Usuario: {\r\n                Codigo: Var_ProfileUser.Codigo,\r\n                Nombre: Var_ProfileUser.NombreApellido\r\n            },\r\n            CodigoTicket: Var_SpvTicketSeleccionada.Codigo,\r\n            Error: FirstError.Message,\r\n            Details: FirstError.Details,\r\n            Source: FirstError.Source,\r\n            Kind: FirstError.Kind\r\n        });\r\n        Patch('LCP-001_List_ErroresSolicitud', Defaults('LCP-001_List_ErroresSolicitud'), {\r\n            TipoSolicitud: Var_TipoOperacionApp.Actualizar,\r\n            FechaError: Now(),\r\n            Error: JSON(_varError, JSONFormat.Compact),\r\n            CodigoUsuario: Var_ProfileUser.Codigo\r\n        });\r\n        UpdateContext({ CloseAlert: true, Mensaje: \"Error al guardar: \" & FirstError.Message }),\r\n\r\n        \r\n        /* 4. ÉXITO: CONTINUACIÓN SOLO SI NO HUBO ERROR */\r\n        If(\r\n            !IsEmpty(Var_uploadFile_listeAttachment),\r\n            'LCP-001_Flow_SubirAdjuntos'.Run(\r\n                JSON(Var_uploadFile_listeAttachment),\r\n                \"COMENTARIOS\",\r\n                Text(Var_SpvTicketSeleccionada.ID)\r\n            )\r\n        );\r\n        UpdateContext({Var_Ctx_ModalConfirmacion: false});\r\n        Navigate(\r\n            Spv_Ticket,\r\n            ScreenTransition.Fade,\r\n            {\r\n                AlertaSatisfactoria: true,\r\n                MensajeSatisfactorio: \"Se actualizó el estado del ticket.\"\r\n            }\r\n        )\r\n    )\r\n)\r\n,\r\n//Caso Switch\r\nVar_EstadosApp.EstadoResuelto,\r\n\r\n\r\nIfError(\r\n        Patch(\r\n            'LCP-001_List_TicketSolicitudes',\r\n            LookUp('LCP-001_List_TicketSolicitudes',ID = Var_SpvTicketSeleccionada.ID),\r\n            {\r\n                EstadoActual: Var_EstadosApp.EstadoResuelto,\r\n                Comentario: Spv_RichComentariosDetalleTicket.HtmlText,\r\n                FechaModificado: Now(),\r\n                FechaVencimientoEstado: FechaVencimientoEstado,\r\n                SLAEstado: Var_SLACalculado,\r\n                Accionador: \"Analista\",\r\n                Evento: Var_EventoTrazabilidadApp.Estado\r\n                \r\n            }\r\n        ),\r\n        \r\n        /* 3. MANEJO DE ERRORES (Si el Patch falla) */\r\n        Set(_varError, {\r\n            Fecha: Now(),\r\n            Usuario: {\r\n                Codigo: Var_ProfileUser.Codigo,\r\n                Nombre: Var_ProfileUser.NombreApellido\r\n            },\r\n            CodigoTicket: Var_SpvTicketSeleccionada.Codigo,\r\n            Error: FirstError.Message,\r\n            Details: FirstError.Details,\r\n            Source: FirstError.Source,\r\n            Kind: FirstError.Kind\r\n        });\r\n        Patch('LCP-001_List_ErroresSolicitud', Defaults('LCP-001_List_ErroresSolicitud'), {\r\n            TipoSolicitud: Var_TipoOperacionApp.Actualizar,\r\n            FechaError: Now(),\r\n            Error: JSON(_varError, JSONFormat.Compact),\r\n            CodigoUsuario: Var_ProfileUser.Codigo\r\n        });\r\n        UpdateContext({ CloseAlert: true, Mensaje: \"Error al guardar: \" & FirstError.Message }),\r\n\r\n        \r\n        /* 4. ÉXITO: CONTINUACIÓN SOLO SI NO HUBO ERROR */\r\n        If(\r\n            !IsEmpty(Var_uploadFile_listeAttachment),\r\n            'LCP-001_Flow_SubirAdjuntos'.Run(\r\n                JSON(Var_uploadFile_listeAttachment),\r\n                \"COMENTARIOS\",\r\n                Text(Var_SpvTicketSeleccionada.ID)\r\n            )\r\n        );\r\n        UpdateContext({Var_Ctx_ModalConfirmacion: false});\r\n        Navigate(\r\n            Spv_Ticket,\r\n            ScreenTransition.Fade,\r\n            {\r\n                AlertaSatisfactoria: true,\r\n                MensajeSatisfactorio: \"Se actualizó el estado del ticket.\"\r\n            }\r\n        )\r\n    )\r\n,\r\n//Caso Switch\r\nVar_EstadosApp.EstadoEnRevision,\r\n\r\nIf(IsBlank(Spv_RichComentariosDetalleTicket.HtmlText),\r\n        UpdateContext({ CloseAlert: true, Mensaje: \"Debes ingresar un comentario.\" }),\r\n\r\n    IsEmpty(Var_uploadFile_listeAttachment),\r\n        UpdateContext({ CloseAlert: true, Mensaje: \"Debes ingresar un documento adjunto.\" }),\r\n\r\n\r\n    IfError(\r\n\r\n    Set(\r\n        Var_EstadoEnRevision,\r\n        Patch(\r\n            'LCP-001_List_TicketSolicitudes',\r\n            LookUp('LCP-001_List_TicketSolicitudes',ID = Var_SpvTicketSeleccionada.ID),\r\n            {\r\n                EstadoActual: varEstadoSelected.Value,\r\n                Comentario: Spv_RichComentariosDetalleTicket.HtmlText,\r\n                FechaModificado: Now(),\r\n                SLAEstado: LookUp(\r\n                        'LCP-001_List_EstadosProceso',\r\n                        EstadoActual = Var_EstadosApp.EstadoEnRevision,\r\n                        SLA\r\n                    )\r\n            }\r\n        )\r\n    ),\r\n    UpdateContext({ CloseAlert: true, Mensaje: \"Error al actualizar el ticket.\" }),\r\n\r\n    Set(DiasHabiles, Var_EstadoEnRevision.SLAEstado); \r\n                    ClearCollect( colFechas, AddColumns( Sequence(DiasHabiles * 3), Fecha, DateAdd(Now(), Value, TimeUnit.Days) ) ); \r\n                    ClearCollect( colDiasHabiles, FirstN( Filter( colFechas, Weekday(Fecha, StartOfWeek.Monday) <= 5 && IsBlank( LookUp( colFeriados, FechaCompleta = Fecha ) ) ), DiasHabiles ) ); \r\n                    Set( Var_FechaVencimientoEstadoTracking, Last(colDiasHabiles).Fecha )\r\n                    \r\n                    \r\n                    ,false,\r\n\r\n    If(\r\n        !IsEmpty(Var_uploadFile_listeAttachment),\r\n        'LCP-001_Flow_SubirAdjuntos'.Run(\r\n            JSON(Var_uploadFile_listeAttachment),\r\n            \"COMENTARIOS\",\r\n            Text(Var_SpvTicketSeleccionada.ID)\r\n        )\r\n    ),\r\n    UpdateContext({ CloseAlert: true, Mensaje: \"Error al subir los adjuntos.\" }),\r\n\r\n    Navigate(\r\n        Spv_Ticket,\r\n        ScreenTransition.Fade,\r\n        {\r\n            AlertaSatisfactoria: true,\r\n            MensajeSatisfactorio: \"Se actualizó el estado del ticket.\"\r\n        }\r\n    )\r\n)\r\n        \r\n)\r\n      \r\n)\r\n\r\n)"
                                                                         PressedBorderColor: =Self.PressedFill
                                                                         PressedColor: =ColorValue(Var_ColorBlanco)
                                                                         PressedFill: =ColorValue(Var_ColorPressedBoton)
@@ -2649,6 +2578,7 @@ Screens:
                                                             Height: =CountRows(Spv_GalItemsAreasDetalleTicket.AllItems) * 37 + Spv_TxtItemsAreasDetalleTicket.Height
                                                             Visible: =varOpenDropDownArea
                                                             Width: =Spv_CtnAreaDetalleTicket.Width - 2
+                                                            X: =Spv_CtnAreaDetalleTicket.X + 25
                                                             Y: =Spv_CtnCabeceraAccionesDetalleTicket.Height + Spv_LblTiempoAtencionDetalleTicket.Height + Spv_CtnEnEsperaAprobacionDetalleTicket.Height + 75
                                                           Children:
                                                             - Spv_GalItemsAreasDetalleTicket:
@@ -2657,7 +2587,7 @@ Screens:
                                                                 Properties:
                                                                   BorderColor: =RGBA(0, 18, 107, 1)
                                                                   Height: =Parent.Height - Spv_TxtItemsAreasDetalleTicket.Height
-                                                                  Items: =Filter(colAreasSpv, Spv_TxtItemsAreasDetalleTicket.Value in ThisRecord.Value Or IsBlank(Spv_TxtItemsAreasDetalleTicket.Value))
+                                                                  Items: =Filter(col_gblArea, Spv_TxtItemsAreasDetalleTicket.Value in ThisRecord.Value Or IsBlank(Spv_TxtItemsAreasDetalleTicket.Value))
                                                                   TemplateSize: =30
                                                                   Visible: =varOpenDropDownArea
                                                                   Width: =Parent.Width
@@ -2710,7 +2640,7 @@ Screens:
                                                                               HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
                                                                               HoverColor: =RGBA(255, 255, 255, 1)
                                                                               HoverFill: =ColorValue(Var_ColorFadeBoton)
-                                                                              OnSelect: "=/*\nPatch(objGalleryDataSpv;ThisItem; { Mark: !ThisItem.Mark });;\nIf(CountIf(Gallery2.AllItems; Mark) = 0;UpdateContext({Var_Ctx_DeriVar_Ticket: false });UpdateContext({Var_Ctx_DeriVar_Ticket: true }))\n*/\nIf(\n    !IsEmpty(colAreasSeleccionadas) &&\n    First(colAreasSeleccionadas).Value = ThisItem.Value,\n    // Ya está seleccionado → desmarcar\n    Clear(colAreasSeleccionadas),\n    // No está seleccionado → seleccionar este\n    Clear(colAreasSeleccionadas);\n    Collect(colAreasSeleccionadas, ThisItem);\n    ClearCollect(colUsuarios, ShowColumns(Filter('LCP-001_List_Usuarios', Area = ThisItem.Value),CorreoUsuario,NombreApellido));\n    UpdateContext({ varOpenDropDownArea: false })\n    \n)\n\n /*\nIf(\n    ThisItem in colAreasSeleccionadas;\n    // Si YA existe; lo eliminamos (equivalente a OnUncheck)\n    Clear(colAreasSeleccionadas);\n    // Si NO existe; lo agregamos (equivalente a OnCheck)\n    Collect(colAreasSeleccionadas; ThisItem)\n)\n*/"
+                                                                              OnSelect: "=/*\nPatch(objGalleryData;ThisItem; { Mark: !ThisItem.Mark });;\nIf(CountIf(Gallery2.AllItems; Mark) = 0;UpdateContext({Var_Ctx_DeriVar_Ticket: false });UpdateContext({Var_Ctx_DeriVar_Ticket: true }))\n*/\nIf(\n    !IsEmpty(colAreasSeleccionadas) &&\n    First(colAreasSeleccionadas).Value = ThisItem.Value,\n    // Ya está seleccionado → desmarcar\n    Clear(colAreasSeleccionadas),\n    // No está seleccionado → seleccionar este\n    Clear(colAreasSeleccionadas);\n    Collect(colAreasSeleccionadas, ThisItem);\n    ClearCollect(colUsuarios, ShowColumns(Filter('LCP-001_List_Usuarios', Area = ThisItem.Value),CorreoUsuario,NombreApellido,Codigo));\n    UpdateContext({ varOpenDropDownArea: false })\n    \n)\n\n /*\nIf(\n    ThisItem in colAreasSeleccionadas;\n    // Si YA existe; lo eliminamos (equivalente a OnUncheck)\n    Clear(colAreasSeleccionadas);\n    // Si NO existe; lo agregamos (equivalente a OnCheck)\n    Collect(colAreasSeleccionadas; ThisItem)\n)\n*/"
                                                                               PaddingBottom: =0
                                                                               PaddingLeft: =0
                                                                               PaddingRight: =0
@@ -2767,6 +2697,7 @@ Screens:
                                                             Height: =CountRows(Spv_GalItemsUsuarioDetalleTicket.AllItems) * 37 + Spv_TxttemsUsuarioDetalleTicket.Height
                                                             Visible: =varOpenDropDownUsuario
                                                             Width: =Spv_CtnUsuariosDetalleTicket.Width - 2
+                                                            X: =Spv_CtnUsuariosDetalleTicket.X + 25
                                                             Y: =Spv_CtnCabeceraAccionesDetalleTicket.Height + Spv_LblTiempoAtencionDetalleTicket.Height + Spv_CtnEnEsperaAprobacionDetalleTicket.Height + 75
                                                           Children:
                                                             - Spv_GalItemsUsuarioDetalleTicket:
@@ -2818,11 +2749,11 @@ Screens:
                                                                         - Spv_BtnChkItemsUsuarioDetalleTicket:
                                                                             Control: Classic/Button@2.2.0
                                                                             Properties:
-                                                                              BorderColor: "=If(\r\n\r\n    ThisItem in colUsuariosSeleccionadasSpv,\r\n    // SI (Todo seleccionado): Borde Azul\r\n    Color.Transparent, \r\n    \r\n    // NO (Falta algo): Borde Gris\r\n    ColorValue(\"#6C6C6C\")\r\n)"
+                                                                              BorderColor: "=If(\r\n\r\n    ThisItem in colUsuariosSeleccionadas,\r\n    // SI (Todo seleccionado): Borde Azul\r\n    Color.Transparent, \r\n    \r\n    // NO (Falta algo): Borde Gris\r\n    ColorValue(\"#6C6C6C\")\r\n)"
                                                                               BorderThickness: =1
                                                                               Color: =RGBA(0, 0, 0, 0)
                                                                               DisabledBorderColor: =RGBA(166, 166, 166, 1)
-                                                                              Fill: "=If(\n   ThisItem in colUsuariosSeleccionadasSpv,\n    \n    // SI: Color de fondo activo (Te sugiero un azul muy suave o Transparente si usas un icono encima)\n    ColorValue(\"#E72025\"), \n    \n    // NO: Fondo Blanco\n    Color.White\n)"
+                                                                              Fill: "=If(\n   ThisItem in colUsuariosSeleccionadas,\n    \n    // SI: Color de fondo activo (Te sugiero un azul muy suave o Transparente si usas un icono encima)\n    ColorValue(\"#E72025\"), \n    \n    // NO: Fondo Blanco\n    Color.White\n)"
                                                                               Font: =Font.'Open Sans'
                                                                               Height: =Parent.Height - 2
                                                                               HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
@@ -2830,19 +2761,19 @@ Screens:
                                                                               HoverFill: =ColorValue(Var_ColorFadeBoton)
                                                                               OnSelect: |-
                                                                                 =/*
-                                                                                Patch(objGalleryDataSpv;ThisItem; { Mark: !ThisItem.Mark });;
+                                                                                Patch(objGalleryData;ThisItem; { Mark: !ThisItem.Mark });;
                                                                                 If(CountIf(Gallery2.AllItems; Mark) = 0;UpdateContext({Var_Ctx_DeriVar_Ticket: false });UpdateContext({Var_Ctx_DeriVar_Ticket: true }))
                                                                                 */
 
 
                                                                                 If(
-                                                                                    !IsEmpty(colUsuariosSeleccionadasSpv) &&
-                                                                                    First(colUsuariosSeleccionadasSpv).Value = ThisItem.Value,
+                                                                                    !IsEmpty(colUsuariosSeleccionadas) &&
+                                                                                    First(colUsuariosSeleccionadas).Value = ThisItem.Value,
                                                                                     // Ya está seleccionado → desmarcar
-                                                                                    Clear(colUsuariosSeleccionadasSpv),
+                                                                                    Clear(colUsuariosSeleccionadas),
                                                                                     // No está seleccionado → seleccionar este
-                                                                                    Clear(colUsuariosSeleccionadasSpv);
-                                                                                    Collect(colUsuariosSeleccionadasSpv, ThisItem);
+                                                                                    Clear(colUsuariosSeleccionadas);
+                                                                                    Collect(colUsuariosSeleccionadas, ThisItem);
                                                                                     UpdateContext({ varOpenDropDownUsuario: false })
                                                                                 )
                                                                               PaddingBottom: =0
@@ -2872,7 +2803,7 @@ Screens:
                                                                               PaddingLeft: =5
                                                                               PaddingRight: =2
                                                                               PaddingTop: =8
-                                                                              Visible: =ThisItem in colUsuariosSeleccionadasSpv
+                                                                              Visible: =ThisItem in colUsuariosSeleccionadas
                                                                               Width: =Parent.Width
                                                             - Spv_TxttemsUsuarioDetalleTicket:
                                                                 Control: TextInput@0.0.54
@@ -2898,10 +2829,10 @@ Screens:
                                                           Properties:
                                                             DropShadow: =DropShadow.Semilight
                                                             Fill: =RGBA(255, 255, 255, 1)
-                                                            Height: =Spv_GalEstadoTransicionDetalleTicket.Height
+                                                            Height: =Spv_GalEstadoTransicionDetalleTicket.Height - 30
                                                             Visible: =varOpenDropDownEstadoTransicion
                                                             Width: =Spv_CtnTransicionEstadoDetalleTicket.Width
-                                                            X: =Spv_CtnTransicionEstadoDetalleTicket.X + 437
+                                                            X: =Spv_CtnCuerpoDetalleTicket.Width - Self.Width - 24
                                                             Y: =Spv_CtnCabeceraAccionesDetalleTicket.Height + 25
                                                           Children:
                                                             - Spv_GalEstadoTransicionDetalleTicket:
@@ -2916,7 +2847,7 @@ Screens:
                                                                             filas: CountRows(Spv_GalEstadoTransicionDetalleTicket.AllItems),
                                                                             // Calculamos el alto de una fila basándonos en el control interno
                                                                             // Usamos el contenedor o el label directamente
-                                                                            altoFila: Container11_5.Height 
+                                                                            altoFila: Container11_6.Height 
                                                                         },
                                                                         If(
                                                                             filas > 3,
@@ -2926,22 +2857,22 @@ Screens:
                                                                     )
                                                                   Items: =Filter(colTransicionEstadoSpv, Spv_TxtTransicionEstadoDetalleTicket.Text in ThisRecord.Value Or IsBlank(Spv_TxtTransicionEstadoDetalleTicket.Text))
                                                                   TemplatePadding: =0
-                                                                  TemplateSize: =50
+                                                                  TemplateSize: =34
                                                                   Width: =Parent.Width
                                                                 Children:
-                                                                  - Container11_5:
+                                                                  - Container11_6:
                                                                       Control: GroupContainer@1.5.0
                                                                       Variant: ManualLayout
                                                                       Properties:
                                                                         DropShadow: =DropShadow.None
-                                                                        Height: =Label8_6.Height
+                                                                        Height: =34
                                                                         RadiusBottomLeft: =10
                                                                         RadiusBottomRight: =10
                                                                         RadiusTopLeft: =10
                                                                         RadiusTopRight: =10
                                                                         Width: =Parent.TemplateWidth
                                                                       Children:
-                                                                        - Label8_6:
+                                                                        - Label8_7:
                                                                             Control: Label@2.5.1
                                                                             Properties:
                                                                               AutoHeight: =true
@@ -2950,11 +2881,15 @@ Screens:
                                                                               DisabledColor: =RGBA(0, 0, 0, 1)
                                                                               Font: =Font.'Open Sans'
                                                                               FontWeight: =FontWeight.Semibold
+                                                                              Height: =34
                                                                               HoverFill: =ColorValue(Var_ColorFadeBoton)
                                                                               OnSelect: |-
                                                                                 =UpdateContext({varEstadoSelected : ThisItem , varOpenDropDownEstadoTransicion: false})
                                                                               Size: =12
-                                                                              Text: =Upper(Left(ThisItem.Value, 1)) & Lower(Mid(ThisItem.Value, 2))
+                                                                              Text: |-
+                                                                                =
+
+                                                                                Upper(Left(ThisItem.Value, 1)) & Lower(Mid(ThisItem.Value, 2))
                                                                               Width: =Parent.Width
                                           - Spv_CtnSeparadorBottonDetalleTicket:
                                               Control: GroupContainer@1.5.0
@@ -4410,15 +4345,15 @@ Screens:
             Visible: =Var_Ctx_ModalConfirmacion
             Width: =Parent.Width
           Children:
-            - Gbl_Confirmation_Update_2:
+            - Gbl_Confirmation_Update_1:
                 Control: CanvasComponent
                 ComponentName: Gbl_Confirmation_Update
                 ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
                 Properties:
                   CerrarModal: |-
                     =UpdateContext({ Var_Ctx_ModalConfirmacion: false })
-                  Guardar: "=/* 1. VALIDACIONES INICIALES */\nIf(\n    (Gbl_Confirmation_Update_2.ValorMotivo = \"Otro\" && IsBlank(Trim(Gbl_Confirmation_Update_2.ValorOtro))) || \n    IsBlank(Gbl_Confirmation_Update_2.ValorMotivo),\n    \n    UpdateContext({\n        CloseAlert: true,\n        Mensaje: If(IsBlank(Gbl_Confirmation_Update_2.ValorMotivo), \"Debes seleccionar el motivo\", \"Debes ingresar el motivo de rechazo.\")\n    }),\n    \n    /* 2. SI LAS VALIDACIONES PASAN, PROCEDEMOS */\n    IfError(\n\n        Switch(Var_Ctx_AccionEstado, Var_EstadosApp.EstadoRechazado,\n\n        Patch(\n            'LCP-001_List_TicketSolicitudes',\n            {ID: Var_SpvTicketSeleccionada.ID},\n            {\n                EstadoActual: Var_EstadosApp.EstadoCerrado,\n                MotivoRechazo: If(\n                    Gbl_Confirmation_Update_2.ValorMotivo = \"Otro\",\n                    Gbl_Confirmation_Update_2.ValorOtro,\n                    Gbl_Confirmation_Update_2.ValorMotivo\n                ),\n                Comentario: Spv_RichComentariosDetalleTicket.HtmlText,\n                FechaModificado: Now(),\n                Accionador: \"Supervisor\",\n                Evento: Var_EventoTrazabilidadApp.Estado\n                \n            }\n        ),  Var_EstadosApp.EstadoDerivado,\n\n        Patch(\n            'LCP-001_List_TicketSolicitudes',\n            {ID: Var_SpvTicketSeleccionada.ID},\n            {\n                EstadoActual: If(IsBlank(varUpdateAtendidoPorSelected), varEstadoSelected.Value, Var_EstadosApp.EstadoEnRevision),\n                MotivoDerivacion: If(\n                    Gbl_Confirmation_Update_2.ValorMotivo = \"Otro\",\n                    Gbl_Confirmation_Update_2.ValorOtro,\n                    Gbl_Confirmation_Update_2.ValorMotivo\n                ),\n                Comentario: Spv_RichComentariosDetalleTicket.HtmlText,\n                FechaModificado: Now(),\n                Accionador: \"Supervisor\",\n                Evento: Var_EventoTrazabilidadApp.Estado,\n                // Nuevo Analista\n                NombreAtendidoPor: varUpdateAtendidoPorSelected.Nombre,\n                CorreoAtendidoPor: varUpdateAtendidoPorSelected.Correo,\n                // Analista anterior\n                AtendidoNombreAnterior: Var_SpvTicketSeleccionada.NombreAtendidoPor,\n                AtendidoCorreoAnterior: Var_SpvTicketSeleccionada.CorreoAtendidoPor,\n                FechaVencimientoEstado: FechaVencimientoEstado,\n                SLAEstado: Var_SLACalculado,\n                Derivado: true\n                \n            }\n        ),  Var_EstadosApp.EstadoReactivado,\n\n        Patch(\n            'LCP-001_List_TicketSolicitudes',\n            {ID: Var_SpvTicketSeleccionada.ID},\n            {\n                EstadoActual: If(IsBlank(varUpdateAtendidoPorSelected), varEstadoSelected.Value, Var_EstadosApp.EstadoEnRevision),\n                MotivoDerivacion: If(\n                    Gbl_Confirmation_Update_2.ValorMotivo = \"Otro\",\n                    Gbl_Confirmation_Update_2.ValorOtro,\n                    Gbl_Confirmation_Update_2.ValorMotivo\n                ),\n                Comentario: Spv_RichComentariosDetalleTicket.HtmlText,\n                FechaModificado: Now(),\n                Accionador: \"Supervisor\",\n                Evento: Var_EventoTrazabilidadApp.Estado,\n                // Nuevo Analista\n                NombreAtendidoPor: varUpdateAtendidoPorSelected.Nombre,\n                CorreoAtendidoPor: varUpdateAtendidoPorSelected.Correo,\n                // Analista anterior\n                AtendidoNombreAnterior: Var_SpvTicketSeleccionada.NombreAtendidoPor,\n                AtendidoCorreoAnterior: Var_SpvTicketSeleccionada.CorreoAtendidoPor,\n                //FechaVencimientoEstado: FechaVencimientoEstado;\n                //SLAEstado: Var_SLACalculado;\n                ReApertura: true\n                \n            }\n        )\n        ),\n        \n        /* 3. MANEJO DE ERRORES (Si el Patch falla) */\n        Set(_varError, {\n            Fecha: Now(),\n            Usuario: {\n                Codigo: Var_ProfileUser.Codigo,\n                Nombre: Var_ProfileUser.NombreApellido\n            },\n            CodigoTicket: Var_SpvTicketSeleccionada.Codigo,\n            Error: FirstError.Message\n        });\n        \n        Patch('LCP-001_List_ErroresSolicitud', Defaults('LCP-001_List_ErroresSolicitud'), {\n            TipoSolicitud: Var_TipoOperacionApp.Actualizar,\n            FechaError: Now(),\n            Error: JSON(_varError, JSONFormat.Compact),\n            CodigoUsuario: Var_ProfileUser.Codigo\n        });\n        UpdateContext({ CloseAlert: true, Mensaje: \"Error al guardar: \" & FirstError.Message }),\n\n        \n        /* 4. ÉXITO: CONTINUACIÓN SOLO SI NO HUBO ERROR */\n        If(\n            !IsEmpty(Var_uploadFile_listeAttachmentSpv),\n            'LCP-001_Flow_SubirAdjuntos'.Run(\n                JSON(Var_uploadFile_listeAttachmentSpv),\n                \"COMENTARIOS\",\n                Text(Var_SpvTicketSeleccionada.ID)\n            )\n        );\n        UpdateContext({Var_Ctx_ModalConfirmacion: false});\n        Navigate(\n            Spv_Ticket,\n            ScreenTransition.Fade,\n            {\n                AlertaSatisfactoria: true,\n                MensajeSatisfactorio: \"Se actualizó el estado del ticket.\"\n            }\n        )\n    )\n)"
-                  Height: =If(Gbl_Confirmation_Update_2.IsOpen,475,Gbl_Confirmation_Update_2.ValorMotivo = "Otro",395,355)
+                  Guardar: "=/* 1. VALIDACIONES INICIALES */\r\nIf(\r\n    (Gbl_Confirmation_Update_1.ValorMotivo = \"Otro\" && IsBlank(Trim(Gbl_Confirmation_Update_1.ValorOtro))) || \r\n    IsBlank(Gbl_Confirmation_Update_1.ValorMotivo),\r\n    \r\n    UpdateContext({\r\n        CloseAlert: true,\r\n        Mensaje: If(IsBlank(Gbl_Confirmation_Update_1.ValorMotivo), \"Debes seleccionar el motivo\", \"Debes ingresar el motivo de rechazo.\")\r\n    }),\r\n    \r\n    /* 1. SI LAS VALIDACIONES PASAN, PROCEDEMOS */\r\n    IfError(\r\n\r\n        Switch(Var_Ctx_AccionEstado, Var_EstadosApp.EstadoRechazado,\r\n\r\n        Patch(\r\n            'LCP-001_List_TicketSolicitudes',\r\n            LookUp('LCP-001_List_TicketSolicitudes',ID = Var_SpvTicketSeleccionada.ID),\r\n            {\r\n                EstadoActual: Var_EstadosApp.EstadoRechazado,\r\n                MotivoRechazo: If(\r\n                    Gbl_Confirmation_Update_1.ValorMotivo = \"Otro\",\r\n                    Gbl_Confirmation_Update_1.ValorOtro,\r\n                    Gbl_Confirmation_Update_1.ValorMotivo\r\n                ),\r\n                Comentario: Spv_RichComentariosDetalleTicket.HtmlText,\r\n                FechaModificado: Now(),\r\n                Accionador: \"Supervisor\",\r\n                Evento: Var_EventoTrazabilidadApp.Estado\r\n                \r\n            }\r\n        ),  Var_EstadosApp.EstadoDerivado,\r\n\r\n        Patch(\r\n            'LCP-001_List_TicketSolicitudes',\r\n            LookUp('LCP-001_List_TicketSolicitudes',ID = Var_SpvTicketSeleccionada.ID),\r\n            {\r\n                EstadoActual: If(IsBlank(varUpdateAtendidoPorSelected), varEstadoSelected.Value, Var_EstadosApp.EstadoEnRevision),\r\n                MotivoDerivacion: If(\r\n                    Gbl_Confirmation_Update_1.ValorMotivo = \"Otro\",\r\n                    Gbl_Confirmation_Update_1.ValorOtro,\r\n                    Gbl_Confirmation_Update_1.ValorMotivo\r\n                ),\r\n                Comentario: Spv_RichComentariosDetalleTicket.HtmlText,\r\n                FechaModificado: Now(),\r\n                Accionador: \"Supervisor\",\r\n                Evento: Var_EventoTrazabilidadApp.Estado,\r\n                // Nuevo Analista\r\n                NombreAtendidoPor: varUpdateAtendidoPorSelected.Nombre,\r\n                CorreoAtendidoPor: varUpdateAtendidoPorSelected.Correo,\r\n                // Analista anterior\r\n                AtendidoNombreAnterior: Var_SpvTicketSeleccionada.NombreAtendidoPor,\r\n                AtendidoCorreoAnterior: Var_SpvTicketSeleccionada.CorreoAtendidoPor,\r\n                FechaVencimientoEstado: FechaVencimientoEstado,\r\n                SLAEstado: Var_SLACalculado,\r\n                Derivado: true\r\n                \r\n            }\r\n        ),  Var_EstadosApp.EstadoReactivado,\r\n\r\n        Patch(\r\n            'LCP-001_List_TicketSolicitudes',\r\n            LookUp('LCP-001_List_TicketSolicitudes',ID = Var_SpvTicketSeleccionada.ID),\r\n            {\r\n                EstadoActual: If(IsBlank(varUpdateAtendidoPorSelected), varEstadoSelected.Value, Var_EstadosApp.EstadoEnRevision),\r\n                MotivoDerivacion: If(\r\n                    Gbl_Confirmation_Update_1.ValorMotivo = \"Otro\",\r\n                    Gbl_Confirmation_Update_1.ValorOtro,\r\n                    Gbl_Confirmation_Update_1.ValorMotivo\r\n                ),\r\n                Comentario: Spv_RichComentariosDetalleTicket.HtmlText,\r\n                FechaModificado: Now(),\r\n                Accionador: \"Supervisor\",\r\n                Evento: Var_EventoTrazabilidadApp.Estado,\r\n                // Nuevo Analista\r\n                NombreAtendidoPor: varUpdateAtendidoPorSelected.Nombre,\r\n                CorreoAtendidoPor: varUpdateAtendidoPorSelected.Correo,\r\n                // Analista anterior\r\n                AtendidoNombreAnterior: Var_SpvTicketSeleccionada.NombreAtendidoPor,\r\n                AtendidoCorreoAnterior: Var_SpvTicketSeleccionada.CorreoAtendidoPor,\r\n                //FechaVencimientoEstado: FechaVencimientoEstado;\r\n                //SLAEstado: Var_SLACalculado;\r\n                ReApertura: true\r\n                \r\n            }\r\n        )\r\n        ),\r\n        \r\n        /* 3. MANEJO DE ERRORES (Si el Patch falla) */\r\n        Set(_varError, {\r\n            Fecha: Now(),\r\n            Usuario: {\r\n                Codigo: Var_ProfileUser.Codigo,\r\n                Nombre: Var_ProfileUser.NombreApellido\r\n            },\r\n            CodigoTicket: Var_SpvTicketSeleccionada.Codigo,\r\n            Error: FirstError.Message\r\n        });\r\n        \r\n        Patch('LCP-001_List_ErroresSolicitud', Defaults('LCP-001_List_ErroresSolicitud'), {\r\n            TipoSolicitud: Var_TipoOperacionApp.Actualizar,\r\n            FechaError: Now(),\r\n            Error: JSON(_varError, JSONFormat.Compact),\r\n            CodigoUsuario: Var_ProfileUser.Codigo\r\n        });\r\n        UpdateContext({ CloseAlert: true, Mensaje: \"Error al guardar: \" & FirstError.Message }),\r\n\r\n        \r\n        /* 4. ÉXITO: CONTINUACIÓN SOLO SI NO HUBO ERROR */\r\n        If(\r\n            !IsEmpty(Var_uploadFile_listeAttachment),\r\n            'LCP-001_Flow_SubirAdjuntos'.Run(\r\n                JSON(Var_uploadFile_listeAttachment),\r\n                \"COMENTARIOS\",\r\n                Text(Var_SpvTicketSeleccionada.ID)\r\n            )\r\n        );\r\n        UpdateContext({Var_Ctx_ModalConfirmacion: false});\r\n        Navigate(\r\n            Spv_Ticket,\r\n            ScreenTransition.Fade,\r\n            {\r\n                AlertaSatisfactoria: true,\r\n                MensajeSatisfactorio: \"Se actualizó el estado del ticket.\"\r\n            }\r\n        )\r\n    )\r\n)"
+                  Height: =If(Gbl_Confirmation_Update_1.IsOpen,475,Gbl_Confirmation_Update_1.ValorMotivo = "Otro",395,355)
                   MenuCatalogo: =Var_Ctx_DataModal.Menu
                   Placeholder: =Var_Ctx_DataModal.Placeholder
                   SubTitle: =Var_Ctx_DataModal.SubTitle
