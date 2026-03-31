@@ -4015,7 +4015,7 @@ Screens:
                                           Visible: =varOpenDropDownUpdateMotivoDerivacion
                                           Width: =Spv_CtnItemsGerenciaDetalleTicketGerencia.Width - 2
                                           X: =Spv_CbxGerenciaDerivarDetalleTicket.X + 7
-                                          Y: =140
+                                          Y: =Spv_LblPropiedadesDerivarDetalleTicket.Height + (Spv_CbxGerenciaDerivarDetalleTicket.Height * 7) + 5
                                         Children:
                                           - Spv_GalMotivoDerivacionDerivarDetalleTicket:
                                               Control: Gallery@2.15.0
@@ -4056,11 +4056,11 @@ Screens:
                                         Properties:
                                           DropShadow: =DropShadow.Semilight
                                           Fill: =RGBA(255, 255, 255, 1)
-                                          Height: =CountRows(Spv_GalAtendidoPorDerivarDetalleTicket.AllItems) * 37
+                                          Height: '=CountRows(Spv_GalAtendidoPorDerivarDetalleTicket.AllItems) * 37 '
                                           Visible: =varOpenDropDownUpdateAtendidoPor
                                           Width: =Spv_CtnItemsGerenciaDetalleTicketGerencia.Width - 2
                                           X: =Spv_CbxGerenciaDerivarDetalleTicket.X + 7
-                                          Y: =140
+                                          Y: =Spv_LblPropiedadesDerivarDetalleTicket.Height + (Spv_CbxGerenciaDerivarDetalleTicket.Height * 6) + 5
                                         Children:
                                           - Spv_GalAtendidoPorDerivarDetalleTicket:
                                               Control: Gallery@2.15.0
@@ -4101,7 +4101,7 @@ Screens:
                                         Properties:
                                           DropShadow: =DropShadow.Semilight
                                           Fill: =RGBA(255, 255, 255, 1)
-                                          Height: |
+                                          Height: |-
                                             =With(
                                                 {
                                                     filas: Spv_GalSociedadDerivarDetalleTicket.AllItemsCount
@@ -4113,11 +4113,11 @@ Screens:
                                                     filas * Spv_GalSociedadDerivarDetalleTicket.TemplateHeight + 10,
                                                     3 * Spv_GalSociedadDerivarDetalleTicket.TemplateHeight + 50
                                                 )
-                                            )
+                                            ) + 100
                                           Visible: =varOpenDropDownUpdateSociedad
                                           Width: =Spv_CtnItemsGerenciaDetalleTicketGerencia.Width - 2
                                           X: =Spv_CbxGerenciaDerivarDetalleTicket.X + 7
-                                          Y: =140
+                                          Y: =Spv_LblPropiedadesDerivarDetalleTicket.Height + (Spv_CbxGerenciaDerivarDetalleTicket.Height * 5) + 5
                                         Children:
                                           - Spv_GalSociedadDerivarDetalleTicket:
                                               Control: Gallery@2.15.0
@@ -4164,7 +4164,7 @@ Screens:
                                           Visible: =varOpenDropDownUpdatePais
                                           Width: =Spv_CtnItemsGerenciaDetalleTicketGerencia.Width - 2
                                           X: =Spv_CbxGerenciaDerivarDetalleTicket.X + 7
-                                          Y: =140
+                                          Y: =Spv_LblPropiedadesDerivarDetalleTicket.Height + (Spv_CbxGerenciaDerivarDetalleTicket.Height * 4) + 5
                                         Children:
                                           - Spv_GalPaisDerivarDetalleTicket:
                                               Control: Gallery@2.15.0
@@ -4223,7 +4223,7 @@ Screens:
                                           Visible: =varOpenDropDownUpdateSubArea
                                           Width: =Spv_CtnItemsGerenciaDetalleTicketGerencia.Width - 2
                                           X: =Spv_CbxGerenciaDerivarDetalleTicket.X + 7
-                                          Y: =140
+                                          Y: =Spv_LblPropiedadesDerivarDetalleTicket.Height + (Spv_CbxGerenciaDerivarDetalleTicket.Height * 3) + 5
                                         Children:
                                           - Spv_GalSubAreaDerivarDetalleTicket:
                                               Control: Gallery@2.15.0
@@ -4284,7 +4284,7 @@ Screens:
                                           Visible: =varOpenDropDownUpdateArea
                                           Width: =Spv_CtnItemsGerenciaDetalleTicketGerencia.Width - 2
                                           X: =Spv_CbxGerenciaDerivarDetalleTicket.X + 7
-                                          Y: =140
+                                          Y: =Spv_LblPropiedadesDerivarDetalleTicket.Height + (Spv_CbxGerenciaDerivarDetalleTicket.Height * 2) + 5
                                         Children:
                                           - Spv_GalAreaDerivarDetalleTicket:
                                               Control: Gallery@2.15.0
