@@ -1224,28 +1224,11 @@ Screens:
                                                                         Var_EstadosApp.EstadoResuelto,
                                                                         ColorValue(Var_ColorIconTicketVerde),
                                                                         Var_EstadosApp.EstadoDerivado,
-                                                                        ColorValue(Var_ColorIconTicketMorado)
+                                                                        ColorValue(Var_ColorIconTicketMorado),
+                                                                        Var_EstadosApp.EstadoCreado,
+                                                                        ColorValue(Var_ColorFontEstadoCreado)
                                                                     )
-                                                                  Fill: |-
-                                                                    =Switch(
-                                                                        Text(ThisItem.Estado),
-                                                                        Var_EstadosApp.EstadoEnRevision,
-                                                                        ColorValue(Var_ColorFadeBotonMorado),
-                                                                        Var_EstadosApp.EstadoCerrado,
-                                                                        ColorValue(Var_ColorFondoEstadoCerrado),
-                                                                        Var_EstadosApp.EstadoEnProceso,
-                                                                        ColorValue(Var_ColorFadeIconTicketCeleste),
-                                                                        Var_EstadosApp.EstadoRechazado,
-                                                                        ColorValue(Var_ColorFadeIconTicketMagenta),
-                                                                        Var_EstadosApp.EstadoObservado,
-                                                                        ColorValue(Var_ColorFadeIconTicketNaranja),
-                                                                        Var_EstadosApp.EstadoEnEsperaAprobacion,
-                                                                        ColorValue(Var_ColorFadeIconTicketRojo),
-                                                                        Var_EstadosApp.EstadoResuelto,
-                                                                        ColorValue(Var_ColorFadeIconTicketVerde),
-                                                                        Var_EstadosApp.EstadoDerivado,
-                                                                        ColorValue(Var_ColorFadeBotonMorado)
-                                                                    )
+                                                                  Fill: "=Switch(\r\n    Text(ThisItem.Estado),\r\n    Var_EstadosApp.EstadoEnRevision,\r\n    ColorValue(Var_ColorFadeBotonMorado),\r\n    Var_EstadosApp.EstadoCerrado,\r\n    ColorValue(Var_ColorFondoEstadoCerrado),\r\n    Var_EstadosApp.EstadoEnProceso,\r\n    ColorValue(Var_ColorFadeIconTicketCeleste),\r\n    Var_EstadosApp.EstadoRechazado,\r\n    ColorValue(Var_ColorFadeIconTicketMagenta),\r\n    Var_EstadosApp.EstadoObservado,\r\n    ColorValue(Var_ColorFadeIconTicketNaranja),\r\n    Var_EstadosApp.EstadoEnEsperaAprobacion,\r\n    ColorValue(Var_ColorFadeIconTicketRojo),\r\n    Var_EstadosApp.EstadoResuelto,\r\n    ColorValue(Var_ColorFadeIconTicketVerde),\r\n    Var_EstadosApp.EstadoDerivado,\r\n    ColorValue(Var_ColorFadeBotonMorado),\r\n    Var_EstadosApp.EstadoCreado,\r\n    ColorValue(Var_ColorFondoEstadoCreado)\r\n    \r\n)"
                                                                   Font: =Font.'Open Sans'
                                                                   FontWeight: =FontWeight.Semibold
                                                                   OnSelect: =Select(Spv_GalItemsTicket)
