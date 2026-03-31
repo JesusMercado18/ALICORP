@@ -410,7 +410,7 @@ Screens:
                                                             Color: =ColorValue(Var_ColorNavegarCabecera)
                                                             Height: =13
                                                             Icon: =Icon.ChevronRight
-                                                            Width: =11
+                                                            Width: =12
                                                             X: =(Spv_CtnNextInicioTicketDetalleTicket.Width - Self.Width) / 2
                                                             Y: =6
                                                 - Spv_BtnTicketDetalleTicket:
@@ -470,7 +470,7 @@ Screens:
                                                             Color: =ColorValue(Var_ColorNavegarCabecera)
                                                             Height: =13
                                                             Icon: =Icon.ChevronRight
-                                                            Width: =11
+                                                            Width: =12
                                                             X: =(Spv_CtnNextTicketDetalleTicket.Width - Self.Width) / 2
                                                             Y: =6
                                                 - Spv_LblDetalleTicket:
@@ -509,6 +509,7 @@ Screens:
                                                 - Spv_LblTipoSolicitudCodigoDetalleTicket:
                                                     Control: Label@2.5.1
                                                     Properties:
+                                                      AlignInContainer: =AlignInContainer.Center
                                                       AutoHeight: =true
                                                       BorderColor: =RGBA(0, 18, 107, 1)
                                                       FillPortions: =1
@@ -519,6 +520,7 @@ Screens:
                                                       PaddingLeft: =0
                                                       Size: =Var_TituloBold
                                                       Text: =Var_SpvTicketSeleccionada.TipoSolicitud &" - "&Var_SpvTicketSeleccionada.Codigo
+                                                      Tooltip: =Var_SpvTicketSeleccionada.TipoSolicitud & " - " & Var_SpvTicketSeleccionada.Codigo
                                                 - Spv_LblSeguimientoWorkFlowDetalleTicket:
                                                     Control: Classic/Button@2.2.0
                                                     Properties:
@@ -667,7 +669,9 @@ Screens:
                                                                                   )
                                                                               ) & " por"
                                                                           )
+                                                                        Tooltip: =Self.Text
                                                                         Width: =Max(60,Len(Self.Text) * 8.5)
+                                                                        Wrap: =false
                                                                   - Spv_ImgUsuarioDetalleTicket:
                                                                       Control: Image@2.2.3
                                                                       Properties:
@@ -704,7 +708,7 @@ Screens:
                                                                         Height: '=Parent.Height '
                                                                         LayoutAlignItems: =LayoutAlignItems.Center
                                                                         LayoutDirection: =LayoutDirection.Horizontal
-                                                                        LayoutGap: =16
+                                                                        LayoutGap: =8
                                                                         LayoutJustifyContent: =LayoutJustifyContent.End
                                                                         LayoutMinHeight: '=Parent.Height '
                                                                         LayoutMinWidth: =16
@@ -1396,6 +1400,7 @@ Screens:
                                                                   PaddingLeft: =0
                                                                   Size: =Var_Subtitle
                                                                   Text: =Var_SpvTicketSeleccionada.Asunto
+                                                                  Visible: =false
                                                             - Spv_CtnDescripcionDetalleTicket:
                                                                 Control: GroupContainer@1.5.0
                                                                 Variant: AutoLayout
@@ -1531,6 +1536,7 @@ Screens:
                                                                         12
                                                                     )
                                                                   Items: =colAdjuntosDetalleTicketSpv
+                                                                  LayoutMinHeight: =35
                                                                   TemplatePadding: =3
                                                                   TemplateSize: =45
                                                                   WrapCount: =3
