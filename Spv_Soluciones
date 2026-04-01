@@ -1567,7 +1567,7 @@ Screens:
                                           PaddingLeft: =0
                                           Placeholder: ="Seleccionar"
                                           TriggerOutput: ='TextInputCanvas.TriggerOutput'.Keypress
-                                          Value: =varGerenciaSelected.Value
+                                          Value: =varGerenciaSelected.Nombre
                                           Width: =110
                                     - SpvSlc_IcnFlechaAbajoNuevaSolucion:
                                         Control: Classic/Icon@2.5.0
@@ -1613,7 +1613,15 @@ Screens:
                                           Icon: =Icon.Cancel
                                           LayoutMinHeight: =40
                                           OnSelect: |-
-                                            =UpdateContext({varRaz : true});UpdateContext({varGerenciaSelected:Blank()});SetFocus(SpvSlc_LblGerenciaSelNuevaSolucion);UpdateContext({varRaz : false});
+                                            =//UpdateContext({varRaz : true});;UpdateContext({varGerenciaSelected:Blank()});;SetFocus(SpvSlc_LblGerenciaSelNuevaSolucion);;UpdateContext({varRaz : false});;
+                                            UpdateContext({varRaz : true});
+                                            UpdateContext({
+                                                varGerenciaSelected: Blank(),
+                                                varUpdateAreaSelected: Blank(),
+                                                varUpdateSubAreaSelected: Blank()
+                                            });
+                                            SetFocus(SpvSlc_LblGerenciaSelNuevaSolucion);
+                                            UpdateContext({varRaz : false})
                                           PaddingBottom: =5
                                           PaddingLeft: =5
                                           PaddingRight: =5
@@ -1630,7 +1638,7 @@ Screens:
                               PaddingLeft: =2
                               Size: =12
                               Text: ="Gerencia"
-                              Width: =52
+                              Width: =54
                               X: =16
                   - SpvSlc_CtnCbxArea:
                       Control: GroupContainer@1.5.0
@@ -1701,7 +1709,7 @@ Screens:
                                           PaddingLeft: =0
                                           Placeholder: ="Seleccionar"
                                           TriggerOutput: ='TextInputCanvas.TriggerOutput'.Keypress
-                                          Value: =varUpdateAreaSelected.Value
+                                          Value: =varUpdateAreaSelected.Area
                                           Width: =110
                                     - SpvSlc_IcnFlechaAbajoNuevaSolucionArea:
                                         Control: Classic/Icon@2.5.0
@@ -1747,7 +1755,14 @@ Screens:
                                           Icon: =Icon.Cancel
                                           LayoutMinHeight: =40
                                           OnSelect: |-
-                                            =UpdateContext({varRaz : true});UpdateContext({varUpdateAreaSelected:Blank()});SetFocus(SpvSlc_LblAreaSelNuevaSolucion);UpdateContext({varRaz : false});
+                                            =//UpdateContext({varRaz : true});;UpdateContext({varUpdateAreaSelected:Blank()});;SetFocus(SpvSlc_LblAreaSelNuevaSolucion);;UpdateContext({varRaz : false});;
+                                            UpdateContext({varRaz : true});
+                                            UpdateContext({
+                                                varUpdateAreaSelected: Blank(),
+                                                varUpdateSubAreaSelected: Blank()
+                                            });
+                                            SetFocus(SpvSlc_LblAreaSelNuevaSolucion);
+                                            UpdateContext({varRaz : false})
                                           PaddingBottom: =5
                                           PaddingLeft: =5
                                           PaddingRight: =5
@@ -1763,7 +1778,7 @@ Screens:
                               PaddingLeft: =2
                               Size: =12
                               Text: ="Área"
-                              Width: =32
+                              Width: =30
                               X: =16
                   - SpvSlc_CtnCbxRol:
                       Control: GroupContainer@1.5.0
@@ -1834,7 +1849,7 @@ Screens:
                                           PaddingLeft: =0
                                           Placeholder: ="Seleccionar"
                                           TriggerOutput: ='TextInputCanvas.TriggerOutput'.Keypress
-                                          Value: =varUpdateSubAreaSelected.Value
+                                          Value: =varUpdateSubAreaSelected.Nombre
                                           Width: =110
                                     - SpvSlc_IcnFlechaAbajoNuevaSolucionRol:
                                         Control: Classic/Icon@2.5.0
@@ -1843,9 +1858,9 @@ Screens:
                                           BorderColor: =RGBA(0, 18, 107, 1)
                                           Color: =ColorValue(Var_ColorBoton)
                                           Height: =SpvSlc_IcnBorrarRolSel.Height
-                                          Icon: =If(!varOpenDropDownUpdateSubArea,Icon.ChevronDown,Icon.ChevronUp)
+                                          Icon: =If(!varOpenDropDownUpdateRol,Icon.ChevronDown,Icon.ChevronUp)
                                           OnSelect: |-
-                                            =UpdateContext({varOpenDropDownUpdateSubArea: !varOpenDropDownUpdateSubArea})
+                                            =UpdateContext({varOpenDropDownUpdateRol: !varOpenDropDownUpdateRol})
                                           PaddingBottom: =5
                                           PaddingLeft: =5
                                           PaddingRight: =5
@@ -1888,15 +1903,22 @@ Screens:
                                           Visible: =IsBlank(varUpdateSubAreaSelected)=false
                                           Width: =25
                         - SpvSlc_LblRolNuevaSolucion:
-                            Control: Text@0.0.51
+                            Control: ModernText@1.0.0
                             Properties:
-                              Align: ='TextCanvas.Align'.Start
                               Fill: =RGBA(255, 255, 255, 1)
                               Height: =19
+                              PaddingBottom: =0
                               PaddingLeft: =2
+                              PaddingRight: =0
+                              PaddingTop: =0
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
                               Size: =12
                               Text: ="Rol"
-                              Width: =52
+                              VerticalAlign: =VerticalAlign.Top
+                              Width: =22
                               X: =16
                   - SpvSlc_LblSubTituloModalNuevaSolucion:
                       Control: Label@2.5.1
@@ -2367,10 +2389,10 @@ Screens:
                   DropShadow: =DropShadow.Semilight
                   Fill: =RGBA(255, 255, 255, 1)
                   Height: =CountRows(SpvSlc_GlrSelRol.AllItems) * 37
-                  Visible: =varOpenDropDownUpdateSubArea
+                  Visible: =varOpenDropDownUpdateRol
                   Width: =SpvSlc_DetalleRolNuevaSolucion.Width - 2
                   X: =SpvSlc_CtnModalNuevaSolucion.X + 22
-                  Y: =SpvSlc_LblTituloModalNuevaSolucion.Height + SpvSlc_CtnCbxRol.Height * 3 + 5
+                  Y: =SpvSlc_LblTituloModalNuevaSolucion.Height + SpvSlc_CtnCbxRol.Height * 3 + 20
                 Children:
                   - SpvSlc_GlrSelRol:
                       Control: Gallery@2.15.0
@@ -2378,9 +2400,9 @@ Screens:
                       Properties:
                         BorderColor: =RGBA(0, 18, 107, 1)
                         Height: =Parent.Height
-                        Items: =Filter(colEstadosSpvTicket, SpvSlc_LblRolSelNuevaSolucion.Value in ThisRecord.Value Or IsBlank(SpvSlc_LblRolSelNuevaSolucion.Value))
+                        Items: =Filter(col_gblRol, SpvSlc_LblRolSelNuevaSolucion.Value in ThisRecord.Nombre Or IsBlank(SpvSlc_LblRolSelNuevaSolucion.Value))
                         TemplateSize: =30
-                        Visible: =varOpenDropDownUpdateSubArea
+                        Visible: =varOpenDropDownUpdateRol
                         Width: =Parent.Width
                       Children:
                         - SpvSlc_BtnSelRol:
@@ -2398,12 +2420,12 @@ Screens:
                               HoverColor: =ColorValue(Var_ColorGray)
                               HoverFill: =ColorValue(Var_ColorFadeBoton)
                               OnSelect: |-
-                                =UpdateContext({varUpdateSubAreaSelected : ThisItem , varOpenDropDownUpdateSubArea: false})
+                                =UpdateContext({varUpdateSubAreaSelected : ThisItem , varOpenDropDownUpdateRol: false})
                               PressedBorderColor: =Self.Fill
                               PressedColor: =ColorValue(Var_ColorGray)
                               PressedFill: =ColorValue(Var_ColorFadeBoton)
                               Size: =12
-                              Text: =ThisItem.Value
+                              Text: =ThisItem.Nombre
                               Width: =Parent.TemplateWidth
             - SpvSlc_CtnAreaNuevaSol:
                 Control: GroupContainer@1.5.0
@@ -2415,7 +2437,7 @@ Screens:
                   Visible: =varOpenDropDownUpdateArea
                   Width: =SpvSlc_DetalleAreaNuevaSolucion.Width - 2
                   X: =SpvSlc_CtnModalNuevaSolucion.X + 22
-                  Y: =SpvSlc_LblTituloModalNuevaSolucion.Height + (SpvSlc_CtnCbxArea.Height * 2) + 5
+                  Y: =SpvSlc_LblTituloModalNuevaSolucion.Height + (SpvSlc_CtnCbxArea.Height * 2) + 20
                 Children:
                   - SpvSlc_GlrSelArea:
                       Control: Gallery@2.15.0
@@ -2423,7 +2445,13 @@ Screens:
                       Properties:
                         BorderColor: =RGBA(0, 18, 107, 1)
                         Height: =Parent.Height
-                        Items: =Filter(colEstadosSpvTicket, SpvSlc_LblAreaSelNuevaSolucion.Value in ThisRecord.Value Or IsBlank(SpvSlc_LblAreaSelNuevaSolucion.Value))
+                        Items: |-
+                          =//Filter(colEstadosSpvTicket; SpvSlc_LblAreaSelNuevaSolucion.Value in ThisRecord.Value Or IsBlank(SpvSlc_LblAreaSelNuevaSolucion.Value))
+                          Filter(
+                              col_gblGerenciaArea,
+                              Gerencia = varGerenciaSelected.Nombre, // Filtro relacional Padre-Hijo
+                              SpvSlc_LblAreaSelNuevaSolucion.Value in Area Or IsBlank(SpvSlc_LblAreaSelNuevaSolucion.Value)
+                          )
                         TemplateSize: =30
                         Visible: =varOpenDropDownUpdateArea
                         Width: =Parent.Width
@@ -2443,12 +2471,17 @@ Screens:
                               HoverColor: =ColorValue(Var_ColorGray)
                               HoverFill: =ColorValue(Var_ColorFadeBoton)
                               OnSelect: |-
-                                =UpdateContext({varUpdateAreaSelected : ThisItem , varOpenDropDownUpdateArea: false})
+                                =//UpdateContext({varUpdateAreaSelected : ThisItem ; varOpenDropDownUpdateArea: false})
+                                UpdateContext({
+                                    varUpdateAreaSelected: ThisItem, 
+                                    varOpenDropDownUpdateArea: false,
+                                    varUpdateSubAreaSelected: Blank() // Limpiar el nieto si se cambia el hijo
+                                })
                               PressedBorderColor: =Self.Fill
                               PressedColor: =ColorValue(Var_ColorGray)
                               PressedFill: =ColorValue(Var_ColorFadeBoton)
                               Size: =12
-                              Text: =ThisItem.Value
+                              Text: =ThisItem.Area
                               Width: =Parent.TemplateWidth
             - SpvSlc_CtnGerenciaNuevaSol:
                 Control: GroupContainer@1.5.0
@@ -2460,7 +2493,7 @@ Screens:
                   Visible: =varOpenDropDownGerencia
                   Width: =SpvSlc_DetalleGerenciaNuevaSolucion.Width - 2
                   X: =SpvSlc_CtnModalNuevaSolucion.X + 22
-                  Y: =SpvSlc_LblTituloModalNuevaSolucion.Height + SpvSlc_CtnCbxGerencia.Height + 5
+                  Y: =SpvSlc_LblTituloModalNuevaSolucion.Height + SpvSlc_CtnCbxGerencia.Height + 20
                 Children:
                   - SpvSlc_GlrSelGerencia:
                       Control: Gallery@2.15.0
@@ -2468,7 +2501,13 @@ Screens:
                       Properties:
                         BorderColor: =RGBA(0, 18, 107, 1)
                         Height: =Parent.Height
-                        Items: =Filter(colSpvCmcGerencia, SpvSlc_LblGerenciaSelNuevaSolucion.Value in ThisRecord.Value Or IsBlank(SpvSlc_LblGerenciaSelNuevaSolucion.Value))
+                        Items: |-
+                          =//Filter(colSpvCmcGerencia; SpvSlc_LblGerenciaSelNuevaSolucion.Value in ThisRecord.Value Or IsBlank(SpvSlc_LblGerenciaSelNuevaSolucion.Value))
+                          // 1. Items de SpvSlc_GlrSelGerencia
+                          Filter(
+                              col_gblGerencia, 
+                              SpvSlc_LblGerenciaSelNuevaSolucion.Value in Nombre Or IsBlank(SpvSlc_LblGerenciaSelNuevaSolucion.Value)
+                          )
                         TemplateSize: =30
                         Visible: =varOpenDropDownGerencia
                         Width: =Parent.Width
@@ -2488,10 +2527,16 @@ Screens:
                               HoverColor: =ColorValue(Var_ColorGray)
                               HoverFill: =ColorValue(Var_ColorFadeBoton)
                               OnSelect: |-
-                                =UpdateContext({varGerenciaSelected : ThisItem , varOpenDropDownGerencia: false})
+                                =//UpdateContext({varGerenciaSelected : ThisItem ; varOpenDropDownGerencia: false})
+                                UpdateContext({
+                                    varGerenciaSelected: ThisItem, 
+                                    varOpenDropDownGerencia: false,
+                                    varUpdateAreaSelected: Blank(), // Limpia el hijo
+                                    varUpdateSubAreaSelected: Blank() // Limpia el nieto
+                                })
                               PressedBorderColor: =Self.Fill
                               PressedColor: =ColorValue(Var_ColorGray)
                               PressedFill: =ColorValue(Var_ColorFadeBoton)
                               Size: =12
-                              Text: =ThisItem.Value
+                              Text: =ThisItem.Nombre
                               Width: =Parent.TemplateWidth
