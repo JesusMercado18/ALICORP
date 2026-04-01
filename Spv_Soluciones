@@ -613,7 +613,7 @@ Screens:
                                                             FontWeight: =FontWeight.Semibold
                                                             Height: =Parent.Height
                                                             Size: =Var_FontSizeHeaderTable
-                                                            Text: ="Documentos cargados"
+                                                            Text: ="Título"
                                                             Width: =Parent.Width
                                                 - SpvSlc_CtnColEstado:
                                                     Control: GroupContainer@1.5.0
@@ -635,7 +635,7 @@ Screens:
                                                             FontWeight: =FontWeight.Semibold
                                                             Height: =Parent.Height
                                                             Size: =Var_FontSizeHeaderTable
-                                                            Text: ="Estado"
+                                                            Text: ="Descripción"
                                                             Width: =Parent.Width
                                                 - SpvSlc_CtnColGerencia:
                                                     Control: GroupContainer@1.5.0
@@ -699,7 +699,7 @@ Screens:
                                                             FontWeight: =FontWeight.Semibold
                                                             Height: =Parent.Height
                                                             Size: =Var_FontSizeHeaderTable
-                                                            Text: ="Autor"
+                                                            Text: ="Subárea"
                                                             Width: =Parent.Width
                                                 - SpvSlc_CtnColDescargar:
                                                     Control: GroupContainer@1.5.0
@@ -722,7 +722,7 @@ Screens:
                                                             FontWeight: =FontWeight.Semibold
                                                             Height: =Parent.Height
                                                             Size: =Var_FontSizeHeaderTable
-                                                            Text: ="Descargar"
+                                                            Text: =
                                                             Width: =Parent.Width
                                           - SpvSlc_GlrSoluciones:
                                               Control: Gallery@2.15.0
@@ -1412,6 +1412,55 @@ Screens:
                                                             PaddingTop: =5
                                                             Visible: =IsBlank(varEstadoSelectedSpvSlc)=false
                                                             Width: =25
+      - Spv_TimerErrorSoluciones:
+          Control: Timer@2.1.0
+          Properties:
+            AutoStart: =Var_Ctx_SpvMostrarErrorSoluciones || Var_Ctx_SpvMostrarAlertaSoluciones
+            BorderColor: =ColorFade(Self.Fill, -15%)
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =ColorFade(Self.BorderColor, 70%)
+            DisabledColor: =ColorFade(Self.Fill, 90%)
+            DisabledFill: =ColorFade(Self.Fill, 70%)
+            Duration: =3000
+            Fill: =RGBA(56, 96, 178, 1)
+            Font: =Font.'Open Sans'
+            HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+            OnTimerEnd: |-
+              =UpdateContext( { Var_Ctx_SpvMostrarAlertaSoluciones : false, Var_Ctx_SpvMostrarErrorSoluciones: false })
+            PressedBorderColor: =Self.Fill
+            PressedColor: =Self.Fill
+            PressedFill: =Self.Color
+            Start: =Var_Ctx_SpvMostrarAlertaSoluciones || Var_Ctx_SpvMostrarAlertaSoluciones
+            Visible: =false
+            X: =320
+            Y: =20
+      - Gbl_AlertaSpvSolucion:
+          Control: CanvasComponent
+          ComponentName: Gbl_Alerta
+          ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
+          Properties:
+            Evento_CerrarNotificacion: "=UpdateContext({ Var_Ctx_SpvMostrarErrorSoluciones: false }) "
+            Height: =40
+            Input_MostrarOcultarNotificacion: =Var_Ctx_SpvMostrarAlertaSoluciones
+            Input_TextoNotificacion: =Var_Ctx_SpvMensajeSatisfactorioSolucion
+            Width: =480
+            X: =Parent.Width - Self.Width - 20
+            Y: =Gbl_Header_DetalleTicket.Height
+      - Gbl_Error_SpvSoluciones:
+          Control: CanvasComponent
+          ComponentName: Gbl_Error
+          ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
+          Properties:
+            Evento_CerrarNotificacion: |-
+              =UpdateContext( { Var_Ctx_SpvMostrarErrorSoluciones : false })
+            Height: =40
+            Input_MostrarOcultarNotificacion: =Var_Ctx_SpvMostrarErrorSoluciones
+            Input_TextoNotificacion: =//Var_Ctx_SpvMensajeErrorSolucion
+            Width: =480
+            X: =Parent.Width - Self.Width - 20
+            Y: =Gbl_Header_DetalleTicket.Height
       - SpvSlc_CtnModalSolucion:
           Control: GroupContainer@1.5.0
           Variant: ManualLayout
@@ -1768,7 +1817,7 @@ Screens:
                               Text: ="Área"
                               Width: =30
                               X: =16
-                  - SpvSlc_CtnCbxRol:
+                  - SpvSlc_CtnCbxSubarea:
                       Control: GroupContainer@1.5.0
                       Variant: ManualLayout
                       Properties:
@@ -1780,7 +1829,7 @@ Screens:
                         LayoutMinHeight: =16
                         LayoutMinWidth: =16
                       Children:
-                        - SpvSlc_CtnInfoRolNuevaSolucion:
+                        - SpvSlc_CtnInfoSubareaNuevaSolucion:
                             Control: GroupContainer@1.5.0
                             Variant: ManualLayout
                             Properties:
@@ -1796,7 +1845,7 @@ Screens:
                               X: =(Parent.Width - Self.Width) / 2
                               Y: =(Parent.Height - Self.Height) / 2
                             Children:
-                              - SpvSlc_DetalleRolNuevaSolucion:
+                              - SpvSlc_DetalleSubareaNuevaSolucion:
                                   Control: GroupContainer@1.5.0
                                   Variant: AutoLayout
                                   Properties:
@@ -1817,7 +1866,7 @@ Screens:
                                     Width: =Parent.Width - 2
                                     Y: '=0   '
                                   Children:
-                                    - SpvSlc_LblRolSelNuevaSolucion:
+                                    - SpvSlc_LblSubareaSelNuevaSolucion:
                                         Control: TextInput@0.0.54
                                         Properties:
                                           AccessibleLabel: =
@@ -1832,48 +1881,48 @@ Screens:
                                           LayoutMinHeight: =16
                                           LayoutMinWidth: =16
                                           OnChange: |-
-                                            =UpdateContext({varOpenDropDownEstadoSpvSlc: true})
+                                            =UpdateContext({varOpenDropDownUpdateSubarea: true})
                                           PaddingBottom: =3
                                           PaddingLeft: =0
                                           Placeholder: ="Seleccionar"
                                           TriggerOutput: ='TextInputCanvas.TriggerOutput'.Keypress
-                                          Value: =varUpdateSubAreaSelected.Nombre
+                                          Value: =varUpdateSubAreaSelected.SubArea
                                           Width: =110
-                                    - SpvSlc_IcnFlechaAbajoNuevaSolucionRol:
+                                    - SpvSlc_IcnFlechaAbajoNuevaSolucionSubarea:
                                         Control: Classic/Icon@2.5.0
                                         Properties:
                                           AlignInContainer: =AlignInContainer.Center
                                           BorderColor: =RGBA(0, 18, 107, 1)
                                           Color: =ColorValue(Var_ColorBoton)
-                                          Height: =SpvSlc_IcnBorrarRolSel.Height
-                                          Icon: =If(!varOpenDropDownUpdateRol,Icon.ChevronDown,Icon.ChevronUp)
+                                          Height: =SpvSlc_IcnBorrarSubareaSel.Height
+                                          Icon: =If(!varOpenDropDownUpdateSubarea,Icon.ChevronDown,Icon.ChevronUp)
                                           OnSelect: |-
-                                            =UpdateContext({varOpenDropDownUpdateRol: !varOpenDropDownUpdateRol})
+                                            =UpdateContext({varOpenDropDownUpdateSubarea: !varOpenDropDownUpdateSubarea})
                                           PaddingBottom: =5
                                           PaddingLeft: =5
                                           PaddingRight: =5
                                           PaddingTop: =5
-                                          Visible: =Len(SpvSlc_LblRolSelNuevaSolucion.Value)=0
-                                          Width: =SpvSlc_IcnBorrarRolSel.Width
-                                    - SpvSlc_IcnFlechaArribaNuevaSolucionRol:
+                                          Visible: =Len(SpvSlc_LblSubareaSelNuevaSolucion.Value)=0
+                                          Width: =SpvSlc_IcnBorrarSubareaSel.Width
+                                    - SpvSlc_IcnFlechaArribaNuevaSolucionSubarea:
                                         Control: Classic/Icon@2.5.0
                                         Properties:
                                           AlignInContainer: =AlignInContainer.Center
                                           BorderColor: =RGBA(0, 18, 107, 1)
                                           BorderStyle: =BorderStyle.None
                                           BorderThickness: =1
-                                          Color: =ColorValue(Var_ColorIconNegro)
+                                          Color: =ColorValue(Var_ColorBoton)
                                           Fill: =RGBA(255, 255, 255, 1)
-                                          Height: =SpvSlc_IcnBorrarRolSel.Height
+                                          Height: =SpvSlc_IcnBorrarSubareaSel.Height
                                           Icon: =Icon.ChevronUp
-                                          OnSelect: =Reset(SpvSlc_LblRolSelNuevaSolucion);SetFocus(SpvSlc_LblRolSelNuevaSolucion)
+                                          OnSelect: =Reset(SpvSlc_LblSubareaSelNuevaSolucion);SetFocus(SpvSlc_LblSubareaSelNuevaSolucion)
                                           PaddingBottom: =5
                                           PaddingLeft: =5
                                           PaddingRight: =5
                                           PaddingTop: =5
-                                          Visible: =IsBlank(varUpdateSubAreaSelected)&&Len(SpvSlc_LblRolSelNuevaSolucion.Value)>0
-                                          Width: =SpvSlc_IcnBorrarRolSel.Width
-                                    - SpvSlc_IcnBorrarRolSel:
+                                          Visible: =false//IsBlank(varUpdateSubAreaSelected)&&Len(SpvSlc_LblSubareaSelNuevaSolucion.Value)>0
+                                          Width: =SpvSlc_IcnBorrarSubareaSel.Width
+                                    - SpvSlc_IcnBorrarSubareaSel:
                                         Control: Classic/Icon@2.5.0
                                         Properties:
                                           AlignInContainer: =AlignInContainer.Center
@@ -1883,14 +1932,14 @@ Screens:
                                           Icon: =Icon.Cancel
                                           LayoutMinHeight: =40
                                           OnSelect: |-
-                                            =UpdateContext({varRaz : true});UpdateContext({varUpdateSubAreaSelected:Blank()});SetFocus(SpvSlc_LblRolSelNuevaSolucion);UpdateContext({varRaz : false});
+                                            =UpdateContext({varRaz : true});UpdateContext({varUpdateSubAreaSelected:Blank()});SetFocus(SpvSlc_LblSubareaSelNuevaSolucion);UpdateContext({varRaz : false});
                                           PaddingBottom: =5
                                           PaddingLeft: =5
                                           PaddingRight: =5
                                           PaddingTop: =5
                                           Visible: =IsBlank(varUpdateSubAreaSelected)=false
                                           Width: =25
-                        - SpvSlc_LblRolNuevaSolucion:
+                        - SpvSlc_LblSubareaNuevaSolucion:
                             Control: ModernText@1.0.0
                             Properties:
                               Fill: =RGBA(255, 255, 255, 1)
@@ -1904,9 +1953,9 @@ Screens:
                               RadiusTopLeft: =0
                               RadiusTopRight: =0
                               Size: =12
-                              Text: ="Rol"
+                              Text: ="Subárea"
                               VerticalAlign: =VerticalAlign.Top
-                              Width: =22
+                              Width: =47
                               X: =16
                   - SpvSlc_LblSubTituloModalNuevaSolucion:
                       Control: Label@2.5.1
@@ -2070,6 +2119,7 @@ Screens:
                                         Variant: AutoLayout
                                         Properties:
                                           BorderColor: =RGBA(0, 0, 0, 0)
+                                          DropShadow: =DropShadow.None
                                           Height: =30
                                           LayoutAlignItems: =LayoutAlignItems.Center
                                           LayoutDirection: =LayoutDirection.Horizontal
@@ -2081,7 +2131,6 @@ Screens:
                                               Properties:
                                                 Appearance: =Appearance.Outline
                                                 Default: =ThisItem.CustomName
-                                                FillPortions: =1
                                                 Font: =Font.'Open Sans'
                                                 FontWeight: =""
                                                 Height: =30
@@ -2091,13 +2140,14 @@ Screens:
                                                       Var_uploadFile_listAttachmentSpvNvSolucion, 
                                                       ThisItem, 
                                                       {
-                                                          CustomName: Self.Value,
-                                                          Name: Self.Value & ThisItem.Extension
+                                                          CustomName: SpvSlc_TxtNombreDocNuevaSolucion.Text,
+                                                          Name: SpvSlc_TxtNombreDocNuevaSolucion.Text & ThisItem.Extension
                                                       }
                                                   )
                                                 Placeholder: =""
                                                 Size: =0
                                                 TriggerOutput: =TriggerOutput.FocusOut
+                                                Width: =Parent.Width - 50
                                           - SpvSlc_LblExtDocNuevaSolucion:
                                               Control: Label@2.5.1
                                               Properties:
@@ -2106,8 +2156,7 @@ Screens:
                                                 Height: =30
                                                 Size: =10
                                                 Text: =ThisItem.Extension
-                                                Visible: =false
-                                                Width: =40
+                                                Width: =45
                                     - SpvSlc_LblNombreDocNuevaSolucion:
                                         Control: Label@2.5.1
                                         Properties:
@@ -2121,6 +2170,7 @@ Screens:
                                           PaddingTop: =0
                                           Size: =Self.Height*15/69
                                           Text: =ThisItem.Name
+                                          Visible: =false
                                           Width: =
                                           Y: =3*SpvSlc_GlrInfoAdjuntoNuevaSolucion.TemplateHeight/4
                                     - SpvSlc_IcnBorrarAdjuntoNuevaSolucion:
@@ -2447,30 +2497,36 @@ Screens:
                               Size: =Var_FontSizeBoton
                               Text: ="Guardar"
                               Width: =170
-            - SpvSlc_CtnRolNuevaSol:
+            - SpvSlc_CtnSubareaNuevaSol:
                 Control: GroupContainer@1.5.0
                 Variant: ManualLayout
                 Properties:
                   DropShadow: =DropShadow.Semilight
                   Fill: =RGBA(255, 255, 255, 1)
-                  Height: =CountRows(SpvSlc_GlrSelRol.AllItems) * 37
-                  Visible: =varOpenDropDownUpdateRol
-                  Width: =SpvSlc_DetalleRolNuevaSolucion.Width - 2
+                  Height: =CountRows(SpvSlc_GlrSelSubarea.AllItems) * 37
+                  Visible: =varOpenDropDownUpdateSubarea
+                  Width: =SpvSlc_DetalleSubareaNuevaSolucion.Width - 2
                   X: =SpvSlc_CtnModalNuevaSolucion.X + 22
-                  Y: =SpvSlc_LblTituloModalNuevaSolucion.Height + SpvSlc_CtnCbxRol.Height * 3 + 20
+                  Y: =SpvSlc_LblTituloModalNuevaSolucion.Height + SpvSlc_CtnCbxSubarea.Height * 3 + 20
                 Children:
-                  - SpvSlc_GlrSelRol:
+                  - SpvSlc_GlrSelSubarea:
                       Control: Gallery@2.15.0
                       Variant: VariableHeight
                       Properties:
                         BorderColor: =RGBA(0, 18, 107, 1)
                         Height: =Parent.Height
-                        Items: =Filter(col_gblRol, SpvSlc_LblRolSelNuevaSolucion.Value in ThisRecord.Nombre Or IsBlank(SpvSlc_LblRolSelNuevaSolucion.Value))
+                        Items: |-
+                          =//Filter(col_gblRol; SpvSlc_LblRolSelNuevaSolucion.Value in ThisRecord.Nombre Or IsBlank(SpvSlc_LblRolSelNuevaSolucion.Value)) col_gblAreaSubArea
+                          Filter(
+                              col_gblAreaSubArea,
+                              Area = varUpdateAreaSelected.Area, // Filtro relacional Padre-Hijo
+                              SpvSlc_LblSubareaSelNuevaSolucion.Value in Area Or IsBlank(SpvSlc_LblSubareaSelNuevaSolucion.Value)
+                          )
                         TemplateSize: =30
-                        Visible: =varOpenDropDownUpdateRol
+                        Visible: =varOpenDropDownUpdateSubarea
                         Width: =Parent.Width
                       Children:
-                        - SpvSlc_BtnSelRol:
+                        - SpvSlc_BtnSelSubarea:
                             Control: Classic/Button@2.2.0
                             Properties:
                               Align: =Align.Left
@@ -2490,7 +2546,7 @@ Screens:
                               PressedColor: =ColorValue(Var_ColorGray)
                               PressedFill: =ColorValue(Var_ColorFadeBoton)
                               Size: =12
-                              Text: =ThisItem.Nombre
+                              Text: =ThisItem.SubArea
                               Width: =Parent.TemplateWidth
             - SpvSlc_CtnAreaNuevaSol:
                 Control: GroupContainer@1.5.0
@@ -2605,52 +2661,3 @@ Screens:
                               Size: =12
                               Text: =ThisItem.Nombre
                               Width: =Parent.TemplateWidth
-      - Spv_TimerErrorSoluciones:
-          Control: Timer@2.1.0
-          Properties:
-            AutoStart: =Var_Ctx_SpvMostrarErrorSoluciones || Var_Ctx_SpvMostrarAlertaSoluciones
-            BorderColor: =ColorFade(Self.Fill, -15%)
-            Color: =RGBA(255, 255, 255, 1)
-            DisabledBorderColor: =ColorFade(Self.BorderColor, 70%)
-            DisabledColor: =ColorFade(Self.Fill, 90%)
-            DisabledFill: =ColorFade(Self.Fill, 70%)
-            Duration: =3000
-            Fill: =RGBA(56, 96, 178, 1)
-            Font: =Font.'Open Sans'
-            HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
-            HoverColor: =RGBA(255, 255, 255, 1)
-            HoverFill: =ColorFade(RGBA(56, 96, 178, 1), -20%)
-            OnTimerEnd: |-
-              =UpdateContext( { Var_Ctx_SpvMostrarAlertaSoluciones : false, Var_Ctx_SpvMostrarErrorSoluciones: false })
-            PressedBorderColor: =Self.Fill
-            PressedColor: =Self.Fill
-            PressedFill: =Self.Color
-            Start: =Var_Ctx_SpvMostrarAlertaSoluciones || Var_Ctx_SpvMostrarAlertaSoluciones
-            Visible: =false
-            X: =320
-            Y: =20
-      - Gbl_AlertaSpvSolucion:
-          Control: CanvasComponent
-          ComponentName: Gbl_Alerta
-          ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
-          Properties:
-            Evento_CerrarNotificacion: "=UpdateContext({ Var_Ctx_SpvMostrarErrorSoluciones: false }) "
-            Height: =40
-            Input_MostrarOcultarNotificacion: =Var_Ctx_SpvMostrarAlertaSoluciones
-            Input_TextoNotificacion: =Var_Ctx_SpvMensajeSatisfactorioSolucion
-            Width: =480
-            X: =Parent.Width - Self.Width - 20
-            Y: =Gbl_Header_DetalleTicket.Height
-      - Gbl_Error_SpvSoluciones:
-          Control: CanvasComponent
-          ComponentName: Gbl_Error
-          ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
-          Properties:
-            Evento_CerrarNotificacion: |-
-              =UpdateContext( { Var_Ctx_SpvMostrarErrorSoluciones : false })
-            Height: =40
-            Input_MostrarOcultarNotificacion: =Var_Ctx_SpvMostrarErrorSoluciones
-            Input_TextoNotificacion: =//Var_Ctx_SpvMensajeErrorSolucion
-            Width: =480
-            X: =Parent.Width - Self.Width - 20
-            Y: =Gbl_Header_DetalleTicket.Height
