@@ -392,16 +392,16 @@ Screens:
                                                   )
                                                 X: =(SpvSlc_CtnPaginacionSoluciones.Width - Self.Width) / 2
                                               Children:
-                                                - Container8_3:
+                                                - SpvSlc_CtnPosicionPagina:
                                                     Control: GroupContainer@1.5.0
                                                     Variant: ManualLayout
                                                     Properties:
                                                       DropShadow: =DropShadow.None
                                                       Height: =6
                                                       Width: =Parent.TemplateWidth
-                                                      Y: =SpvCmc_BtnNumPagSelec.Height
+                                                      Y: =SpvSlc_BtnNumPagSelec.Height
                                                     Children:
-                                                      - Label1_6:
+                                                      - SpvSlc_CtnPosicionPaginaLinea:
                                                           Control: Label@2.5.1
                                                           Properties:
                                                             Align: =Align.Center
@@ -1412,18 +1412,6 @@ Screens:
                                                             PaddingTop: =5
                                                             Visible: =IsBlank(varEstadoSelectedSpvSlc)=false
                                                             Width: =25
-      - Gbl_AlertaTicketSpvSolucion:
-          Control: CanvasComponent
-          ComponentName: Gbl_Alerta
-          ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
-          Properties:
-            Evento_CerrarNotificacion: "=UpdateContext({ Var_Ctx_SpvMostrarAlertaSoluciones: false }) "
-            Height: =40
-            Input_MostrarOcultarNotificacion: =Var_Ctx_SpvMostrarAlertaSoluciones
-            Input_TextoNotificacion: =Var_Ctx_SpvMensajeSatisfactorioSolucion
-            Width: =480
-            X: =864
-            Y: =Gbl_Header_7.Height + 13
       - SpvSlc_CtnModalSolucion:
           Control: GroupContainer@1.5.0
           Variant: ManualLayout
@@ -2077,6 +2065,49 @@ Screens:
                                           LayoutMinHeight: =16
                                           LayoutMinWidth: =16
                                           Width: =30
+                                    - SpvSlc_CtnEdicionNombreDoc:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: AutoLayout
+                                        Properties:
+                                          BorderColor: =RGBA(0, 0, 0, 0)
+                                          Height: =30
+                                          LayoutAlignItems: =LayoutAlignItems.Center
+                                          LayoutDirection: =LayoutDirection.Horizontal
+                                          LayoutMinHeight: =16
+                                          LayoutMinWidth: =16
+                                        Children:
+                                          - SpvSlc_TxtNombreDocNuevaSolucion:
+                                              Control: ModernTextInput@1.0.0
+                                              Properties:
+                                                Appearance: =Appearance.Outline
+                                                Default: =ThisItem.CustomName
+                                                FillPortions: =1
+                                                Font: =Font.'Open Sans'
+                                                FontWeight: =""
+                                                Height: =30
+                                                MaxLength: =-1
+                                                OnChange: |-
+                                                  =Patch(
+                                                      Var_uploadFile_listAttachmentSpvNvSolucion, 
+                                                      ThisItem, 
+                                                      {
+                                                          CustomName: Self.Value,
+                                                          Name: Self.Value & ThisItem.Extension
+                                                      }
+                                                  )
+                                                Placeholder: =""
+                                                Size: =0
+                                                TriggerOutput: =TriggerOutput.FocusOut
+                                          - SpvSlc_LblExtDocNuevaSolucion:
+                                              Control: Label@2.5.1
+                                              Properties:
+                                                Font: =Font.'Open Sans'
+                                                FontWeight: =FontWeight.Semibold
+                                                Height: =30
+                                                Size: =10
+                                                Text: =ThisItem.Extension
+                                                Visible: =false
+                                                Width: =40
                                     - SpvSlc_LblNombreDocNuevaSolucion:
                                         Control: Label@2.5.1
                                         Properties:
@@ -2304,7 +2335,41 @@ Screens:
                                     MaxAttachments: =5
                                     MaxAttachmentsText: ="Se alcanzo el máximo de archivos"
                                     NoAttachmentsText: =
-                                    OnAddFile: =Collect(Var_uploadFile_listAttachmentSpvNvSolucion, Self.Attachments);Reset(Self)
+                                    OnAddFile: |-
+                                      =ForAll(
+                                          Self.Attachments As Archivo,
+                                          With(
+                                              {
+                                                  // Validamos si el archivo realmente tiene una extensión (un punto)
+                                                  varTienePunto: Find(".", Archivo.Name) > 0
+                                              },
+                                              With(
+                                                  {
+                                                      // Extraemos la extensión de forma segura solo si tiene punto
+                                                      varExt: If(
+                                                          varTienePunto,
+                                                          "." & Last(Split(Archivo.Name, ".")).Value,
+                                                          ""
+                                                      )
+                                                  },
+                                                  Collect(
+                                                      Var_uploadFile_listAttachmentSpvNvSolucion,
+                                                      {
+                                                          Name: Archivo.Name,
+                                                          Value: Archivo.Value,
+                                                          // Resta matemática hiper-segura:
+                                                          CustomName: If(
+                                                              varTienePunto,
+                                                              Left(Archivo.Name, Len(Archivo.Name) - Len(varExt)),
+                                                              Archivo.Name
+                                                          ),
+                                                          Extension: varExt
+                                                      }
+                                                  )
+                                              )
+                                          )
+                                      );
+                                      Reset(Self)
                                     PaddingLeft: =If(Self.DisplayMode = DisplayMode.Edit, 5, 0)
                                     PaddingRight: =5
                                     PressedColor: =RGBA(255, 255, 255, 1)
@@ -2540,3 +2605,52 @@ Screens:
                               Size: =12
                               Text: =ThisItem.Nombre
                               Width: =Parent.TemplateWidth
+      - Spv_TimerErrorSoluciones:
+          Control: Timer@2.1.0
+          Properties:
+            AutoStart: =Var_Ctx_SpvMostrarErrorSoluciones || Var_Ctx_SpvMostrarAlertaSoluciones
+            BorderColor: =ColorFade(Self.Fill, -15%)
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =ColorFade(Self.BorderColor, 70%)
+            DisabledColor: =ColorFade(Self.Fill, 90%)
+            DisabledFill: =ColorFade(Self.Fill, 70%)
+            Duration: =3000
+            Fill: =RGBA(56, 96, 178, 1)
+            Font: =Font.'Open Sans'
+            HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+            OnTimerEnd: |-
+              =UpdateContext( { Var_Ctx_SpvMostrarAlertaSoluciones : false, Var_Ctx_SpvMostrarErrorSoluciones: false })
+            PressedBorderColor: =Self.Fill
+            PressedColor: =Self.Fill
+            PressedFill: =Self.Color
+            Start: =Var_Ctx_SpvMostrarAlertaSoluciones || Var_Ctx_SpvMostrarAlertaSoluciones
+            Visible: =false
+            X: =320
+            Y: =20
+      - Gbl_AlertaSpvSolucion:
+          Control: CanvasComponent
+          ComponentName: Gbl_Alerta
+          ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
+          Properties:
+            Evento_CerrarNotificacion: "=UpdateContext({ Var_Ctx_SpvMostrarErrorSoluciones: false }) "
+            Height: =40
+            Input_MostrarOcultarNotificacion: =Var_Ctx_SpvMostrarAlertaSoluciones
+            Input_TextoNotificacion: =Var_Ctx_SpvMensajeSatisfactorioSolucion
+            Width: =480
+            X: =Parent.Width - Self.Width - 20
+            Y: =Gbl_Header_DetalleTicket.Height
+      - Gbl_Error_SpvSoluciones:
+          Control: CanvasComponent
+          ComponentName: Gbl_Error
+          ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
+          Properties:
+            Evento_CerrarNotificacion: |-
+              =UpdateContext( { Var_Ctx_SpvMostrarErrorSoluciones : false })
+            Height: =40
+            Input_MostrarOcultarNotificacion: =Var_Ctx_SpvMostrarErrorSoluciones
+            Input_TextoNotificacion: =//Var_Ctx_SpvMensajeErrorSolucion
+            Width: =480
+            X: =Parent.Width - Self.Width - 20
+            Y: =Gbl_Header_DetalleTicket.Height
