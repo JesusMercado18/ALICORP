@@ -1753,7 +1753,7 @@ Screens:
                                                       Color: |-
                                                         =//If(ThisItem.IsSelected;ColorValue(Var_ColorIconNegro);ColorValue(Var_ColorGray))
                                                         If(
-                                                            ThisItem.IsSelected ,//= Var_CurrentPageSpvComunicados
+                                                            ThisItem.Value = Var_CurrentPageSpvComunicados,
                                                             ColorValue(Var_ColorIconNegro),
                                                             ColorValue(Var_ColorGray)
                                                         )
@@ -1762,7 +1762,7 @@ Screens:
                                                       Font: =Font.'Open Sans'
                                                       FontWeight: |
                                                         =If(
-                                                            ThisItem.IsSelected,// = Var_CurrentPageSpvComunicados
+                                                            ThisItem.Value = Var_CurrentPageSpvComunicados,
                                                             FontWeight.Semibold,
                                                             FontWeight.Normal
                                                         )
@@ -2803,8 +2803,8 @@ Screens:
                 ComponentName: Gbl_Comunicados
                 ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
                 Properties:
-                  AltoImg: ="Texto"
-                  AnchoImg: ="Texto"
+                  AltoImg: =500
+                  AnchoImg: =500
                   Banner: |-
                     =If(
                         !IsBlank(Var_SpvCmcImagenSeleccionada.Imagen),
