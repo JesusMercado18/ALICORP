@@ -961,21 +961,6 @@ Screens:
                                                             IconStyle: ='Icon.IconStyle'.Outline
                                                             Width: =Parent.Height
                                                             X: =558
-                                                      - SpvNvCmc_IcnBorrarSelFechaDetalle:
-                                                          Control: Classic/Icon@2.5.0
-                                                          Properties:
-                                                            BorderColor: =RGBA(0, 18, 107, 1)
-                                                            Color: =RGBA(215, 58, 60, 1)
-                                                            Height: =Parent.Height
-                                                            HoverFill: =ColorFade( Self.Color,80%)
-                                                            Icon: =Icon.Erase
-                                                            OnSelect: =UpdateContext({var_RangeDatePicker_DateStart:Blank(),var_RangeDatePicker_DateEnd:Blank()})
-                                                            PaddingBottom: =5
-                                                            PaddingLeft: =5
-                                                            PaddingRight: =5
-                                                            PaddingTop: =5
-                                                            Visible: =IsBlank(var_RangeDatePicker_DateStart)=false && IsBlank(var_RangeDatePicker_DateEnd)=false
-                                                            Width: =Parent.Height
                                                       - SpvNvCmc_BtnChangeDatesDetalle:
                                                           Control: Classic/Button@2.2.0
                                                           Properties:
@@ -1005,6 +990,21 @@ Screens:
                                                             PressedFill: =
                                                             Text: =""
                                                             Width: =Parent.Width
+                                                      - SpvNvCmc_IcnBorrarSelFechaDetalle:
+                                                          Control: Classic/Icon@2.5.0
+                                                          Properties:
+                                                            BorderColor: =RGBA(0, 18, 107, 1)
+                                                            Color: =RGBA(215, 58, 60, 1)
+                                                            Height: =Parent.Height
+                                                            HoverFill: =ColorFade( Self.Color,80%)
+                                                            Icon: =Icon.Erase
+                                                            OnSelect: =UpdateContext({var_RangeDatePicker_DateStart:Blank(),var_RangeDatePicker_DateEnd:Blank()})
+                                                            PaddingBottom: =5
+                                                            PaddingLeft: =5
+                                                            PaddingRight: =5
+                                                            PaddingTop: =5
+                                                            Visible: =IsBlank(var_RangeDatePicker_DateStart)=false && IsBlank(var_RangeDatePicker_DateEnd)=false
+                                                            Width: =Parent.Height
                                           - SpvNvCmc_LblTiempoDuracionFormularioDetalle:
                                               Control: Text@0.0.51
                                               Properties:
