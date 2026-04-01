@@ -5,7 +5,6 @@ Set(Var_UserProfile; User());;
 Set(Var_OpenMenu; true);;
 Set(Var_ConexionLista; "LCP-001_Site_Ticketing_DEV");;
 Set(Var_JSONTema; {});;
-Set(Var_EstadosApp; {});;
 // Primera consulta al servidor para obtener los estados en una coleccion ClearCollect(colAppEstados; 'LCP-001_List_Estado');;
 
 ClearCollect(colAppEstados; 'LCP-001_List_Estado');;
@@ -22,8 +21,22 @@ EstadoObservado: LookUp(colAppEstados;Nombre="Observado").Nombre;
 EstadoDerivado: LookUp(colAppEstados;Nombre="Derivado").Nombre;
 EstadoEnEsperaAprobacion: LookUp(colAppEstados;Nombre="En espera de aprobación").Nombre;
 EstadoResuelto: LookUp(colAppEstados;Nombre="Resuelto").Nombre;
-EstadoCerrado: LookUp(colAppEstados;Nombre="Cerrado").Nombre
+EstadoCerrado: LookUp(colAppEstados;Nombre="Cerrado").Nombre;
+EstadoReactivado: "Reactivado"
 });;
+
+// Operaciones para el log de errores
+Set(Var_TipoOperacionApp;{
+
+    Creado: "Creado";
+    Actualizar: "Actualizar";
+    Eliminar: "Eliminar"
+ });;
+
+// Eventos para construir el tracking de estados, se puede usar para los cambios y workflow
+Set(Var_EventoTrazabilidadApp;{
+    Estado: "Estado"
+ });;
 
 Set(
     Var_JSONConfigurarTipoCampo;
@@ -55,9 +68,21 @@ ClearCollect(
     {Value: Var_JSONConfigurarTipoCampo.URL};
     {Value: Var_JSONConfigurarTipoCampo.Toggle}
 );;
+
+// Inicializamos datos globales o genericos
+ClearCollect(col_gblGerencia; 'LCP-001_List_Gerencia');;
+ClearCollect(col_gblGerenciaArea; 'LCP-001_List_GerenciaArea');;
+ClearCollect(col_gblArea; Distinct('LCP-001_List_GerenciaArea';Area));;
+ClearCollect(col_gblAreaSubArea; 'LCP-001_List_AreaSubArea');;
+ClearCollect(col_gblRol; 'LCP-001_List_Rol');;
+
 // =========================================================================
 // 2. VARIABLES DE DISEÑO (Colores, Fuentes, Espaciados)
 // =========================================================================
+// --- Pantalla Bienvenida ---
+Set(Var_ColorPuestoColaborador; "#6c6c6c");;
+Set(Var_ColorBotonIngresar; "#3b8700");;
+
 // --- Navegación ---
 Set(Var_ColorNavegarCabecera; "#766F6F");;
 Set(Var_ColorNavegarCabeceraSeleccionado; "#E62020");;
@@ -145,18 +170,35 @@ Set(Var_AgregarComentario; 14);;
 // 3. FLUJO DE ROLES DEL USUARIO
 // =========================================================================
 // Nota: Se recomienda cambiar "test@alicorp.pe" por User().Email en Producción
-Set(Var_EmailUser; "test@alicorp.pe");; 
+Set(Var_EmailUser; "test@alicorp.pe");; //svc_tkting_03@alicorp.com.pe
 
+//Registro que se toma de la tabla LCP_001_List_Usuarios
 Set(Var_ProfileUser; LookUp('LCP-001_List_Usuarios'; CorreoUsuario = Var_EmailUser));;
 
 ClearCollect(
     colRolesUsuario;
     ForAll(
         ParseJSON(Var_ProfileUser.RolSistema);
-        { Rol: Text(ThisRecord.Rol) }
+        { 
+            Rol: Text(ThisRecord.Rol);
+            JerarquiaRol: 
+            If(
+                ThisRecord.Rol = "Administrador";
+                90;
+                ThisRecord.Rol = "Supervisor";
+                80;
+                ThisRecord.Rol = "Gerente";
+                70;
+                ThisRecord.Rol = "Solicitante";
+                60;
+                ThisRecord.Rol = "Analista";
+                50
+            )
+        }
     )
 );;
 
+//--->Set(Var_RolSistema; First(Sort(colRolesUsuario; JerarquiaRol; SortOrder.Descending)).Rol);;
 Set(Var_RolSistema; LookUp(colRolesUsuario; Rol = "Analista"));;
 
 // =========================================================================
@@ -228,11 +270,10 @@ ClearCollect(colMenuAdm;
 // --- Filtros Comunicados y Soluciones ---
 // (Nota: Se usan los valores dinámicos del Código 1 para Gerencia, ya que es la mejor práctica frente a los valores "CRE", "P2P" en duro)
 ClearCollect(colSpvCmcGerencia; RenameColumns(ShowColumns('LCP-001_List_Gerencia'; Nombre); Nombre; Value));;
-ClearCollect(colSpvCmcPais; RenameColumns(ShowColumns('LCP-001_List_Pais'; Nombre); Nombre; Value));;
+ClearCollect(colSpvCmcPais; RenameColumns(ShowColumns('LCP-001_List_Pais'; Nombre); Nombre; Value));;//Falta agregar en app final
 ClearCollect(colSpvNvCmcGerencia; RenameColumns(ShowColumns('LCP-001_List_Gerencia'; Nombre); Nombre; Value));;
 ClearCollect(colSpvCmcArea; ["Créditos Back Office"; "Tesorería Operativa"; "Gestión de Servicios al Colaborador"]);;
 ClearCollect(colSpvCmcEstado; ["Vigente"; "Vencido"]);;
-ClearCollect(colAnlmcEstado; ["Vigente"; "Vencido"]);;
 ClearCollect(colSpvSlcEstado; ["Publicado"; "Borrador"]);;
 ClearCollect(colSpvDirigidoA; ["Todos"; "Gerencia"; "País"]);;
 // Generamos la colección de los 12 meses del año
@@ -296,8 +337,8 @@ ClearCollect(colQuerysSpvTicket;
 );;
 
 ClearCollect(colQuerysSpvComunicados;
-    { input: "ID"; mark: false; query: "" }; { input: "Gerencia"; mark: false; query: "" };
-    { input: "Pais"; mark: false; query: "" }; { input: "Cabecera"; mark: false; query: "" };
+    { input: "ID"; mark: false; query: "" }; { input: "Gerencia"; mark: true; query: "(substringof('" & Var_ProfileUser.Gerencia & "', Gerencia) or Gerencia eq 'Todos' or Gerencia eq null)" };
+    { input: "Pais"; mark: true; query: "(substringof('" & Var_ProfileUser.Pais & "', Pais) or Pais eq 'Todos' or Pais eq null)" }; { input: "Cabecera"; mark: false; query: "" };
     { input: "Cuerpo"; mark: false; query: "" }; { input: "Imagen"; mark: false; query: "" };
     { input: "UsuarioCreador"; mark: false; query: "" }; { input: "FechaCreacion"; mark: false; query: "" };
     { input: "FechaFin"; mark: false; query: "" }; { input: "Estado"; mark: false; query: "" };
