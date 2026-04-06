@@ -410,9 +410,9 @@ Screens:
                                                   )
                                                 TemplatePadding: =0
                                                 TemplateSize: =35
-                                                Visible: =SpvCtgOpenGerencia
+                                                Visible: =ctx_GerenciaExpandida = ThisItem.Nombre
                                                 Width: =Parent.TemplateWidth
-                                                Y: =SpvCtg_LblTituloGerenciaTicket.Height
+                                                Y: =SpvCtg_BtnTituloGerenciaTicket.Height
                                               Children:
                                                 - SpvCtg_LblCustomChk:
                                                     Control: Label@2.5.1
@@ -443,20 +443,48 @@ Screens:
                                                 BorderColor: =RGBA(0, 18, 107, 1)
                                                 Color: =RGBA(0, 0, 0, 1)
                                                 Height: =15
-                                                Icon: =If(!SpvCtgOpenGerencia, Icon.ChevronDown, Icon.ChevronUp)
+                                                Icon: |-
+                                                  =If(
+                                                      ctx_GerenciaExpandida = ThisItem.Nombre, 
+                                                      Icon.ChevronUp, 
+                                                      Icon.ChevronDown
+                                                  )
                                                 OnSelect: |-
-                                                  =UpdateContext({SpvCtgOpenGerencia: !SpvCtgOpenGerencia})
+                                                  =UpdateContext({ 
+                                                      ctx_GerenciaExpandida: If(
+                                                          ctx_GerenciaExpandida = ThisItem.Nombre, 
+                                                          Blank(), 
+                                                          ThisItem.Nombre
+                                                      ) 
+                                                  })
                                                 Width: =15
-                                                X: =SpvCtg_LblTituloGerenciaTicket.Width + 8
-                                                Y: =(SpvCtg_LblTituloGerenciaTicket.Height - Self.Height) / 2
-                                          - SpvCtg_LblTituloGerenciaTicket:
-                                              Control: Label@2.5.1
+                                                X: =SpvCtg_BtnTituloGerenciaTicket.Width + 8
+                                                Y: =(SpvCtg_BtnTituloGerenciaTicket.Height - Self.Height) / 2
+                                          - SpvCtg_BtnTituloGerenciaTicket:
+                                              Control: Classic/Button@2.2.0
                                               Properties:
-                                                AutoHeight: =true
-                                                BorderColor: =RGBA(0, 18, 107, 1)
+                                                Align: =Align.Left
+                                                BorderColor: =RGBA(0, 0, 0, 0)
+                                                BorderStyle: =BorderStyle.None
+                                                Color: =RGBA(0, 0, 0, 1)
+                                                DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                                                DisabledColor: =RGBA(0, 0, 0, 1)
+                                                DisabledFill: =RGBA(0, 0, 0, 0)
+                                                Fill: =RGBA(0, 0, 0, 0)
                                                 Font: =Font.'Open Sans'
-                                                Height: =25
-                                                OnSelect: =Select(Parent)
+                                                FontWeight: =FontWeight.Normal
+                                                Height: =30
+                                                HoverBorderColor: =RGBA(0, 0, 0, 0)
+                                                HoverColor: =RGBA(0, 0, 0, 1)
+                                                HoverFill: =RGBA(0, 0, 0, 0)
+                                                OnSelect: =Select(SpvCtg_IcoExpandirFiltroTicket)
+                                                PressedBorderColor: =RGBA(0, 0, 0, 0)
+                                                PressedColor: =RGBA(0, 0, 0, 1)
+                                                PressedFill: =RGBA(0, 0, 0, 0)
+                                                RadiusBottomLeft: =0
+                                                RadiusBottomRight: =0
+                                                RadiusTopLeft: =0
+                                                RadiusTopRight: =0
                                                 Size: =12
                                                 Text: =ThisItem.Nombre
                                                 Width: =Parent.TemplateWidth - SpvCtg_IcoExpandirFiltroTicket.Width - 15
