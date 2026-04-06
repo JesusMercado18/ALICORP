@@ -332,7 +332,6 @@ Screens:
                                     FillPortions: =0
                                     LayoutAlignItems: =LayoutAlignItems.Stretch
                                     LayoutDirection: =LayoutDirection.Vertical
-                                    LayoutGap: =10
                                     LayoutMinHeight: =16
                                     LayoutMinWidth: =16
                                     PaddingBottom: =8
@@ -341,15 +340,15 @@ Screens:
                                     PaddingTop: =8
                                     Width: =348
                                   Children:
-                                    - SpvCtg_CtnPrimero:
+                                    - SpvCtg_CtnTicketPopulares:
                                         Control: GroupContainer@1.5.0
                                         Variant: ManualLayout
                                         Properties:
                                           AlignInContainer: =AlignInContainer.SetByContainer
+                                          BorderStyle: =BorderStyle.None
                                           DropShadow: =DropShadow.None
-                                          Fill: =ColorValue(Var_ColorFondoLateral)
                                           FillPortions: =0
-                                          Height: =38
+                                          Height: =30
                                           LayoutMinHeight: =16
                                           LayoutMinWidth: =0
                                           RadiusBottomLeft: =10
@@ -370,170 +369,97 @@ Screens:
                                                 FocusedBorderThickness: =4
                                                 Font: =Font.'Open Sans'
                                                 Height: =Parent.Height
-                                                PaddingLeft: =20
+                                                PaddingBottom: =0
+                                                PaddingRight: =0
+                                                PaddingTop: =0
                                                 Size: =Var_TituloIndicadores
                                                 Text: ="Tickets populares"
                                                 Width: =Parent.Width
-                                    - SpvCtg_CtnSegundo:
-                                        Control: GroupContainer@1.5.0
-                                        Variant: ManualLayout
+                                    - SpvCtg_GalOtrosFiltrosTicket:
+                                        Control: Gallery@2.15.0
+                                        Variant: VariableHeight
                                         Properties:
-                                          DropShadow: =DropShadow.None
-                                          FillPortions: =0
-                                          Height: =38
-                                          LayoutMinHeight: =16
-                                          LayoutMinWidth: =16
+                                          BorderColor: =RGBA(0, 18, 107, 1)
+                                          BorderStyle: =BorderStyle.None
+                                          Height: =Parent.Height - Self.Y - 16
+                                          Items: =col_gblGerencia
+                                          ShowScrollbar: =false
+                                          TemplatePadding: =0
+                                          TemplateSize: =130
+                                          Width: =Parent.Width - 24
+                                          X: =12
                                         Children:
-                                          - SpvCtg_ImgFlechaAbajoCRE:
-                                              Control: Image@2.2.3
+                                          - SpvCtg_GalSubFiltrosTicket:
+                                              Control: Gallery@2.15.0
+                                              Variant: Vertical
                                               Properties:
-                                                BorderColor: =RGBA(0, 0, 0, 0)
-                                                BorderStyle: =BorderStyle.None
-                                                BorderThickness: =2
-                                                DisabledBorderColor: =RGBA(255, 255, 255, 1)
-                                                DisabledFill: =RGBA(0, 0, 0, 0)
-                                                FocusedBorderThickness: =4
-                                                Height: =24
-                                                HoverBorderColor: =RGBA(255, 255, 255, 1)
-                                                HoverFill: =RGBA(0, 0, 0, 0)
-                                                Image: =FlechaAbajoBlack
-                                                PressedBorderColor: =RGBA(0, 0, 0, 0)
-                                                PressedFill: =RGBA(0, 0, 0, 0)
-                                                Width: =24
-                                                X: =283
-                                                Y: =8
-                                          - SpvCtg_BtnCRE:
-                                              Control: Classic/Button@2.2.0
+                                                BorderColor: =RGBA(0, 18, 107, 1)
+                                                Height: |-
+                                                  =Min(
+                                                      CountRows(Self.AllItems) * 35, 
+                                                      230
+                                                  )
+                                                Items: |-
+                                                  =Sort(
+                                                      Filter(
+                                                          col_gblGerenciaArea,//colFiltrosTicketChildSpv
+                                                          Title = ThisItem.Title
+                                                      ),
+                                                      ThisRecord.Nombre,
+                                                      SortOrder.Ascending
+                                                  )
+                                                TemplatePadding: =0
+                                                TemplateSize: =35
+                                                Visible: =SpvCtgOpenGerencia
+                                                Width: =Parent.TemplateWidth
+                                                Y: =SpvCtg_LblTituloGerenciaTicket.Height
+                                              Children:
+                                                - SpvCtg_LblCustomChk:
+                                                    Control: Label@2.5.1
+                                                    Properties:
+                                                      AutoHeight: =true
+                                                      BorderColor: =RGBA(0, 18, 107, 1)
+                                                      BorderThickness: =3
+                                                      Color: =ColorValue(Var_ColorIconNegro)
+                                                      DisplayMode: =DisplayMode.View
+                                                      Fill: =RGBA(255, 255, 255, 1)
+                                                      Font: =Font.'Open Sans'
+                                                      Height: =Parent.TemplateHeight
+                                                      LineHeight: =1
+                                                      OnSelect: =//Select(Spv_BtnCustomChk_1)
+                                                      PaddingBottom: =2
+                                                      PaddingTop: =2
+                                                      Size: =10
+                                                      Text: =ThisItem.Area
+                                                      Tooltip: =Self.Text
+                                                      VerticalAlign: =VerticalAlign.Top
+                                                      Width: =Parent.TemplateWidth - 20
+                                                      Wrap: =false
+                                                      X: =8
+                                                      Y: =(Parent.TemplateHeight - Self.Height) / 2
+                                          - SpvCtg_IcoExpandirFiltroTicket:
+                                              Control: Classic/Icon@2.5.0
                                               Properties:
-                                                Align: =Align.Left
-                                                BorderColor: =RGBA(0, 0, 0, 0)
-                                                BorderStyle: =BorderStyle.None
+                                                BorderColor: =RGBA(0, 18, 107, 1)
                                                 Color: =RGBA(0, 0, 0, 1)
-                                                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                                                DisabledColor: =RGBA(161, 159, 157, 1)
-                                                DisabledFill: =RGBA(242, 242, 241, 0)
-                                                Fill: =RGBA(0, 0, 0, 0)
+                                                Height: =15
+                                                Icon: =If(!SpvCtgOpenGerencia, Icon.ChevronDown, Icon.ChevronUp)
+                                                OnSelect: |-
+                                                  =UpdateContext({SpvCtgOpenGerencia: !SpvCtgOpenGerencia})
+                                                Width: =15
+                                                X: =SpvCtg_LblTituloGerenciaTicket.Width + 8
+                                                Y: =(SpvCtg_LblTituloGerenciaTicket.Height - Self.Height) / 2
+                                          - SpvCtg_LblTituloGerenciaTicket:
+                                              Control: Label@2.5.1
+                                              Properties:
+                                                AutoHeight: =true
+                                                BorderColor: =RGBA(0, 18, 107, 1)
                                                 Font: =Font.'Open Sans'
-                                                HoverBorderColor: =RGBA(0, 0, 0, 0)
-                                                HoverColor: =RGBA(0, 0, 0, 1)
-                                                HoverFill: =RGBA(0, 0, 0, 0)
-                                                PaddingLeft: =10
-                                                PressedBorderColor: =RGBA(255, 255, 255, 1)
-                                                PressedColor: =RGBA(0, 0, 0, 1)
-                                                PressedFill: =RGBA(0, 0, 0, 0)
-                                                RadiusBottomLeft: =0
-                                                RadiusBottomRight: =0
-                                                RadiusTopLeft: =0
-                                                RadiusTopRight: =0
+                                                Height: =25
+                                                OnSelect: =Select(Parent)
                                                 Size: =12
-                                                Text: ="CRE - Gerencia de Créditos Back"
-                                                Width: =307
-                                    - SpvCtg_CtnTercero:
-                                        Control: GroupContainer@1.5.0
-                                        Variant: ManualLayout
-                                        Properties:
-                                          DropShadow: =DropShadow.None
-                                          FillPortions: =0
-                                          Height: =38
-                                          LayoutMinHeight: =16
-                                          LayoutMinWidth: =16
-                                        Children:
-                                          - SpvCtg_ImgFlechaAbajoP2P:
-                                              Control: Image@2.2.3
-                                              Properties:
-                                                BorderColor: =RGBA(0, 0, 0, 0)
-                                                BorderStyle: =BorderStyle.None
-                                                BorderThickness: =2
-                                                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                                                DisabledFill: =RGBA(0, 0, 0, 0)
-                                                FocusedBorderThickness: =4
-                                                Height: =24
-                                                HoverBorderColor: =RGBA(0, 0, 0, 0)
-                                                HoverFill: =RGBA(0, 0, 0, 0)
-                                                Image: =FlechaAbajoBlack
-                                                PressedBorderColor: =RGBA(0, 0, 0, 0)
-                                                PressedFill: =RGBA(0, 0, 0, 0)
-                                                Width: =24
-                                                X: =283
-                                                Y: =8
-                                          - SpvCtg_BtnP2P:
-                                              Control: Classic/Button@2.2.0
-                                              Properties:
-                                                BorderColor: =RGBA(0, 0, 0, 0)
-                                                BorderStyle: =BorderStyle.None
-                                                Color: =RGBA(0, 0, 0, 1)
-                                                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                                                DisabledColor: =RGBA(161, 159, 157, 1)
-                                                DisabledFill: =RGBA(242, 242, 241, 0)
-                                                Fill: =RGBA(0, 0, 0, 0)
-                                                Font: =Font.'Open Sans'
-                                                HoverBorderColor: =RGBA(0, 0, 0, 0)
-                                                HoverColor: =RGBA(0, 0, 0, 1)
-                                                HoverFill: =RGBA(0, 0, 0, 0)
-                                                PaddingRight: =50
-                                                PressedBorderColor: =RGBA(0, 69, 120, 1)
-                                                PressedColor: =RGBA(0, 0, 0, 1)
-                                                PressedFill: =RGBA(0, 0, 0, 0)
-                                                RadiusBottomLeft: =0
-                                                RadiusBottomRight: =0
-                                                RadiusTopLeft: =0
-                                                RadiusTopRight: =0
-                                                Size: =12
-                                                Text: ="P2P - Gerencia de Tesorería Ope"
-                                                Width: =307
-                                    - SpvCtg_CtnCuarto:
-                                        Control: GroupContainer@1.5.0
-                                        Variant: ManualLayout
-                                        Properties:
-                                          DropShadow: =DropShadow.None
-                                          FillPortions: =0
-                                          Height: =38
-                                          LayoutMinHeight: =16
-                                          LayoutMinWidth: =16
-                                        Children:
-                                          - SpvCtg_ImgFlechaAbajoGSC:
-                                              Control: Image@2.2.3
-                                              Properties:
-                                                BorderColor: =RGBA(0, 0, 0, 0)
-                                                BorderStyle: =BorderStyle.None
-                                                BorderThickness: =2
-                                                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                                                DisabledFill: =RGBA(0, 0, 0, 0)
-                                                FocusedBorderThickness: =4
-                                                Height: =24
-                                                HoverBorderColor: =RGBA(0, 0, 0, 0)
-                                                HoverFill: =RGBA(0, 0, 0, 0)
-                                                Image: =FlechaAbajoBlack
-                                                PressedBorderColor: =RGBA(0, 0, 0, 0)
-                                                PressedFill: =RGBA(0, 0, 0, 0)
-                                                Width: =24
-                                                X: =283
-                                                Y: =8
-                                          - SpvCtg_BtnGSC:
-                                              Control: Classic/Button@2.2.0
-                                              Properties:
-                                                BorderColor: =RGBA(0, 0, 0, 0)
-                                                BorderStyle: =BorderStyle.None
-                                                Color: =RGBA(0, 0, 0, 1)
-                                                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                                                DisabledColor: =RGBA(161, 159, 157, 1)
-                                                DisabledFill: =RGBA(242, 242, 241, 0)
-                                                Fill: =RGBA(0, 0, 0, 0)
-                                                Font: =Font.'Open Sans'
-                                                HoverBorderColor: =RGBA(0, 0, 0, 0)
-                                                HoverColor: =RGBA(0, 0, 0, 1)
-                                                HoverFill: =RGBA(0, 0, 0, 0)
-                                                PaddingRight: =50
-                                                PressedBorderColor: =RGBA(0, 69, 120, 1)
-                                                PressedColor: =RGBA(0, 0, 0, 1)
-                                                PressedFill: =RGBA(0, 0, 0, 0)
-                                                RadiusBottomLeft: =0
-                                                RadiusBottomRight: =0
-                                                RadiusTopLeft: =0
-                                                RadiusTopRight: =0
-                                                Size: =12
-                                                Text: ="GSC - Gerencia de Gestion de Se"
-                                                Width: =307
+                                                Text: =ThisItem.Nombre
+                                                Width: =Parent.TemplateWidth - SpvCtg_IcoExpandirFiltroTicket.Width - 15
                               - SpvCtg_CtnDatosTicket:
                                   Control: GroupContainer@1.5.0
                                   Variant: AutoLayout
