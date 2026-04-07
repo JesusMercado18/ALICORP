@@ -3,10 +3,11 @@ Screens:
     Properties:
       Fill: =ColorValue(Var_ColorFondoLateral)
       LoadingSpinnerColor: =RGBA(0, 120, 212, 1)
-      OnVisible: |-
-        =UpdateContext({ menuSelected: 2});
-        UpdateContext({ Var_Ctx_MostrarItemsCatalogoSpv : false });
-        UpdateContext({
+      OnVisible: |+
+        =// 1. Configuraciones iniciales y reset de variables visuales de estado
+        UpdateContext({ 
+            menuSelected: 2,
+            Var_Ctx_MostrarItemsCatalogoSpv: false,
             Var_Ctx_TicketPopulares: true,
             Var_Ctx_Gerencias: false,
             Var_Ctx_Areas: false,
@@ -14,13 +15,34 @@ Screens:
             Var_Ctx_AreaSeleccionada: Blank(),
             ctx_GerenciaExpandida: Blank() // Forzamos el cierre del acordeón de Gerencias
         });
+
+        // 2. Limpiar selecciones visuales explícitas en las Galerías (UI Reset)
+        // Nota: Resetear la galería padre reinicia implícitamente la galería anidada de Áreas
+        Reset(SpvCtg_GalFiltrosGerencia);
+        Reset(SpvCtg_GalItemsCatalogoServicio);
+        Set(Var_SpvCatalogoServicioSeleccionada, Blank());
+
+        // 3. Asegurar que los filtros OData regresen a estado 0
+        Patch(
+            colQuerysSpvCatalogoServicio, 
+            LookUp(colQuerysSpvCatalogoServicio, input = "Gerencia"), 
+            {mark: false, query: ""}
+        );
+        Patch(
+            colQuerysSpvCatalogoServicio, 
+            LookUp(colQuerysSpvCatalogoServicio, input = "Area"), 
+            {mark: false, query: ""}
+        );
+
+        // 4. Configuración inicial para el motor de Paginación
         Set(Var_GridPageSizeSpvCatalogoServicio, 2);
         Set(Var_CurrentPageSpvCatalogoServicio, 1);
-        // Configuración para el motor:
         Set(Var_TargetIDSpvCatalogoServicio, 0);
         Set(Var_DirectionSpvCatalogoServicio, "NEXT");
         Set(Var_IsIndividualSpvCatalogoServicio, false);
-        Select(Spv_BtnMotorPaginacionCatalogoServicio); // <--- Ejecuta la lógica
+
+        // 5. Ejecutar la lógica de búsqueda en el motor
+        Select(Spv_BtnMotorPaginacionCatalogoServicio);
     Children:
       - Spv_BtnMotorPaginacionCatalogoServicio:
           Control: Classic/Button@2.2.0
@@ -469,7 +491,8 @@ Screens:
                                                 HoverColor: =RGBA(0, 0, 0, 1)
                                                 HoverFill: =RGBA(0, 0, 0, 0)
                                                 OnSelect: |-
-                                                  =UpdateContext({
+                                                  =// 1. Reset de variables y contextos de interfaz para Tickets Populares
+                                                  UpdateContext({
                                                       Var_Ctx_TicketPopulares: true,
                                                       Var_Ctx_Gerencias: false,
                                                       Var_Ctx_Areas: false,
@@ -478,26 +501,30 @@ Screens:
                                                       ctx_GerenciaExpandida: Blank() // Forzamos el cierre del acordeón de Gerencias
                                                   });
 
-                                                  // Limpiar filtros del OData
+                                                  // 2. Limpiar selecciones visuales explícitas de las galerías para no arrastrar filtros gráficos
+                                                  Reset(SpvCtg_GalFiltrosGerencia);
+                                                  Reset(SpvCtg_GalItemsCatalogoServicio);
+                                                  Set(Var_SpvCatalogoServicioSeleccionada, Blank());
+
+                                                  // 3. Limpiar filtros del OData
                                                   Patch(
                                                       colQuerysSpvCatalogoServicio, 
                                                       LookUp(colQuerysSpvCatalogoServicio, input = "Gerencia"), 
                                                       {mark: false, query: ""}
                                                   );
-
                                                   Patch(
                                                       colQuerysSpvCatalogoServicio, 
                                                       LookUp(colQuerysSpvCatalogoServicio, input = "Area"), 
                                                       {mark: false, query: ""}
                                                   );
 
-                                                  // Reseteamos el motor de Paginación
+                                                  // 4. Reseteamos el motor de Paginación
                                                   Set(Var_CurrentPageSpvCatalogoServicio, 1);
                                                   Set(Var_TargetIDSpvCatalogoServicio, 0);
                                                   Set(Var_DirectionSpvCatalogoServicio, "NEXT");
                                                   Set(Var_IsIndividualSpvCatalogoServicio, false);
 
-                                                  // Disparamos la petición al Servidor
+                                                  // 5. Disparamos la petición al Servidor
                                                   Select(Spv_BtnMotorPaginacionCatalogoServicio);
                                                 PressedBorderColor: =RGBA(0, 0, 0, 0)
                                                 PressedColor: =RGBA(0, 0, 0, 1)
@@ -639,13 +666,44 @@ Screens:
                                                       Icon.ChevronDown
                                                   )
                                                 OnSelect: |-
-                                                  =UpdateContext({ 
+                                                  =// 1. Manejo del estado del Acordeón (Expandir/Contraer)
+                                                  UpdateContext({ 
                                                       ctx_GerenciaExpandida: If(
                                                           ctx_GerenciaExpandida = ThisItem.Nombre, 
                                                           Blank(), 
                                                           ThisItem.Nombre
                                                       ) 
-                                                  })
+                                                  });
+
+                                                  // 2. Configurar contextos de navegación y selección UI
+                                                  UpdateContext({
+                                                      Var_Ctx_Gerencias: true,
+                                                      Var_Ctx_Areas: false,
+                                                      Var_Ctx_TicketPopulares: false,
+                                                      Var_Ctx_GerenciaSeleccionada: ThisItem.Nombre,
+                                                      Var_Ctx_AreaSeleccionada: Blank()
+                                                  });
+
+                                                  // 3. Aplicar filtro OData SOLO para Gerencia y limpiar el Área
+                                                  Patch(
+                                                      colQuerysSpvCatalogoServicio, 
+                                                      LookUp(colQuerysSpvCatalogoServicio, input = "Gerencia"), 
+                                                      {mark: true, query: "Gerencia eq '" & ThisItem.Nombre & "'"}
+                                                  );
+                                                  Patch(
+                                                      colQuerysSpvCatalogoServicio, 
+                                                      LookUp(colQuerysSpvCatalogoServicio, input = "Area"), 
+                                                      {mark: false, query: ""}
+                                                  );
+
+                                                  // 4. Reiniciar Motor de Paginación a su estado inicial
+                                                  Set(Var_CurrentPageSpvCatalogoServicio, 1);
+                                                  Set(Var_TargetIDSpvCatalogoServicio, 0);
+                                                  Set(Var_DirectionSpvCatalogoServicio, "NEXT");
+                                                  Set(Var_IsIndividualSpvCatalogoServicio, false);
+
+                                                  // 5. Disparar Petición al Servidor (Flujo)
+                                                  Select(Spv_BtnMotorPaginacionCatalogoServicio);
                                                 Width: =15
                                                 X: =SpvCtg_BtnTituloGerencia.Width + 8
                                                 Y: =(SpvCtg_BtnTituloGerencia.Height - Self.Height) / 2
@@ -667,7 +725,16 @@ Screens:
                                                 HoverColor: =RGBA(0, 0, 0, 1)
                                                 HoverFill: =RGBA(0, 0, 0, 0)
                                                 OnSelect: |-
-                                                  =Select(SpvCtg_IcoExpandirGerencia);
+                                                  =// 1. Manejo del estado del Acordeón (Expandir/Contraer)
+                                                  UpdateContext({ 
+                                                      ctx_GerenciaExpandida: If(
+                                                          ctx_GerenciaExpandida = ThisItem.Nombre, 
+                                                          Blank(), 
+                                                          ThisItem.Nombre
+                                                      ) 
+                                                  });
+
+                                                  // 2. Configurar contextos de navegación y selección UI
                                                   UpdateContext({
                                                       Var_Ctx_Gerencias: true,
                                                       Var_Ctx_Areas: false,
@@ -676,15 +743,25 @@ Screens:
                                                       Var_Ctx_AreaSeleccionada: Blank()
                                                   });
 
-                                                  // Aplicar filtro SOLO de Gerencia y limpiar el Área
-                                                  Patch(colQuerysSpvCatalogoServicio, LookUp(colQuerysSpvCatalogoServicio, input = "Gerencia"), {mark: true, query: "Gerencia eq '" & ThisItem.Nombre & "'"});
-                                                  Patch(colQuerysSpvCatalogoServicio, LookUp(colQuerysSpvCatalogoServicio, input = "Area"), {mark: false, query: ""});
+                                                  // 3. Aplicar filtro OData SOLO para Gerencia y limpiar el Área
+                                                  Patch(
+                                                      colQuerysSpvCatalogoServicio, 
+                                                      LookUp(colQuerysSpvCatalogoServicio, input = "Gerencia"), 
+                                                      {mark: true, query: "Gerencia eq '" & ThisItem.Nombre & "'"}
+                                                  );
+                                                  Patch(
+                                                      colQuerysSpvCatalogoServicio, 
+                                                      LookUp(colQuerysSpvCatalogoServicio, input = "Area"), 
+                                                      {mark: false, query: ""}
+                                                  );
 
+                                                  // 4. Reiniciar Motor de Paginación a su estado inicial
                                                   Set(Var_CurrentPageSpvCatalogoServicio, 1);
                                                   Set(Var_TargetIDSpvCatalogoServicio, 0);
                                                   Set(Var_DirectionSpvCatalogoServicio, "NEXT");
                                                   Set(Var_IsIndividualSpvCatalogoServicio, false);
 
+                                                  // 5. Disparar Petición al Servidor (Flujo)
                                                   Select(Spv_BtnMotorPaginacionCatalogoServicio);
                                                 PressedBorderColor: =RGBA(0, 0, 0, 0)
                                                 PressedColor: =RGBA(0, 0, 0, 1)
@@ -832,7 +909,7 @@ Screens:
                                           LayoutMinWidth: =16
                                           Visible: =If(IsEmpty(objGalleryDataSpvCatalogoServicio),false,true)
                                         Children:
-                                          - Spv_CtnPaginacionCatalogoServicio:
+                                          - SpvCtg_CtnPaginacionCatalogoServicio:
                                               Control: GroupContainer@1.5.0
                                               Variant: ManualLayout
                                               Properties:
@@ -841,7 +918,7 @@ Screens:
                                                 Width: =Parent.Width
                                                 Y: =SpvCtg_CtnTablaCatalogoServicio.Height
                                               Children:
-                                                - Spv_GalItemsPaginacionTicket_1:
+                                                - SpvCtg_GalItemsPaginacionCatalogoServicio:
                                                     Control: Gallery@2.15.0
                                                     Variant: Horizontal
                                                     Properties:
@@ -868,9 +945,9 @@ Screens:
                                                                 maxVisible * itemWidth
                                                             )
                                                         )
-                                                      X: =(Spv_CtnPaginacionCatalogoServicio.Width - Self.Width) / 2
+                                                      X: =(SpvCtg_CtnPaginacionCatalogoServicio.Width - Self.Width) / 2
                                                     Children:
-                                                      - Spv_CtnFocusPaginaTicket_1:
+                                                      - SpvCtg_CtnFocusPaginaCatalogoServicio:
                                                           Control: GroupContainer@1.5.0
                                                           Variant: ManualLayout
                                                           Properties:
@@ -879,7 +956,7 @@ Screens:
                                                             Width: =Parent.TemplateWidth
                                                             Y: =34
                                                           Children:
-                                                            - Spv_LblFocusPaginaTicket_1:
+                                                            - SpvCtg_LblFocusPaginaCatalogoServicio:
                                                                 Control: Label@2.5.1
                                                                 Properties:
                                                                   Align: =Align.Center
@@ -890,7 +967,7 @@ Screens:
                                                                   OnSelect: =
                                                                   Text: =
                                                                   Width: =Parent.Width
-                                                      - Spv_BtnSeleccionarPaginaTicket_1:
+                                                      - SpvCtg_BtnSeleccionarPaginaCatalogoServicio:
                                                           Control: Classic/Button@2.2.0
                                                           Properties:
                                                             BorderColor: =ColorFade(Self.Fill, -15%)
@@ -926,7 +1003,7 @@ Screens:
                                                             Size: =12
                                                             Text: =ThisItem.Value
                                                             Width: =Parent.TemplateWidth
-                                                - Spv_BtnSAnteriorTicket_1:
+                                                - SpvCtg_BtnSAnteriorCatalogoServicio:
                                                     Control: Button@0.0.45
                                                     Properties:
                                                       Appearance: ='ButtonCanvas.Appearance'.Outline
@@ -935,14 +1012,14 @@ Screens:
                                                       FontColor: =ColorValue(Var_ColorBoton)
                                                       Icon: ="ChevronLeft"
                                                       OnSelect: |-
-                                                        =Set(Var_TargetIDSpvCatalogoServicio, Max(Spv_GalItemsCatalogoServicio.AllItems, ID));
+                                                        =Set(Var_TargetIDSpvCatalogoServicio, Max(SpvCtg_GalItemsCatalogoServicio.AllItems, ID));
                                                         Set(Var_DirectionSpvCatalogoServicio, "PREV");
                                                         Set(Var_IsIndividualSpvCatalogoServicio, false);
                                                         Set(Var_CurrentPageSpvCatalogoServicio, Var_CurrentPageSpvCatalogoServicio - 1);
                                                         Select(Spv_BtnMotorPaginacionCatalogoServicio);
                                                       Text: ="Anterior"
                                                       Y: =9
-                                                - Spv_BtnSiguienteTicket_1:
+                                                - Spv_BtnSiguienteCatalogoServicio:
                                                     Control: Button@0.0.45
                                                     Properties:
                                                       Appearance: ='ButtonCanvas.Appearance'.Outline
@@ -957,23 +1034,23 @@ Screens:
                                                       Icon: ="ChevronRight"
                                                       Layout: ='ButtonCanvas.Layout'.IconAfter
                                                       OnSelect: |-
-                                                        =Set(Var_TargetIDSpvCatalogoServicio, Min(Spv_GalItemsCatalogoServicio.AllItems, ID));
+                                                        =Set(Var_TargetIDSpvCatalogoServicio, Min(SpvCtg_GalItemsCatalogoServicio.AllItems, ID));
                                                         Set(Var_DirectionSpvCatalogoServicio, "NEXT");
                                                         Set(Var_IsIndividualSpvCatalogoServicio, false);
                                                         Set(Var_CurrentPageSpvCatalogoServicio, Var_CurrentPageSpvCatalogoServicio + 1);
                                                         Select(Spv_BtnMotorPaginacionCatalogoServicio);
                                                       Text: ="Siguiente"
                                                       X: |-
-                                                        =Spv_CtnPaginacionCatalogoServicio.Width
+                                                        =SpvCtg_CtnPaginacionCatalogoServicio.Width
                                                         - Self.Width
-                                                        - Spv_CtnPaginacionCatalogoServicio.PaddingRight
+                                                        - SpvCtg_CtnPaginacionCatalogoServicio.PaddingRight
                                                       Y: =9
                                           - SpvCtg_CtnTablaCatalogoServicio:
                                               Control: GroupContainer@1.5.0
                                               Variant: AutoLayout
                                               Properties:
                                                 DropShadow: =DropShadow.None
-                                                Height: =Parent.Height - Spv_CtnPaginacionCatalogoServicio.Height
+                                                Height: =Parent.Height - SpvCtg_CtnPaginacionCatalogoServicio.Height
                                                 LayoutAlignItems: =LayoutAlignItems.Stretch
                                                 LayoutDirection: =LayoutDirection.Vertical
                                                 LayoutGap: =5
@@ -982,7 +1059,7 @@ Screens:
                                                   =Parent.Width
                                                   //If(Gbl_Menu_Spv_2.viewMenu;Parent.Width ;Parent.Width)
                                               Children:
-                                                - Spv_GalItemsCatalogoServicio:
+                                                - SpvCtg_GalItemsCatalogoServicio:
                                                     Control: Gallery@2.15.0
                                                     Variant: VariableHeight
                                                     Properties:
@@ -992,7 +1069,7 @@ Screens:
                                                       Height: |-
                                                         =With(
                                                             {
-                                                                filas: CountRows(Spv_GalItemsCatalogoServicio.AllItems)
+                                                                filas: CountRows(SpvCtg_GalItemsCatalogoServicio.AllItems)
                                                             },
                                                             If(
                                                                 filas < 3,
@@ -1009,7 +1086,7 @@ Screens:
                                                       TemplateSize: =45
                                                       Width: =Parent.Width
                                                     Children:
-                                                      - Container12:
+                                                      - SpvCtg_CtnFilaDatoCatalogoServicio:
                                                           Control: GroupContainer@1.5.0
                                                           Variant: ManualLayout
                                                           Properties:
@@ -1022,7 +1099,7 @@ Screens:
                                                             RadiusBottomRight: =8
                                                             RadiusTopLeft: =8
                                                             RadiusTopRight: =8
-                                                            Width: =Spv_GalItemsCatalogoServicio.Width - 20
+                                                            Width: =SpvCtg_GalItemsCatalogoServicio.Width - 20
                                                             X: =-10
                                                             Y: =-10
                                                           Children:
@@ -1059,7 +1136,7 @@ Screens:
                                                                     =//300
                                                                     (Parent.Width/2) - 80
                                                                   Y: =135
-                                                            - Image7:
+                                                            - SpvCtg_ImgVerDetalle:
                                                                 Control: Image@2.2.3
                                                                 Properties:
                                                                   BorderColor: =RGBA(0, 0, 0, 0)
