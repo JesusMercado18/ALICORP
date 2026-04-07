@@ -774,8 +774,7 @@ Screens:
                                                       BorderColor: =RGBA(0, 18, 107, 1)
                                                       Height: =50
                                                       Items: |-
-                                                        =//Sequence(RoundUp(TotalItemSpv/Var_GridPageSizeSpv; 0); 1)
-                                                        If(
+                                                        =If(
                                                             !IsBlank(TotalItemSpvCatalogoServicio) && Var_GridPageSizeSpvCatalogoServicio > 0,
                                                             Sequence(RoundUp(TotalItemSpvCatalogoServicio / Var_GridPageSizeSpvCatalogoServicio, 0), 1),
                                                             [1] // Devuelve una secuencia de una sola página mientras carga
@@ -930,33 +929,7 @@ Screens:
                                                       Items: =Sort(objGalleryDataSpvCatalogoServicio,Value(ThisRecord.ID), SortOrder.Descending)
                                                       LayoutMinHeight: =16
                                                       LayoutMinWidth: =If(Gbl_Menu_Spv_CatalogoServicio.verMenu,Parent.Width ,Parent.Width)
-                                                      OnSelect: |-
-                                                        =Set(Var_SpvTicketSeleccionada,ThisItem);
-
-
-                                                        ClearCollect(
-                                                            colFeriados,
-                                                            AddColumns(
-                                                                Filter(
-                                                                    'LCP-001_List_CalendarioFestivo',
-                                                                    Pais = ThisItem.SolicitantePais && Sociedad = ThisItem.SolicitanteSociedad
-                                                                ),
-                                                                FechaCompleta,
-                                                                If(
-                                                                    Len(FechaFestiva) = 10,
-                                                                    DateValue(FechaFestiva),
-                                                                    Date(
-                                                                        Year(Now()),
-                                                                        Value(Mid(FechaFestiva,4,2)),
-                                                                        Value(Left(FechaFestiva,2))
-                                                                    )
-                                                                )
-                                                            )
-                                                        );
-                                                        // dias que ingresa el analista
-
-
-                                                        Navigate(Spv_DetalleTicket)
+                                                      OnSelect: =Set(Var_SpvCatalogoServicioSeleccionada,ThisItem);
                                                       ShowScrollbar: =false
                                                       TemplatePadding: =20
                                                       TemplateSize: =45
