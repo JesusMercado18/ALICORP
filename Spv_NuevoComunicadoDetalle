@@ -3126,7 +3126,7 @@ Screens:
           Properties:
             Evento_CerrarNotificacion: |-
               =UpdateContext( { CloseAlertSpvNuevoComunicado : false })
-            Height: =40
+            Height: =85
             Input_MostrarOcultarNotificacion: =CloseAlertSpvNuevoComunicado
             Input_TextoNotificacion: =SpvNvCmcMensajeError
             Width: =480

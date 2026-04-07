@@ -56,7 +56,8 @@ Screens:
                     Estado:             ThisRecord.Value.Estado,     
                     Creado:             ThisRecord.Value.Creado,      
                     EstadoComunicado:   ThisRecord.Value.EstadoComunicado,
-                    Recurrente:         ThisRecord.Value.Recurrente
+                    Recurrente:         ThisRecord.Value.Recurrente,
+                    EsVisibleHoy:       ThisRecord.Value.EsVisibleHoy
                 }
             )
         );
@@ -907,7 +908,8 @@ Screens:
                                                                     DiaInicio:          ThisRecord.Value.DiaInicio,    
                                                                     DiaFin:             ThisRecord.Value.DiaFin,     
                                                                     EstadoComunicado:   ThisRecord.Value.EstadoComunicado,
-                                                                    Recurrente:         ThisRecord.Value.Recurrente
+                                                                    Recurrente:         ThisRecord.Value.Recurrente,
+                                                                    EsVisibleHoy:       ThisRecord.Value.EsVisibleHoy
                                                                 }
                                                             )
                                                         );
@@ -1387,7 +1389,8 @@ Screens:
                                                                     DiaInicio:          ThisRecord.Value.DiaInicio,    
                                                                     DiaFin:             ThisRecord.Value.DiaFin,     
                                                                     EstadoComunicado:   ThisRecord.Value.EstadoComunicado,
-                                                                    Recurrente:         ThisRecord.Value.Recurrente
+                                                                    Recurrente:         ThisRecord.Value.Recurrente,
+                                                                    EsVisibleHoy:       ThisRecord.Value.EsVisibleHoy
                                                                 }
                                                             )
                                                         );
@@ -1413,7 +1416,7 @@ Screens:
                                           BorderColor: =RGBA(245, 245, 245, 1)
                                           Fill: =RGBA(255, 255, 255, 1)
                                           Height: =520
-                                          Items: "=With(\r\n    {\r\n        // 1. Variables globales de tiempo y usuario (Calculadas 1 sola vez)\r\n        _hoy: Today(),\r\n        _diaActual: Day(Today()),\r\n        _valorHoy: Month(Today()) * 100 + Day(Today()),\r\n        \r\n        _ultimoDiaMesActual: Day(DateAdd(Date(Year(Today()), Month(Today()) + 1, 1), -1, TimeUnit.Days)),\r\n        _esBisiestoActual: Day(DateAdd(Date(Year(Today()), 3, 1), -1, TimeUnit.Days)) = 29,\r\n        \r\n        // Limpiamos los datos del perfil desde el inicio\r\n        _usrGerencia: Trim(Text(Var_ProfileUser.Gerencia)),\r\n        _usrPais: Trim(Text(Var_ProfileUser.Pais))\r\n    },\r\n    Filter(\r\n        objGalleryDataSpvComunicados,\r\n        \r\n        // ==========================================================\r\n        // CONDICIÓN 1: ESTADO (Vigente y Activo)\r\n        // ==========================================================\r\n        Text(Estado) = \"Vigente\" && Text(EstadoComunicado) = \"Activo\" &&\r\n        \r\n        // ==========================================================\r\n        // CONDICIÓN 2: AUDIENCIA (Aplica a recurrentes y no recurrentes por igual)\r\n        // ==========================================================\r\n        (IsBlank(Gerencia) || Trim(Text(Gerencia)) = \"\" || Trim(Text(Gerencia)) = \"Todos\" || _usrGerencia in Text(Gerencia)) &&\r\n        (IsBlank(Pais) || Trim(Text(Pais)) = \"\" || Trim(Text(Pais)) = \"Todos\" || _usrPais in Text(Pais)) &&\r\n        \r\n        // ==========================================================\r\n        // CONDICIÓN 3: FECHAS Y RECURRENCIA (Evaluado como 1 sola condición plana)\r\n        // ==========================================================\r\n        (\r\n            // --- ESCENARIO A: NO RECURRENTE ---\r\n            (\r\n                !(Trim(Lower(Text(Recurrente))) in [\"true\", \"verdadero\", \"1\", \"sí\", \"si\"]) &&\r\n                Trim(Text(FechaInicio)) <> \"\" && Trim(Text(FechaFin)) <> \"\" && \r\n                _hoy >= DateValue(Left(Text(FechaInicio), 10), \"es-ES\") && \r\n                _hoy <= DateValue(Left(Text(FechaFin), 10), \"es-ES\")\r\n            )\r\n            ||\r\n            // --- ESCENARIO B: RECURRENCIA MENSUAL (Sin mes, solo días) ---\r\n            (\r\n                (Trim(Lower(Text(Recurrente))) in [\"true\", \"verdadero\", \"1\", \"sí\", \"si\"]) &&\r\n                (Trim(Text(MesInicio)) = \"\" || Value(Text(MesInicio)) = 0) &&\r\n                Value(Text(DiaInicio)) > 0 && Value(Text(DiaFin)) > 0 &&\r\n                If(\r\n                    // Evaluamos el límite: el día fin asignado o el último día real del mes actual\r\n                    Value(Text(DiaInicio)) <= If(Value(Text(DiaFin)) > _ultimoDiaMesActual, _ultimoDiaMesActual, Value(Text(DiaFin))),\r\n                    // Si el inicio es menor o igual al fin (Ej. 1 al 15)\r\n                    _diaActual >= Value(Text(DiaInicio)) && _diaActual <= If(Value(Text(DiaFin)) > _ultimoDiaMesActual, _ultimoDiaMesActual, Value(Text(DiaFin))),\r\n                    // Si el rango cruza el fin de mes (Ej. 25 al 5)\r\n                    _diaActual >= Value(Text(DiaInicio)) || _diaActual <= If(Value(Text(DiaFin)) > _ultimoDiaMesActual, _ultimoDiaMesActual, Value(Text(DiaFin)))\r\n                )\r\n            )\r\n            ||\r\n            // --- ESCENARIO C: RECURRENCIA ANUAL (Con meses y días) ---\r\n            (\r\n                (Trim(Lower(Text(Recurrente))) in [\"true\", \"verdadero\", \"1\", \"sí\", \"si\"]) &&\r\n                Value(Text(MesInicio)) > 0 && Value(Text(MesFin)) > 0 &&\r\n                Value(Text(DiaInicio)) > 0 && Value(Text(DiaFin)) > 0 &&\r\n                If(\r\n                    // Calculamos Rango Inicial vs Rango Final con validación bisiesta inline\r\n                    (Value(Text(MesInicio)) * 100 + Value(Text(DiaInicio))) <= \r\n                    (Value(Text(MesFin)) * 100 + If(Value(Text(MesFin)) = 2 && Value(Text(DiaFin)) = 29 && !_esBisiestoActual, 28, Value(Text(DiaFin)))),\r\n                    \r\n                    // Si es el mismo año (Ej. Mayo a Octubre)\r\n                    _valorHoy >= (Value(Text(MesInicio)) * 100 + Value(Text(DiaInicio))) && \r\n                    _valorHoy <= (Value(Text(MesFin)) * 100 + If(Value(Text(MesFin)) = 2 && Value(Text(DiaFin)) = 29 && !_esBisiestoActual, 28, Value(Text(DiaFin)))),\r\n                    \r\n                    // Si cruza a fin de año (Ej. Diciembre a Febrero)\r\n                    _valorHoy >= (Value(Text(MesInicio)) * 100 + Value(Text(DiaInicio))) || \r\n                    _valorHoy <= (Value(Text(MesFin)) * 100 + If(Value(Text(MesFin)) = 2 && Value(Text(DiaFin)) = 29 && !_esBisiestoActual, 28, Value(Text(DiaFin))))\r\n                )\r\n            )\r\n        )\r\n    )\r\n)"
+                                          Items: =objGalleryDataSpvComunicados
                                           OnSelect: |-
                                             =Set(Var_SpvCmcComunicadoSeleccionada,ThisItem);
                                             Navigate(Spv_NuevoComunicadoDetalle)
@@ -1555,9 +1558,7 @@ Screens:
                                                                   Image: =PENCIL
                                                                   LayoutMinHeight: =16
                                                                   LayoutMinWidth: =16
-                                                                  OnSelect: |-
-                                                                    =Select(SpvCmc_GlrComunicacion);
-                                                                    Set(Var_SpvCmcImagenSeleccionada,ThisItem);
+                                                                  OnSelect: =Select(SpvCmc_GlrComunicacion)
                                                                   PressedBorderColor: =RGBA(0, 0, 0, 0)
                                                                   PressedFill: =RGBA(0, 0, 0, 0)
                                                                   Width: =20
@@ -1640,7 +1641,6 @@ Screens:
                                                             Height: =30
                                                             LayoutAlignItems: =LayoutAlignItems.Center
                                                             LayoutDirection: =LayoutDirection.Horizontal
-                                                            LayoutGap: =5
                                                             LayoutMinHeight: =16
                                                             LayoutMinWidth: =16
                                                             PaddingBottom: =8
@@ -1650,47 +1650,84 @@ Screens:
                                                             X: =40
                                                             Y: =40
                                                           Children:
-                                                            - SpvCmc_IcnFecha:
-                                                                Control: Classic/Icon@2.5.0
+                                                            - SpvCmc_CtnFechaInfo:
+                                                                Control: GroupContainer@1.5.0
+                                                                Variant: ManualLayout
                                                                 Properties:
-                                                                  BorderColor: =RGBA(0, 0, 0, 0)
-                                                                  Color: =RGBA(0, 0, 0, 1)
-                                                                  DisabledBorderColor: =RGBA(245, 245, 245, 1)
-                                                                  DisabledColor: =RGBA(225, 223, 221, 1)
-                                                                  DisabledFill: =RGBA(0, 0, 0, 0)
-                                                                  DisplayMode: =DisplayMode.View
-                                                                  FocusedBorderThickness: =4
-                                                                  Height: =25
-                                                                  HoverBorderColor: =RGBA(0, 0, 0, 0)
-                                                                  HoverColor: =RGBA(16, 110, 190, 1)
-                                                                  HoverFill: =RGBA(0, 0, 0, 0)
-                                                                  Icon: =Icon.CalendarBlank
-                                                                  OnSelect: =
-                                                                  PressedBorderColor: =RGBA(0, 0, 0, 0)
-                                                                  PressedColor: =RGBA(16, 110, 190, 1)
-                                                                  PressedFill: =RGBA(0, 0, 0, 0)
-                                                                  Width: =25
-                                                                  X: =40
-                                                                  Y: =40
-                                                            - SpvCmc_LblFecha:
-                                                                Control: Label@2.5.1
-                                                                Properties:
-                                                                  BorderColor: =RGBA(0, 0, 0, 0)
                                                                   BorderStyle: =BorderStyle.None
-                                                                  BorderThickness: =2
-                                                                  Color: =RGBA(50, 49, 48, 1)
-                                                                  DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                                                                  DisabledColor: =RGBA(161, 159, 157, 1)
-                                                                  FocusedBorderThickness: =4
-                                                                  Font: =Font.'Open Sans'
-                                                                  OnSelect: =
-                                                                  Size: =Var_FontSizeCuerpoTable
-                                                                  Text: |-
-                                                                    =//Text(DateValue(ThisItem.Value.FechaCreacion);"dd/mm/yyyy")
-                                                                    Text(DateValue(ThisItem.Creado),"dd/mm/yyyy")
-                                                                  Width: =105
-                                                                  X: =40
-                                                                  Y: =40
+                                                                  DropShadow: =DropShadow.None
+                                                                  FillPortions: =0
+                                                                  LayoutMinHeight: =25
+                                                                  LayoutMinWidth: =16
+                                                                  Width: =120
+                                                                Children:
+                                                                  - SpvCmc_LblFecha:
+                                                                      Control: Label@2.5.1
+                                                                      Properties:
+                                                                        BorderColor: =RGBA(0, 0, 0, 0)
+                                                                        BorderStyle: =BorderStyle.None
+                                                                        BorderThickness: =2
+                                                                        Color: =RGBA(50, 49, 48, 1)
+                                                                        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                                                                        DisabledColor: =RGBA(161, 159, 157, 1)
+                                                                        FocusedBorderThickness: =4
+                                                                        Font: =Font.'Open Sans'
+                                                                        Height: =16
+                                                                        OnSelect: =
+                                                                        Size: =Var_FontSizeCuerpoTable
+                                                                        Text: |-
+                                                                          =//Text(DateValue(ThisItem.Value.FechaCreacion);"dd/mm/yyyy")
+                                                                          Text(DateValue(ThisItem.Creado),"dd/mm/yyyy")
+                                                                        Width: =105
+                                                                        X: =SpvCmc_IcnFecha.Width
+                                                                  - SpvCmc_IcnFecha:
+                                                                      Control: Classic/Icon@2.5.0
+                                                                      Properties:
+                                                                        BorderColor: =RGBA(0, 0, 0, 0)
+                                                                        Color: =RGBA(0, 0, 0, 1)
+                                                                        DisabledBorderColor: =RGBA(245, 245, 245, 1)
+                                                                        DisabledColor: =RGBA(225, 223, 221, 1)
+                                                                        DisabledFill: =RGBA(0, 0, 0, 0)
+                                                                        DisplayMode: =DisplayMode.View
+                                                                        FocusedBorderThickness: =4
+                                                                        Height: =16
+                                                                        HoverBorderColor: =RGBA(0, 0, 0, 0)
+                                                                        HoverColor: =RGBA(16, 110, 190, 1)
+                                                                        HoverFill: =RGBA(0, 0, 0, 0)
+                                                                        Icon: =Icon.CalendarBlank
+                                                                        OnSelect: =
+                                                                        PressedBorderColor: =RGBA(0, 0, 0, 0)
+                                                                        PressedColor: =RGBA(16, 110, 190, 1)
+                                                                        PressedFill: =RGBA(0, 0, 0, 0)
+                                                                        Width: =25
+                                                            - SpvCmc_CtnEstadoInfo:
+                                                                Control: GroupContainer@1.5.0
+                                                                Variant: ManualLayout
+                                                                Properties:
+                                                                  DropShadow: =DropShadow.None
+                                                                  FillPortions: =0
+                                                                  LayoutMinHeight: =30
+                                                                  LayoutMinWidth: =16
+                                                                  Width: =100
+                                                                Children:
+                                                                  - SpvCmc_LblUsuario_1:
+                                                                      Control: Label@2.5.1
+                                                                      Properties:
+                                                                        BorderColor: =RGBA(0, 0, 0, 0)
+                                                                        BorderStyle: =BorderStyle.None
+                                                                        BorderThickness: =2
+                                                                        Color: =RGBA(50, 49, 48, 1)
+                                                                        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                                                                        DisabledColor: =RGBA(161, 159, 157, 1)
+                                                                        FocusedBorderThickness: =4
+                                                                        Font: =Font.'Open Sans'
+                                                                        Height: =Parent.Height
+                                                                        OnSelect: =
+                                                                        Size: =Var_FontSizeCuerpoTable
+                                                                        Text: =ThisItem.Estado
+                                                                        Width: =Parent.Width
+                                                                        X: =
+                                                                        Y: =-5
                                     - SpvCmcCtnBotonesPaginacion:
                                         Control: GroupContainer@1.5.0
                                         Variant: ManualLayout
@@ -1770,7 +1807,7 @@ Screens:
                                                       HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
                                                       HoverColor: =ColorValue(Var_ColorBoton)
                                                       HoverFill: =Color.Transparent
-                                                      OnSelect: "=UpdateContext({Var_SpvCmcLoadingSpinnerVisible: true});\r\nSet(\r\n    Var_StartIDSpvComunicados,\r\n    If(\r\n        ThisItem.Value = 1,\r\n        0, // Primera página siempre empieza en 0 para tu flujo\r\n        Last(\r\n            FirstN(\r\n                Table(ParseJSON('LCP-001_Flow_SpvPaginacionComunicados'.Run(\r\n                    Var_GridPageSizeSpvComunicados * (ThisItem.Value - 1),\r\n                    0,\r\n                    Concat(Filter(colQuerysSpvComunicados, mark), query, \" and \"),\r\n                    \"NEXT\"\r\n                ).response)),\r\n                Var_GridPageSizeSpvComunicados * (ThisItem.Value - 1)\r\n            )\r\n        ).Value.ID\r\n    )\r\n);\r\n\r\nSet(\r\n    Var_ResponseSpvComunicados,\r\n\r\n        'LCP-001_Flow_SpvPaginacionComunicados'.Run(\r\n            Var_GridPageSizeSpvComunicados,\r\n            Var_StartIDSpvComunicados,\r\n            Concat(Filter(colQuerysSpvComunicados, mark), query, \" and \"),\r\n            \"NEXT\"\r\n        \r\n    )\r\n);\r\n\r\nSet(\r\n    Var_DataSpvComunicados,\r\n    Table(ParseJSON(Var_ResponseSpvComunicados.response))\r\n);\r\n\r\nClear(objGalleryDataSpvComunicados);\r\nForAll(\r\n    FirstN(Var_DataSpvComunicados, Var_GridPageSizeSpvComunicados),\r\n    Collect(\r\n        objGalleryDataSpvComunicados,\r\n        {\r\n            ID:                 ThisRecord.Value.ID,\r\n            Gerencia:           ThisRecord.Value.Gerencia,        \r\n            Pais:               ThisRecord.Value.Pais,          \r\n            Cabecera:           ThisRecord.Value.Cabecera,    \r\n            Cuerpo:             ThisRecord.Value.Cuerpo,           \r\n            Imagen:             Text(ThisRecord.Value.ImagenBase64),\r\n            URLimagen:          ThisRecord.Value.URLimagen,\r\n            UsuarioCreador:     ThisRecord.Value.UsuarioCreador, \r\n            FechaCreacion:      ThisRecord.Value.FechaCreacion,\r\n            FechaFin:           ThisRecord.Value.FechaFin,  \r\n            Estado:             ThisRecord.Value.Estado,     \r\n            Creado:             ThisRecord.Value.Creado,      \r\n            FechaInicio:        ThisRecord.Value.FechaInicio,    \r\n            DiaInicio:          ThisRecord.Value.DiaInicio,    \r\n            MesInicio:          ThisRecord.Value.MesInicio,    \r\n            DiaFin:             ThisRecord.Value.DiaFin,     \r\n            MesFin:             ThisRecord.Value.MesFin,     \r\n            EstadoComunicado:   ThisRecord.Value.EstadoComunicado,\r\n            Recurrente:         ThisRecord.Value.Recurrente\r\n        }\r\n    )\r\n);\r\n\r\nSet(Var_HasPrevSpvComunicados, ThisItem.Value > 1);\r\nSet(Var_HasNextSpvComunicados, ThisItem.Value < RoundUp(TotalItemSpvComunicados / Max(Var_GridPageSizeSpvComunicados, 1), 0));\r\nSet(Var_CurrentPageSpvComunicados, ThisItem.Value);\r\nUpdateContext({Var_SpvCmcLoadingSpinnerVisible: false});"
+                                                      OnSelect: "=UpdateContext({Var_SpvCmcLoadingSpinnerVisible: true});\r\nSet(\r\n    Var_StartIDSpvComunicados,\r\n    If(\r\n        ThisItem.Value = 1,\r\n        0, // Primera página siempre empieza en 0 para tu flujo\r\n        Last(\r\n            FirstN(\r\n                Table(ParseJSON('LCP-001_Flow_SpvPaginacionComunicados'.Run(\r\n                    Var_GridPageSizeSpvComunicados * (ThisItem.Value - 1),\r\n                    0,\r\n                    Concat(Filter(colQuerysSpvComunicados, mark), query, \" and \"),\r\n                    \"NEXT\"\r\n                ).response)),\r\n                Var_GridPageSizeSpvComunicados * (ThisItem.Value - 1)\r\n            )\r\n        ).Value.ID\r\n    )\r\n);\r\n\r\nSet(\r\n    Var_ResponseSpvComunicados,\r\n\r\n        'LCP-001_Flow_SpvPaginacionComunicados'.Run(\r\n            Var_GridPageSizeSpvComunicados,\r\n            Var_StartIDSpvComunicados,\r\n            Concat(Filter(colQuerysSpvComunicados, mark), query, \" and \"),\r\n            \"NEXT\"\r\n        \r\n    )\r\n);\r\n\r\nSet(\r\n    Var_DataSpvComunicados,\r\n    Table(ParseJSON(Var_ResponseSpvComunicados.response))\r\n);\r\n\r\nClear(objGalleryDataSpvComunicados);\r\nForAll(\r\n    FirstN(Var_DataSpvComunicados, Var_GridPageSizeSpvComunicados),\r\n    Collect(\r\n        objGalleryDataSpvComunicados,\r\n        {\r\n            ID:                 ThisRecord.Value.ID,\r\n            Gerencia:           ThisRecord.Value.Gerencia,        \r\n            Pais:               ThisRecord.Value.Pais,          \r\n            Cabecera:           ThisRecord.Value.Cabecera,    \r\n            Cuerpo:             ThisRecord.Value.Cuerpo,           \r\n            Imagen:             Text(ThisRecord.Value.ImagenBase64),\r\n            URLimagen:          ThisRecord.Value.URLimagen,\r\n            UsuarioCreador:     ThisRecord.Value.UsuarioCreador, \r\n            FechaCreacion:      ThisRecord.Value.FechaCreacion,\r\n            FechaFin:           ThisRecord.Value.FechaFin,  \r\n            Estado:             ThisRecord.Value.Estado,     \r\n            Creado:             ThisRecord.Value.Creado,      \r\n            FechaInicio:        ThisRecord.Value.FechaInicio,    \r\n            DiaInicio:          ThisRecord.Value.DiaInicio,    \r\n            MesInicio:          ThisRecord.Value.MesInicio,    \r\n            DiaFin:             ThisRecord.Value.DiaFin,     \r\n            MesFin:             ThisRecord.Value.MesFin,     \r\n            EstadoComunicado:   ThisRecord.Value.EstadoComunicado,\r\n            Recurrente:         ThisRecord.Value.Recurrente,\r\n            EsVisibleHoy:       ThisRecord.Value.EsVisibleHoy\r\n        }\r\n    )\r\n);\r\n\r\nSet(Var_HasPrevSpvComunicados, ThisItem.Value > 1);\r\nSet(Var_HasNextSpvComunicados, ThisItem.Value < RoundUp(TotalItemSpvComunicados / Max(Var_GridPageSizeSpvComunicados, 1), 0));\r\nSet(Var_CurrentPageSpvComunicados, ThisItem.Value);\r\nUpdateContext({Var_SpvCmcLoadingSpinnerVisible: false});"
                                                       PressedBorderColor: =Self.Fill
                                                       PressedColor: =ColorValue(Var_ColorPressedBoton)
                                                       PressedFill: =Color.Transparent
@@ -1830,7 +1867,8 @@ Screens:
                                                               DiaFin:             ThisRecord.Value.DiaFin,     
                                                               MesFin:             ThisRecord.Value.MesFin,     
                                                               EstadoComunicado:   ThisRecord.Value.EstadoComunicado,
-                                                              Recurrente:         ThisRecord.Value.Recurrente
+                                                              Recurrente:         ThisRecord.Value.Recurrente,
+                                                              EsVisibleHoy:       ThisRecord.Value.EsVisibleHoy
                                                           }
                                                       )
                                                   );
@@ -1900,7 +1938,8 @@ Screens:
                                                               DiaFin:             ThisRecord.Value.DiaFin,     
                                                               MesFin:             ThisRecord.Value.MesFin,     
                                                               EstadoComunicado:   ThisRecord.Value.EstadoComunicado,
-                                                              Recurrente:         ThisRecord.Value.Recurrente
+                                                              Recurrente:         ThisRecord.Value.Recurrente,
+                                                              EsVisibleHoy:       ThisRecord.Value.EsVisibleHoy
                                                           }
                                                       )
                                                   );
@@ -1921,7 +1960,7 @@ Screens:
           ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
           Properties:
             Evento_CerrarNotificacion: =Set(Var_SpvMostrarAlertaComunicacion,false)
-            Height: =40
+            Height: =43
             Input_MostrarOcultarNotificacion: =Var_SpvMostrarAlertaComunicacion
             Input_TextoNotificacion: =Var_SpvMensajeSatisfactorioComunicacion
             Width: =480

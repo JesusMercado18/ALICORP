@@ -337,23 +337,34 @@ ClearCollect(colQuerysSpvTicket;
 );;
 
 ClearCollect(colQuerysSpvComunicados;
-    { input: "ID"; mark: false; query: "" }; { input: "Gerencia"; mark: true; query: "(substringof('" & Var_ProfileUser.Gerencia & "', Gerencia) or Gerencia eq 'Todos' or Gerencia eq null)" };
-    { input: "Pais"; mark: true; query: "(substringof('" & Var_ProfileUser.Pais & "', Pais) or Pais eq 'Todos' or Pais eq null)" }; { input: "Cabecera"; mark: false; query: "" };
-    { input: "Cuerpo"; mark: false; query: "" }; { input: "Imagen"; mark: false; query: "" };
-    { input: "UsuarioCreador"; mark: false; query: "" }; { input: "FechaCreacion"; mark: false; query: "" };
-    { input: "FechaFin"; mark: false; query: "" }; { input: "Estado"; mark: false; query: "" };
-    { input: "Creado"; mark: false; query: "" }; { input: "FechaInicio"; mark: false; query: "" };
-    { input: "DiaInicio"; mark: false; query: "" }; { input: "DiaFin"; mark: false; query: "" };
-    { input: "MesInicio"; mark: false; query: "" }; { input: "MesFin"; mark: false; query: "" };
-    { input: "EstadoComunicado"; mark: false; query: "" }; { input: "Recurrente"; mark: false; query: "" };
+    { input: "ID"; mark: false; query: "" };
+    { input: "Gerencia"; mark: true; query: "(substringof('" & Var_ProfileUser.Gerencia & "', Gerencia) or Gerencia eq 'Todos' or Gerencia eq null)" };
+    { input: "Pais"; mark: true; query: "(substringof('" & Var_ProfileUser.Pais & "', Pais) or Pais eq 'Todos' or Pais eq null)" };
+    { input: "Cabecera"; mark: false; query: "" };
+    { input: "Cuerpo"; mark: false; query: "" };
+    { input: "Imagen"; mark: false; query: "" };
+    { input: "UsuarioCreador"; mark: false; query: "" };
+    { input: "FechaCreacion"; mark: false; query: "" };
+    { input: "FechaFin"; mark: false; query: "" };
+    { input: "Estado"; mark: true; query: "Estado eq 'Vigente'" };
+    { input: "EstadoComunicado"; mark: true; query: "EstadoComunicado eq 'Activo'" };
+    { input: "EsVisibleHoy"; mark: true; query: "EsVisibleHoy eq 1" };
+    { input: "Creado"; mark: false; query: "" };
+    { input: "FechaInicio"; mark: false; query: "" };
+    { input: "DiaInicio"; mark: false; query: "" };
+    { input: "DiaFin"; mark: false; query: "" };
+    { input: "MesInicio"; mark: false; query: "" };
+    { input: "MesFin"; mark: false; query: "" };
+    { input: "Recurrente"; mark: false; query: "" };
     { input: "DatosAdjuntos"; mark: false; query: "" }
 );;
 
 ClearCollect(colQuerysSpvSoluciones;
     { input: "ID"; mark: false; query: "" }; { input: "NombreAdjunto"; mark: false; query: "" };
     { input: "RutaAdjunto"; mark: false; query: "" }; { input: "Estado"; mark: false; query: "" };
-    { input: "Gerencia"; mark: false; query: "" }; { input: "Area"; mark: false; query: "" }; // Nota: Codigo 2 tenía "Torre" aquí, lo dejé genérico o podrías agregar "Torre" si aplica.
-    { input: "Autor"; mark: false; query: "" }
+    { input: "Gerencia"; mark: false; query: "" }; { input: "Area"; mark: false; query: "" };
+    { input: "Autor"; mark: false; query: "" }; { input: "Subarea"; mark: false; query: "" };
+    { input: "Descripcion"; mark: false; query: "" }
 );;
 
 // --- Queries ANALISTA ---
