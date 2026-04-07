@@ -6,6 +6,14 @@ Screens:
       OnVisible: |-
         =UpdateContext({ menuSelected: 2});
         UpdateContext({ Var_Ctx_MostrarItemsCatalogoSpv : false });
+        UpdateContext({
+            Var_Ctx_TicketPopulares: true,
+            Var_Ctx_Gerencias: false,
+            Var_Ctx_Areas: false,
+            Var_Ctx_GerenciaSeleccionada: Blank(),
+            Var_Ctx_AreaSeleccionada: Blank(),
+            ctx_GerenciaExpandida: Blank() // Forzamos el cierre del acordeón de Gerencias
+        });
         Set(Var_GridPageSizeSpvCatalogoServicio, 2);
         Set(Var_CurrentPageSpvCatalogoServicio, 1);
         // Configuración para el motor:
@@ -27,7 +35,8 @@ Screens:
             HoverColor: =RGBA(255, 255, 255, 1)
             HoverFill: =ColorFade(RGBA(56, 96, 178, 1), -20%)
             OnSelect: |-
-              =// 1. Llamada al flujo con variables dinámicas
+              =UpdateContext({Var_SpvCtgLoadingSpinnerVisible: true});
+              // 1. Llamada al flujo con variables dinámicas
               Set(
                   Var_ResponseSpvCatalogoServicio,
                   'LCP-001_Flow_SpvPaginacionCatalogoServicio'.Run(
@@ -82,7 +91,8 @@ Screens:
               Set(
                   Var_HasPrevSpvCatalogoServicio, 
                   Var_CurrentPageSpvCatalogoServicio > 1
-              )
+              );
+              UpdateContext({Var_SpvCtgLoadingSpinnerVisible: false})
             PressedBorderColor: =Self.Fill
             PressedColor: =Self.Fill
             PressedFill: =Self.Color
@@ -154,7 +164,7 @@ Screens:
                         PaddingTop: =8
                         Width: =Parent.Width - SpvCtg_CtnSidebar.Width
                       Children:
-                        - Gbl_Header_2:
+                        - Gbl_HeaderCatalogoServicios:
                             Control: CanvasComponent
                             ComponentName: Gbl_Header
                             ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
@@ -251,7 +261,7 @@ Screens:
                                     PaddingBottom: =3
                                     PaddingLeft: =6
                                     Size: =Var_TituloNavBar
-                                    Text: ="Catálogo"
+                                    Text: ="Catálogo de servicios"
                                     Width: =1152
                                     X: =76
                         - SpvCtg_CtnTituloBuscador:
@@ -459,12 +469,36 @@ Screens:
                                                 HoverColor: =RGBA(0, 0, 0, 1)
                                                 HoverFill: =RGBA(0, 0, 0, 0)
                                                 OnSelect: |-
-                                                  =// OnSelect
-                                                  UpdateContext({
+                                                  =UpdateContext({
                                                       Var_Ctx_TicketPopulares: true,
                                                       Var_Ctx_Gerencias: false,
-                                                      Var_Ctx_Areas: false
-                                                  })
+                                                      Var_Ctx_Areas: false,
+                                                      Var_Ctx_GerenciaSeleccionada: Blank(),
+                                                      Var_Ctx_AreaSeleccionada: Blank(),
+                                                      ctx_GerenciaExpandida: Blank() // Forzamos el cierre del acordeón de Gerencias
+                                                  });
+
+                                                  // Limpiar filtros del OData
+                                                  Patch(
+                                                      colQuerysSpvCatalogoServicio, 
+                                                      LookUp(colQuerysSpvCatalogoServicio, input = "Gerencia"), 
+                                                      {mark: false, query: ""}
+                                                  );
+
+                                                  Patch(
+                                                      colQuerysSpvCatalogoServicio, 
+                                                      LookUp(colQuerysSpvCatalogoServicio, input = "Area"), 
+                                                      {mark: false, query: ""}
+                                                  );
+
+                                                  // Reseteamos el motor de Paginación
+                                                  Set(Var_CurrentPageSpvCatalogoServicio, 1);
+                                                  Set(Var_TargetIDSpvCatalogoServicio, 0);
+                                                  Set(Var_DirectionSpvCatalogoServicio, "NEXT");
+                                                  Set(Var_IsIndividualSpvCatalogoServicio, false);
+
+                                                  // Disparamos la petición al Servidor
+                                                  Select(Spv_BtnMotorPaginacionCatalogoServicio);
                                                 PressedBorderColor: =RGBA(0, 0, 0, 0)
                                                 PressedColor: =RGBA(0, 0, 0, 1)
                                                 PressedFill: =RGBA(0, 0, 0, 0)
@@ -547,10 +581,38 @@ Screens:
                                                       OnSelect: |-
                                                         =UpdateContext({
                                                             Var_Ctx_Areas: true,
-                                                            Var_Ctx_Gerencias: true, // Aseguramos integridad del estado
+                                                            Var_Ctx_Gerencias: true,
                                                             Var_Ctx_TicketPopulares: false,
-                                                            Var_Ctx_AreaSeleccionada: ThisItem.Area // Capturamos el string exacto del área
-                                                        })
+                                                            Var_Ctx_AreaSeleccionada: ThisItem.Area
+                                                        });
+
+                                                        // 1. Actualizamos la colección con los parámetros OData (Gerencia y Área)
+                                                        Patch(
+                                                            colQuerysSpvCatalogoServicio,
+                                                            LookUp(colQuerysSpvCatalogoServicio, input = "Gerencia"),
+                                                            {
+                                                                mark: true,
+                                                                query: "Gerencia eq '" & Var_Ctx_GerenciaSeleccionada & "'"
+                                                            }
+                                                        );
+
+                                                        Patch(
+                                                            colQuerysSpvCatalogoServicio,
+                                                            LookUp(colQuerysSpvCatalogoServicio, input = "Area"),
+                                                            {
+                                                                mark: true,
+                                                                query: "Area eq '" & ThisItem.Area & "'"
+                                                            }
+                                                        );
+
+                                                        // 2. Reseteamos el motor de Paginación
+                                                        Set(Var_CurrentPageSpvCatalogoServicio, 1);
+                                                        Set(Var_TargetIDSpvCatalogoServicio, 0);
+                                                        Set(Var_DirectionSpvCatalogoServicio, "NEXT");
+                                                        Set(Var_IsIndividualSpvCatalogoServicio, false);
+
+                                                        // 3. Disparamos la petición al Servidor
+                                                        Select(Spv_BtnMotorPaginacionCatalogoServicio);
                                                       PaddingBottom: =2
                                                       PaddingTop: =2
                                                       PressedBorderColor: =RGBA(0, 0, 0, 0)
@@ -610,9 +672,20 @@ Screens:
                                                       Var_Ctx_Gerencias: true,
                                                       Var_Ctx_Areas: false,
                                                       Var_Ctx_TicketPopulares: false,
-                                                      Var_Ctx_GerenciaSeleccionada: ThisItem.Nombre, // Capturamos el string exacto
-                                                      Var_Ctx_AreaSeleccionada: Blank() // Limpiamos el área anterior por UX
-                                                  })
+                                                      Var_Ctx_GerenciaSeleccionada: ThisItem.Nombre,
+                                                      Var_Ctx_AreaSeleccionada: Blank()
+                                                  });
+
+                                                  // Aplicar filtro SOLO de Gerencia y limpiar el Área
+                                                  Patch(colQuerysSpvCatalogoServicio, LookUp(colQuerysSpvCatalogoServicio, input = "Gerencia"), {mark: true, query: "Gerencia eq '" & ThisItem.Nombre & "'"});
+                                                  Patch(colQuerysSpvCatalogoServicio, LookUp(colQuerysSpvCatalogoServicio, input = "Area"), {mark: false, query: ""});
+
+                                                  Set(Var_CurrentPageSpvCatalogoServicio, 1);
+                                                  Set(Var_TargetIDSpvCatalogoServicio, 0);
+                                                  Set(Var_DirectionSpvCatalogoServicio, "NEXT");
+                                                  Set(Var_IsIndividualSpvCatalogoServicio, false);
+
+                                                  Select(Spv_BtnMotorPaginacionCatalogoServicio);
                                                 PressedBorderColor: =RGBA(0, 0, 0, 0)
                                                 PressedColor: =RGBA(0, 0, 0, 1)
                                                 PressedFill: =RGBA(0, 0, 0, 0)
@@ -708,7 +781,7 @@ Screens:
                                           PaddingLeft: =8
                                           PaddingRight: =8
                                           PaddingTop: =8
-                                          Visible: =false
+                                          Visible: =If(IsEmpty(objGalleryDataSpvCatalogoServicio),true,false)
                                         Children:
                                           - SpvCtg_ImgSinActvidadCatalogo:
                                               Control: Image@2.2.3
@@ -757,6 +830,7 @@ Screens:
                                           Height: =Parent.Height - SpvCtg_CtnDatosTituloSubTitulo.Height - 12
                                           LayoutMinHeight: =16
                                           LayoutMinWidth: =16
+                                          Visible: =If(IsEmpty(objGalleryDataSpvCatalogoServicio),false,true)
                                         Children:
                                           - Spv_CtnPaginacionCatalogoServicio:
                                               Control: GroupContainer@1.5.0
@@ -952,27 +1026,6 @@ Screens:
                                                             X: =-10
                                                             Y: =-10
                                                           Children:
-                                                            - Image7:
-                                                                Control: Image@2.2.3
-                                                                Properties:
-                                                                  BorderColor: =RGBA(0, 0, 0, 0)
-                                                                  BorderStyle: =BorderStyle.None
-                                                                  BorderThickness: =2
-                                                                  DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                                                                  DisabledFill: =RGBA(0, 0, 0, 0)
-                                                                  FocusedBorderThickness: =4
-                                                                  Height: =20
-                                                                  HoverBorderColor: =RGBA(0, 0, 0, 0)
-                                                                  HoverFill: =RGBA(0, 0, 0, 0)
-                                                                  Image: |-
-                                                                    ="data:image/svg+xml;utf8," & EncodeUrl("<svg width='15' height='11' viewBox='0 0 15 11' fill='none' xmlns='http://www.w3.org/2000/svg'>
-                                                                    <path d='M0 5.08852C0.773771 7.93443 3.94754 10.1902 7.40984 10.1902C10.8852 10.1902 13.9803 7.9082 14.8459 5.08852C13.9803 2.28197 10.8984 0 7.40984 0C3.94754 0 0.773771 2.25574 0 5.08852ZM1.10164 5.08852C1.88852 2.80656 4.47213 1.04918 7.40984 1.04918C10.3607 1.04918 12.8656 2.80656 13.7311 5.08852C12.8656 7.38361 10.3607 9.14098 7.40984 9.14098C4.47213 9.14098 1.88852 7.38361 1.10164 5.08852ZM7.42295 7.76393C8.87869 7.76393 10.0721 6.57049 10.0721 5.10164C10.0721 3.6459 8.87869 2.45246 7.42295 2.45246C5.9541 2.45246 4.76066 3.6459 4.76066 5.10164C4.76066 6.57049 5.9541 7.76393 7.42295 7.76393ZM7.42295 6.71475C6.46557 6.71475 5.80984 6.05902 5.80984 5.10164C5.80984 4.15738 6.46557 3.50164 7.42295 3.50164C8.36721 3.50164 9.02295 4.15738 9.02295 5.10164C9.02295 6.05902 8.36721 6.71475 7.42295 6.71475Z' fill='#E62020'/>
-                                                                    </svg>")
-                                                                  PressedBorderColor: =RGBA(0, 0, 0, 0)
-                                                                  PressedFill: =RGBA(0, 0, 0, 0)
-                                                                  Width: =20
-                                                                  X: =SpvCtg_BtnVerDetalle.X + SpvCtg_BtnVerDetalle.Width - 50
-                                                                  Y: =SpvCtg_BtnVerDetalle.Y + 6
                                                             - SpvCtg_BtnVerDetalle:
                                                                 Control: Classic/Button@2.2.0
                                                                 Properties:
@@ -1006,6 +1059,30 @@ Screens:
                                                                     =//300
                                                                     (Parent.Width/2) - 80
                                                                   Y: =135
+                                                            - Image7:
+                                                                Control: Image@2.2.3
+                                                                Properties:
+                                                                  BorderColor: =RGBA(0, 0, 0, 0)
+                                                                  BorderStyle: =BorderStyle.None
+                                                                  BorderThickness: =2
+                                                                  DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                                                                  DisabledFill: =RGBA(0, 0, 0, 0)
+                                                                  FocusedBorderThickness: =4
+                                                                  Height: =20
+                                                                  HoverBorderColor: =RGBA(0, 0, 0, 0)
+                                                                  HoverFill: =RGBA(0, 0, 0, 0)
+                                                                  Image: |-
+                                                                    ="data:image/svg+xml;utf8," & EncodeUrl(
+                                                                        "<svg width='15' height='11' viewBox='0 0 15 11' fill='none' xmlns='http://www.w3.org/2000/svg'>
+                                                                            <path d='M0 5.08852C0.773771 7.93443 3.94754 10.1902 7.40984 10.1902C10.8852 10.1902 13.9803 7.9082 14.8459 5.08852C13.9803 2.28197 10.8984 0 7.40984 0C3.94754 0 0.773771 2.25574 0 5.08852ZM1.10164 5.08852C1.88852 2.80656 4.47213 1.04918 7.40984 1.04918C10.3607 1.04918 12.8656 2.80656 13.7311 5.08852C12.8656 7.38361 10.3607 9.14098 7.40984 9.14098C4.47213 9.14098 1.88852 7.38361 1.10164 5.08852ZM7.42295 7.76393C8.87869 7.76393 10.0721 6.57049 10.0721 5.10164C10.0721 3.6459 8.87869 2.45246 7.42295 2.45246C5.9541 2.45246 4.76066 3.6459 4.76066 5.10164C4.76066 6.57049 5.9541 7.76393 7.42295 7.76393ZM7.42295 6.71475C6.46557 6.71475 5.80984 6.05902 5.80984 5.10164C5.80984 4.15738 6.46557 3.50164 7.42295 3.50164C8.36721 3.50164 9.02295 4.15738 9.02295 5.10164C9.02295 6.05902 8.36721 6.71475 7.42295 6.71475Z' 
+                                                                            fill='" & If(SpvCtg_BtnVerDetalle.Pressed, "#ffffff", "#E62020") & "'/>
+                                                                        </svg>"
+                                                                    )
+                                                                  PressedBorderColor: =RGBA(0, 0, 0, 0)
+                                                                  PressedFill: =RGBA(0, 0, 0, 0)
+                                                                  Width: =20
+                                                                  X: =SpvCtg_BtnVerDetalle.X + SpvCtg_BtnVerDetalle.Width - 50
+                                                                  Y: =SpvCtg_BtnVerDetalle.Y + 6
                                                             - SpvCtg_LblTipoSolicitud:
                                                                 Control: Label@2.5.1
                                                                 Properties:
@@ -1096,3 +1173,13 @@ Screens:
                                                                   Text: =ThisItem.TipoSolicitud
                                                                   Width: =Parent.Width
                                                                   Y: =10
+      - Gbl_LoadingSpinnerSpvCatalogoServicio:
+          Control: CanvasComponent
+          ComponentName: Gbl_LoadingSpinner
+          ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
+          Properties:
+            Height: =SpvCtg_CtnDatosCompletos.Height
+            Visible: =Var_SpvCtgLoadingSpinnerVisible
+            Width: =SpvCtg_CtnDatosTicket.Width
+            X: =SpvCtg_CtnDatosCompletos.X + 633
+            Y: =SpvCtg_CtnDatosCompletos.Y + 200
