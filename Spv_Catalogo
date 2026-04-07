@@ -375,7 +375,12 @@ Screens:
                                                 HoverColor: =RGBA(0, 0, 0, 1)
                                                 HoverFill: =RGBA(0, 0, 0, 0)
                                                 OnSelect: |-
-                                                  =UpdateContext({Var_Ctx_TicketPopulares: true})
+                                                  =// OnSelect
+                                                  UpdateContext({
+                                                      Var_Ctx_TicketPopulares: true,
+                                                      Var_Ctx_Gerencias: false,
+                                                      Var_Ctx_Areas: false
+                                                  })
                                                 PressedBorderColor: =RGBA(0, 0, 0, 0)
                                                 PressedColor: =RGBA(0, 0, 0, 1)
                                                 PressedFill: =RGBA(0, 0, 0, 0)
@@ -386,7 +391,7 @@ Screens:
                                                 Size: =12
                                                 Text: ="Tickets populares"
                                                 Width: =Parent.Width
-                                    - SpvCtg_GalOtrosFiltrosTicket:
+                                    - SpvCtg_GalFiltrosGerencia:
                                         Control: Gallery@2.15.0
                                         Variant: VariableHeight
                                         Properties:
@@ -401,7 +406,7 @@ Screens:
                                           Width: =Parent.Width - 24
                                           X: =12
                                         Children:
-                                          - SpvCtg_GalSubFiltrosTicket:
+                                          - SpvCtg_GalSubFiltroArea:
                                               Control: Gallery@2.15.0
                                               Variant: Vertical
                                               Properties:
@@ -414,7 +419,7 @@ Screens:
                                                 Items: |-
                                                   =Sort(
                                                       Filter(
-                                                          col_gblGerenciaArea,//colFiltrosTicketChildSpv
+                                                          col_gblGerenciaArea,
                                                           Title = ThisItem.Title
                                                       ),
                                                       ThisRecord.Nombre,
@@ -425,9 +430,9 @@ Screens:
                                                 TemplateSize: =35
                                                 Visible: =ctx_GerenciaExpandida = ThisItem.Nombre
                                                 Width: =Parent.TemplateWidth
-                                                Y: =SpvCtg_BtnTituloGerenciaTicket.Height
+                                                Y: =SpvCtg_BtnTituloGerencia.Height
                                               Children:
-                                                - SpvCtg_IcoExpandirFiltroTicket_1:
+                                                - SpvCtg_IcoExpandirArea:
                                                     Control: Classic/Icon@2.5.0
                                                     Properties:
                                                       BorderColor: =RGBA(0, 18, 107, 1)
@@ -436,8 +441,8 @@ Screens:
                                                       Icon: =Icon.ChevronRight
                                                       OnSelect: =
                                                       Width: =15
-                                                      X: =SpvCtg_BtnTituloGerenciaTicket.Width + 8
-                                                      Y: =(SpvCtg_BtnTituloGerenciaTicket.Height - Self.Height) / 2
+                                                      X: =SpvCtg_BtnTituloGerencia.Width + 8
+                                                      Y: =(SpvCtg_BtnTituloGerencia.Height - Self.Height) / 2
                                                 - SpvCtg_BtnTituloArea:
                                                     Control: Classic/Button@2.2.0
                                                     Properties:
@@ -456,7 +461,11 @@ Screens:
                                                       HoverColor: =RGBA(0, 0, 0, 1)
                                                       HoverFill: =RGBA(0, 0, 0, 0)
                                                       OnSelect: |-
-                                                        =UpdateContext({Var_Ctx_Areas: true})
+                                                        =// OnSelect
+                                                        UpdateContext({
+                                                            Var_Ctx_Areas: true,
+                                                            Var_Ctx_TicketPopulares: false
+                                                        })
                                                       PaddingBottom: =2
                                                       PaddingTop: =2
                                                       PressedBorderColor: =RGBA(0, 0, 0, 0)
@@ -470,7 +479,7 @@ Screens:
                                                       Text: =ThisItem.Area
                                                       Width: =Parent.Width
                                                       X: =8
-                                          - SpvCtg_IcoExpandirFiltroTicket:
+                                          - SpvCtg_IcoExpandirGerencia:
                                               Control: Classic/Icon@2.5.0
                                               Properties:
                                                 BorderColor: =RGBA(0, 18, 107, 1)
@@ -491,9 +500,9 @@ Screens:
                                                       ) 
                                                   })
                                                 Width: =15
-                                                X: =SpvCtg_BtnTituloGerenciaTicket.Width + 8
-                                                Y: =(SpvCtg_BtnTituloGerenciaTicket.Height - Self.Height) / 2
-                                          - SpvCtg_BtnTituloGerenciaTicket:
+                                                X: =SpvCtg_BtnTituloGerencia.Width + 8
+                                                Y: =(SpvCtg_BtnTituloGerencia.Height - Self.Height) / 2
+                                          - SpvCtg_BtnTituloGerencia:
                                               Control: Classic/Button@2.2.0
                                               Properties:
                                                 Align: =Align.Left
@@ -511,8 +520,13 @@ Screens:
                                                 HoverColor: =RGBA(0, 0, 0, 1)
                                                 HoverFill: =RGBA(0, 0, 0, 0)
                                                 OnSelect: |-
-                                                  =Select(SpvCtg_IcoExpandirFiltroTicket);
-                                                  UpdateContext({Var_Ctx_Gerencias: true})
+                                                  =// OnSelect
+                                                  Select(SpvCtg_IcoExpandirGerencia);
+                                                  UpdateContext({
+                                                      Var_Ctx_Gerencias: true,
+                                                      Var_Ctx_Areas: false,
+                                                      Var_Ctx_TicketPopulares: false
+                                                  })
                                                 PressedBorderColor: =RGBA(0, 0, 0, 0)
                                                 PressedColor: =RGBA(0, 0, 0, 1)
                                                 PressedFill: =RGBA(0, 0, 0, 0)
@@ -522,7 +536,7 @@ Screens:
                                                 RadiusTopRight: =0
                                                 Size: =12
                                                 Text: =ThisItem.Nombre
-                                                Width: =Parent.TemplateWidth - SpvCtg_IcoExpandirFiltroTicket.Width - 20
+                                                Width: =Parent.TemplateWidth - SpvCtg_IcoExpandirGerencia.Width - 20
                               - SpvCtg_CtnDatosTicket:
                                   Control: GroupContainer@1.5.0
                                   Variant: AutoLayout
@@ -552,7 +566,7 @@ Screens:
                                           LayoutMinWidth: =16
                                           PaddingLeft: =8
                                         Children:
-                                          - Label13:
+                                          - SpvCtg_LblTituloDato:
                                               Control: Label@2.5.1
                                               Properties:
                                                 AlignInContainer: =AlignInContainer.Stretch
@@ -573,8 +587,8 @@ Screens:
                                                 PaddingRight: =0
                                                 PaddingTop: =0
                                                 Size: =Var_TituloIndicadores
-                                                Text: =If(Var_Ctx_TicketPopulares,"Ticket populares",Var_Ctx_Gerencias,SpvCtg_BtnTituloGerenciaTicket.Text,Var_Ctx_Gerencias && Var_Ctx_Areas,Concatenate(SpvCtg_BtnTituloGerenciaTicket.Text,">",SpvCtg_BtnTituloArea.Text))
-                                          - Label2:
+                                                Text: "=// Propiedad Text de Label13\r\nIf(\r\n    Var_Ctx_TicketPopulares, \r\n    \"Tickets populares\",\r\n    \r\n    // 1. Evaluamos primero si ambas variables son verdaderas (Condición más restrictiva)\r\n    Var_Ctx_Gerencias && Var_Ctx_Areas, \r\n    Concatenate(SpvCtg_BtnTituloGerencia.Text, \" > \", SpvCtg_BtnTituloArea.Text),\r\n    \r\n    // 2. Evaluamos la gerencia sola si el área es falsa\r\n    Var_Ctx_Gerencias, \r\n    SpvCtg_BtnTituloGerencia.Text,\r\n    \r\n    // 3. Valor por defecto si no hay selección (Buena práctica de UX)\r\n    \"Seleccione una categoría\"\r\n)"
+                                          - SpvCtg_LblSubtituloDato:
                                               Control: Label@2.5.1
                                               Properties:
                                                 BorderColor: =RGBA(0, 0, 0, 0)
