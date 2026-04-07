@@ -357,22 +357,33 @@ Screens:
                                           RadiusTopRight: =10
                                           Width: =300
                                         Children:
-                                          - SpvCtg_LblFirst:
-                                              Control: Label@2.5.1
+                                          - SpvCtg_BtnTicketPopulares:
+                                              Control: Classic/Button@2.2.0
                                               Properties:
+                                                Align: =Align.Left
                                                 BorderColor: =RGBA(0, 0, 0, 0)
                                                 BorderStyle: =BorderStyle.None
-                                                BorderThickness: =2
-                                                Color: =RGBA(50, 49, 48, 1)
+                                                Color: =RGBA(0, 0, 0, 1)
                                                 DisabledBorderColor: =RGBA(0, 0, 0, 0)
                                                 DisabledColor: =RGBA(161, 159, 157, 1)
-                                                FocusedBorderThickness: =4
+                                                DisabledFill: =RGBA(0, 0, 0, 0)
+                                                Fill: =RGBA(0, 0, 0, 0)
                                                 Font: =Font.'Open Sans'
+                                                FontWeight: =FontWeight.Normal
                                                 Height: =Parent.Height
-                                                PaddingBottom: =0
-                                                PaddingRight: =0
-                                                PaddingTop: =0
-                                                Size: =Var_TituloIndicadores
+                                                HoverBorderColor: =RGBA(0, 0, 0, 0)
+                                                HoverColor: =RGBA(0, 0, 0, 1)
+                                                HoverFill: =RGBA(0, 0, 0, 0)
+                                                OnSelect: |-
+                                                  =UpdateContext({Var_Ctx_TicketPopulares: true})
+                                                PressedBorderColor: =RGBA(0, 0, 0, 0)
+                                                PressedColor: =RGBA(0, 0, 0, 1)
+                                                PressedFill: =RGBA(0, 0, 0, 0)
+                                                RadiusBottomLeft: =0
+                                                RadiusBottomRight: =0
+                                                RadiusTopLeft: =0
+                                                RadiusTopRight: =0
+                                                Size: =12
                                                 Text: ="Tickets populares"
                                                 Width: =Parent.Width
                                     - SpvCtg_GalOtrosFiltrosTicket:
@@ -384,6 +395,7 @@ Screens:
                                           Height: =Parent.Height - Self.Y - 16
                                           Items: =col_gblGerencia
                                           ShowScrollbar: =false
+                                          TemplateFill: =If(ctx_GerenciaExpandida = ThisItem.Nombre, ColorValue("#F5F5F5"), Color.Transparent)
                                           TemplatePadding: =0
                                           TemplateSize: =130
                                           Width: =Parent.Width - 24
@@ -408,35 +420,56 @@ Screens:
                                                       ThisRecord.Nombre,
                                                       SortOrder.Ascending
                                                   )
+                                                TemplateFill: =If(ThisItem.IsSelected, ColorValue("#F5F5F5"), ColorValue("#FFFFFF"))
                                                 TemplatePadding: =0
                                                 TemplateSize: =35
                                                 Visible: =ctx_GerenciaExpandida = ThisItem.Nombre
                                                 Width: =Parent.TemplateWidth
                                                 Y: =SpvCtg_BtnTituloGerenciaTicket.Height
                                               Children:
-                                                - SpvCtg_LblCustomChk:
-                                                    Control: Label@2.5.1
+                                                - SpvCtg_IcoExpandirFiltroTicket_1:
+                                                    Control: Classic/Icon@2.5.0
                                                     Properties:
-                                                      AutoHeight: =true
                                                       BorderColor: =RGBA(0, 18, 107, 1)
-                                                      BorderThickness: =3
-                                                      Color: =ColorValue(Var_ColorIconNegro)
-                                                      DisplayMode: =DisplayMode.View
-                                                      Fill: =RGBA(255, 255, 255, 1)
+                                                      Color: =RGBA(0, 0, 0, 1)
+                                                      Height: =15
+                                                      Icon: =Icon.ChevronRight
+                                                      OnSelect: =
+                                                      Width: =15
+                                                      X: =SpvCtg_BtnTituloGerenciaTicket.Width + 8
+                                                      Y: =(SpvCtg_BtnTituloGerenciaTicket.Height - Self.Height) / 2
+                                                - SpvCtg_BtnTituloArea:
+                                                    Control: Classic/Button@2.2.0
+                                                    Properties:
+                                                      Align: =Align.Left
+                                                      BorderColor: =RGBA(0, 0, 0, 0)
+                                                      BorderStyle: =BorderStyle.None
+                                                      Color: =RGBA(0, 0, 0, 1)
+                                                      DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                                                      DisabledColor: =RGBA(161, 159, 157, 1)
+                                                      DisabledFill: =RGBA(0, 0, 0, 0)
+                                                      Fill: =RGBA(0, 0, 0, 0)
                                                       Font: =Font.'Open Sans'
-                                                      Height: =Parent.TemplateHeight
-                                                      LineHeight: =1
-                                                      OnSelect: =//Select(Spv_BtnCustomChk_1)
+                                                      FontWeight: =FontWeight.Normal
+                                                      Height: =35
+                                                      HoverBorderColor: =RGBA(0, 0, 0, 0)
+                                                      HoverColor: =RGBA(0, 0, 0, 1)
+                                                      HoverFill: =RGBA(0, 0, 0, 0)
+                                                      OnSelect: |-
+                                                        =UpdateContext({Var_Ctx_Areas: true})
                                                       PaddingBottom: =2
                                                       PaddingTop: =2
-                                                      Size: =10
+                                                      PressedBorderColor: =RGBA(0, 0, 0, 0)
+                                                      PressedColor: =RGBA(0, 0, 0, 1)
+                                                      PressedFill: =RGBA(0, 0, 0, 0)
+                                                      RadiusBottomLeft: =0
+                                                      RadiusBottomRight: =0
+                                                      RadiusTopLeft: =0
+                                                      RadiusTopRight: =0
+                                                      Size: =12
                                                       Text: =ThisItem.Area
-                                                      Tooltip: =Self.Text
-                                                      VerticalAlign: =VerticalAlign.Top
-                                                      Width: =Parent.TemplateWidth - 20
-                                                      Wrap: =false
+                                                      Width: =Parent.Width
                                                       X: =8
-                                                      Y: =(Parent.TemplateHeight - Self.Height) / 2
                                           - SpvCtg_IcoExpandirFiltroTicket:
                                               Control: Classic/Icon@2.5.0
                                               Properties:
@@ -477,7 +510,9 @@ Screens:
                                                 HoverBorderColor: =RGBA(0, 0, 0, 0)
                                                 HoverColor: =RGBA(0, 0, 0, 1)
                                                 HoverFill: =RGBA(0, 0, 0, 0)
-                                                OnSelect: =Select(SpvCtg_IcoExpandirFiltroTicket)
+                                                OnSelect: |-
+                                                  =Select(SpvCtg_IcoExpandirFiltroTicket);
+                                                  UpdateContext({Var_Ctx_Gerencias: true})
                                                 PressedBorderColor: =RGBA(0, 0, 0, 0)
                                                 PressedColor: =RGBA(0, 0, 0, 1)
                                                 PressedFill: =RGBA(0, 0, 0, 0)
@@ -487,7 +522,7 @@ Screens:
                                                 RadiusTopRight: =0
                                                 Size: =12
                                                 Text: =ThisItem.Nombre
-                                                Width: =Parent.TemplateWidth - SpvCtg_IcoExpandirFiltroTicket.Width - 15
+                                                Width: =Parent.TemplateWidth - SpvCtg_IcoExpandirFiltroTicket.Width - 20
                               - SpvCtg_CtnDatosTicket:
                                   Control: GroupContainer@1.5.0
                                   Variant: AutoLayout
@@ -532,13 +567,13 @@ Screens:
                                                 FontWeight: =FontWeight.Bold
                                                 Height: =16
                                                 LayoutMinHeight: =16
-                                                LayoutMinWidth: =16
+                                                LayoutMinWidth: =50
                                                 PaddingBottom: =0
                                                 PaddingLeft: =0
                                                 PaddingRight: =0
                                                 PaddingTop: =0
                                                 Size: =Var_TituloIndicadores
-                                                Text: ="Tickets populares"
+                                                Text: =If(Var_Ctx_TicketPopulares,"Ticket populares",Var_Ctx_Gerencias,SpvCtg_BtnTituloGerenciaTicket.Text,Var_Ctx_Gerencias && Var_Ctx_Areas,Concatenate(SpvCtg_BtnTituloGerenciaTicket.Text,">",SpvCtg_BtnTituloArea.Text))
                                           - Label2:
                                               Control: Label@2.5.1
                                               Properties:
