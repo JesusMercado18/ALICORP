@@ -461,10 +461,11 @@ Screens:
                                                       HoverColor: =RGBA(0, 0, 0, 1)
                                                       HoverFill: =RGBA(0, 0, 0, 0)
                                                       OnSelect: |-
-                                                        =// OnSelect
-                                                        UpdateContext({
+                                                        =UpdateContext({
                                                             Var_Ctx_Areas: true,
-                                                            Var_Ctx_TicketPopulares: false
+                                                            Var_Ctx_Gerencias: true, // Aseguramos integridad del estado
+                                                            Var_Ctx_TicketPopulares: false,
+                                                            Var_Ctx_AreaSeleccionada: ThisItem.Area // Capturamos el string exacto del área
                                                         })
                                                       PaddingBottom: =2
                                                       PaddingTop: =2
@@ -520,12 +521,13 @@ Screens:
                                                 HoverColor: =RGBA(0, 0, 0, 1)
                                                 HoverFill: =RGBA(0, 0, 0, 0)
                                                 OnSelect: |-
-                                                  =// OnSelect
-                                                  Select(SpvCtg_IcoExpandirGerencia);
+                                                  =Select(SpvCtg_IcoExpandirGerencia);
                                                   UpdateContext({
                                                       Var_Ctx_Gerencias: true,
                                                       Var_Ctx_Areas: false,
-                                                      Var_Ctx_TicketPopulares: false
+                                                      Var_Ctx_TicketPopulares: false,
+                                                      Var_Ctx_GerenciaSeleccionada: ThisItem.Nombre, // Capturamos el string exacto
+                                                      Var_Ctx_AreaSeleccionada: Blank() // Limpiamos el área anterior por UX
                                                   })
                                                 PressedBorderColor: =RGBA(0, 0, 0, 0)
                                                 PressedColor: =RGBA(0, 0, 0, 1)
@@ -557,10 +559,9 @@ Screens:
                                         Properties:
                                           DropShadow: =DropShadow.None
                                           FillPortions: =0
-                                          Height: =55
+                                          Height: =60
                                           LayoutAlignItems: =LayoutAlignItems.Stretch
                                           LayoutDirection: =LayoutDirection.Vertical
-                                          LayoutGap: =5
                                           LayoutJustifyContent: =LayoutJustifyContent.Center
                                           LayoutMinHeight: =16
                                           LayoutMinWidth: =16
@@ -579,7 +580,7 @@ Screens:
                                                 FocusedBorderThickness: =4
                                                 Font: =Font.'Open Sans'
                                                 FontWeight: =FontWeight.Bold
-                                                Height: =16
+                                                Height: =20
                                                 LayoutMinHeight: =16
                                                 LayoutMinWidth: =50
                                                 PaddingBottom: =0
@@ -587,7 +588,7 @@ Screens:
                                                 PaddingRight: =0
                                                 PaddingTop: =0
                                                 Size: =Var_TituloIndicadores
-                                                Text: "=// Propiedad Text de Label13\r\nIf(\r\n    Var_Ctx_TicketPopulares, \r\n    \"Tickets populares\",\r\n    \r\n    // 1. Evaluamos primero si ambas variables son verdaderas (Condición más restrictiva)\r\n    Var_Ctx_Gerencias && Var_Ctx_Areas, \r\n    Concatenate(SpvCtg_BtnTituloGerencia.Text, \" > \", SpvCtg_BtnTituloArea.Text),\r\n    \r\n    // 2. Evaluamos la gerencia sola si el área es falsa\r\n    Var_Ctx_Gerencias, \r\n    SpvCtg_BtnTituloGerencia.Text,\r\n    \r\n    // 3. Valor por defecto si no hay selección (Buena práctica de UX)\r\n    \"Seleccione una categoría\"\r\n)"
+                                                Text: "=// Propiedad Text de SpvCtg_LblTituloDato\r\nIf(\r\n    Var_Ctx_TicketPopulares, \r\n    \"Tickets populares\",\r\n    \r\n    // 1. Condición más restrictiva\r\n    Var_Ctx_Gerencias && Var_Ctx_Areas, \r\n    Concatenate(Var_Ctx_GerenciaSeleccionada, \" > \", Var_Ctx_AreaSeleccionada),\r\n    \r\n    // 2. Evaluamos gerencia sola\r\n    Var_Ctx_Gerencias, \r\n    Var_Ctx_GerenciaSeleccionada,\r\n    \r\n    // 3. Estado por defecto (Blank state)\r\n    \"Seleccione una categoría\"\r\n)"
                                           - SpvCtg_LblSubtituloDato:
                                               Control: Label@2.5.1
                                               Properties:
@@ -599,15 +600,15 @@ Screens:
                                                 DisabledColor: =RGBA(161, 159, 157, 1)
                                                 FocusedBorderThickness: =4
                                                 Font: =Font.'Open Sans'
-                                                Height: =16
+                                                Height: =20
                                                 LayoutMinHeight: =16
-                                                LayoutMinWidth: =16
+                                                LayoutMinWidth: =20
                                                 PaddingBottom: =0
                                                 PaddingLeft: =0
                                                 PaddingRight: =0
                                                 PaddingTop: =0
                                                 Size: =12
-                                                Text: ="Revisa nuestra lista de tickets que se generan con mayor frecuencia"
+                                                Text: =If(Var_Ctx_TicketPopulares,"Revisa nuestra lista de tickets que se generan con mayor frecuencia")
                                     - SpvCtg_CtnSinActividad:
                                         Control: GroupContainer@1.5.0
                                         Variant: AutoLayout
