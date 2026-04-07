@@ -6,7 +6,91 @@ Screens:
       OnVisible: |-
         =UpdateContext({ menuSelected: 2});
         UpdateContext({ Var_Ctx_MostrarItemsCatalogoSpv : false });
+        Set(Var_GridPageSizeSpvCatalogoServicio, 2);
+        Set(Var_CurrentPageSpvCatalogoServicio, 1);
+        // Configuración para el motor:
+        Set(Var_TargetIDSpvCatalogoServicio, 0);
+        Set(Var_DirectionSpvCatalogoServicio, "NEXT");
+        Set(Var_IsIndividualSpvCatalogoServicio, false);
+        Select(Spv_BtnMotorPaginacionCatalogoServicio); // <--- Ejecuta la lógica
     Children:
+      - Spv_BtnMotorPaginacionCatalogoServicio:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =ColorFade(Self.Fill, -15%)
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            Fill: =RGBA(56, 96, 178, 1)
+            Font: =Font.'Open Sans'
+            Height: =34
+            HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+            OnSelect: |-
+              =// 1. Llamada al flujo con variables dinámicas
+              Set(
+                  Var_ResponseSpvCatalogoServicio,
+                  'LCP-001_Flow_SpvPaginacionCatalogoServicio'.Run(
+                      If(Var_IsIndividualSpvCatalogoServicio, Text(varTotalRegistrosCatalogoServicio), Text(Var_GridPageSizeSpvCatalogoServicio)),
+                      Text(Var_TargetIDSpvCatalogoServicio),
+                      Concat(Filter(colQuerysSpvCatalogoServicio, mark), query, " and "),
+                      Var_DirectionSpvCatalogoServicio
+                  )
+              );
+
+              // 2. Procesar respuesta
+              Set(Var_DataSpvCatalogoServicio, Table(ParseJSON(Var_ResponseSpvCatalogoServicio.response)));
+              Set(TotalItemSpvCatalogoServicio, Value(ParseJSON(Var_ResponseSpvCatalogoServicio.totalitems)));
+
+              // 3. Limpiar y Mapear (Una sola vez en toda la App)
+              Clear(objGalleryDataSpvCatalogoServicio);
+              ForAll(
+                  // Si es paginación individual usamos LastN; si no; FirstN
+                  If(Var_IsIndividualSpvCatalogoServicio,
+                      LastN(FirstN(Var_DataSpvCatalogoServicio, varTotalRegistrosCatalogoServicio), Min(Var_GridPageSizeSpvCatalogoServicio, CountRows(Var_DataSpvCatalogoServicio) - (Var_GridPageSizeSpvCatalogoServicio * (Var_CurrentPageSpvCatalogoServicio - 1)))),
+                      FirstN(Var_DataSpvCatalogoServicio, Var_GridPageSizeSpvCatalogoServicio)
+                  ),
+                  Collect(
+                      objGalleryDataSpvCatalogoServicio,
+                      {
+                          ID: Value(ThisRecord.Value.ID),
+                          Gerencia: Text(ThisRecord.Value.Gerencia),
+                          Area: Text(ThisRecord.Value.Area),
+                          SubArea: Text(ThisRecord.Value.SubArea),
+                          Prioridad: Text(ThisRecord.Value.Prioridad),
+                          Pais: Text(ThisRecord.Value.Pais),
+                          AnalistaRol: Text(ThisRecord.Value.AnalistaRol),
+                          Sociedad: Text(ThisRecord.Value.Sociedad),
+                          Aprobacion: Text(ThisRecord.Value.Aprobacion),    
+                          SLA: Value(ThisRecord.Value.SLA),
+                          Estado: Text(ThisRecord.Value.EstadoActual),
+                          Descripcion: Text(ThisRecord.Value.Descripcion),
+                          VistoBueno: Text(ThisRecord.Value.VistoBueno),
+                          CamposAdicionalesTicket: Text(ThisRecord.Value.CamposAdicionalesTicket),
+                          Codigo: Text(ThisRecord.Value.Codigo),
+                          TipoSolicitud: Text(ThisRecord.Value.TipoSolicitud),
+                          CabeceraPaisSociedad: Text(ThisRecord.Value.CabeceraPaisSociedad)
+                      }
+                  )
+              );
+
+              // 4. Actualizar estados de navegación
+              Set(
+                  Var_HasNextSpvCatalogoServicio, 
+                  (Var_CurrentPageSpvCatalogoServicio * Var_GridPageSizeSpvCatalogoServicio) < TotalItemSpvCatalogoServicio
+              );
+              Set(
+                  Var_HasPrevSpvCatalogoServicio, 
+                  Var_CurrentPageSpvCatalogoServicio > 1
+              )
+            PressedBorderColor: =Self.Fill
+            PressedColor: =Self.Fill
+            PressedFill: =Self.Color
+            Text: ="+"
+            Visible: =false
+            Width: =30
+            X: =20
+            Y: =20
       - SpvCtg_ScreenContainer:
           Control: GroupContainer@1.5.0
           Variant: AutoLayout
@@ -41,13 +125,13 @@ Screens:
                         LayoutMinWidth: =16
                         Width: =If(Var_OpenMenu,250,100)
                       Children:
-                        - Gbl_Menu_6:
+                        - Gbl_Menu_Spv_CatalogoServicio:
                             Control: CanvasComponent
                             ComponentName: Gbl_Menu
                             ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
                             Properties:
                               Height: =768
-                              Width: =If(Gbl_Menu_6.verMenu,250,70)
+                              Width: =If(Gbl_Menu_Spv_CatalogoServicio.verMenu,250,70)
                               WidthMenu: =Parent.Width
                               displayNameUser: =User().FullName
                               itemsMenu: =colMenuSpv
@@ -367,7 +451,7 @@ Screens:
                                                 DisabledBorderColor: =RGBA(0, 0, 0, 0)
                                                 DisabledColor: =RGBA(161, 159, 157, 1)
                                                 DisabledFill: =RGBA(0, 0, 0, 0)
-                                                Fill: =RGBA(0, 0, 0, 0)
+                                                Fill: =If(Var_Ctx_TicketPopulares, ColorValue("#F5F5F5"), Color.Transparent)
                                                 Font: =Font.'Open Sans'
                                                 FontWeight: =FontWeight.Normal
                                                 Height: =Parent.Height
@@ -624,6 +708,7 @@ Screens:
                                           PaddingLeft: =8
                                           PaddingRight: =8
                                           PaddingTop: =8
+                                          Visible: =false
                                         Children:
                                           - SpvCtg_ImgSinActvidadCatalogo:
                                               Control: Image@2.2.3
@@ -663,3 +748,378 @@ Screens:
                                                 Text: ="Aún no tienes actividades"
                                                 Width: =235
                                                 Wrap: =false
+                                    - SpvCtg_CtnDatosCompletos:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: ManualLayout
+                                        Properties:
+                                          DropShadow: =DropShadow.None
+                                          FillPortions: =0
+                                          Height: =Parent.Height - SpvCtg_CtnDatosTituloSubTitulo.Height - 12
+                                          LayoutMinHeight: =16
+                                          LayoutMinWidth: =16
+                                        Children:
+                                          - Spv_CtnPaginacionCatalogoServicio:
+                                              Control: GroupContainer@1.5.0
+                                              Variant: ManualLayout
+                                              Properties:
+                                                DropShadow: =DropShadow.None
+                                                Height: =50
+                                                Width: =Parent.Width
+                                                Y: =SpvCtg_CtnTablaCatalogoServicio.Height
+                                              Children:
+                                                - Spv_GalItemsPaginacionTicket_1:
+                                                    Control: Gallery@2.15.0
+                                                    Variant: Horizontal
+                                                    Properties:
+                                                      BorderColor: =RGBA(0, 18, 107, 1)
+                                                      Height: =50
+                                                      Items: |-
+                                                        =//Sequence(RoundUp(TotalItemSpv/Var_GridPageSizeSpv; 0); 1)
+                                                        If(
+                                                            !IsBlank(TotalItemSpvCatalogoServicio) && Var_GridPageSizeSpvCatalogoServicio > 0,
+                                                            Sequence(RoundUp(TotalItemSpvCatalogoServicio / Var_GridPageSizeSpvCatalogoServicio, 0), 1),
+                                                            [1] // Devuelve una secuencia de una sola página mientras carga
+                                                        )
+                                                      ShowScrollbar: =false
+                                                      TemplateSize: =30
+                                                      Width: |
+                                                        =With(
+                                                            {
+                                                                totalPages: RoundUp(TotalItemSpv / Var_GridPageSizeSpv, 0),
+                                                                maxVisible: 15,
+                                                                itemWidth: Self.TemplateWidth + Self.TemplatePadding
+                                                            },
+                                                            If(
+                                                                totalPages <= maxVisible,
+                                                                totalPages * itemWidth + itemWidth, // margen extra
+                                                                maxVisible * itemWidth
+                                                            )
+                                                        )
+                                                      X: =(Spv_CtnPaginacionCatalogoServicio.Width - Self.Width) / 2
+                                                    Children:
+                                                      - Spv_CtnFocusPaginaTicket_1:
+                                                          Control: GroupContainer@1.5.0
+                                                          Variant: ManualLayout
+                                                          Properties:
+                                                            DropShadow: =DropShadow.None
+                                                            Height: =6
+                                                            Width: =Parent.TemplateWidth
+                                                            Y: =34
+                                                          Children:
+                                                            - Spv_LblFocusPaginaTicket_1:
+                                                                Control: Label@2.5.1
+                                                                Properties:
+                                                                  Align: =Align.Center
+                                                                  BorderColor: =RGBA(0, 18, 107, 1)
+                                                                  Fill: =If(ThisItem.Value = Var_CurrentPageSpvCatalogoServicio,ColorValue(Var_ColorBoton), Color.Transparent)
+                                                                  Font: =Font.'Open Sans'
+                                                                  Height: =6
+                                                                  OnSelect: =
+                                                                  Text: =
+                                                                  Width: =Parent.Width
+                                                      - Spv_BtnSeleccionarPaginaTicket_1:
+                                                          Control: Classic/Button@2.2.0
+                                                          Properties:
+                                                            BorderColor: =ColorFade(Self.Fill, -15%)
+                                                            Color: |-
+                                                              =If(
+                                                                  ThisItem.Value = Var_CurrentPageSpvCatalogoServicio,
+                                                                  ColorValue(Var_ColorIconNegro),
+                                                                  ColorValue(Var_ColorGray)
+                                                              )
+                                                            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                                                            Fill: =RGBA(0, 0, 0, 0)
+                                                            Font: =Font.'Open Sans'
+                                                            FontWeight: |
+                                                              =If(
+                                                                  ThisItem.Value = Var_CurrentPageSpvCatalogoServicio,
+                                                                  FontWeight.Semibold,
+                                                                  FontWeight.Normal
+                                                              )
+                                                            Height: =32
+                                                            HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                                                            HoverColor: =ColorValue(Var_ColorBoton)
+                                                            HoverFill: =Color.Transparent
+                                                            OnSelect: |-
+                                                              =Set(Var_CurrentPageSpvCatalogoServicio, ThisItem.Value);
+                                                              UpdateContext({varTotalRegistrosCatalogoServicio: Var_GridPageSizeSpvCatalogoServicio * ThisItem.Value});
+                                                              Set(Var_TargetIDSpvCatalogoServicio, 0);
+                                                              Set(Var_DirectionSpvCatalogoServicio, "NEXT");
+                                                              Set(Var_IsIndividualSpvCatalogoServicio, true);
+                                                              Select(Spv_BtnMotorPaginacionCatalogoServicio);
+                                                            PressedBorderColor: =Self.Fill
+                                                            PressedColor: =ColorValue(Var_ColorPressedBoton)
+                                                            PressedFill: =Color.Transparent
+                                                            Size: =12
+                                                            Text: =ThisItem.Value
+                                                            Width: =Parent.TemplateWidth
+                                                - Spv_BtnSAnteriorTicket_1:
+                                                    Control: Button@0.0.45
+                                                    Properties:
+                                                      Appearance: ='ButtonCanvas.Appearance'.Outline
+                                                      BorderStyle: =BorderStyle.None
+                                                      DisplayMode: =If(Var_HasPrevSpvCatalogoServicio, DisplayMode.Edit, DisplayMode.Disabled)
+                                                      FontColor: =ColorValue(Var_ColorBoton)
+                                                      Icon: ="ChevronLeft"
+                                                      OnSelect: |-
+                                                        =Set(Var_TargetIDSpvCatalogoServicio, Max(Spv_GalItemsCatalogoServicio.AllItems, ID));
+                                                        Set(Var_DirectionSpvCatalogoServicio, "PREV");
+                                                        Set(Var_IsIndividualSpvCatalogoServicio, false);
+                                                        Set(Var_CurrentPageSpvCatalogoServicio, Var_CurrentPageSpvCatalogoServicio - 1);
+                                                        Select(Spv_BtnMotorPaginacionCatalogoServicio);
+                                                      Text: ="Anterior"
+                                                      Y: =9
+                                                - Spv_BtnSiguienteTicket_1:
+                                                    Control: Button@0.0.45
+                                                    Properties:
+                                                      Appearance: ='ButtonCanvas.Appearance'.Outline
+                                                      BorderStyle: =BorderStyle.None
+                                                      DisplayMode: |-
+                                                        =If(
+                                                            Var_HasNextSpv,
+                                                            DisplayMode.Edit,
+                                                            DisplayMode.Disabled
+                                                        )
+                                                      FontColor: =ColorValue(Var_ColorBoton)
+                                                      Icon: ="ChevronRight"
+                                                      Layout: ='ButtonCanvas.Layout'.IconAfter
+                                                      OnSelect: |-
+                                                        =Set(Var_TargetIDSpvCatalogoServicio, Min(Spv_GalItemsCatalogoServicio.AllItems, ID));
+                                                        Set(Var_DirectionSpvCatalogoServicio, "NEXT");
+                                                        Set(Var_IsIndividualSpvCatalogoServicio, false);
+                                                        Set(Var_CurrentPageSpvCatalogoServicio, Var_CurrentPageSpvCatalogoServicio + 1);
+                                                        Select(Spv_BtnMotorPaginacionCatalogoServicio);
+                                                      Text: ="Siguiente"
+                                                      X: |-
+                                                        =Spv_CtnPaginacionCatalogoServicio.Width
+                                                        - Self.Width
+                                                        - Spv_CtnPaginacionCatalogoServicio.PaddingRight
+                                                      Y: =9
+                                          - SpvCtg_CtnTablaCatalogoServicio:
+                                              Control: GroupContainer@1.5.0
+                                              Variant: AutoLayout
+                                              Properties:
+                                                DropShadow: =DropShadow.None
+                                                Height: =Parent.Height - Spv_CtnPaginacionCatalogoServicio.Height
+                                                LayoutAlignItems: =LayoutAlignItems.Stretch
+                                                LayoutDirection: =LayoutDirection.Vertical
+                                                LayoutGap: =5
+                                                LayoutOverflowX: =LayoutOverflow.Scroll
+                                                Width: |-
+                                                  =Parent.Width
+                                                  //If(Gbl_Menu_Spv_2.viewMenu;Parent.Width ;Parent.Width)
+                                              Children:
+                                                - Spv_GalItemsCatalogoServicio:
+                                                    Control: Gallery@2.15.0
+                                                    Variant: VariableHeight
+                                                    Properties:
+                                                      AlignInContainer: =AlignInContainer.SetByContainer
+                                                      BorderColor: =RGBA(0, 18, 107, 1)
+                                                      FillPortions: =0
+                                                      Height: |-
+                                                        =With(
+                                                            {
+                                                                filas: CountRows(Spv_GalItemsCatalogoServicio.AllItems)
+                                                            },
+                                                            If(
+                                                                filas < 3,
+                                                                5 * Self.TemplateHeight , // height fijo cuando hay menos de 3
+                                                                filas * Self.TemplateHeight + 35 // cálculo normal
+                                                            )
+                                                        ) + Parent.Height - 230
+                                                      Items: =Sort(objGalleryDataSpvCatalogoServicio,Value(ThisRecord.ID), SortOrder.Descending)
+                                                      LayoutMinHeight: =16
+                                                      LayoutMinWidth: =If(Gbl_Menu_Spv_CatalogoServicio.verMenu,Parent.Width ,Parent.Width)
+                                                      OnSelect: |-
+                                                        =Set(Var_SpvTicketSeleccionada,ThisItem);
+
+
+                                                        ClearCollect(
+                                                            colFeriados,
+                                                            AddColumns(
+                                                                Filter(
+                                                                    'LCP-001_List_CalendarioFestivo',
+                                                                    Pais = ThisItem.SolicitantePais && Sociedad = ThisItem.SolicitanteSociedad
+                                                                ),
+                                                                FechaCompleta,
+                                                                If(
+                                                                    Len(FechaFestiva) = 10,
+                                                                    DateValue(FechaFestiva),
+                                                                    Date(
+                                                                        Year(Now()),
+                                                                        Value(Mid(FechaFestiva,4,2)),
+                                                                        Value(Left(FechaFestiva,2))
+                                                                    )
+                                                                )
+                                                            )
+                                                        );
+                                                        // dias que ingresa el analista
+
+
+                                                        Navigate(Spv_DetalleTicket)
+                                                      ShowScrollbar: =false
+                                                      TemplatePadding: =20
+                                                      TemplateSize: =45
+                                                      Width: =Parent.Width
+                                                    Children:
+                                                      - Container12:
+                                                          Control: GroupContainer@1.5.0
+                                                          Variant: ManualLayout
+                                                          Properties:
+                                                            Height: =180
+                                                            PaddingBottom: =5
+                                                            PaddingLeft: =5
+                                                            PaddingRight: =5
+                                                            PaddingTop: =5
+                                                            RadiusBottomLeft: =8
+                                                            RadiusBottomRight: =8
+                                                            RadiusTopLeft: =8
+                                                            RadiusTopRight: =8
+                                                            Width: =Spv_GalItemsCatalogoServicio.Width - 20
+                                                            X: =-10
+                                                            Y: =-10
+                                                          Children:
+                                                            - Image7:
+                                                                Control: Image@2.2.3
+                                                                Properties:
+                                                                  BorderColor: =RGBA(0, 0, 0, 0)
+                                                                  BorderStyle: =BorderStyle.None
+                                                                  BorderThickness: =2
+                                                                  DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                                                                  DisabledFill: =RGBA(0, 0, 0, 0)
+                                                                  FocusedBorderThickness: =4
+                                                                  Height: =20
+                                                                  HoverBorderColor: =RGBA(0, 0, 0, 0)
+                                                                  HoverFill: =RGBA(0, 0, 0, 0)
+                                                                  Image: |-
+                                                                    ="data:image/svg+xml;utf8," & EncodeUrl("<svg width='15' height='11' viewBox='0 0 15 11' fill='none' xmlns='http://www.w3.org/2000/svg'>
+                                                                    <path d='M0 5.08852C0.773771 7.93443 3.94754 10.1902 7.40984 10.1902C10.8852 10.1902 13.9803 7.9082 14.8459 5.08852C13.9803 2.28197 10.8984 0 7.40984 0C3.94754 0 0.773771 2.25574 0 5.08852ZM1.10164 5.08852C1.88852 2.80656 4.47213 1.04918 7.40984 1.04918C10.3607 1.04918 12.8656 2.80656 13.7311 5.08852C12.8656 7.38361 10.3607 9.14098 7.40984 9.14098C4.47213 9.14098 1.88852 7.38361 1.10164 5.08852ZM7.42295 7.76393C8.87869 7.76393 10.0721 6.57049 10.0721 5.10164C10.0721 3.6459 8.87869 2.45246 7.42295 2.45246C5.9541 2.45246 4.76066 3.6459 4.76066 5.10164C4.76066 6.57049 5.9541 7.76393 7.42295 7.76393ZM7.42295 6.71475C6.46557 6.71475 5.80984 6.05902 5.80984 5.10164C5.80984 4.15738 6.46557 3.50164 7.42295 3.50164C8.36721 3.50164 9.02295 4.15738 9.02295 5.10164C9.02295 6.05902 8.36721 6.71475 7.42295 6.71475Z' fill='#E62020'/>
+                                                                    </svg>")
+                                                                  PressedBorderColor: =RGBA(0, 0, 0, 0)
+                                                                  PressedFill: =RGBA(0, 0, 0, 0)
+                                                                  Width: =20
+                                                                  X: =SpvCtg_BtnVerDetalle.X + SpvCtg_BtnVerDetalle.Width - 50
+                                                                  Y: =SpvCtg_BtnVerDetalle.Y + 6
+                                                            - SpvCtg_BtnVerDetalle:
+                                                                Control: Classic/Button@2.2.0
+                                                                Properties:
+                                                                  Align: =Align.Left
+                                                                  BorderColor: =Color.Transparent
+                                                                  BorderThickness: =1
+                                                                  Color: =ColorValue(Var_ColorBoton)
+                                                                  DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                                                                  Fill: =RGBA(0, 0, 0, 0)
+                                                                  Font: =Font.'Open Sans'
+                                                                  Height: =30
+                                                                  HoverBorderColor: =ColorValue(Var_ColorBoton)
+                                                                  HoverColor: =ColorValue(Var_ColorBoton)
+                                                                  HoverFill: =Color.Transparent
+                                                                  OnSelect: =
+                                                                  PaddingBottom: =0
+                                                                  PaddingLeft: =40
+                                                                  PaddingRight: =0
+                                                                  PaddingTop: =0
+                                                                  PressedBorderColor: =ColorValue(Var_ColorHoverBoton)
+                                                                  PressedColor: =RGBA(255, 255, 255, 1)
+                                                                  PressedFill: =ColorValue(Var_ColorHoverBoton)
+                                                                  RadiusBottomLeft: =8
+                                                                  RadiusBottomRight: =8
+                                                                  RadiusTopLeft: =8
+                                                                  RadiusTopRight: =8
+                                                                  Size: =Var_TituloIndicadores
+                                                                  Text: ="Ver detalle"
+                                                                  Width: =180
+                                                                  X: |-
+                                                                    =//300
+                                                                    (Parent.Width/2) - 80
+                                                                  Y: =135
+                                                            - SpvCtg_LblTipoSolicitud:
+                                                                Control: Label@2.5.1
+                                                                Properties:
+                                                                  BorderColor: =RGBA(0, 0, 0, 0)
+                                                                  BorderStyle: =BorderStyle.None
+                                                                  BorderThickness: =2
+                                                                  Color: =RGBA(50, 49, 48, 1)
+                                                                  DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                                                                  DisabledColor: =RGBA(161, 159, 157, 1)
+                                                                  FocusedBorderThickness: =4
+                                                                  Font: =Font.'Open Sans'
+                                                                  Height: =20
+                                                                  PaddingLeft: =15
+                                                                  Size: =12
+                                                                  Text: |-
+                                                                    ="Tipo solicitud:      "&ThisItem.TipoSolicitud
+                                                                  Width: =Parent.Width
+                                                                  Y: =110
+                                                            - SpvCtg_LblSubarea:
+                                                                Control: Label@2.5.1
+                                                                Properties:
+                                                                  BorderColor: =RGBA(0, 0, 0, 0)
+                                                                  BorderStyle: =BorderStyle.None
+                                                                  BorderThickness: =2
+                                                                  Color: =RGBA(50, 49, 48, 1)
+                                                                  DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                                                                  DisabledColor: =RGBA(161, 159, 157, 1)
+                                                                  FocusedBorderThickness: =4
+                                                                  Font: =Font.'Open Sans'
+                                                                  Height: =20
+                                                                  PaddingLeft: =15
+                                                                  Size: =12
+                                                                  Text: |-
+                                                                    ="Subárea:               "&ThisItem.SubArea
+                                                                  Width: =Parent.Width
+                                                                  Y: =85
+                                                            - SpvCtg_LblArea:
+                                                                Control: Label@2.5.1
+                                                                Properties:
+                                                                  BorderColor: =RGBA(0, 0, 0, 0)
+                                                                  BorderStyle: =BorderStyle.None
+                                                                  BorderThickness: =2
+                                                                  Color: =RGBA(50, 49, 48, 1)
+                                                                  DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                                                                  DisabledColor: =RGBA(161, 159, 157, 1)
+                                                                  FocusedBorderThickness: =4
+                                                                  Font: =Font.'Open Sans'
+                                                                  Height: =20
+                                                                  PaddingLeft: =15
+                                                                  Size: =12
+                                                                  Text: |-
+                                                                    ="Área:                      "&ThisItem.Area
+                                                                  Width: =Parent.Width
+                                                                  Y: =60
+                                                            - SpvCtg_LblGerencia:
+                                                                Control: Label@2.5.1
+                                                                Properties:
+                                                                  BorderColor: =RGBA(0, 0, 0, 0)
+                                                                  BorderStyle: =BorderStyle.None
+                                                                  BorderThickness: =2
+                                                                  Color: =RGBA(50, 49, 48, 1)
+                                                                  DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                                                                  DisabledColor: =RGBA(161, 159, 157, 1)
+                                                                  FocusedBorderThickness: =4
+                                                                  Font: =Font.'Open Sans'
+                                                                  Height: =20
+                                                                  PaddingLeft: =15
+                                                                  Size: =12
+                                                                  Text: |-
+                                                                    ="Gerencia:              "&ThisItem.Gerencia
+                                                                  Width: =Parent.Width
+                                                                  Y: =35
+                                                            - SpvCtg_LblTituloTipoSolicitud:
+                                                                Control: Label@2.5.1
+                                                                Properties:
+                                                                  BorderColor: =RGBA(0, 0, 0, 0)
+                                                                  BorderStyle: =BorderStyle.None
+                                                                  BorderThickness: =2
+                                                                  Color: =RGBA(50, 49, 48, 1)
+                                                                  DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                                                                  DisabledColor: =RGBA(161, 159, 157, 1)
+                                                                  FocusedBorderThickness: =4
+                                                                  Font: =Font.'Open Sans'
+                                                                  FontWeight: =FontWeight.Bold
+                                                                  Height: =20
+                                                                  PaddingLeft: =15
+                                                                  Size: =Var_TituloIndicadores
+                                                                  Text: =ThisItem.TipoSolicitud
+                                                                  Width: =Parent.Width
+                                                                  Y: =10

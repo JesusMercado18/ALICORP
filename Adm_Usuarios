@@ -820,6 +820,7 @@ Screens:
                                                             - AdmUsr_LblInfoRol:
                                                                 Control: Label@2.5.1
                                                                 Properties:
+                                                                  Font: =Font.'Open Sans'
                                                                   Size: =Var_FontSizeCuerpoTable
                                                                   Text: =ThisItem.RolPerfil
                                                                   Width: =Parent.Width
@@ -849,6 +850,7 @@ Screens:
                                                             - AdmUsr_LblGerencia:
                                                                 Control: Label@2.5.1
                                                                 Properties:
+                                                                  Font: =Font.'Open Sans'
                                                                   Size: =Var_FontSizeCuerpoTable
                                                                   Text: =ThisItem.Gerencia
                                                                   Width: =Parent.Width

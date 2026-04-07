@@ -3,7 +3,6 @@
 // =========================================================================
 Set(Var_UserProfile; User());;
 Set(Var_OpenMenu; true);;
-Set(Var_ConexionLista; "LCP-001_Site_Ticketing_DEV");;
 Set(Var_JSONTema; {});;
 // Primera consulta al servidor para obtener los estados en una coleccion ClearCollect(colAppEstados; 'LCP-001_List_Estado');;
 
@@ -12,17 +11,16 @@ ClearCollect(colAppEstados; 'LCP-001_List_Estado');;
 // construir un objeto de estados
 
 Set(Var_EstadosApp; {
-
-EstadoCreado: LookUp(colAppEstados;Nombre="Creado").Nombre;
-EstadoEnRevision: LookUp(colAppEstados;Nombre="En revisión").Nombre;
-EstadoRechazado: LookUp(colAppEstados;Nombre="Rechazado").Nombre;
-EstadoEnProceso: LookUp(colAppEstados;Nombre="En proceso").Nombre;
-EstadoObservado: LookUp(colAppEstados;Nombre="Observado").Nombre;
-EstadoDerivado: LookUp(colAppEstados;Nombre="Derivado").Nombre;
-EstadoEnEsperaAprobacion: LookUp(colAppEstados;Nombre="En espera de aprobación").Nombre;
-EstadoResuelto: LookUp(colAppEstados;Nombre="Resuelto").Nombre;
-EstadoCerrado: LookUp(colAppEstados;Nombre="Cerrado").Nombre;
-EstadoReactivado: "Reactivado"
+    EstadoCreado: LookUp(colAppEstados;Nombre="Creado").Nombre;
+    EstadoEnRevision: LookUp(colAppEstados;Nombre="En revisión").Nombre;
+    EstadoRechazado: LookUp(colAppEstados;Nombre="Rechazado").Nombre;
+    EstadoEnProceso: LookUp(colAppEstados;Nombre="En proceso").Nombre;
+    EstadoObservado: LookUp(colAppEstados;Nombre="Observado").Nombre;
+    EstadoDerivado: LookUp(colAppEstados;Nombre="Derivado").Nombre;
+    EstadoEnEsperaAprobacion: LookUp(colAppEstados;Nombre="En espera de aprobación").Nombre;
+    EstadoResuelto: LookUp(colAppEstados;Nombre="Resuelto").Nombre;
+    EstadoCerrado: LookUp(colAppEstados;Nombre="Cerrado").Nombre;
+    EstadoReactivado: "Reactivado"
 });;
 
 // Operaciones para el log de errores
@@ -204,7 +202,7 @@ Set(Var_RolSistema; LookUp(colRolesUsuario; Rol = "Analista"));;
 // =========================================================================
 // 4. COLECCIONES DE CATÁLOGOS MAESTROS
 // =========================================================================
-ClearCollect(colPrioridades; ["Alta"; "Media"; "Baja"]);;
+ClearCollect(colPrioridades; ["Alto"; "Media"; "Baja"]);;
 ClearCollect(colCategorias; ["Certificados"; "Otros servicios"; "Anulación de comprobantes"; "Auto detracciones"]);;
 ClearCollect(colAreasTicketSpv; Distinct('LCP-001_List_AreaSubArea'; Area));;
 
@@ -218,7 +216,7 @@ ClearCollect(colEstadosSpvTicket; 'LCP-001_List_Estado');;
 // --- Menú Supervisor ---
 ClearCollect(colMenuSpv;
 {Title: "Home";          Id: 1; Pantalla: App.ActiveScreen; Ico: home; child: false; itemsSubChild: Table()};
-{Title: "Catálogo";      Id: 2; Pantalla: App.ActiveScreen; Ico: catalogo; child: false; itemsSubChild: Table()};
+{Title: "Catálogo";      Id: 2; Pantalla: Spv_Catalogo; Ico: catalogo; child: false; itemsSubChild: Table()};
 {Title: "Ticket";        Id: 3; Pantalla: Spv_Ticket; Ico: ticket; child: false; itemsSubChild: Table()};
 {Title: "Configuración"; Id: 4; Pantalla: App.ActiveScreen; Ico: configuracion; child: true; 
         itemsSubChild: [
@@ -291,80 +289,102 @@ ClearCollect(
 // --- Queries ADMINISTRADOR ---
 ClearCollect(
     colQuerysAdmUsuarios;
-    { input: "Codigo";          mark: false; query: "" };
-    { input: "NombreApellido";  mark: false; query: "" };
-    { input: "CorreoUsuario";   mark: false; query: "" };
-    { input: "RolSistema";      mark: false; query: "" };
-    { input: "EstadoSistema";   mark: false; query: "" };
-    { input: "Estado";          mark: false; query: "" };
-    { input: "Gerencia";        mark: false; query: "" };
-    { input: "RolPerfil";       mark: false; query: "" };
-    { input: "Vicepresidencia"; mark: false; query: "" };
-    { input: "Direccion";       mark: false; query: "" };
-    { input: "Area";            mark: false; query: "" };
-    { input: "Pais";            mark: false; query: "" };
-    { input: "Sociedad";        mark: false; query: "" };
+    { input: "Codigo";             mark: false; query: "" };
+    { input: "NombreApellido";     mark: false; query: "" };
+    { input: "CorreoUsuario";      mark: false; query: "" };
+    { input: "RolSistema";         mark: false; query: "" };
+    { input: "EstadoSistema";      mark: false; query: "" };
+    { input: "Estado";             mark: false; query: "" };
+    { input: "Gerencia";           mark: false; query: "" };
+    { input: "RolPerfil";          mark: false; query: "" };
+    { input: "Vicepresidencia";    mark: false; query: "" };
+    { input: "Direccion";          mark: false; query: "" };
+    { input: "Area";               mark: false; query: "" };
+    { input: "Pais";               mark: false; query: "" };
+    { input: "Sociedad";           mark: false; query: "" };
     { input: "NombreJefeDirecto";  mark: false; query: "" };
     { input: "CorreoJefeDirecto";  mark: false; query: "" }
 );;
 
 // --- Queries SUPERVISOR ---
+ClearCollect(colQuerysSpvCatalogoServicio;
+    {input: "ID";                      mark: false; query: "" };
+    {input: "Gerencia";                mark: false; query: "" };
+    {input: "Prioridad";               mark: false; query: "" };
+    {input: "AnalistaRol";             mark: false; query: "" };
+    {input: "Aprobacion";              mark: false; query: "" };
+    {input: "SLA";                     mark: false; query: "" };
+    {input: "Estado";                  mark: false; query: "" };
+    {input: "Descripcion";             mark: false; query: "" };
+    {input: "VistoBueno";              mark: false; query: "" };
+    {input: "CamposAdicionalesTicket"; mark: false; query: "" };
+    {input: "Codigo";                  mark: false; query: "" };
+    {input: "Area";                    mark: false; query: "" };
+    {input: "SubArea";                 mark: false; query: "" };
+    {input: "TipoSolicitud";           mark: false; query: "" };
+    {input: "CabeceraPaisSociedad";    mark: false; query: "" }
+);;
+
 ClearCollect(colQuerysSpvTicket;
-    { input: "ID"; mark: false; query: "" };
-    { input: "Gerencia"; mark: false; query: "" };
-    { input: "Area"; mark: false; query: "" };
-    { input: "Subarea"; mark: false; query: "" };
-    { input: "Pais"; mark: false; query: "" };
-    { input: "Sociedad"; mark: false; query: "" };
-    { input: "Prioridad"; mark: false; query: "" };
-    { input: "AnalistaRol"; mark: false; query: "" };
-    { input: "Aprobacion"; mark: false; query: "" };
-    { input: "SLA"; mark: false; query: "" };
+    { input: "ID";                mark: false; query: "" };
+    { input: "Gerencia";          mark: false; query: "" };
+    { input: "Area";              mark: false; query: "" };
+    { input: "Subarea";           mark: false; query: "" };
+    { input: "Pais";              mark: false; query: "" };
+    { input: "Sociedad";          mark: false; query: "" };
+    { input: "Prioridad";         mark: false; query: "" };
+    { input: "AnalistaRol";       mark: false; query: "" };
+    { input: "Aprobacion";        mark: false; query: "" };
+    { input: "SLA";               mark: false; query: "" };
     { input: "SolicitanteCorreo"; mark: false; query: "" };
     { input: "SolicitanteNombre"; mark: false; query: "" };
-    { input: "SolicitantePais"; mark: false; query: "" };
+    { input: "SolicitantePais";   mark: false; query: "" };
     { input: "NombreAtendidoPor"; mark: false; query: "" };
     { input: "CorreoAtendidoPor"; mark: false; query: "" };
-    { input: "Codigo"; mark: false; query: "" };
+    { input: "Codigo";            mark: false; query: "" };
     { input: "SolicitanteNombre"; mark: false; query: "" };
-    { input: "FechaCreado"; mark: false; query: "" };
-    { input: "Estado"; mark: false; query: "" };
-    { input: "Categoria"; mark: false; query: "" };
-    { input: "Prioridad"; mark: false; query: "" };
-    { input: "AprobadorNombre"; mark: false; query: "" };
+    { input: "FechaCreado";       mark: false; query: "" };
+    { input: "Estado";            mark: false; query: "" };
+    { input: "Categoria";         mark: false; query: "" };
+    { input: "Prioridad";         mark: false; query: "" };
+    { input: "AprobadorNombre";   mark: false; query: "" };
     { input: "TipoRequerimiento"; mark: false; query: "" };
-    { input: "AnalistaCorreo"; mark: true; query: "(AnalistaCorreo eq 'test@alicorp.pe' or SolicitanteCorreo eq 'test@alicorp.pe')"}
+    { input: "AnalistaCorreo";    mark: false; query: "(AnalistaCorreo eq 'test@alicorp.pe' or SolicitanteCorreo eq 'test@alicorp.pe')"}
 );;
 
 ClearCollect(colQuerysSpvComunicados;
-    { input: "ID"; mark: false; query: "" };
-    { input: "Gerencia"; mark: true; query: "(substringof('" & Var_ProfileUser.Gerencia & "', Gerencia) or Gerencia eq 'Todos' or Gerencia eq null)" };
-    { input: "Pais"; mark: true; query: "(substringof('" & Var_ProfileUser.Pais & "', Pais) or Pais eq 'Todos' or Pais eq null)" };
-    { input: "Cabecera"; mark: false; query: "" };
-    { input: "Cuerpo"; mark: false; query: "" };
-    { input: "Imagen"; mark: false; query: "" };
-    { input: "UsuarioCreador"; mark: false; query: "" };
-    { input: "FechaCreacion"; mark: false; query: "" };
-    { input: "FechaFin"; mark: false; query: "" };
-    { input: "Estado"; mark: true; query: "Estado eq 'Vigente'" };
+    { input: "ID";               mark: false; query: "" };
+    { input: "Gerencia";         mark: true; query: "(substringof('" & Var_ProfileUser.Gerencia & "', Gerencia) or Gerencia eq 'Todos' or Gerencia eq null)" };
+    { input: "Pais";             mark: true; query: "(substringof('" & Var_ProfileUser.Pais & "', Pais) or Pais eq 'Todos' or Pais eq null)" };
+    { input: "Cabecera";         mark: false; query: "" };
+    { input: "Cuerpo";           mark: false; query: "" };
+    { input: "Imagen";           mark: false; query: "" };
+    { input: "UsuarioCreador";   mark: false; query: "" };
+    { input: "FechaCreacion";    mark: false; query: "" };
+    { input: "FechaFin";         mark: false; query: "" };
+    { input: "Estado";           mark: true; query: "Estado eq 'Vigente'" };
     { input: "EstadoComunicado"; mark: true; query: "EstadoComunicado eq 'Activo'" };
-    { input: "EsVisibleHoy"; mark: true; query: "EsVisibleHoy eq 1" };
-    { input: "Creado"; mark: false; query: "" };
-    { input: "FechaInicio"; mark: false; query: "" };
-    { input: "DiaInicio"; mark: false; query: "" };
-    { input: "DiaFin"; mark: false; query: "" };
-    { input: "MesInicio"; mark: false; query: "" };
-    { input: "MesFin"; mark: false; query: "" };
-    { input: "Recurrente"; mark: false; query: "" };
-    { input: "DatosAdjuntos"; mark: false; query: "" }
+    { input: "EsVisibleHoy";     mark: true; query: "EsVisibleHoy eq 1" };
+    { input: "Creado";           mark: false; query: "" };
+    { input: "FechaInicio";      mark: false; query: "" };
+    { input: "DiaInicio";        mark: false; query: "" };
+    { input: "DiaFin";           mark: false; query: "" };
+    { input: "MesInicio";        mark: false; query: "" };
+    { input: "MesFin";           mark: false; query: "" };
+    { input: "Recurrente";       mark: false; query: "" };
+    { input: "DatosAdjuntos";    mark: false; query: "" }
 );;
 
 ClearCollect(colQuerysSpvSoluciones;
-    { input: "ID"; mark: false; query: "" }; { input: "NombreAdjunto"; mark: false; query: "" };
-    { input: "RutaAdjunto"; mark: false; query: "" }; { input: "Estado"; mark: false; query: "" };
-    { input: "Gerencia"; mark: false; query: "" }; { input: "Area"; mark: false; query: "" };
-    { input: "Autor"; mark: false; query: "" }; { input: "Subarea"; mark: false; query: "" };
-    { input: "Descripcion"; mark: false; query: "" }
+    { input: "ID";            mark: false; query: "" };
+    { input: "NombreAdjunto"; mark: false; query: "" };
+    { input: "RutaAdjunto";   mark: false; query: "" };
+    { input: "Estado";        mark: false; query: "" };
+    { input: "Gerencia";      mark: false; query: "" };
+    { input: "Area";          mark: false; query: "" };
+    { input: "Autor";         mark: false; query: "" };
+    { input: "Subarea";       mark: false; query: "" };
+    { input: "Descripcion";   mark: false; query: "" }
 );;
 
 // --- Queries ANALISTA ---
