@@ -812,35 +812,47 @@ Screens:
                                                             Icon: =Icon.Cancel
                                                             LayoutMinHeight: =40
                                                             OnSelect: |-
-                                                              =UpdateContext({varRazSpvCmc : true});UpdateContext({varSpvCmcGerenciaSelectec:Blank()});SetFocus(SpvCmc_LblGerenciaSeleccionada);UpdateContext({varRazSpvCmc : false});
-                                                              //Set(Var_CurrentPageSpvComunicados; 1);;
-                                                              UpdateContext({Var_SpvCmcDisplayModeArea: false, varSpvCmcAreaSelected:Blank()})
-                                                              ;
-                                                              IfError(
-                                                                  If(
-                                                                      IsBlank(Trim(SpvCmc_LblGerenciaSeleccionada.Value)),
-                                                                      Patch(
-                                                                          colQuerysSpvComunicados,
-                                                                          {input: "Gerencia"},
-                                                                          {
-                                                                              mark: false,
-                                                                              query: ""
-                                                                          }
-                                                                      ),
-                                                                      Patch(
-                                                                          colQuerysSpvComunicados,
-                                                                          {input: "Gerencia"},
-                                                                          {
-                                                                              mark: true,
-                                                                              query: "substringof('" & SpvCmc_LblGerenciaSeleccionada.Value & "', Gerencia)"
-                                                                          }
-                                                                      )
-                                                                  ),
-                                                                  false,
-                                                                  Select(SpvCmc_BtnRefreshBusquedaGerencia),
-                                                                  false
+                                                              =// 1. Limpieza de UI (Variables de Gerencia)
+                                                              UpdateContext({
+                                                                  varRazSpvCmc: true, 
+                                                                  varSpvCmcGerenciaSelectec: Blank()
+                                                              });
+
+                                                              // 2. Liberar el foco del TextInput
+                                                              SetFocus(SpvCmc_LblGerenciaSeleccionada);
+
+                                                              // 3. Restaurar banderas y limpiar el filtro dependiente (Área)
+                                                              UpdateContext({
+                                                                  varRazSpvCmc: false, 
+                                                                  Var_SpvCmcDisplayModeArea: false, 
+                                                                  varSpvCmcAreaSelected: Blank()
+                                                              });
+
+                                                              // 4. Limpieza explícita del filtro Gerencia y su filtro hijo (Área) en la colección
+                                                              Patch(
+                                                                  colQuerysSpvComunicados, 
+                                                                  LookUp(colQuerysSpvComunicados, input = "Gerencia"), 
+                                                                  { mark: false, query: "" }
                                                               );
-                                                              Select(SpvCmc_IcnBorrarSelArea)
+                                                              Patch(
+                                                                  colQuerysSpvComunicados, 
+                                                                  LookUp(colQuerysSpvComunicados, input = "Area"), 
+                                                                  { mark: false, query: "" }
+                                                              );
+
+                                                              // 5. CONDICIONAL UX: Si el "Estado" y la "Fecha" también están vacíos, reactivamos la vista por defecto
+                                                              If(
+                                                                  IsBlank(varSpvCmcEstadoSelected) And IsBlank(var_RangeDatePicker_DateStart),
+                                                                  Patch(
+                                                                      colQuerysSpvComunicados,
+                                                                      LookUp(colQuerysSpvComunicados, input = "EsVisibleHoy"),
+                                                                      { mark: true }
+                                                                  )
+                                                              );
+
+                                                              // 6. Resetear la paginación a la página 1 y ejecutar flujo
+                                                              Set(Var_CurrentPageSpvComunicados, 1);
+                                                              Select(SpvCmc_BtnRefreshBusquedaGerencia);
                                                             PaddingBottom: =5
                                                             PaddingLeft: =5
                                                             PaddingRight: =5
@@ -1296,32 +1308,32 @@ Screens:
                                                             Icon: =Icon.Cancel
                                                             LayoutMinHeight: =40
                                                             OnSelect: |-
-                                                              =UpdateContext({varRazSpvCmcEstado : true});UpdateContext({varSpvCmcEstadoSelected:Blank()});SetFocus(SpvCmc_LblEstadoSeleccionada);UpdateContext({varRazSpvCmcEstado : false});
-                                                              //Set(Var_CurrentPageSpvComunicados; 1);;
-                                                              IfError(
-                                                                  If(
-                                                                      IsBlank(Trim(SpvCmc_LblEstadoSeleccionada.Value)),
-                                                                      Patch(
-                                                                          colQuerysSpvComunicados,
-                                                                          {input: "Estado"},
-                                                                          {
-                                                                              mark: false,
-                                                                              query: ""
-                                                                          }
-                                                                      ),
-                                                                      Patch(
-                                                                          colQuerysSpvComunicados,
-                                                                          {input: "Estado"},
-                                                                          {
-                                                                              mark: true,
-                                                                              query: "substringof('" & SpvCmc_LblEstadoSeleccionada.Value & "', Estado)"
-                                                                          }
-                                                                      )
-                                                                  ),
-                                                                  false,
-                                                                  Select(SpvCmc_BtnRefreshBusquedaEstado),
-                                                                  false
-                                                              )
+                                                              =UpdateContext({
+                                                                  varRazSpvCmcEstado: true, 
+                                                                  varSpvCmcEstadoSelected: Blank()
+                                                              });
+                                                              SetFocus(SpvCmc_LblEstadoSeleccionada);
+                                                              UpdateContext({varRazSpvCmcEstado: false});
+
+                                                              // 1. Limpiamos el filtro de Estado
+                                                              Patch(
+                                                                  colQuerysSpvComunicados, 
+                                                                  LookUp(colQuerysSpvComunicados, input = "Estado"), 
+                                                                  { mark: false, query: "" }
+                                                              );
+
+                                                              // 2. CONDICIONAL UX: Si la Gerencia y la Fecha también están vacías, reactivar vista por defecto
+                                                              If(
+                                                                  IsBlank(varSpvCmcGerenciaSelectec) And IsBlank(var_RangeDatePicker_DateStart),
+                                                                  Patch(
+                                                                      colQuerysSpvComunicados,
+                                                                      LookUp(colQuerysSpvComunicados, input = "EsVisibleHoy"),
+                                                                      { mark: true }
+                                                                  )
+                                                              );
+
+                                                              Set(Var_CurrentPageSpvComunicados, 1);
+                                                              Select(SpvCmc_BtnRefreshBusquedaEstado);
                                                             PaddingBottom: =5
                                                             PaddingLeft: =5
                                                             PaddingRight: =5
@@ -2004,31 +2016,28 @@ Screens:
                         HoverColor: =ColorValue(Var_ColorGray)
                         HoverFill: =ColorValue(Var_ColorFadeBoton)
                         OnSelect: |-
-                          =UpdateContext({varSpvCmcEstadoSelected : ThisItem , varOpenDropDownSpvCmcEstado: false});
-                          IfError(
-                              If(
-                                  IsBlank(Trim(Self.Text)),
-                                  Patch(
-                                      colQuerysSpvComunicados,
-                                      {input: "Estado"},
-                                      {
-                                          mark: false,
-                                          query: ""
-                                      }
-                                  ),
-                                  Patch(
-                                      colQuerysSpvComunicados,
-                                      {input: "Estado"},
-                                      {
-                                          mark: true,
-                                          query: "substringof('" & Self.Text & "', Estado)"
-                                      }
-                                  )
-                              ),
-                              false,
-                              Select(SpvCmc_BtnRefreshBusquedaEstado),
-                              false
-                          )
+                          =UpdateContext({
+                              varSpvCmcEstadoSelected: ThisItem, 
+                              varOpenDropDownSpvCmcEstado: false
+                          });
+
+                          // 1. Apagamos el filtro silencioso que bloquea los registros históricos/vencidos
+                          Patch(
+                              colQuerysSpvComunicados,
+                              LookUp(colQuerysSpvComunicados, input = "EsVisibleHoy"),
+                              { mark: false }
+                          );
+
+                          // 2. Aplicamos el filtro de estado exacto
+                          If(
+                              IsBlank(Trim(Self.Text)),
+                              Patch(colQuerysSpvComunicados, LookUp(colQuerysSpvComunicados, input = "Estado"), { mark: false, query: "" }),
+                              Patch(colQuerysSpvComunicados, LookUp(colQuerysSpvComunicados, input = "Estado"), { mark: true, query: "Estado eq '" & Self.Text & "'" })
+                          );
+
+                          // 3. Reset y ejecución
+                          Set(Var_CurrentPageSpvComunicados, 1);
+                          Select(SpvCmc_BtnRefreshBusquedaEstado);
                         PressedBorderColor: =Self.Fill
                         PressedColor: =ColorValue(Var_ColorGray)
                         PressedFill: =ColorValue(Var_ColorFadeBoton)
@@ -2142,35 +2151,48 @@ Screens:
                         HoverColor: =ColorValue(Var_ColorGray)
                         HoverFill: =ColorValue(Var_ColorFadeBoton)
                         OnSelect: |-
-                          =UpdateContext({varSpvCmcGerenciaSelectec : ThisItem , varOpenDropDownSpvCmcGerencia: false});
-                          ClearCollect(colUpdateSpvNvCmcAreaComunidado, 
+                          =// 1. Asignar variable local y cerrar dropdown
+                          UpdateContext({
+                              varSpvCmcGerenciaSelectec: ThisItem, 
+                              varOpenDropDownSpvCmcGerencia: false
+                          });
+
+                          // 2. Actualizar las áreas correspondientes a la gerencia
+                          ClearCollect(
+                              colUpdateSpvNvCmcAreaComunidado, 
                               Filter('LCP-001_List_GerenciaArea', Gerencia = ThisItem.Value).Area
                           );
-                          IfError(
-                              If(
-                                  IsBlank(Trim(Self.Text)),
-                                  Patch(
-                                      colQuerysSpvComunicados,
-                                      {input: "Gerencia"},
-                                      {
-                                          mark: false,
-                                          query: ""
-                                      }
-                                  ),
-                                  Patch(
-                                      colQuerysSpvComunicados,
-                                      {input: "Gerencia"},
-                                      {
-                                          mark: true,
-                                          query: "substringof('" & Self.Text & "', Gerencia)"
-                                      }
-                                  )
-                              ),
-                              false,
-                              Select(SpvCmc_BtnRefreshBusquedaGerencia),
-                              false
+
+                          // 3. Apagamos el filtro de EsVisibleHoy (para que permita ver históricos/vencidos si se combina con el filtro de Estado)
+                          Patch(
+                              colQuerysSpvComunicados,
+                              LookUp(colQuerysSpvComunicados, input = "EsVisibleHoy"),
+                              { mark: false }
                           );
-                          UpdateContext({Var_SpvCmcDisplayModeArea: true})
+
+                          // 4. Búsqueda por la Gerencia seleccionada O "Todos"
+                          If(
+                              IsBlank(Trim(Self.Text)),
+                              Patch(
+                                  colQuerysSpvComunicados, 
+                                  LookUp(colQuerysSpvComunicados, input = "Gerencia"), 
+                                  { mark: false, query: "" }
+                              ),
+                              Patch(
+                                  colQuerysSpvComunicados, 
+                                  LookUp(colQuerysSpvComunicados, input = "Gerencia"), 
+                                  { 
+                                      mark: true, 
+                                      // Inyectamos el OR para garantizar que los comunicados globales (Todos) jamás se oculten
+                                      query: "(substringof('" & Self.Text & "', Gerencia) or substringof('Todos', Gerencia))" 
+                                  }
+                              )
+                          );
+
+                          // 5. Habilitar control dependiente, resetear paginación y ejecutar flujo
+                          UpdateContext({Var_SpvCmcDisplayModeArea: true});
+                          Set(Var_CurrentPageSpvComunicados, 1);
+                          Select(SpvCmc_BtnRefreshBusquedaGerencia);
                         PressedBorderColor: =Self.Fill
                         PressedColor: =ColorValue(Var_ColorGray)
                         PressedFill: =ColorValue(Var_ColorFadeBoton)
@@ -2553,50 +2575,40 @@ Screens:
                         HoverColor: =ColorValue(Var_ColorBlanco)
                         HoverFill: =ColorValue(Var_ColorHoverBoton)
                         OnSelect: |-
-                          =UpdateContext(
-                              {
-                                  var_RangeDatePicker_DateStart: var_RangeDatePicker_DateStart_Modify,
-                                  var_RangeDatePicker_DateEnd: var_RangeDatePicker_DateEnd_Modify,
-                                  var_RangeDatePicker:false
-                              }
-                          );
-                          IfError(
-                              // 1. Convertimos las variables a formato ISO estricto para que SharePoint entienda
-                              With(
-                                  {
-                                      _FechaInicio: Text(DateValue(var_RangeDatePicker_DateStart), "yyyy-mm-dd") & "T00:00:00Z",
-                                      _FechaFin: Text(DateValue(var_RangeDatePicker_DateEnd), "yyyy-mm-dd") & "T23:59:59Z"
-                                  },
+                          =// 1. Actualizar contexto de calendario
+                          UpdateContext({
+                              var_RangeDatePicker_DateStart: var_RangeDatePicker_DateStart_Modify,
+                              var_RangeDatePicker_DateEnd: var_RangeDatePicker_DateEnd_Modify,
+                              var_RangeDatePicker: false
+                          });
 
-                                  // 2. Limpiamos filtro anterior (si existe)
-                                  If(
-                                      IsBlank(Trim(Self.Text)), // Asumo que Self.Text valida si se seleccionó algo
-                                       Patch(
-                                          colQuerysSpvComunicados,
-                                          LookUp(colQuerysSpvComunicados, input = "Creado"), // Buscamos el registro correcto
-                                          {
-                                              mark: false,
-                                              query: ""
-                                          }
-                                      ),
-                                      // 3. Aplicamos el NUEVO filtro de Rango
-                                      Patch(
-                                          colQuerysSpvComunicados,
-                                          LookUp(colQuerysSpvComunicados, input = "Creado"), // Buscamos el registro correcto
-                                          {
-                                              mark: true,
-                                              // Construimos la sentencia OData correcta
-                                              // Ejemplo resultante: Created ge datetime'2026-02-01T...' and Created le datetime'2026-02-07T...'
-                                              query: "Created ge datetime'" & _FechaInicio & "' and Created le datetime'" & _FechaFin & "'"
-                                          }
-                                      )
+                          // 2. Construir fechas y evaluar Patch en "Creado"
+                          With(
+                              {
+                                  _FechaInicio: Text(var_RangeDatePicker_DateStart_Modify, "yyyy-mm-dd") & "T00:00:00Z",
+                                  _FechaFin: Text(var_RangeDatePicker_DateEnd_Modify, "yyyy-mm-dd") & "T23:59:59Z"
+                              },
+                              If(
+                                  IsBlank(var_RangeDatePicker_DateStart_Modify),
+                                  Patch(
+                                      colQuerysSpvComunicados,
+                                      LookUp(colQuerysSpvComunicados, input = "Creado"),
+                                      { mark: false, query: "" }
+                                  ),
+                                  Patch(
+                                      colQuerysSpvComunicados,
+                                      LookUp(colQuerysSpvComunicados, input = "Creado"),
+                                      { 
+                                          mark: true, 
+                                          query: "Created ge datetime'" & _FechaInicio & "' and Created le datetime'" & _FechaFin & "'" 
+                                      }
                                   )
-                              ),
-                              false,
-                              // 4. Ejecutamos la búsqueda
-                              Select(SpvCmc_BtnRefreshBusquedaFecha),
-                              false
-                          )
+                              )
+                          );
+
+                          // 3. Resetear paginación y ejecutar flujo
+                          Set(Var_CurrentPageSpvComunicados, 1);
+                          Select(SpvCmc_BtnRefreshBusquedaFecha);
                         PressedBorderColor: =Self.PressedFill
                         PressedColor: =ColorValue(Var_ColorBlanco)
                         PressedFill: =ColorValue(Var_ColorPressedBoton)
@@ -2773,9 +2785,11 @@ Screens:
           ComponentName: Gbl_LoadingSpinner
           ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
           Properties:
-            Height: =767
+            Height: =SpvCmc_GlrComunicacion.Height
             Visible: =Var_SpvCmcLoadingSpinnerVisible
-            Width: =1366
+            Width: =SpvCmc_GlrComunicacion.Width
+            X: =SpvCmc_GlrComunicacion.X + 270
+            Y: =SpvCmc_GlrComunicacion.Y + 170
       - SpvCmc_TimerMensajeAlertaComunicado:
           Control: Timer@2.1.0
           Properties:
