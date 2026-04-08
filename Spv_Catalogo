@@ -359,7 +359,7 @@ Screens:
                                   Properties:
                                     AlignInContainer: =AlignInContainer.Center
                                     BorderColor: =ColorValue(Var_ColorBordeBoton)
-                                    BorderThickness: =2
+                                    BorderThickness: =1
                                     DropShadow: =DropShadow.None
                                     Fill: =RGBA(255, 255, 255, 1)
                                     FillPortions: =0
@@ -392,7 +392,46 @@ Screens:
                                           Image: =Lupa
                                           LayoutMinHeight: =16
                                           LayoutMinWidth: =16
-                                          OnSelect: "=If(\r\n    !IsBlank(Trim(SpvCtg_TxtIBuscar.Text)),\r\n    UpdateContext({\r\n        Var_MostrarSimilitudes: false,\r\n        Var_Ctx_BusquedaActiva: true,\r\n        Var_Ctx_TicketPopulares: false,\r\n        Var_Ctx_Gerencias: false,\r\n        Var_Ctx_Areas: false\r\n    });\r\n    \r\n    Patch(colQuerysSpvCatalogoServicio, LookUp(colQuerysSpvCatalogoServicio, input = \"Gerencia\"), {mark: false, query: \"\"});\r\n    Patch(colQuerysSpvCatalogoServicio, LookUp(colQuerysSpvCatalogoServicio, input = \"Area\"), {mark: false, query: \"\"});\r\n    \r\n    // CORRECCIÓN ODATA: Se usa la COMA y Trim() para blindar el Patch\r\n    Patch(\r\n        colQuerysSpvCatalogoServicio, \r\n        LookUp(colQuerysSpvCatalogoServicio, input = \"TipoSolicitud\"),\r\n        {mark: true, query: \"substringof('\" & Substitute(Trim(SpvCtg_TxtIBuscar.Text), \"'\", \"\") & \"', TipoSolicitud)\"}\r\n    );\r\n    \r\n    Set(Var_CurrentPageSpvCatalogoServicio, 1);\r\n    Set(Var_TargetIDSpvCatalogoServicio, 0);\r\n    Select(Spv_BtnMotorPaginacionCatalogoServicio)\r\n    ,\r\n    // SI LA LUPA SE PRESIONA EN BLANCO\r\n    UpdateContext({\r\n        Var_MostrarSimilitudes: false,\r\n        Var_Ctx_BusquedaActiva: false,\r\n        Var_Ctx_TicketPopulares: true,\r\n        Var_Ctx_Gerencias: false,\r\n        Var_Ctx_Areas: false\r\n    });\r\n    Patch(colQuerysSpvCatalogoServicio, LookUp(colQuerysSpvCatalogoServicio, input = \"TipoSolicitud\"), {mark: false, query: \"\"});\r\n    Patch(colQuerysSpvCatalogoServicio, LookUp(colQuerysSpvCatalogoServicio, input = \"Gerencia\"), {mark: false, query: \"\"});\r\n    Patch(colQuerysSpvCatalogoServicio, LookUp(colQuerysSpvCatalogoServicio, input = \"Area\"), {mark: false, query: \"\"});\r\n    Set(Var_CurrentPageSpvCatalogoServicio, 1);\r\n    Set(Var_TargetIDSpvCatalogoServicio, 0);\r\n    Select(Spv_BtnMotorPaginacionCatalogoServicio)\r\n)"
+                                          OnSelect: |-
+                                            =//If(
+                                            //    !IsBlank(Trim(SpvCtg_TxtIBuscar.Text));
+                                            //    UpdateContext({
+                                            //        Var_MostrarSimilitudes: false;
+                                            //        Var_Ctx_BusquedaActiva: true;
+                                            //        Var_Ctx_TicketPopulares: false;
+                                            //        Var_Ctx_Gerencias: false;
+                                            //        Var_Ctx_Areas: false
+                                            //    });;
+                                            //    
+                                            //    Patch(colQuerysSpvCatalogoServicio; LookUp(colQuerysSpvCatalogoServicio; input = "Gerencia"); {mark: false; query: ""});;
+                                            //    Patch(colQuerysSpvCatalogoServicio; LookUp(colQuerysSpvCatalogoServicio; input = "Area"); {mark: false; query: ""});;
+                                            //    
+                                            //    // CORRECCIÓN ODATA: Se usa la COMA y Trim() para blindar el Patch
+                                            //    Patch(
+                                            //        colQuerysSpvCatalogoServicio; 
+                                            //        LookUp(colQuerysSpvCatalogoServicio; input = "TipoSolicitud");
+                                            //        {mark: true; query: "substringof('" & Substitute(Trim(SpvCtg_TxtIBuscar.Text); "'"; "") & "', TipoSolicitud)"}
+                                            //    );;
+                                            //    
+                                            //    Set(Var_CurrentPageSpvCatalogoServicio; 1);;
+                                            //    Set(Var_TargetIDSpvCatalogoServicio; 0);;
+                                            //    Select(Spv_BtnMotorPaginacionCatalogoServicio)
+                                            //    ;
+                                            //    // SI LA LUPA SE PRESIONA EN BLANCO
+                                            //    UpdateContext({
+                                            //        Var_MostrarSimilitudes: false;
+                                            //        Var_Ctx_BusquedaActiva: false;
+                                            //        Var_Ctx_TicketPopulares: true;
+                                            //        Var_Ctx_Gerencias: false;
+                                            //        Var_Ctx_Areas: false
+                                            //    });;
+                                            //    Patch(colQuerysSpvCatalogoServicio; LookUp(colQuerysSpvCatalogoServicio; input = "TipoSolicitud"); {mark: false; query: ""});;
+                                            //    Patch(colQuerysSpvCatalogoServicio; LookUp(colQuerysSpvCatalogoServicio; input = "Gerencia"); {mark: false; query: ""});;
+                                            //    Patch(colQuerysSpvCatalogoServicio; LookUp(colQuerysSpvCatalogoServicio; input = "Area"); {mark: false; query: ""});;
+                                            //    Set(Var_CurrentPageSpvCatalogoServicio; 1);;
+                                            //    Set(Var_TargetIDSpvCatalogoServicio; 0);;
+                                            //    Select(Spv_BtnMotorPaginacionCatalogoServicio)
+                                            //)
                                           PressedBorderColor: =RGBA(0, 0, 0, 0)
                                           PressedFill: =RGBA(0, 0, 0, 0)
                                           Width: =24
@@ -408,6 +447,7 @@ Screens:
                                           DisabledBorderColor: =RGBA(0, 0, 0, 0)
                                           DisabledColor: =RGBA(161, 159, 157, 1)
                                           DisabledFill: =RGBA(242, 242, 241, 0)
+                                          Fill: =RGBA(0, 0, 0, 0)
                                           FillPortions: =1
                                           Font: =Font.'Open Sans'
                                           Height: =50
@@ -1277,75 +1317,11 @@ Screens:
             DropShadow: =DropShadow.Semilight
             Fill: =RGBA(255, 255, 255, 1)
             Height: =150
-            Visible: =true//Var_MostrarSimilitudes && !IsEmpty(colSugerenciasBusqueda)
+            Visible: =Var_MostrarSimilitudes && !IsBlank(Trim(SpvCtg_TxtIBuscar.Text))
             Width: =SpvCtg_Buscador.Width
             X: =SpvCtg_CtnTituloBuscador.X + SpvCtg_Buscador.X + 250
-            Y: =SpvCtg_CtnTituloBuscador.Y + SpvCtg_Buscador.Y + SpvCtg_Buscador.Height
+            Y: =SpvCtg_CtnTituloBuscador.Y + SpvCtg_Buscador.Y + SpvCtg_Buscador.Height + 5
           Children:
-            - SpvCtg_GalSimilitudes:
-                Control: Gallery@2.15.0
-                Variant: VariableHeight
-                Properties:
-                  BorderColor: =RGBA(0, 18, 107, 1)
-                  Height: =Parent.Height
-                  Items: =colSugerenciasBusqueda
-                  OnSelect: |-
-                    =// 1. Configuramos el estado de UI
-                    UpdateContext({
-                        Var_MostrarSimilitudes: false,
-                        Var_Ctx_BusquedaActiva: true,
-                        Var_Ctx_TicketPopulares: false,
-                        Var_Ctx_Gerencias: false,
-                        Var_Ctx_Areas: false
-                    });
-
-                    // 2. Colocamos el texto seleccionado en el buscador
-                    Reset(SpvCtg_TxtIBuscar);
-                    UpdateContext({ctx_TextoBuscadoTemporal: Text(ThisItem.Value.TipoSolicitud)});
-
-                    // 3. Limpiamos filtros anteriores del OData
-                    Patch(colQuerysSpvCatalogoServicio, LookUp(colQuerysSpvCatalogoServicio, input = "Gerencia"), {mark: false, query: ""});
-                    Patch(colQuerysSpvCatalogoServicio, LookUp(colQuerysSpvCatalogoServicio, input = "Area"), {mark: false, query: ""});
-
-                    // 4. Inyectamos la búsqueda exacta en la colección de Querys OData
-                    Patch(
-                        colQuerysSpvCatalogoServicio, 
-                        LookUp(colQuerysSpvCatalogoServicio, input = "TipoSolicitud"),
-                        {mark: true, query: "TipoSolicitud eq '" & Text(ThisItem.Value.TipoSolicitud) & "'"}
-                    );
-
-                    // 5. Reiniciamos paginación y disparamos el flujo principal
-                    Set(Var_CurrentPageSpvCatalogoServicio, 1);
-                    Set(Var_TargetIDSpvCatalogoServicio, 0);
-                    Set(Var_DirectionSpvCatalogoServicio, "NEXT");
-                    Set(Var_IsIndividualSpvCatalogoServicio, false);
-                    Select(Spv_BtnMotorPaginacionCatalogoServicio);
-                  TemplateFill: =If(ThisItem.IsSelected, ColorValue("#F5F5F5"), ColorValue(Var_ColorBlanco))
-                  TemplateSize: =30
-                  Visible: =false//Var_MostrarSimilitudes && !IsEmpty(colSugerenciasBusqueda)
-                  Width: =Parent.Width
-                Children:
-                  - SpvCtg_BtnSeleccionarSimilitudes:
-                      Control: Classic/Button@2.2.0
-                      Properties:
-                        Align: =Align.Left
-                        BorderColor: =ColorFade(Self.Fill, -15%)
-                        BorderThickness: =0
-                        Color: =ColorValue(Var_ColorGray)
-                        DisabledBorderColor: =RGBA(166, 166, 166, 1)
-                        Fill: =Color.Transparent
-                        Font: =Font.'Open Sans'
-                        Height: =30
-                        HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
-                        HoverColor: =ColorValue(Var_ColorGray)
-                        HoverFill: =ColorValue(Var_ColorFadeBoton)
-                        OnSelect: =Select(Parent)
-                        PressedBorderColor: =Self.Fill
-                        PressedColor: =ColorValue(Var_ColorGray)
-                        PressedFill: =ColorValue(Var_ColorFadeBoton)
-                        Size: =12
-                        Text: =Text(ThisItem.Value.TipoSolicitud)
-                        Width: =Parent.TemplateWidth
             - SpvCtg_GalSimilitudGerencia:
                 Control: Gallery@2.15.0
                 Variant: VariableHeight
@@ -1353,7 +1329,7 @@ Screens:
                   BorderColor: =RGBA(0, 18, 107, 1)
                   BorderStyle: =BorderStyle.None
                   Height: =Parent.Height - Self.Y
-                  Items: =Sort(col_gblGerencia,SortOrder.Ascending)
+                  Items: =Filter(Distinct(colSugerenciasBusqueda, Text(Value.Gerencia)), !IsBlank(Value))
                   ShowScrollbar: =false
                   TemplateFill: =If(ctx_GerenciaExpandida = ThisItem.Nombre, ColorValue("#F5F5F5"), Color.Transparent)
                   TemplatePadding: =0
@@ -1365,16 +1341,11 @@ Screens:
                       Variant: Vertical
                       Properties:
                         BorderColor: =RGBA(0, 18, 107, 1)
-                        Height: |-
-                          =Min(
-                              CountRows(Self.AllItems) * 35, 
-                              230
-                          )
-                        Items: =
+                        Height: =Min(CountRows(Self.AllItems) * 35, 230)
+                        Items: =Filter(colSugerenciasBusqueda, Text(Value.Gerencia) = ThisItem.Value)
                         TemplateFill: =If(ThisItem.IsSelected, ColorValue("#F5F5F5"), ColorValue("#FFFFFF"))
                         TemplatePadding: =0
                         TemplateSize: =35
-                        Visible: =ctx_GerenciaExpandida = ThisItem.Nombre
                         Width: =Parent.TemplateWidth
                         Y: =25
                       Children:
@@ -1395,19 +1366,16 @@ Screens:
                               HoverBorderColor: =RGBA(0, 0, 0, 0)
                               HoverColor: =RGBA(0, 0, 0, 1)
                               HoverFill: =RGBA(0, 0, 0, 0)
-                              OnSelect: =
+                              OnSelect: "=// 1. Configuramos el estado de UI\r\n    UpdateContext({\r\n        Var_MostrarSimilitudes: false,\r\n        Var_Ctx_BusquedaActiva: true,\r\n        Var_Ctx_TicketPopulares: false,\r\n        Var_Ctx_Gerencias: false,\r\n        Var_Ctx_Areas: false\r\n    });\r\n    \r\n    // 2. Colocamos el texto seleccionado en el buscador\r\n    Reset(SpvCtg_TxtIBuscar);\r\n    UpdateContext({ctx_TextoBuscadoTemporal: Text(ThisItem.Value.TipoSolicitud)});\r\n\r\n    // 3. Limpiamos filtros anteriores del OData\r\n    Patch(colQuerysSpvCatalogoServicio, LookUp(colQuerysSpvCatalogoServicio, input = \"Gerencia\"), {mark: false, query: \"\"});\r\n    Patch(colQuerysSpvCatalogoServicio, LookUp(colQuerysSpvCatalogoServicio, input = \"Area\"), {mark: false, query: \"\"});\r\n\r\n    // 4. Inyectamos la búsqueda exacta en la colección de Querys OData\r\n    Patch(\r\n        colQuerysSpvCatalogoServicio, \r\n        LookUp(colQuerysSpvCatalogoServicio, input = \"TipoSolicitud\"),\r\n        {mark: true, query: \"TipoSolicitud eq '\" & Text(ThisItem.Value.TipoSolicitud) & \"'\"}\r\n    );\r\n\r\n    // 5. Reiniciamos paginación y disparamos el flujo\r\n    Set(Var_CurrentPageSpvCatalogoServicio, 1);\r\n    Set(Var_TargetIDSpvCatalogoServicio, 0);\r\n    Set(Var_DirectionSpvCatalogoServicio, \"NEXT\");\r\n    Set(Var_IsIndividualSpvCatalogoServicio, false);\r\n    Select(Spv_BtnMotorPaginacionCatalogoServicio)"
                               PaddingBottom: =2
+                              PaddingLeft: =10
                               PaddingTop: =2
                               PressedBorderColor: =RGBA(0, 0, 0, 0)
                               PressedColor: =RGBA(0, 0, 0, 1)
                               PressedFill: =RGBA(0, 0, 0, 0)
-                              RadiusBottomLeft: =0
-                              RadiusBottomRight: =0
-                              RadiusTopLeft: =0
-                              RadiusTopRight: =0
                               Size: =12
-                              Text: =
-                              Width: =Parent.Width
+                              Text: =Text(ThisItem.Value.TipoSolicitud)
+                              Width: =Parent.Width - 20
                   - SpvCtg_BtnTituloSimilitudGerencia:
                       Control: Classic/Button@2.2.0
                       Properties:
@@ -1418,9 +1386,10 @@ Screens:
                         DisabledBorderColor: =RGBA(0, 0, 0, 0)
                         DisabledColor: =RGBA(0, 0, 0, 1)
                         DisabledFill: =RGBA(0, 0, 0, 0)
+                        DisplayMode: =DisplayMode.View
                         Fill: =RGBA(0, 0, 0, 0)
                         Font: =Font.'Open Sans'
-                        FontWeight: =FontWeight.Normal
+                        FontWeight: =FontWeight.Bold
                         Height: =30
                         HoverBorderColor: =RGBA(0, 0, 0, 0)
                         HoverColor: =RGBA(0, 0, 0, 1)
@@ -1434,5 +1403,5 @@ Screens:
                         RadiusTopLeft: =0
                         RadiusTopRight: =0
                         Size: =12
-                        Text: =ThisItem.Nombre
+                        Text: =ThisItem.Value
                         Width: =Parent.TemplateWidth
