@@ -927,20 +927,24 @@ Screens:
                                                         =If(
                                                             !IsBlank(TotalItemSpvCatalogoServicio) && Var_GridPageSizeSpvCatalogoServicio > 0,
                                                             Sequence(RoundUp(TotalItemSpvCatalogoServicio / Var_GridPageSizeSpvCatalogoServicio, 0), 1),
-                                                            [1] // Devuelve una secuencia de una sola página mientras carga
+                                                            [1] // Devuelve una secuencia de una sola página en la renderización inicial
                                                         )
                                                       ShowNavigation: =true
                                                       TemplateSize: =30
-                                                      Width: |
+                                                      Width: |-
                                                         =With(
                                                             {
-                                                                totalPages: RoundUp(TotalItemSpvCatalogoServicio / Var_GridPageSizeSpvCatalogoServicio, 0),
+                                                                totalPages: If(
+                                                                    Var_GridPageSizeSpvCatalogoServicio > 0,
+                                                                    RoundUp(TotalItemSpvCatalogoServicio / Var_GridPageSizeSpvCatalogoServicio, 0),
+                                                                    1 // Valor por defecto seguro (1 página) mientras el sistema carga
+                                                                ),
                                                                 maxVisible: 15,
                                                                 itemWidth: Self.TemplateWidth + Self.TemplatePadding
                                                             },
                                                             If(
                                                                 totalPages <= maxVisible,
-                                                                totalPages * itemWidth + itemWidth, // margen extra
+                                                                (totalPages * itemWidth) + itemWidth, // margen extra
                                                                 maxVisible * itemWidth
                                                             )
                                                         )
