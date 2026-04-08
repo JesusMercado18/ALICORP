@@ -509,10 +509,10 @@ Screens:
                                           Height: =30
                                           LayoutMinHeight: =16
                                           LayoutMinWidth: =0
-                                          RadiusBottomLeft: =10
-                                          RadiusBottomRight: =10
-                                          RadiusTopLeft: =10
-                                          RadiusTopRight: =10
+                                          RadiusBottomLeft: =5
+                                          RadiusBottomRight: =5
+                                          RadiusTopLeft: =5
+                                          RadiusTopRight: =5
                                           Width: =300
                                         Children:
                                           - SpvCtg_BtnTicketPopulares:
@@ -588,7 +588,7 @@ Screens:
                                           Height: =Parent.Height - Self.Y - 16
                                           Items: =col_gblGerencia
                                           ShowScrollbar: =false
-                                          TemplateFill: =If(ctx_GerenciaExpandida = ThisItem.Nombre, ColorValue("#F5F5F5"), Color.Transparent)
+                                          TemplateFill: =//If(ctx_GerenciaExpandida = ThisItem.Nombre; ColorValue("#F5F5F5"); Color.Transparent)
                                           TemplatePadding: =0
                                           TemplateSize: =130
                                           Width: =Parent.Width - 24
@@ -613,24 +613,13 @@ Screens:
                                                       ThisRecord.Area,
                                                       SortOrder.Ascending
                                                   )
-                                                TemplateFill: =If(ThisItem.IsSelected, ColorValue("#F5F5F5"), ColorValue("#FFFFFF"))
+                                                TemplateFill: =//If(ThisItem.IsSelected; ColorValue("#F5F5F5"); ColorValue("#FFFFFF"))
                                                 TemplatePadding: =0
                                                 TemplateSize: =35
                                                 Visible: =ctx_GerenciaExpandida = ThisItem.Nombre
                                                 Width: =Parent.TemplateWidth
                                                 Y: =SpvCtg_BtnTituloGerencia.Height
                                               Children:
-                                                - SpvCtg_IcoExpandirArea:
-                                                    Control: Classic/Icon@2.5.0
-                                                    Properties:
-                                                      BorderColor: =RGBA(0, 18, 107, 1)
-                                                      Color: =RGBA(0, 0, 0, 1)
-                                                      Height: =15
-                                                      Icon: =Icon.ChevronRight
-                                                      OnSelect: =
-                                                      Width: =15
-                                                      X: =SpvCtg_BtnTituloGerencia.Width + 8
-                                                      Y: =(SpvCtg_BtnTituloGerencia.Height - Self.Height) / 2
                                                 - SpvCtg_BtnTituloArea:
                                                     Control: Classic/Button@2.2.0
                                                     Properties:
@@ -641,13 +630,18 @@ Screens:
                                                       DisabledBorderColor: =RGBA(0, 0, 0, 0)
                                                       DisabledColor: =RGBA(161, 159, 157, 1)
                                                       DisabledFill: =RGBA(0, 0, 0, 0)
-                                                      Fill: =RGBA(0, 0, 0, 0)
+                                                      Fill: |-
+                                                        =If(
+                                                            Trim(Var_Ctx_AreaSeleccionada) = Trim(ThisItem.Area), 
+                                                            RGBA(225, 223, 221, 1), 
+                                                            RGBA(255, 255, 255, 0)
+                                                        )
                                                       Font: =Font.'Open Sans'
                                                       FontWeight: =FontWeight.Normal
                                                       Height: =35
                                                       HoverBorderColor: =RGBA(0, 0, 0, 0)
-                                                      HoverColor: =RGBA(0, 0, 0, 1)
-                                                      HoverFill: =RGBA(0, 0, 0, 0)
+                                                      HoverColor: =RGBA(50, 49, 48, 1)
+                                                      HoverFill: =RGBA(243, 242, 241, 1)
                                                       OnSelect: |-
                                                         =UpdateContext({
                                                             Var_Ctx_Areas: true,
@@ -655,6 +649,7 @@ Screens:
                                                             Var_Ctx_TicketPopulares: false,
                                                             Var_Ctx_AreaSeleccionada: ThisItem.Area
                                                         });
+                                                        UpdateContext({locTabSeleccionado: ThisItem.Area});
 
                                                         // 1. Actualizamos la colección con los parámetros OData (Gerencia y Área)
                                                         Patch(
@@ -689,14 +684,98 @@ Screens:
                                                       PressedBorderColor: =RGBA(0, 0, 0, 0)
                                                       PressedColor: =RGBA(0, 0, 0, 1)
                                                       PressedFill: =RGBA(0, 0, 0, 0)
-                                                      RadiusBottomLeft: =0
-                                                      RadiusBottomRight: =0
-                                                      RadiusTopLeft: =0
-                                                      RadiusTopRight: =0
+                                                      RadiusBottomLeft: =5
+                                                      RadiusBottomRight: =5
+                                                      RadiusTopLeft: =5
+                                                      RadiusTopRight: =5
                                                       Size: =12
                                                       Text: =ThisItem.Area
-                                                      Width: =Parent.Width
+                                                      Width: =Parent.Width - 15
                                                       X: =8
+                                                - SpvCtg_IcoExpandirArea:
+                                                    Control: Classic/Icon@2.5.0
+                                                    Properties:
+                                                      BorderColor: =RGBA(0, 18, 107, 1)
+                                                      Color: =RGBA(0, 0, 0, 1)
+                                                      Height: =15
+                                                      Icon: =Icon.ChevronRight
+                                                      OnSelect: =
+                                                      Width: =15
+                                                      X: =SpvCtg_BtnTituloGerencia.Width - 25
+                                                      Y: =(SpvCtg_BtnTituloGerencia.Height - Self.Height) / 2
+                                          - SpvCtg_BtnTituloGerencia:
+                                              Control: Classic/Button@2.2.0
+                                              Properties:
+                                                Align: =Align.Left
+                                                BorderColor: =RGBA(0, 0, 0, 0)
+                                                BorderStyle: =BorderStyle.None
+                                                Color: =RGBA(0, 0, 0, 1)
+                                                DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                                                DisabledColor: =RGBA(0, 0, 0, 1)
+                                                DisabledFill: =RGBA(0, 0, 0, 0)
+                                                Fill: |-
+                                                  =If(
+                                                      Trim(Var_Ctx_GerenciaSeleccionada) = Trim(ThisItem.Nombre) && IsBlank(Var_Ctx_AreaSeleccionada), 
+                                                      RGBA(225, 223, 221, 1), 
+                                                      RGBA(255, 255, 255, 0)
+                                                  )
+                                                Font: =Font.'Open Sans'
+                                                FontWeight: =FontWeight.Normal
+                                                Height: =30
+                                                HoverBorderColor: =RGBA(0, 0, 0, 0)
+                                                HoverColor: =RGBA(50, 49, 48, 1)
+                                                HoverFill: =RGBA(243, 242, 241, 1)
+                                                OnSelect: |-
+                                                  =// 1. Manejo del estado del Acordeón (Expandir/Contraer)
+                                                  UpdateContext({ 
+                                                      ctx_GerenciaExpandida: If(
+                                                          ctx_GerenciaExpandida = ThisItem.Nombre, 
+                                                          Blank(), 
+                                                          ThisItem.Nombre
+                                                      ) 
+                                                  });
+                                                  UpdateContext({locTabSeleccionado: ThisItem.Nombre});
+
+                                                  // 2. Configurar contextos de navegación y selección UI
+                                                  UpdateContext({
+                                                      Var_Ctx_Gerencias: true,
+                                                      Var_Ctx_Areas: false,
+                                                      Var_Ctx_TicketPopulares: false,
+                                                      Var_Ctx_GerenciaSeleccionada: ThisItem.Nombre,
+                                                      Var_Ctx_AreaSeleccionada: Blank()
+                                                  });
+
+                                                  // 3. Aplicar filtro OData SOLO para Gerencia y limpiar el Área
+                                                  Patch(
+                                                      colQuerysSpvCatalogoServicio, 
+                                                      LookUp(colQuerysSpvCatalogoServicio, input = "Gerencia"), 
+                                                      {mark: true, query: "Gerencia eq '" & ThisItem.Nombre & "'"}
+                                                  );
+                                                  Patch(
+                                                      colQuerysSpvCatalogoServicio, 
+                                                      LookUp(colQuerysSpvCatalogoServicio, input = "Area"), 
+                                                      {mark: false, query: ""}
+                                                  );
+
+                                                  Patch(colQuerysSpvCatalogoServicio, LookUp(colQuerysSpvCatalogoServicio, input = "TipoSolicitud"), {mark: false, query: ""});
+                                                  // 4. Reiniciar Motor de Paginación a su estado inicial
+                                                  Set(Var_CurrentPageSpvCatalogoServicio, 1);
+                                                  Set(Var_TargetIDSpvCatalogoServicio, 0);
+                                                  Set(Var_DirectionSpvCatalogoServicio, "NEXT");
+                                                  Set(Var_IsIndividualSpvCatalogoServicio, false);
+
+                                                  // 5. Disparar Petición al Servidor (Flujo)
+                                                  Select(Spv_BtnMotorPaginacionCatalogoServicio);
+                                                PressedBorderColor: =RGBA(0, 0, 0, 0)
+                                                PressedColor: =RGBA(0, 0, 0, 1)
+                                                PressedFill: =RGBA(0, 0, 0, 0)
+                                                RadiusBottomLeft: =5
+                                                RadiusBottomRight: =5
+                                                RadiusTopLeft: =5
+                                                RadiusTopRight: =5
+                                                Size: =12
+                                                Text: =ThisItem.Nombre
+                                                Width: =Parent.Width
                                           - SpvCtg_IcoExpandirGerencia:
                                               Control: Classic/Icon@2.5.0
                                               Properties:
@@ -750,75 +829,8 @@ Screens:
                                                   // 5. Disparar Petición al Servidor (Flujo)
                                                   Select(Spv_BtnMotorPaginacionCatalogoServicio);
                                                 Width: =15
-                                                X: =SpvCtg_BtnTituloGerencia.Width + 8
+                                                X: =SpvCtg_BtnTituloGerencia.Width - 25
                                                 Y: =(SpvCtg_BtnTituloGerencia.Height - Self.Height) / 2
-                                          - SpvCtg_BtnTituloGerencia:
-                                              Control: Classic/Button@2.2.0
-                                              Properties:
-                                                Align: =Align.Left
-                                                BorderColor: =RGBA(0, 0, 0, 0)
-                                                BorderStyle: =BorderStyle.None
-                                                Color: =RGBA(0, 0, 0, 1)
-                                                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                                                DisabledColor: =RGBA(0, 0, 0, 1)
-                                                DisabledFill: =RGBA(0, 0, 0, 0)
-                                                Fill: =RGBA(0, 0, 0, 0)
-                                                Font: =Font.'Open Sans'
-                                                FontWeight: =FontWeight.Normal
-                                                Height: =30
-                                                HoverBorderColor: =RGBA(0, 0, 0, 0)
-                                                HoverColor: =RGBA(0, 0, 0, 1)
-                                                HoverFill: =RGBA(0, 0, 0, 0)
-                                                OnSelect: |-
-                                                  =// 1. Manejo del estado del Acordeón (Expandir/Contraer)
-                                                  UpdateContext({ 
-                                                      ctx_GerenciaExpandida: If(
-                                                          ctx_GerenciaExpandida = ThisItem.Nombre, 
-                                                          Blank(), 
-                                                          ThisItem.Nombre
-                                                      ) 
-                                                  });
-
-                                                  // 2. Configurar contextos de navegación y selección UI
-                                                  UpdateContext({
-                                                      Var_Ctx_Gerencias: true,
-                                                      Var_Ctx_Areas: false,
-                                                      Var_Ctx_TicketPopulares: false,
-                                                      Var_Ctx_GerenciaSeleccionada: ThisItem.Nombre,
-                                                      Var_Ctx_AreaSeleccionada: Blank()
-                                                  });
-
-                                                  // 3. Aplicar filtro OData SOLO para Gerencia y limpiar el Área
-                                                  Patch(
-                                                      colQuerysSpvCatalogoServicio, 
-                                                      LookUp(colQuerysSpvCatalogoServicio, input = "Gerencia"), 
-                                                      {mark: true, query: "Gerencia eq '" & ThisItem.Nombre & "'"}
-                                                  );
-                                                  Patch(
-                                                      colQuerysSpvCatalogoServicio, 
-                                                      LookUp(colQuerysSpvCatalogoServicio, input = "Area"), 
-                                                      {mark: false, query: ""}
-                                                  );
-
-                                                  Patch(colQuerysSpvCatalogoServicio, LookUp(colQuerysSpvCatalogoServicio, input = "TipoSolicitud"), {mark: false, query: ""});
-                                                  // 4. Reiniciar Motor de Paginación a su estado inicial
-                                                  Set(Var_CurrentPageSpvCatalogoServicio, 1);
-                                                  Set(Var_TargetIDSpvCatalogoServicio, 0);
-                                                  Set(Var_DirectionSpvCatalogoServicio, "NEXT");
-                                                  Set(Var_IsIndividualSpvCatalogoServicio, false);
-
-                                                  // 5. Disparar Petición al Servidor (Flujo)
-                                                  Select(Spv_BtnMotorPaginacionCatalogoServicio);
-                                                PressedBorderColor: =RGBA(0, 0, 0, 0)
-                                                PressedColor: =RGBA(0, 0, 0, 1)
-                                                PressedFill: =RGBA(0, 0, 0, 0)
-                                                RadiusBottomLeft: =0
-                                                RadiusBottomRight: =0
-                                                RadiusTopLeft: =0
-                                                RadiusTopRight: =0
-                                                Size: =12
-                                                Text: =ThisItem.Nombre
-                                                Width: =Parent.TemplateWidth - SpvCtg_IcoExpandirGerencia.Width - 20
                               - SpvCtg_CtnDatosTicket:
                                   Control: GroupContainer@1.5.0
                                   Variant: AutoLayout
