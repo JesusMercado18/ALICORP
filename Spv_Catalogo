@@ -4,8 +4,7 @@ Screens:
       Fill: =ColorValue(Var_ColorFondoLateral)
       LoadingSpinnerColor: =RGBA(0, 120, 212, 1)
       OnVisible: |+
-        =// 1. Configuraciones iniciales y reset de variables visuales de estado
-        UpdateContext({ 
+        =UpdateContext({ 
             menuSelected: 2,
             Var_Ctx_MostrarItemsCatalogoSpv: false,
             Var_Ctx_TicketPopulares: true,
@@ -13,7 +12,7 @@ Screens:
             Var_Ctx_Areas: false,
             Var_Ctx_GerenciaSeleccionada: Blank(),
             Var_Ctx_AreaSeleccionada: Blank(),
-            ctx_GerenciaExpandida: Blank() // Forzamos el cierre del acordeón de Gerencias
+            ctx_GerenciaExpandida: Blank()
         });
 
         // 2. Limpiar selecciones visuales explícitas en las Galerías (UI Reset)
@@ -930,12 +929,12 @@ Screens:
                                                             Sequence(RoundUp(TotalItemSpvCatalogoServicio / Var_GridPageSizeSpvCatalogoServicio, 0), 1),
                                                             [1] // Devuelve una secuencia de una sola página mientras carga
                                                         )
-                                                      ShowScrollbar: =false
+                                                      ShowNavigation: =true
                                                       TemplateSize: =30
                                                       Width: |
                                                         =With(
                                                             {
-                                                                totalPages: RoundUp(TotalItemSpv / Var_GridPageSizeSpv, 0),
+                                                                totalPages: RoundUp(TotalItemSpvCatalogoServicio / Var_GridPageSizeSpvCatalogoServicio, 0),
                                                                 maxVisible: 15,
                                                                 itemWidth: Self.TemplateWidth + Self.TemplatePadding
                                                             },
@@ -1026,7 +1025,7 @@ Screens:
                                                       BorderStyle: =BorderStyle.None
                                                       DisplayMode: |-
                                                         =If(
-                                                            Var_HasNextSpv,
+                                                            Var_HasNextSpvCatalogoServicio,
                                                             DisplayMode.Edit,
                                                             DisplayMode.Disabled
                                                         )
