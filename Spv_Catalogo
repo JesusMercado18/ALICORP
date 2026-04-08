@@ -310,6 +310,7 @@ Screens:
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =16
                                     PaddingBottom: =8
+                                    PaddingLeft: =2
                                     PaddingRight: =8
                                     PaddingTop: =8
                                   Children:
@@ -335,8 +336,6 @@ Screens:
                                           Size: =Var_TituloBold
                                           Text: ="Catálogo de Servicios"
                                           Width: =365
-                                          X: =40
-                                          Y: =40
                                     - SpvCtg_LblSubMensaje:
                                         Control: Label@2.5.1
                                         Properties:
@@ -393,6 +392,7 @@ Screens:
                                           Image: =Lupa
                                           LayoutMinHeight: =16
                                           LayoutMinWidth: =16
+                                          OnSelect: "=If(!IsBlank(SpvCtg_TxtIBuscar.Text),\r\n    UpdateContext({\r\n        Var_MostrarSimilitudes: false,\r\n        Var_Ctx_BusquedaActiva: true,\r\n        Var_Ctx_TicketPopulares: false,\r\n        Var_Ctx_Gerencias: false,\r\n        Var_Ctx_Areas: false\r\n    });\r\n    \r\n    Patch(colQuerysSpvCatalogoServicio, LookUp(colQuerysSpvCatalogoServicio, input = \"Gerencia\"), {mark: false, query: \"\"});\r\n    Patch(colQuerysSpvCatalogoServicio, LookUp(colQuerysSpvCatalogoServicio, input = \"Area\"), {mark: false, query: \"\"});\r\n    \r\n    Patch(\r\n        colQuerysSpvCatalogoServicio, \r\n        LookUp(colQuerysSpvCatalogoServicio, input = \"TipoSolicitud\"),\r\n        {mark: true, query: \"substringof('\" & SpvCtg_TxtIBuscar.Text & \"'; TipoSolicitud)\"}\r\n    );\r\n    \r\n    Set(Var_CurrentPageSpvCatalogoServicio, 1);\r\n    Set(Var_TargetIDSpvCatalogoServicio, 0);\r\n    Select(Spv_BtnMotorPaginacionCatalogoServicio)\r\n)"
                                           PressedBorderColor: =RGBA(0, 0, 0, 0)
                                           PressedFill: =RGBA(0, 0, 0, 0)
                                           Width: =24
@@ -400,9 +400,11 @@ Screens:
                                         Control: Classic/TextInput@2.3.2
                                         Properties:
                                           BorderColor: =RGBA(245, 245, 245, 1)
+                                          BorderStyle: =BorderStyle.None
                                           BorderThickness: =0
                                           Color: =RGBA(50, 49, 48, 1)
-                                          Default: =
+                                          Default: =ctx_TextoBuscadoTemporal
+                                          DelayOutput: =true
                                           DisabledBorderColor: =RGBA(0, 0, 0, 0)
                                           DisabledColor: =RGBA(161, 159, 157, 1)
                                           DisabledFill: =RGBA(242, 242, 241, 0)
@@ -410,12 +412,13 @@ Screens:
                                           Font: =Font.'Open Sans'
                                           Height: =50
                                           HintText: ="Buscar servicio"
-                                          HoverBorderColor: =RGBA(16, 110, 190, 1)
+                                          HoverBorderColor: =RGBA(0, 0, 0, 0)
                                           HoverColor: =RGBA(50, 49, 48, 1)
-                                          HoverFill: =RGBA(255, 255, 255, 1)
+                                          HoverFill: =RGBA(0, 0, 0, 0)
                                           LayoutMinHeight: =16
                                           LayoutMinWidth: =16
-                                          PressedBorderColor: =RGBA(0, 120, 212, 1)
+                                          OnChange: "=// Aseguramos que solo busque si hay texto\r\nIf(\r\n    !IsBlank(Self.Text),\r\n    UpdateContext({Var_CargandoSimilitudes: true});\r\n    \r\n    // Llamada al flujo con OData corregido\r\n    Set(\r\n        Var_ResponseSugerencias,\r\n        'LCP-001_Flow_SpvPaginacionCatalogoServicio'.Run(\r\n            \"2\", // Limito a 5 para que la sugerencia sea rápida (puedes dejarlo en \"2\" si prefieres)\r\n            \"0\", \r\n            // CORRECCIÓN AQUÍ: Uso de coma (,) en lugar de punto y coma (;) para OData\r\n            \"substringof('\" & Substitute(Self.Text, \"'\", \"\") & \"', TipoSolicitud)\", \r\n            \"NEXT\"\r\n        )\r\n    );\r\n    \r\n    // Poblar la colección temporal de sugerencias\r\n    ClearCollect(\r\n        colSugerenciasBusqueda,\r\n        Table(ParseJSON(Var_ResponseSugerencias.response))\r\n    );\r\n    \r\n    UpdateContext({\r\n        Var_MostrarSimilitudes: true,\r\n        Var_CargandoSimilitudes: false\r\n    })\r\n);"
+                                          PressedBorderColor: =RGBA(0, 0, 0, 0)
                                           PressedColor: =RGBA(50, 49, 48, 1)
                                           PressedFill: =RGBA(255, 255, 255, 1)
                                           RadiusBottomLeft: =0
@@ -821,7 +824,7 @@ Screens:
                                                 PaddingRight: =0
                                                 PaddingTop: =0
                                                 Size: =Var_TituloIndicadores
-                                                Text: "=// Propiedad Text de SpvCtg_LblTituloDato\r\nIf(\r\n    Var_Ctx_TicketPopulares, \r\n    \"Tickets populares\",\r\n    \r\n    // 1. Condición más restrictiva\r\n    Var_Ctx_Gerencias && Var_Ctx_Areas, \r\n    Concatenate(Var_Ctx_GerenciaSeleccionada, \" > \", Var_Ctx_AreaSeleccionada),\r\n    \r\n    // 2. Evaluamos gerencia sola\r\n    Var_Ctx_Gerencias, \r\n    Var_Ctx_GerenciaSeleccionada,\r\n    \r\n    // 3. Estado por defecto (Blank state)\r\n    \"Seleccione una categoría\"\r\n)"
+                                                Text: "=If(\r\n    Var_Ctx_BusquedaActiva, \r\n    \"Resultado de búsqueda\",\r\n    \r\n    Var_Ctx_TicketPopulares, \r\n    \"Tickets populares\",\r\n    \r\n    Var_Ctx_Gerencias && Var_Ctx_Areas, \r\n    Concatenate(Var_Ctx_GerenciaSeleccionada, \" > \", Var_Ctx_AreaSeleccionada),\r\n    \r\n    Var_Ctx_Gerencias, \r\n    Var_Ctx_GerenciaSeleccionada,\r\n    \r\n    \"Seleccione una categoría\"\r\n)"
                                           - SpvCtg_LblSubtituloDato:
                                               Control: Label@2.5.1
                                               Properties:
@@ -1263,3 +1266,79 @@ Screens:
             Width: =SpvCtg_CtnDatosTicket.Width
             X: =SpvCtg_CtnDatosCompletos.X + 633
             Y: =SpvCtg_CtnDatosCompletos.Y + 200
+      - SpvCtg_CtnSimilitudes:
+          Control: GroupContainer@1.5.0
+          Variant: ManualLayout
+          Properties:
+            DropShadow: =DropShadow.Semilight
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =150
+            Visible: =Var_MostrarSimilitudes && !IsEmpty(colSugerenciasBusqueda)
+            Width: =SpvCtg_Buscador.Width
+            X: =SpvCtg_CtnTituloBuscador.X + SpvCtg_Buscador.X
+            Y: =SpvCtg_CtnTituloBuscador.Y + SpvCtg_Buscador.Y + SpvCtg_Buscador.Height
+          Children:
+            - SpvCtg_GalSimilitudes:
+                Control: Gallery@2.15.0
+                Variant: VariableHeight
+                Properties:
+                  BorderColor: =RGBA(0, 18, 107, 1)
+                  Height: =Parent.Height
+                  Items: =colSugerenciasBusqueda
+                  OnSelect: |-
+                    =// 1. Configuramos el estado de UI
+                    UpdateContext({
+                        Var_MostrarSimilitudes: false,
+                        Var_Ctx_BusquedaActiva: true,
+                        Var_Ctx_TicketPopulares: false,
+                        Var_Ctx_Gerencias: false,
+                        Var_Ctx_Areas: false
+                    });
+
+                    // 2. Colocamos el texto seleccionado en el buscador
+                    Reset(SpvCtg_TxtIBuscar);
+                    UpdateContext({ctx_TextoBuscadoTemporal: Text(ThisItem.Value.TipoSolicitud)});
+
+                    // 3. Limpiamos filtros anteriores del OData
+                    Patch(colQuerysSpvCatalogoServicio, LookUp(colQuerysSpvCatalogoServicio, input = "Gerencia"), {mark: false, query: ""});
+                    Patch(colQuerysSpvCatalogoServicio, LookUp(colQuerysSpvCatalogoServicio, input = "Area"), {mark: false, query: ""});
+
+                    // 4. Inyectamos la búsqueda exacta en la colección de Querys OData
+                    Patch(
+                        colQuerysSpvCatalogoServicio, 
+                        LookUp(colQuerysSpvCatalogoServicio, input = "TipoSolicitud"),
+                        {mark: true, query: "TipoSolicitud eq '" & Text(ThisItem.Value.TipoSolicitud) & "'"}
+                    );
+
+                    // 5. Reiniciamos paginación y disparamos el flujo principal
+                    Set(Var_CurrentPageSpvCatalogoServicio, 1);
+                    Set(Var_TargetIDSpvCatalogoServicio, 0);
+                    Set(Var_DirectionSpvCatalogoServicio, "NEXT");
+                    Set(Var_IsIndividualSpvCatalogoServicio, false);
+                    Select(Spv_BtnMotorPaginacionCatalogoServicio);
+                  TemplateFill: =If(ThisItem.IsSelected, ColorValue("#F5F5F5"), ColorValue(Var_ColorBlanco))
+                  TemplateSize: =30
+                  Visible: =Var_MostrarSimilitudes && !IsEmpty(colSugerenciasBusqueda)
+                  Width: =Parent.Width
+                Children:
+                  - SpvCtg_BtnSeleccionarSimilitudes:
+                      Control: Classic/Button@2.2.0
+                      Properties:
+                        Align: =Align.Left
+                        BorderColor: =ColorFade(Self.Fill, -15%)
+                        BorderThickness: =0
+                        Color: =ColorValue(Var_ColorGray)
+                        DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                        Fill: =Color.Transparent
+                        Font: =Font.'Open Sans'
+                        Height: =30
+                        HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                        HoverColor: =ColorValue(Var_ColorGray)
+                        HoverFill: =ColorValue(Var_ColorFadeBoton)
+                        OnSelect: =Select(Parent)
+                        PressedBorderColor: =Self.Fill
+                        PressedColor: =ColorValue(Var_ColorGray)
+                        PressedFill: =ColorValue(Var_ColorFadeBoton)
+                        Size: =12
+                        Text: =Text(ThisItem.Value.TipoSolicitud)
+                        Width: =Parent.TemplateWidth
