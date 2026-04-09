@@ -3,7 +3,7 @@ Screens:
     Properties:
       Fill: =ColorValue(Var_ColorFondoLateral)
       LoadingSpinnerColor: =RGBA(56, 96, 178, 1)
-      OnVisible: "=UpdateContext({ menuSelected: 5 });\r\n\r\nIf(\r\n    !IsBlank(Var_SpvCmcComunicadoSeleccionada),\r\n    \r\n    // 1. CARGA DE CONTEXTOS BÁSICOS Y FECHAS\r\n    UpdateContext({\r\n        var_RangeDatePicker_DateStart: If(\r\n            !IsBlank(Var_SpvCmcComunicadoSeleccionada.FechaInicio),\r\n            DateValue(Text(Var_SpvCmcComunicadoSeleccionada.FechaInicio)),\r\n            Blank()\r\n        ),\r\n        var_RangeDatePicker_DateEnd: If(\r\n            !IsBlank(Var_SpvCmcComunicadoSeleccionada.FechaFin),\r\n            DateValue(Text(Var_SpvCmcComunicadoSeleccionada.FechaFin)),\r\n            Blank()\r\n        ),\r\n        varDirigidoSelected: { \r\n            Value: If(\r\n                Text(Var_SpvCmcComunicadoSeleccionada.Gerencia) = \"Todos\" And Text(Var_SpvCmcComunicadoSeleccionada.Pais) = \"Todos\",\r\n                \"Todos\",\r\n                !IsBlank(Text(Var_SpvCmcComunicadoSeleccionada.Gerencia)),\r\n                \"Gerencia\",\r\n                !IsBlank(Text(Var_SpvCmcComunicadoSeleccionada.Pais)),\r\n                \"País\",\r\n                \"Todos\"\r\n            ) \r\n        },\r\n        varTextoSeleccionado: If(\r\n            !IsBlank(Var_SpvCmcComunicadoSeleccionada.Gerencia), Text(Var_SpvCmcComunicadoSeleccionada.Gerencia),\r\n            !IsBlank(Var_SpvCmcComunicadoSeleccionada.Pais), Text(Var_SpvCmcComunicadoSeleccionada.Pais)\r\n        ),\r\n        varDiaInicioSelected: If(!IsBlank(Var_SpvCmcComunicadoSeleccionada.DiaInicio), { Value: IfError(Value(Var_SpvCmcComunicadoSeleccionada.DiaInicio), Blank()) }),\r\n        varMesInicioSelected: If(!IsBlank(Var_SpvCmcComunicadoSeleccionada.MesInicio), { Value: IfError(Value(Var_SpvCmcComunicadoSeleccionada.MesInicio), Blank()) }),\r\n        varDiaFinSelected: If(!IsBlank(Var_SpvCmcComunicadoSeleccionada.DiaFin), { Value: IfError(Value(Var_SpvCmcComunicadoSeleccionada.DiaFin), Blank()) }),\r\n        varMesFinSelected: If(!IsBlank(Var_SpvCmcComunicadoSeleccionada.MesFin), { Value: IfError(Value(Var_SpvCmcComunicadoSeleccionada.MesFin), Blank()) }),\r\n        varOpenDropDownDirigidoOpcion: false,\r\n        CloseAlertSpvNuevoComunicadoDetalle: Blank()\r\n    });\r\n\r\n    // 2. CARGA DE ESTADO DE COMUNICADO Y RECURRENCIA (NUEVO)\r\n    // Se valida el Estado del comunicado (Activo/Inactivo)\r\n    If(\r\n        !IsBlank(Var_SpvCmcComunicadoSeleccionada.EstadoComunicado),\r\n        ClearCollect(\r\n            colEstadoEstadoCmcSeleccionadas,\r\n            { Value: Text(Var_SpvCmcComunicadoSeleccionada.EstadoComunicado) }\r\n        )\r\n    );\r\n\r\n    // Se valida si es Recurrente (esperando un booleano o su equivalente en texto)\r\n    If(\r\n        Var_SpvCmcComunicadoSeleccionada.Recurrente = true Or Lower(Text(Var_SpvCmcComunicadoSeleccionada.Recurrente)) = \"true\",\r\n        ClearCollect(\r\n            colEstadoRecurrenteSeleccionadas,\r\n            { Value: \"Recurrente\" }\r\n        ),\r\n        Clear(colEstadoRecurrenteSeleccionadas)\r\n    );\r\n\r\n    // 3. CARGA DE DIRIGIDO A (Split de colecciones)\r\n    If(\r\n        Text(Var_SpvCmcComunicadoSeleccionada.Gerencia) = \"Todos\" And Text(Var_SpvCmcComunicadoSeleccionada.Pais) = \"Todos\",\r\n        Clear(colDirigidoOpcionSeleccionadas),\r\n\r\n        !IsBlank(Var_SpvCmcComunicadoSeleccionada.Gerencia),\r\n        ClearCollect(\r\n            colDirigidoOpcionSeleccionadas,\r\n            ForAll(\r\n                Split(Var_SpvCmcComunicadoSeleccionada.Gerencia, \";\"),\r\n                If(!IsBlank(Trim(Value)), { Value: Trim(Value) })\r\n            )\r\n        ),\r\n\r\n        !IsBlank(Var_SpvCmcComunicadoSeleccionada.Pais),\r\n        ClearCollect(\r\n            colDirigidoOpcionSeleccionadas,\r\n            ForAll(\r\n                Split(Var_SpvCmcComunicadoSeleccionada.Pais, \";\"),\r\n                If(!IsBlank(Trim(Value)), { Value: Trim(Value) })\r\n            )\r\n        ),\r\n\r\n        Clear(colDirigidoOpcionSeleccionadas)\r\n    );\r\n\r\n    // 4. CONCATENACIÓN DE TEXTO SELECCIONADO\r\n    UpdateContext({\r\n        varTextoSeleccionado: If(\r\n            !IsEmpty(colDirigidoOpcionSeleccionadas),\r\n            Concat(colDirigidoOpcionSeleccionadas, Value, \"; \"),\r\n            \"Todos\"\r\n        )\r\n    }),\r\n\r\n    // FLUJO FALSO: (Si es un comunicado nuevo, limpiamos la pantalla)\r\n    \r\n    Clear(colEstadoEstadoCmcSeleccionadas);\r\n    Clear(colEstadoRecurrenteSeleccionadas);\r\n    Clear(colDirigidoOpcionSeleccionadas);\r\n    UpdateContext({\r\n        var_RangeDatePicker_DateStart: Blank(),\r\n        var_RangeDatePicker_DateEnd: Blank()\r\n    })\r\n);\r\n\r\n// Reseteo de controles UI Textuales\r\nReset(SpvNvCmc_TxtITituloFormularioDetalle);\r\nReset(SpvNvCmc_TxtIDescripcionDetalle)"
+      OnVisible: "=UpdateContext({ menuSelected: 5 });\r\n\r\nIf(\r\n    !IsBlank(Var_SpvCmcComunicadoSeleccionada),\r\n    \r\n    // 1. CARGA DE CONTEXTOS BÁSICOS Y FECHAS\r\n    UpdateContext({\r\n        var_RangeDatePicker_DateStart: If(\r\n            !IsBlank(Var_SpvCmcComunicadoSeleccionada.FechaInicio),\r\n            DateValue(Text(Var_SpvCmcComunicadoSeleccionada.FechaInicio)),\r\n            Blank()\r\n        ),\r\n        var_RangeDatePicker_DateEnd: If(\r\n            !IsBlank(Var_SpvCmcComunicadoSeleccionada.FechaFin),\r\n            DateValue(Text(Var_SpvCmcComunicadoSeleccionada.FechaFin)),\r\n            Blank()\r\n        ),\r\n        varDirigidoSelected: { \r\n            Value: If(\r\n                Text(Var_SpvCmcComunicadoSeleccionada.Gerencia) = \"Todos\" And Text(Var_SpvCmcComunicadoSeleccionada.Pais) = \"Todos\",\r\n                \"Todos\",\r\n                !IsBlank(Text(Var_SpvCmcComunicadoSeleccionada.Gerencia)),\r\n                \"Gerencia\",\r\n                !IsBlank(Text(Var_SpvCmcComunicadoSeleccionada.Pais)),\r\n                \"País\",\r\n                \"Todos\"\r\n            ) \r\n        },\r\n        varTextoSeleccionado: If(\r\n            !IsBlank(Var_SpvCmcComunicadoSeleccionada.Gerencia), Text(Var_SpvCmcComunicadoSeleccionada.Gerencia),\r\n            !IsBlank(Var_SpvCmcComunicadoSeleccionada.Pais), Text(Var_SpvCmcComunicadoSeleccionada.Pais)\r\n        ),\r\n        varDiaInicioSelected: If(!IsBlank(Var_SpvCmcComunicadoSeleccionada.DiaInicio), { Value: IfError(Value(Var_SpvCmcComunicadoSeleccionada.DiaInicio), Blank()) }),\r\n        varMesInicioSelected: If(!IsBlank(Var_SpvCmcComunicadoSeleccionada.MesInicio), { Value: IfError(Value(Var_SpvCmcComunicadoSeleccionada.MesInicio), Blank()) }),\r\n        varDiaFinSelected: If(!IsBlank(Var_SpvCmcComunicadoSeleccionada.DiaFin), { Value: IfError(Value(Var_SpvCmcComunicadoSeleccionada.DiaFin), Blank()) }),\r\n        varMesFinSelected: If(!IsBlank(Var_SpvCmcComunicadoSeleccionada.MesFin), { Value: IfError(Value(Var_SpvCmcComunicadoSeleccionada.MesFin), Blank()) }),\r\n        varOpenDropDownDirigidoOpcion: false,\r\n        CloseAlertSpvNuevoComunicadoDetalle: Blank()\r\n    });\r\n\r\n    // 2. CARGA DE ESTADO DE COMUNICADO Y RECURRENCIA (NUEVO)\r\n    // Se valida el Estado del comunicado (Activo/Inactivo)\r\n    If(\r\n        !IsBlank(Var_SpvCmcComunicadoSeleccionada.EstadoComunicado),\r\n        ClearCollect(\r\n            colEstadoEstadoCmcSeleccionadas,\r\n            { Value: Text(Var_SpvCmcComunicadoSeleccionada.EstadoComunicado) }\r\n        )\r\n    );\r\n\r\n    // Se valida si es Recurrente (esperando un booleano o su equivalente en texto)\r\n    If(\r\n        (Var_SpvCmcComunicadoSeleccionada.Recurrente = true Or Lower(Text(Var_SpvCmcComunicadoSeleccionada.Recurrente)) = \"true\"),\r\n        ClearCollect(\r\n            colEstadoRecurrenteSeleccionadas,\r\n            { Value: Text(Var_SpvCmcComunicadoSeleccionada.TipoRecurrente) }\r\n        ),\r\n        Clear(colEstadoRecurrenteSeleccionadas)\r\n    );\r\n\r\n    // 3. CARGA DE DIRIGIDO A (Split de colecciones)\r\n    If(\r\n        Text(Var_SpvCmcComunicadoSeleccionada.Gerencia) = \"Todos\" And Text(Var_SpvCmcComunicadoSeleccionada.Pais) = \"Todos\",\r\n        Clear(colDirigidoOpcionSeleccionadas),\r\n\r\n        !IsBlank(Var_SpvCmcComunicadoSeleccionada.Gerencia),\r\n        ClearCollect(\r\n            colDirigidoOpcionSeleccionadas,\r\n            ForAll(\r\n                Split(Var_SpvCmcComunicadoSeleccionada.Gerencia, \";\"),\r\n                If(!IsBlank(Trim(Value)), { Value: Trim(Value) })\r\n            )\r\n        ),\r\n\r\n        !IsBlank(Var_SpvCmcComunicadoSeleccionada.Pais),\r\n        ClearCollect(\r\n            colDirigidoOpcionSeleccionadas,\r\n            ForAll(\r\n                Split(Var_SpvCmcComunicadoSeleccionada.Pais, \";\"),\r\n                If(!IsBlank(Trim(Value)), { Value: Trim(Value) })\r\n            )\r\n        ),\r\n\r\n        Clear(colDirigidoOpcionSeleccionadas)\r\n    );\r\n\r\n    // 4. CONCATENACIÓN DE TEXTO SELECCIONADO\r\n    UpdateContext({\r\n        varTextoSeleccionado: If(\r\n            !IsEmpty(colDirigidoOpcionSeleccionadas),\r\n            Concat(colDirigidoOpcionSeleccionadas, Value, \"; \"),\r\n            \"Todos\"\r\n        )\r\n    }),\r\n\r\n    // FLUJO FALSO: (Si es un comunicado nuevo, limpiamos la pantalla)\r\n    \r\n    Clear(colEstadoEstadoCmcSeleccionadas);\r\n    Clear(colEstadoRecurrenteSeleccionadas);\r\n    Clear(colDirigidoOpcionSeleccionadas);\r\n    UpdateContext({\r\n        var_RangeDatePicker_DateStart: Blank(),\r\n        var_RangeDatePicker_DateEnd: Blank()\r\n    })\r\n);\r\n\r\n// Reseteo de controles UI Textuales\r\nReset(SpvNvCmc_TxtITituloFormularioDetalle);\r\nReset(SpvNvCmc_TxtIDescripcionDetalle)"
     Children:
       - SpvNvCmc_ScreenContainerDetalle:
           Control: GroupContainer@1.5.0
@@ -277,14 +277,14 @@ Screens:
 
                                     // 2. Solo Opciones está activo (o Tiempo es falso)
                                     SpvNvCmc_CtnDirigidoOpcionesDetalle.Visible && !SpvNvCmc_CtnTiempoDuracionDetalle.Visible, 
-                                    685,
+                                    850,
 
                                     // 3. Solo Tiempo está activo (o Opciones es falso)
                                     !SpvNvCmc_CtnDirigidoOpcionesDetalle.Visible && SpvNvCmc_CtnTiempoDuracionDetalle.Visible, 
                                     685,
 
                                     // 4. Ambos están desactivados (Caso base)
-                                    615
+                                    780
                                 )
                               LayoutMinHeight: =670
                               LayoutMinWidth: =16
@@ -1351,7 +1351,7 @@ Screens:
                                           BorderStyle: =BorderStyle.None
                                           DropShadow: =DropShadow.None
                                           FillPortions: =0
-                                          Height: =70
+                                          Height: =If(IsEmpty(colEstadoRecurrenteSeleccionadas),70,230)
                                           LayoutMinHeight: =16
                                           LayoutMinWidth: =0
                                           Width: =600
@@ -1362,9 +1362,9 @@ Screens:
                                               Properties:
                                                 BorderColor: =RGBA(0, 18, 107, 1)
                                                 Height: =50
-                                                Items: =["Recurrente"]
+                                                Items: =["Recurrente anual","Recurrente mensual"]
                                                 TemplateSize: =40
-                                                Width: =345
+                                                Width: =510
                                                 WrapCount: =2.5
                                                 Y: =10
                                               Children:
@@ -1470,8 +1470,8 @@ Screens:
                                                 RadiusTopRight: =10
                                                 Visible: =If(!IsEmpty(colEstadoRecurrenteSeleccionadas),true,false)
                                                 Width: =150
-                                                X: =810
-                                                Y: =15
+                                                X: =180
+                                                Y: =SpvNvCmc_LblTiempoRecurrenciaHasta.Y + 25
                                               Children:
                                                 - SpvNvCmc_CtnDiaFinDetalle:
                                                     Control: GroupContainer@1.5.0
@@ -1591,8 +1591,8 @@ Screens:
                                                 RadiusTopRight: =10
                                                 Visible: =If(!IsEmpty(colEstadoRecurrenteSeleccionadas),true,false)
                                                 Width: =150
-                                                X: =650
-                                                Y: =SpvNvCmc_CtnDiaFinRecurrenteDetalle.Y
+                                                X: =2
+                                                Y: =SpvNvCmc_LblTiempoRecurrenciaHastaDetalle.Y + 25
                                               Children:
                                                 - SpvNvCmc_CtnMesFinDetalle:
                                                     Control: GroupContainer@1.5.0
@@ -1711,8 +1711,8 @@ Screens:
                                                 RadiusTopRight: =10
                                                 Visible: =If(!IsEmpty(colEstadoRecurrenteSeleccionadas),true,false)
                                                 Width: =150
-                                                X: =450
-                                                Y: =15
+                                                X: =180
+                                                Y: =SpvNvCmc_LblTiempoRecurrenciaDesdeDetalle.Y + 25
                                               Children:
                                                 - SpvNvCmc_CtnDiainicioDetalle:
                                                     Control: GroupContainer@1.5.0
@@ -1832,8 +1832,8 @@ Screens:
                                                 RadiusTopRight: =10
                                                 Visible: =If(!IsEmpty(colEstadoRecurrenteSeleccionadas),true,false)
                                                 Width: =150
-                                                X: =290
-                                                Y: =SpvNvCmc_CtnDiainicioRecurrenteDetalle.Y
+                                                X: =2
+                                                Y: =SpvNvCmc_LblTiempoRecurrenciaDesdeDetalle.Y + 25
                                               Children:
                                                 - SpvNvCmc_CtnMesinicioDetalle:
                                                     Control: GroupContainer@1.5.0
@@ -1950,8 +1950,8 @@ Screens:
                                                 Text: ="Día fin"
                                                 Visible: =!IsBlank(SpvNvCmc_LblDiaFinDetalle.Value)
                                                 Width: =40
-                                                X: =820
-                                                Y: =6
+                                                X: =SpvNvCmc_CtnDiaFinRecurrente.X + 8
+                                                Y: =SpvNvCmc_CtnDiaFinRecurrente.Y - 10
                                           - SpvNvCmc_LblMesFinCabeceraDetalle:
                                               Control: Text@0.0.51
                                               Properties:
@@ -1964,8 +1964,8 @@ Screens:
                                                 Text: ="Mes fin"
                                                 Visible: =!IsBlank(SpvNvCmc_LblMesFinDetalle.Value)
                                                 Width: =47
-                                                X: =660
-                                                Y: =6
+                                                X: =SpvNvCmc_CtnMesFinRecurrenteDetalle.X + 8
+                                                Y: =SpvNvCmc_CtnMesFinRecurrenteDetalle.Y - 10
                                           - SpvNvCmc_LblDiaInicioCabeceraDetalle:
                                               Control: Text@0.0.51
                                               Properties:
@@ -1978,8 +1978,8 @@ Screens:
                                                 Text: ="Día inicio"
                                                 Visible: =!IsBlank(SpvNvCmc_LblDiaInicioDetalle.Value)
                                                 Width: =55
-                                                X: =460
-                                                Y: =6
+                                                X: =SpvNvCmc_CtnDiainicioRecurrente.X + 8
+                                                Y: =SpvNvCmc_CtnDiainicioRecurrente.Y - 10
                                           - SpvNvCmc_LblMesInicioCabeceraDetalle:
                                               Control: Text@0.0.51
                                               Properties:
@@ -1992,8 +1992,45 @@ Screens:
                                                 Text: ="Mes inicio"
                                                 Visible: =!IsBlank(SpvNvCmc_LblMesInicioDetalle.Value)
                                                 Width: =60
-                                                X: =300
-                                                Y: =6
+                                                X: =SpvNvCmc_CtnMesinicioRecurrenteDetalle.X + 8
+                                                Y: =SpvNvCmc_CtnMesinicioRecurrenteDetalle.Y - 10
+                                          - SpvNvCmc_LblTipoRecurrenciaTituloDetalle:
+                                              Control: Text@0.0.51
+                                              Properties:
+                                                Align: ='TextCanvas.Align'.Start
+                                                Fill: =RGBA(255, 255, 255, 1)
+                                                Font: =Font.'Open Sans'
+                                                Height: =20
+                                                PaddingLeft: =2
+                                                Size: =12
+                                                Text: ="Tipo recurrencia comunicado"
+                                                Width: =180
+                                          - SpvNvCmc_LblTiempoRecurrenciaDesdeDetalle:
+                                              Control: Text@0.0.51
+                                              Properties:
+                                                Align: ='TextCanvas.Align'.Start
+                                                Fill: =RGBA(255, 255, 255, 1)
+                                                Font: =Font.'Open Sans'
+                                                Height: =20
+                                                PaddingLeft: =2
+                                                Size: =12
+                                                Text: ="Desde"
+                                                Visible: =SpvNvCmc_CtnMesinicioRecurrenteDetalle.Visible
+                                                Width: =180
+                                                Y: =70
+                                          - SpvNvCmc_LblTiempoRecurrenciaHastaDetalle:
+                                              Control: Text@0.0.51
+                                              Properties:
+                                                Align: ='TextCanvas.Align'.Start
+                                                Fill: =RGBA(255, 255, 255, 1)
+                                                Font: =Font.'Open Sans'
+                                                Height: =20
+                                                PaddingLeft: =2
+                                                Size: =12
+                                                Text: ="Hasta"
+                                                Visible: =SpvNvCmc_CtnMesFinRecurrenteDetalle.Visible
+                                                Width: =180
+                                                Y: =150
                                     - SpvNvCmc_CtnDescripcionDetalle:
                                         Control: GroupContainer@1.5.0
                                         Variant: ManualLayout
@@ -2071,12 +2108,12 @@ Screens:
                                                 Align: ='TextCanvas.Align'.Start
                                                 Fill: =RGBA(255, 255, 255, 1)
                                                 Font: =Font.'Open Sans'
-                                                Height: =16
+                                                Height: =19
                                                 PaddingLeft: =2
                                                 Size: =12
                                                 Text: ="Descripción"
                                                 Visible: =!IsBlank(SpvNvCmc_TxtIDescripcionDetalle.Text)
-                                                Width: =70
+                                                Width: =80
                                                 Wrap: =false
                                                 X: =15
                                     - SpvNvCmc_CtnBotonesDetalle:
@@ -2137,7 +2174,7 @@ Screens:
                                                 HoverBorderColor: '=ColorFade(Self.BorderColor, 20%)                       '
                                                 HoverColor: =RGBA(255, 255, 255, 1)
                                                 HoverFill: =ColorValue(Var_ColorHoverBoton)
-                                                OnSelect: "=If(IsBlank(var_RangeDatePicker_DateEnd), UpdateContext({var_RangeDatePicker_DateEnd: var_RangeDatePicker_DateStart}));\n\nIf( Text(Var_SpvCmcComunicadoSeleccionada.Recurrente) = \"False\",\n    UpdateContext({ \n        varDiaInicioSelected: Blank(), \n        varDiaFinSelected: Blank()\n    })\n);\n\nIf(\n    IsBlank(SpvNvCmc_TxtITituloFormularioDetalle.Text),\n    UpdateContext({CloseAlertSpvNuevoComunicado: true, SpvNvCmcMensajeError: \"Debes ingresar el Título\"}),\n    \n    IsEmpty(SpvNvCmc_var_uploadFile_listeAttachmentDetalle) && (IsBlank(Var_SpvCmcComunicadoSeleccionada.Imagen) || Text(Var_SpvCmcComunicadoSeleccionada.Imagen) = \"null\"),\n    UpdateContext({CloseAlertSpvNuevoComunicado: true, SpvNvCmcMensajeError: \"Debes ingresar el Banner\"}),\n    \n    SpvNvCmc_LblFechaSeleccionadaDetalle.Text = \"Tiempo de duración\" && IsEmpty(colEstadoRecurrenteSeleccionadas),\n    UpdateContext({CloseAlertSpvNuevoComunicado: true, SpvNvCmcMensajeError: \"Debes ingresar el Tiempo de duración\"}),\n    \n    IsBlank(SpvNvCmc_LblDirigidoSelDetalle.Value),\n    UpdateContext({CloseAlertSpvNuevoComunicado: true, SpvNvCmcMensajeError: \"Debes seleccionar el Dirigido a\"}),\n    \n    // \U0001F539 CORRECCIÓN: Se ignora si el valor principal es \"Todos\"\n    SpvNvCmc_LblDirigidoSelDetalle.Value <> \"Todos\" && IsBlank(SpvNvCmc_LblDirigidoOpcionSelDetalle.Value),\n        UpdateContext({CloseAlertSpvNuevoComunicado:true, SpvNvCmcMensajeError: If(SpvNvCmc_LblDirigidoSelDetalle.Value=\"Gerencia\",\"Debes seleccionar la Gerencia\",\"Debes seleccionar el País\")}),\n    \n    (!IsEmpty(colEstadoRecurrenteSeleccionadas) && IsBlank(varDiaInicioSelected.Value)),\n    UpdateContext({CloseAlertSpvNuevoComunicado: true, SpvNvCmcMensajeError: \"Debes ingresar el Día Inicio\"}),\n    \n    (!IsEmpty(colEstadoRecurrenteSeleccionadas) && IsBlank(varDiaFinSelected.Value)),\n    UpdateContext({CloseAlertSpvNuevoComunicado: true, SpvNvCmcMensajeError: \"Debes ingresar el Día Fin\"}),\n    \n    (!IsBlank(SpvNvCmc_LblMesInicioDetalle.Value) && IsBlank(SpvNvCmc_LblMesFinDetalle.Value)),\n    UpdateContext({CloseAlertSpvNuevoComunicado: true, SpvNvCmcMensajeError: \"Debes ingresar el Mes Fin\"}),\n    \n    IsBlank(SpvNvCmc_TxtIDescripcionDetalle.Text),\n    UpdateContext({CloseAlertSpvNuevoComunicado: true, SpvNvCmcMensajeError: \"Debes ingresar la Descripción\"}),\n    \n    // Condición \"Else\" general\n    If(!IsEmpty(SpvNvCmc_var_uploadFile_listeAttachmentDetalle),\n        \n        // Bloque Verdadero (Con adjunto)\n        IfError(\n            Patch(\n                'LCP-001_List_Comunicados',\n                LookUp('LCP-001_List_Comunicados', ID = Value(Var_SpvCmcComunicadoSeleccionada.ID)),\n                {\n                    Gerencia: If(Text(varDirigidoSelected.Value)=\"Gerencia\", Text(varTextoSeleccionado), Text(varDirigidoSelected.Value)=\"Todos\", \"Todos\", Blank()),\n                    Pais: If(Text(varDirigidoSelected.Value)=\"País\", Text(varTextoSeleccionado), Text(varDirigidoSelected.Value)=\"Todos\", \"Todos\", Blank()),\n                    Cabecera: SpvNvCmc_TxtITituloFormularioDetalle.Text,\n                    Cuerpo: SpvNvCmc_TxtIDescripcionDetalle.Text,\n                    UsuarioCreador: User().FullName,\n                    FechaCreacion: Now(),\n                    Estado: \"Vigente\",\n                    FechaInicio: var_RangeDatePicker_DateStart,\n                    FechaFin: var_RangeDatePicker_DateEnd,\n                    DiaInicio: Text(varDiaInicioSelected.Value),\n                    MesInicio: Text(varMesInicioSelected.ID),\n                    DiaFin: Text(varDiaFinSelected.Value),\n                    MesFin: Text(varMesFinSelected.ID),\n                    EstadoComunicado: \"Activo\",\n                    Recurrente: CountRows(colEstadoRecurrenteSeleccionadas) > 0,\n                    Imagen: {\n                        FileName: First(SpvNvCmc_var_uploadFile_listeAttachmentDetalle).nombre,\n                        Value: First(SpvNvCmc_var_uploadFile_listeAttachmentDetalle).VistaPrevia,\n                        Full: Blank(),\n                        Large: Blank(),\n                        Medium: Blank(),\n                        Small: Blank(),\n                        Id: Blank(),\n                        MetaData: Blank()\n                    }\n                }\n            ),\n            UpdateContext({\n                CloseAlertSpvNuevoComunicadoDetalle: true,\n                SpvNvCmcMensajeErrorDetalle: \"Ocurrió un error al crear la comunicación\"\n            })\n        );\n        Set(Var_SpvMostrarAlertaComunicacion, true);\n        Set(Var_SpvMensajeSatisfactorioComunicacion, \"Se ha modificado una comunicación.\");\n        Navigate(Spv_Comunicados);\n        Reset(SpvNvCmc_TxtITituloFormularioDetalle);\n        UpdateContext({\n            var_RangeDatePicker_DateStart: Blank(),\n            var_RangeDatePicker_DateEnd: Blank()\n        });\n        Reset(SpvNvCmc_LblDirigidoSelDetalle);\n        Remove(SpvNvCmc_var_uploadFile_listeAttachmentDetalle, First(SpvNvCmc_var_uploadFile_listeAttachmentDetalle));\n        Reset(SpvNvCmc_TxtIDescripcionDetalle)\n        \n        , // Separador de argumentos entre Verdadero/Falso del If(!IsEmpty(...))\n        \n        // Bloque Falso (Sin adjunto)\n        IfError(\n            Patch(\n                'LCP-001_List_Comunicados',\n                LookUp('LCP-001_List_Comunicados', ID = Value(Var_SpvCmcComunicadoSeleccionada.ID)),\n                {\n                    Gerencia: If(Text(varDirigidoSelected.Value)=\"Gerencia\", Text(varTextoSeleccionado), Text(varDirigidoSelected.Value)=\"Todos\", \"Todos\", Blank()),\n                    Pais: If(Text(varDirigidoSelected.Value)=\"País\", Text(varTextoSeleccionado), Text(varDirigidoSelected.Value)=\"Todos\", \"Todos\", Blank()),\n                    Cabecera: SpvNvCmc_TxtITituloFormularioDetalle.Text,\n                    Cuerpo: SpvNvCmc_TxtIDescripcionDetalle.Text,\n                    UsuarioCreador: User().FullName,\n                    FechaCreacion: Now(),\n                    Estado: \"Vigente\",\n                    FechaInicio: var_RangeDatePicker_DateStart,\n                    FechaFin: var_RangeDatePicker_DateEnd,\n                    DiaInicio: Text(varDiaInicioSelected.Value),\n                    MesInicio: Text(varMesInicioSelected.ID),\n                    DiaFin: Text(varDiaFinSelected.Value),\n                    MesFin: Text(varMesFinSelected.ID),\n                    EstadoComunicado: \"Activo\",\n                    Recurrente: CountRows(colEstadoRecurrenteSeleccionadas) > 0\n                }\n            ),\n            UpdateContext({\n                CloseAlertSpvNuevoComunicadoDetalle: true,\n                SpvNvCmcMensajeErrorDetalle: \"Ocurrió un error al crear la comunicación\"\n            })\n        );\n        Set(Var_SpvMostrarAlertaComunicacion, true);\n        Set(Var_SpvMensajeSatisfactorioComunicacion, \"Se ha modificado una comunicación.\");\n        Navigate(Spv_Comunicados);\n        Reset(SpvNvCmc_TxtITituloFormularioDetalle);\n        UpdateContext({\n            var_RangeDatePicker_DateStart: Blank(),\n            var_RangeDatePicker_DateEnd: Blank()\n        });\n        Reset(SpvNvCmc_LblDirigidoSelDetalle);\n        Remove(SpvNvCmc_var_uploadFile_listeAttachmentDetalle, First(SpvNvCmc_var_uploadFile_listeAttachmentDetalle));\n        Reset(SpvNvCmc_TxtIDescripcionDetalle)\n    )\n)"
+                                                OnSelect: "=If(IsBlank(var_RangeDatePicker_DateEnd), UpdateContext({var_RangeDatePicker_DateEnd: var_RangeDatePicker_DateStart}));\n\nIf( Text(Var_SpvCmcComunicadoSeleccionada.Recurrente) = \"False\",\n    UpdateContext({ \n        varDiaInicioSelected: Blank(), \n        varDiaFinSelected: Blank()\n    })\n);\n\nIf(\n    IsBlank(SpvNvCmc_TxtITituloFormularioDetalle.Text),\n    UpdateContext({CloseAlertSpvNuevoComunicado: true, SpvNvCmcMensajeError: \"Debes ingresar el Título\"}),\n    \n    IsEmpty(SpvNvCmc_var_uploadFile_listeAttachmentDetalle) && (IsBlank(Var_SpvCmcComunicadoSeleccionada.Imagen) || Text(Var_SpvCmcComunicadoSeleccionada.Imagen) = \"null\"),\n    UpdateContext({CloseAlertSpvNuevoComunicado: true, SpvNvCmcMensajeError: \"Debes ingresar el Banner\"}),\n    \n    SpvNvCmc_LblFechaSeleccionadaDetalle.Text = \"Tiempo de duración\" && IsEmpty(colEstadoRecurrenteSeleccionadas),\n    UpdateContext({CloseAlertSpvNuevoComunicado: true, SpvNvCmcMensajeError: \"Debes ingresar el Tiempo de duración\"}),\n    \n    IsBlank(SpvNvCmc_LblDirigidoSelDetalle.Value),\n    UpdateContext({CloseAlertSpvNuevoComunicado: true, SpvNvCmcMensajeError: \"Debes seleccionar el Dirigido a\"}),\n    \n    // \U0001F539 CORRECCIÓN: Se ignora si el valor principal es \"Todos\"\n    SpvNvCmc_LblDirigidoSelDetalle.Value <> \"Todos\" && IsBlank(SpvNvCmc_LblDirigidoOpcionSelDetalle.Value),\n        UpdateContext({CloseAlertSpvNuevoComunicado:true, SpvNvCmcMensajeError: If(SpvNvCmc_LblDirigidoSelDetalle.Value=\"Gerencia\",\"Debes seleccionar la Gerencia\",\"Debes seleccionar el País\")}),\n    \n    (!IsEmpty(colEstadoRecurrenteSeleccionadas) && IsBlank(varDiaInicioSelected.Value)),\n    UpdateContext({CloseAlertSpvNuevoComunicado: true, SpvNvCmcMensajeError: \"Debes ingresar el Día Inicio\"}),\n    \n    (!IsEmpty(colEstadoRecurrenteSeleccionadas) && IsBlank(varDiaFinSelected.Value)),\n    UpdateContext({CloseAlertSpvNuevoComunicado: true, SpvNvCmcMensajeError: \"Debes ingresar el Día Fin\"}),\n    \n    (!IsBlank(SpvNvCmc_LblMesInicioDetalle.Value) && IsBlank(SpvNvCmc_LblMesFinDetalle.Value)),\n    UpdateContext({CloseAlertSpvNuevoComunicado: true, SpvNvCmcMensajeError: \"Debes ingresar el Mes Fin\"}),\n    \n    IsBlank(SpvNvCmc_TxtIDescripcionDetalle.Text),\n    UpdateContext({CloseAlertSpvNuevoComunicado: true, SpvNvCmcMensajeError: \"Debes ingresar la Descripción\"}),\n    \n    // Condición \"Else\" general\n    If(!IsEmpty(SpvNvCmc_var_uploadFile_listeAttachmentDetalle),\n        \n        // Bloque Verdadero (Con adjunto)\n        IfError(\n            Patch(\n                'LCP-001_List_Comunicados',\n                LookUp('LCP-001_List_Comunicados', ID = Value(Var_SpvCmcComunicadoSeleccionada.ID)),\n                {\n                    Gerencia: If(Text(varDirigidoSelected.Value)=\"Gerencia\", Text(varTextoSeleccionado), Text(varDirigidoSelected.Value)=\"Todos\", \"Todos\", Blank()),\n                    Pais: If(Text(varDirigidoSelected.Value)=\"País\", Text(varTextoSeleccionado), Text(varDirigidoSelected.Value)=\"Todos\", \"Todos\", Blank()),\n                    Cabecera: SpvNvCmc_TxtITituloFormularioDetalle.Text,\n                    Cuerpo: SpvNvCmc_TxtIDescripcionDetalle.Text,\n                    UsuarioCreador: User().FullName,\n                    FechaCreacion: Now(),\n                    Estado: \"Vigente\",\n                    FechaInicio: var_RangeDatePicker_DateStart,\n                    FechaFin: var_RangeDatePicker_DateEnd,\n                    DiaInicio: Text(varDiaInicioSelected.Value),\n                    MesInicio: Text(varMesInicioSelected.ID),\n                    DiaFin: Text(varDiaFinSelected.Value),\n                    MesFin: Text(varMesFinSelected.ID),\n                    EstadoComunicado: \"Activo\",\n                    Recurrente: CountRows(colEstadoRecurrenteSeleccionadas) > 0,\n                    TipoRecurrente: First(colEstadoRecurrenteSeleccionadas).Value,\n                    Imagen: {\n                        FileName: First(SpvNvCmc_var_uploadFile_listeAttachmentDetalle).nombre,\n                        Value: First(SpvNvCmc_var_uploadFile_listeAttachmentDetalle).VistaPrevia,\n                        Full: Blank(),\n                        Large: Blank(),\n                        Medium: Blank(),\n                        Small: Blank(),\n                        Id: Blank(),\n                        MetaData: Blank()\n                    }\n                }\n            ),\n            UpdateContext({\n                CloseAlertSpvNuevoComunicadoDetalle: true,\n                SpvNvCmcMensajeErrorDetalle: \"Ocurrió un error al crear la comunicación\"\n            })\n        );\n        Set(Var_SpvMostrarAlertaComunicacion, true);\n        Set(Var_SpvMensajeSatisfactorioComunicacion, \"Se ha modificado una comunicación.\");\n        Navigate(Spv_Comunicados);\n        Reset(SpvNvCmc_TxtITituloFormularioDetalle);\n        UpdateContext({\n            var_RangeDatePicker_DateStart: Blank(),\n            var_RangeDatePicker_DateEnd: Blank()\n        });\n        Reset(SpvNvCmc_LblDirigidoSelDetalle);\n        Remove(SpvNvCmc_var_uploadFile_listeAttachmentDetalle, First(SpvNvCmc_var_uploadFile_listeAttachmentDetalle));\n        Reset(SpvNvCmc_TxtIDescripcionDetalle)\n        \n        , // Separador de argumentos entre Verdadero/Falso del If(!IsEmpty(...))\n        \n        // Bloque Falso (Sin adjunto)\n        IfError(\n            Patch(\n                'LCP-001_List_Comunicados',\n                LookUp('LCP-001_List_Comunicados', ID = Value(Var_SpvCmcComunicadoSeleccionada.ID)),\n                {\n                    Gerencia: If(Text(varDirigidoSelected.Value)=\"Gerencia\", Text(varTextoSeleccionado), Text(varDirigidoSelected.Value)=\"Todos\", \"Todos\", Blank()),\n                    Pais: If(Text(varDirigidoSelected.Value)=\"País\", Text(varTextoSeleccionado), Text(varDirigidoSelected.Value)=\"Todos\", \"Todos\", Blank()),\n                    Cabecera: SpvNvCmc_TxtITituloFormularioDetalle.Text,\n                    Cuerpo: SpvNvCmc_TxtIDescripcionDetalle.Text,\n                    UsuarioCreador: User().FullName,\n                    FechaCreacion: Now(),\n                    Estado: \"Vigente\",\n                    FechaInicio: var_RangeDatePicker_DateStart,\n                    FechaFin: var_RangeDatePicker_DateEnd,\n                    DiaInicio: Text(varDiaInicioSelected.Value),\n                    MesInicio: Text(varMesInicioSelected.ID),\n                    DiaFin: Text(varDiaFinSelected.Value),\n                    MesFin: Text(varMesFinSelected.ID),\n                    EstadoComunicado: \"Activo\",\n                    Recurrente: CountRows(colEstadoRecurrenteSeleccionadas) > 0,\n                    TipoRecurrente: First(colEstadoRecurrenteSeleccionadas).Value\n                }\n            ),\n            UpdateContext({\n                CloseAlertSpvNuevoComunicadoDetalle: true,\n                SpvNvCmcMensajeErrorDetalle: \"Ocurrió un error al crear la comunicación\"\n            })\n        );\n        Set(Var_SpvMostrarAlertaComunicacion, true);\n        Set(Var_SpvMensajeSatisfactorioComunicacion, \"Se ha modificado una comunicación.\");\n        Navigate(Spv_Comunicados);\n        Reset(SpvNvCmc_TxtITituloFormularioDetalle);\n        UpdateContext({\n            var_RangeDatePicker_DateStart: Blank(),\n            var_RangeDatePicker_DateEnd: Blank()\n        });\n        Reset(SpvNvCmc_LblDirigidoSelDetalle);\n        Remove(SpvNvCmc_var_uploadFile_listeAttachmentDetalle, First(SpvNvCmc_var_uploadFile_listeAttachmentDetalle));\n        Reset(SpvNvCmc_TxtIDescripcionDetalle)\n    )\n)"
                                                 PaddingLeft: =10
                                                 PressedBorderColor: =Self.PressedFill
                                                 PressedColor: =ColorValue(Var_ColorBlanco)
