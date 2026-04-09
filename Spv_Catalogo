@@ -490,6 +490,7 @@ Screens:
                                     FillPortions: =0
                                     LayoutAlignItems: =LayoutAlignItems.Stretch
                                     LayoutDirection: =LayoutDirection.Vertical
+                                    LayoutGap: =5
                                     LayoutMinHeight: =16
                                     LayoutMinWidth: =16
                                     PaddingBottom: =8
@@ -527,7 +528,12 @@ Screens:
                                                 DisabledFill: =RGBA(0, 0, 0, 0)
                                                 Fill: =If(Var_Ctx_TicketPopulares, ColorValue("#F5F5F5"), Color.Transparent)
                                                 Font: =Font.'Open Sans'
-                                                FontWeight: =FontWeight.Normal
+                                                FontWeight: |-
+                                                  =If(
+                                                      Var_Ctx_TicketPopulares, 
+                                                      FontWeight.Bold, 
+                                                      FontWeight.Normal
+                                                  )
                                                 Height: =Parent.Height
                                                 HoverBorderColor: =RGBA(0, 0, 0, 0)
                                                 HoverColor: =RGBA(0, 0, 0, 1)
@@ -637,8 +643,13 @@ Screens:
                                                             RGBA(255, 255, 255, 0)
                                                         )
                                                       Font: =Font.'Open Sans'
-                                                      FontWeight: =FontWeight.Normal
-                                                      Height: =35
+                                                      FontWeight: |-
+                                                        =If(
+                                                            Trim(Var_Ctx_AreaSeleccionada) = Trim(ThisItem.Area), 
+                                                            FontWeight.Semibold, 
+                                                            FontWeight.Normal
+                                                        )
+                                                      Height: =30
                                                       HoverBorderColor: =RGBA(0, 0, 0, 0)
                                                       HoverColor: =RGBA(50, 49, 48, 1)
                                                       HoverFill: =RGBA(243, 242, 241, 1)
@@ -715,12 +726,17 @@ Screens:
                                                 DisabledFill: =RGBA(0, 0, 0, 0)
                                                 Fill: |-
                                                   =If(
-                                                      Trim(Var_Ctx_GerenciaSeleccionada) = Trim(ThisItem.Nombre) && IsBlank(Var_Ctx_AreaSeleccionada), 
+                                                      Trim(Var_Ctx_GerenciaSeleccionada) = Trim(ThisItem.Nombre), 
                                                       RGBA(225, 223, 221, 1), 
                                                       RGBA(255, 255, 255, 0)
                                                   )
                                                 Font: =Font.'Open Sans'
-                                                FontWeight: =FontWeight.Normal
+                                                FontWeight: |-
+                                                  =If(
+                                                      Trim(Var_Ctx_GerenciaSeleccionada) = Trim(ThisItem.Nombre), 
+                                                      FontWeight.Bold, 
+                                                      FontWeight.Normal
+                                                  )
                                                 Height: =30
                                                 HoverBorderColor: =RGBA(0, 0, 0, 0)
                                                 HoverColor: =RGBA(50, 49, 48, 1)
