@@ -505,19 +505,24 @@ Screens:
                                               Properties:
                                                 BorderColor: =RGBA(0, 18, 107, 1)
                                                 Height: =50
-                                                Items: =Sequence(RoundUp(TotalItemAdmUsuarios/Var_GridPageSizeAdmUsuarios, 0), 1)
+                                                Items: |-
+                                                  =If(
+                                                      !IsBlank(TotalItemAdmUsuarios) && Var_GridPageSizeAdmUsuarios > 0,
+                                                      Sequence(RoundUp(TotalItemAdmUsuarios / Var_GridPageSizeAdmUsuarios, 0), 1),
+                                                      [1] // Secuencia segura inicial
+                                                  )
                                                 ShowNavigation: =true
                                                 TemplateSize: =30
-                                                Width: |
+                                                Width: |-
                                                   =With(
                                                       {
-                                                          totalPages: RoundUp(TotalItemAdmUsuarios / Var_GridPageSizeAdmUsuarios, 0),
+                                                          totalPages: If(Var_GridPageSizeAdmUsuarios > 0, RoundUp(TotalItemAdmUsuarios / Var_GridPageSizeAdmUsuarios, 0), 1),
                                                           maxVisible: 15,
                                                           itemWidth: Self.TemplateWidth + Self.TemplatePadding
                                                       },
                                                       If(
                                                           totalPages <= maxVisible,
-                                                          totalPages * itemWidth + itemWidth, // margen extra
+                                                          (totalPages * itemWidth) + itemWidth, 
                                                           maxVisible * itemWidth
                                                       )
                                                   )

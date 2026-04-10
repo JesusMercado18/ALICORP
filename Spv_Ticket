@@ -740,16 +740,16 @@ Screens:
                                                   )
                                                 ShowNavigation: =true
                                                 TemplateSize: =30
-                                                Width: |
+                                                Width: |-
                                                   =With(
                                                       {
-                                                          totalPages: RoundUp(TotalItemSpv / Var_GridPageSizeSpv, 0),
+                                                          totalPages: If(Var_GridPageSizeSpv > 0, RoundUp(TotalItemSpv / Var_GridPageSizeSpv, 0), 1),
                                                           maxVisible: 15,
                                                           itemWidth: Self.TemplateWidth + Self.TemplatePadding
                                                       },
                                                       If(
                                                           totalPages <= maxVisible,
-                                                          totalPages * itemWidth + itemWidth, // margen extra
+                                                          (totalPages * itemWidth) + itemWidth, // Margen extra
                                                           maxVisible * itemWidth
                                                       )
                                                   )
