@@ -1359,7 +1359,7 @@ Screens:
                   Height: =Parent.Height - Self.Y
                   Items: =Filter(Distinct(colSugerenciasBusqueda, Text(Value.Gerencia)), !IsBlank(Value))
                   ShowScrollbar: =false
-                  TemplateFill: =If(ctx_GerenciaExpandida = ThisItem.Nombre, ColorValue("#F5F5F5"), Color.Transparent)
+                  TemplateFill: =If(ctx_GerenciaExpandida = ThisItem.Value, ColorValue("#F5F5F5"), Color.Transparent)
                   TemplatePadding: =0
                   TemplateSize: =130
                   Width: =Parent.Width
@@ -1433,3 +1433,790 @@ Screens:
                         Size: =12
                         Text: =ThisItem.Value
                         Width: =Parent.TemplateWidth
+      - SpvCtg_CtnModalVerDetalle:
+          Control: GroupContainer@1.5.0
+          Variant: ManualLayout
+          Properties:
+            Fill: =RGBA(0, 0, 0, 0.1)
+            Height: =768
+            Width: =Parent.Width
+          Children:
+            - SpvCtg_CtnVerDetalle:
+                Control: GroupContainer@1.5.0
+                Variant: AutoLayout
+                Properties:
+                  BorderColor: =ColorValue(Var_ColorLine)
+                  BorderThickness: =1
+                  DropShadow: =DropShadow.Regular
+                  Fill: =RGBA(255, 255, 255, 1)
+                  Height: =Parent.Height
+                  LayoutAlignItems: =LayoutAlignItems.Center
+                  LayoutDirection: =LayoutDirection.Vertical
+                  PaddingBottom: =8
+                  PaddingLeft: =16
+                  PaddingRight: =16
+                  PaddingTop: =10
+                  RadiusBottomLeft: =0
+                  RadiusBottomRight: =0
+                  RadiusTopLeft: =0
+                  RadiusTopRight: =0
+                  Width: =400
+                  X: =Parent.Width - Self.Width
+                Children:
+                  - SpvCtg_CtnTituloModalVerDetalle:
+                      Control: GroupContainer@1.5.0
+                      Variant: AutoLayout
+                      Properties:
+                        DropShadow: =DropShadow.None
+                        FillPortions: =0
+                        Height: =40
+                        LayoutAlignItems: =LayoutAlignItems.Center
+                        LayoutDirection: =LayoutDirection.Horizontal
+                        LayoutJustifyContent: =LayoutJustifyContent.SpaceBetween
+                        LayoutMinHeight: =16
+                        LayoutMinWidth: =16
+                        PaddingBottom: =8
+                        PaddingLeft: =8
+                        PaddingRight: =8
+                        PaddingTop: =8
+                      Children:
+                        - SpvCtg_LblTituloModalVerDetalle:
+                            Control: Label@2.5.1
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Stretch
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Font: =Font.'Open Sans'
+                              FontWeight: =FontWeight.Bold
+                              LayoutMinHeight: =16
+                              LayoutMinWidth: =16
+                              PaddingLeft: =0
+                              Size: =16
+                              Text: ="Nuevo"
+                              X: =40
+                              Y: =40
+                        - SpvCtg_IcnCerrarVerDetalle:
+                            Control: Classic/Icon@2.5.0
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Color: =ColorValue(Var_ColorIconNegro)
+                              Height: =20
+                              Icon: =Icon.Cancel
+                              LayoutMinHeight: =16
+                              LayoutMinWidth: =16
+                              OnSelect: |-
+                                =UpdateContext({ Var_Ctx_SpvModal_AgregarSolucion: false })
+                              Width: =20
+                  - SpvCtg_CtnCbxGerencia:
+                      Control: GroupContainer@1.5.0
+                      Variant: ManualLayout
+                      Properties:
+                        BorderStyle: =BorderStyle.None
+                        BorderThickness: =1
+                        DropShadow: =DropShadow.None
+                        FillPortions: =0
+                        Height: =60
+                        LayoutMinHeight: =16
+                        LayoutMinWidth: =16
+                      Children:
+                        - SpvCtg_CtnInfoGerenciaVerDetalle:
+                            Control: GroupContainer@1.5.0
+                            Variant: ManualLayout
+                            Properties:
+                              BorderColor: =ColorValue(Var_ColorBordeBoton)
+                              BorderThickness: =1
+                              DropShadow: =DropShadow.None
+                              Height: =Parent.Height-15
+                              RadiusBottomLeft: =8
+                              RadiusBottomRight: =8
+                              RadiusTopLeft: =8
+                              RadiusTopRight: =8
+                              Width: =Parent.Width - 10
+                              X: =(Parent.Width - Self.Width) / 2
+                              Y: =(Parent.Height - Self.Height) / 2
+                            Children:
+                              - SpvCtg_DetalleGerenciaVerDetalle:
+                                  Control: GroupContainer@1.5.0
+                                  Variant: AutoLayout
+                                  Properties:
+                                    BorderColor: =ColorValue(Var_ColorBordeBoton)
+                                    Fill: =RGBA(255, 255, 255, 0.8)
+                                    Height: =Parent.Height
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutJustifyContent: =LayoutJustifyContent.Center
+                                    PaddingBottom: =8
+                                    PaddingLeft: =8
+                                    PaddingRight: =8
+                                    PaddingTop: =8
+                                    RadiusBottomLeft: =8
+                                    RadiusBottomRight: =8
+                                    RadiusTopLeft: =8
+                                    RadiusTopRight: =8
+                                    Width: =Parent.Width - 2
+                                    Y: '=0   '
+                                  Children:
+                                    - SpvCtg_LblGerenciaSelVerDetalle:
+                                        Control: TextInput@0.0.54
+                                        Properties:
+                                          AccessibleLabel: =
+                                          AlignInContainer: =AlignInContainer.Center
+                                          Appearance: ='TextInputCanvas.Appearance'.Outline
+                                          BasePaletteColor: =RGBA(249, 83, 109, 1)
+                                          BorderStyle: =BorderStyle.None
+                                          FillPortions: =1
+                                          Font: =Font.'Open Sans'
+                                          FontSize: =Var_FontSizeFiltros + 3.5
+                                          Height: =30
+                                          LayoutMinHeight: =16
+                                          LayoutMinWidth: =16
+                                          OnChange: |-
+                                            =UpdateContext({varOpenDropDownGerencia: true})
+                                          PaddingBottom: =3
+                                          PaddingLeft: =0
+                                          Placeholder: ="Gerencia"
+                                          TriggerOutput: ='TextInputCanvas.TriggerOutput'.Keypress
+                                          Value: =varGerenciaSelected.Nombre
+                                          Width: =110
+                                    - SpvCtg_IcnFlechaAbajoVerDetalle:
+                                        Control: Classic/Icon@2.5.0
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.Center
+                                          BorderColor: =RGBA(0, 18, 107, 1)
+                                          Color: =ColorValue(Var_ColorBoton)
+                                          Height: =SpvCtg_IcnBorrarGerenciaSel.Height
+                                          Icon: =If(!varOpenDropDownGerencia,Icon.ChevronDown,Icon.ChevronUp)
+                                          OnSelect: |-
+                                            =UpdateContext({varOpenDropDownGerencia: !varOpenDropDownGerencia})
+                                          PaddingBottom: =5
+                                          PaddingLeft: =5
+                                          PaddingRight: =5
+                                          PaddingTop: =5
+                                          Visible: =Len(SpvCtg_LblGerenciaSelVerDetalle.Value)=0
+                                          Width: =SpvCtg_IcnBorrarGerenciaSel.Width
+                                    - SpvCtg_IcnFlechaArribaVerDetalle:
+                                        Control: Classic/Icon@2.5.0
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.Center
+                                          BorderColor: =RGBA(0, 18, 107, 1)
+                                          BorderStyle: =BorderStyle.None
+                                          BorderThickness: =1
+                                          Color: =ColorValue(Var_ColorIconNegro)
+                                          Fill: =RGBA(255, 255, 255, 1)
+                                          Height: =SpvCtg_IcnBorrarGerenciaSel.Height
+                                          Icon: =Icon.ChevronUp
+                                          OnSelect: =Reset(SpvCtg_LblGerenciaSelVerDetalle);SetFocus(SpvCtg_LblGerenciaSelVerDetalle)
+                                          PaddingBottom: =5
+                                          PaddingLeft: =5
+                                          PaddingRight: =5
+                                          PaddingTop: =5
+                                          Visible: =IsBlank(varGerenciaSelected)&&Len(SpvCtg_LblGerenciaSelVerDetalle.Value)>0
+                                          Width: =SpvCtg_IcnBorrarGerenciaSel.Width
+                                    - SpvCtg_IcnBorrarGerenciaSel:
+                                        Control: Classic/Icon@2.5.0
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.Center
+                                          BorderColor: =RGBA(0, 18, 107, 1)
+                                          Color: =ColorValue(Var_ColorBoton)
+                                          Height: =25
+                                          Icon: =Icon.Cancel
+                                          LayoutMinHeight: =40
+                                          OnSelect: |-
+                                            =//UpdateContext({varRaz : true});;UpdateContext({varGerenciaSelected:Blank()});;SetFocus(SpvCtg_LblGerenciaSelNuevaSolucion);;UpdateContext({varRaz : false});;
+                                            UpdateContext({varRaz : true});
+                                            UpdateContext({
+                                                varGerenciaSelected: Blank(),
+                                                varUpdateAreaSelected: Blank(),
+                                                varUpdateSubAreaSelected: Blank(),
+                                                varOpenDropDownUpdateSubarea: false,
+                                                varOpenDropDownUpdateArea: false
+                                            });
+                                            SetFocus(SpvCtg_LblGerenciaSelVerDetalle);
+                                            UpdateContext({varRaz : false})
+                                          PaddingBottom: =5
+                                          PaddingLeft: =5
+                                          PaddingRight: =5
+                                          PaddingTop: =5
+                                          Visible: =IsBlank(varGerenciaSelected)=false
+                                          Width: =25
+                        - SpvCtg_LblGerenciaVerDetalle:
+                            Control: Text@0.0.51
+                            Properties:
+                              Align: ='TextCanvas.Align'.Start
+                              Fill: =RGBA(255, 255, 255, 1)
+                              Font: =Font.'Open Sans'
+                              Height: =19
+                              PaddingLeft: =2
+                              Size: =12
+                              Text: ="Gerencia"
+                              Visible: =!IsBlank(SpvCtg_LblGerenciaSelVerDetalle.Value)
+                              Width: =54
+                              X: =16
+                  - SpvCtg_CtnCbxArea:
+                      Control: GroupContainer@1.5.0
+                      Variant: ManualLayout
+                      Properties:
+                        BorderStyle: =BorderStyle.None
+                        BorderThickness: =1
+                        DropShadow: =DropShadow.None
+                        FillPortions: =0
+                        Height: =60
+                        LayoutMinHeight: =16
+                        LayoutMinWidth: =16
+                      Children:
+                        - SpvCtg_CtnInfoAreaVerDetalle:
+                            Control: GroupContainer@1.5.0
+                            Variant: ManualLayout
+                            Properties:
+                              BorderColor: =ColorValue(Var_ColorBordeBoton)
+                              BorderThickness: =1
+                              DropShadow: =DropShadow.None
+                              Height: =Parent.Height-15
+                              RadiusBottomLeft: =8
+                              RadiusBottomRight: =8
+                              RadiusTopLeft: =8
+                              RadiusTopRight: =8
+                              Width: =Parent.Width - 10
+                              X: =(Parent.Width - Self.Width) / 2
+                              Y: =(Parent.Height - Self.Height) / 2
+                            Children:
+                              - SpvCtg_DetalleAreaVerDetalle:
+                                  Control: GroupContainer@1.5.0
+                                  Variant: AutoLayout
+                                  Properties:
+                                    BorderColor: =ColorValue(Var_ColorBordeBoton)
+                                    Fill: =RGBA(255, 255, 255, 0.8)
+                                    Height: =Parent.Height
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutJustifyContent: =LayoutJustifyContent.Center
+                                    PaddingBottom: =8
+                                    PaddingLeft: =8
+                                    PaddingRight: =8
+                                    PaddingTop: =8
+                                    RadiusBottomLeft: =8
+                                    RadiusBottomRight: =8
+                                    RadiusTopLeft: =8
+                                    RadiusTopRight: =8
+                                    Width: =Parent.Width - 2
+                                    Y: '=0   '
+                                  Children:
+                                    - SpvCtg_LblAreaSelVerDetalle:
+                                        Control: TextInput@0.0.54
+                                        Properties:
+                                          AccessibleLabel: =
+                                          AlignInContainer: =AlignInContainer.Center
+                                          Appearance: ='TextInputCanvas.Appearance'.Outline
+                                          BasePaletteColor: =RGBA(249, 83, 109, 1)
+                                          BorderStyle: =BorderStyle.None
+                                          FillPortions: =1
+                                          Font: =Font.'Open Sans'
+                                          FontSize: =Var_FontSizeFiltros + 3.5
+                                          Height: =30
+                                          LayoutMinHeight: =16
+                                          LayoutMinWidth: =16
+                                          OnChange: |-
+                                            =UpdateContext({varOpenDropDownEstadoSpvCtg: true})
+                                          PaddingBottom: =3
+                                          PaddingLeft: =0
+                                          Placeholder: ="Área"
+                                          TriggerOutput: ='TextInputCanvas.TriggerOutput'.Keypress
+                                          Value: =varUpdateAreaSelected.Area
+                                          Width: =110
+                                    - SpvCtg_IcnFlechaAbajoNuevaSolucionArea:
+                                        Control: Classic/Icon@2.5.0
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.Center
+                                          BorderColor: =RGBA(0, 18, 107, 1)
+                                          Color: =ColorValue(Var_ColorBoton)
+                                          Height: =SpvCtg_IcnBorrarAreaSel.Height
+                                          Icon: =If(!varOpenDropDownUpdateArea,Icon.ChevronDown,Icon.ChevronUp)
+                                          OnSelect: |-
+                                            =UpdateContext({varOpenDropDownUpdateArea: !varOpenDropDownUpdateArea})
+                                          PaddingBottom: =5
+                                          PaddingLeft: =5
+                                          PaddingRight: =5
+                                          PaddingTop: =5
+                                          Visible: =Len(SpvCtg_LblAreaSelVerDetalle.Value)=0
+                                          Width: =SpvCtg_IcnBorrarAreaSel.Width
+                                    - SpvCtg_IcnFlechaArribaNuevaSolucionArea:
+                                        Control: Classic/Icon@2.5.0
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.Center
+                                          BorderColor: =RGBA(0, 18, 107, 1)
+                                          BorderStyle: =BorderStyle.None
+                                          BorderThickness: =1
+                                          Color: =ColorValue(Var_ColorIconNegro)
+                                          Fill: =RGBA(255, 255, 255, 1)
+                                          Height: =SpvCtg_IcnBorrarAreaSel.Height
+                                          Icon: =Icon.ChevronUp
+                                          OnSelect: =Reset(SpvCtg_LblAreaSelVerDetalle);SetFocus(SpvCtg_LblAreaSelVerDetalle)
+                                          PaddingBottom: =5
+                                          PaddingLeft: =5
+                                          PaddingRight: =5
+                                          PaddingTop: =5
+                                          Visible: =IsBlank(varUpdateAreaSelected)&&Len(SpvCtg_LblAreaSelVerDetalle.Value)>0
+                                          Width: =SpvCtg_IcnBorrarAreaSel.Width
+                                    - SpvCtg_IcnBorrarAreaSel:
+                                        Control: Classic/Icon@2.5.0
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.Center
+                                          BorderColor: =RGBA(0, 18, 107, 1)
+                                          Color: =ColorValue(Var_ColorBoton)
+                                          Height: =25
+                                          Icon: =Icon.Cancel
+                                          LayoutMinHeight: =40
+                                          OnSelect: |-
+                                            =//UpdateContext({varRaz : true});;UpdateContext({varUpdateAreaSelected:Blank()});;SetFocus(SpvCtg_LblAreaSelNuevaSolucion);;UpdateContext({varRaz : false});;
+                                            UpdateContext({varRaz : true});
+                                            UpdateContext({
+                                                varUpdateAreaSelected: Blank(),
+                                                varUpdateSubAreaSelected: Blank()
+                                            });
+                                            SetFocus(SpvCtg_LblAreaSelVerDetalle);
+                                            UpdateContext({varRaz : false})
+                                          PaddingBottom: =5
+                                          PaddingLeft: =5
+                                          PaddingRight: =5
+                                          PaddingTop: =5
+                                          Visible: =IsBlank(varUpdateAreaSelected)=false
+                                          Width: =25
+                        - SpvCtg_LblAreaVerDetalle:
+                            Control: Text@0.0.51
+                            Properties:
+                              Align: ='TextCanvas.Align'.Start
+                              Fill: =RGBA(255, 255, 255, 1)
+                              Height: =19
+                              PaddingLeft: =2
+                              Size: =12
+                              Text: ="Área"
+                              Visible: =!IsBlank(SpvCtg_LblAreaSelVerDetalle.Value)
+                              Width: =30
+                              X: =16
+                  - SpvCtg_CtnCbxSubarea:
+                      Control: GroupContainer@1.5.0
+                      Variant: ManualLayout
+                      Properties:
+                        BorderStyle: =BorderStyle.None
+                        BorderThickness: =1
+                        DropShadow: =DropShadow.None
+                        FillPortions: =0
+                        Height: =60
+                        LayoutMinHeight: =16
+                        LayoutMinWidth: =16
+                      Children:
+                        - SpvCtg_CtnInfoSubareaVerDetalle:
+                            Control: GroupContainer@1.5.0
+                            Variant: ManualLayout
+                            Properties:
+                              BorderColor: =ColorValue(Var_ColorBordeBoton)
+                              BorderThickness: =1
+                              DropShadow: =DropShadow.None
+                              Height: =Parent.Height-15
+                              RadiusBottomLeft: =8
+                              RadiusBottomRight: =8
+                              RadiusTopLeft: =8
+                              RadiusTopRight: =8
+                              Width: =Parent.Width - 10
+                              X: =(Parent.Width - Self.Width) / 2
+                              Y: =(Parent.Height - Self.Height) / 2
+                            Children:
+                              - SpvCtg_DetalleSubareaVerDetalle:
+                                  Control: GroupContainer@1.5.0
+                                  Variant: AutoLayout
+                                  Properties:
+                                    BorderColor: =ColorValue(Var_ColorBordeBoton)
+                                    Fill: =RGBA(255, 255, 255, 0.8)
+                                    Height: =Parent.Height
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutJustifyContent: =LayoutJustifyContent.Center
+                                    PaddingBottom: =8
+                                    PaddingLeft: =8
+                                    PaddingRight: =8
+                                    PaddingTop: =8
+                                    RadiusBottomLeft: =8
+                                    RadiusBottomRight: =8
+                                    RadiusTopLeft: =8
+                                    RadiusTopRight: =8
+                                    Width: =Parent.Width - 2
+                                    Y: '=0   '
+                                  Children:
+                                    - SpvCtg_LblSubareaSelVerDetalle:
+                                        Control: TextInput@0.0.54
+                                        Properties:
+                                          AccessibleLabel: =
+                                          AlignInContainer: =AlignInContainer.Center
+                                          Appearance: ='TextInputCanvas.Appearance'.Outline
+                                          BasePaletteColor: =RGBA(249, 83, 109, 1)
+                                          BorderStyle: =BorderStyle.None
+                                          FillPortions: =1
+                                          Font: =Font.'Open Sans'
+                                          FontSize: =Var_FontSizeFiltros + 3.5
+                                          Height: =30
+                                          LayoutMinHeight: =16
+                                          LayoutMinWidth: =16
+                                          OnChange: |-
+                                            =UpdateContext({varOpenDropDownUpdateSubarea: true})
+                                          PaddingBottom: =3
+                                          PaddingLeft: =0
+                                          Placeholder: ="Subárea"
+                                          TriggerOutput: ='TextInputCanvas.TriggerOutput'.Keypress
+                                          Value: =varUpdateSubAreaSelected.SubArea
+                                          Width: =110
+                                    - SpvCtg_IcnFlechaAbajoNuevaSolucionSubarea:
+                                        Control: Classic/Icon@2.5.0
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.Center
+                                          BorderColor: =RGBA(0, 18, 107, 1)
+                                          Color: =ColorValue(Var_ColorBoton)
+                                          Height: =SpvCtg_IcnBorrarSubareaSel.Height
+                                          Icon: =If(!varOpenDropDownUpdateSubarea,Icon.ChevronDown,Icon.ChevronUp)
+                                          OnSelect: |-
+                                            =UpdateContext({varOpenDropDownUpdateSubarea: !varOpenDropDownUpdateSubarea})
+                                          PaddingBottom: =5
+                                          PaddingLeft: =5
+                                          PaddingRight: =5
+                                          PaddingTop: =5
+                                          Visible: =Len(SpvCtg_LblSubareaSelVerDetalle.Value)=0
+                                          Width: =SpvCtg_IcnBorrarSubareaSel.Width
+                                    - SpvCtg_IcnFlechaArribaNuevaSolucionSubarea:
+                                        Control: Classic/Icon@2.5.0
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.Center
+                                          BorderColor: =RGBA(0, 18, 107, 1)
+                                          BorderStyle: =BorderStyle.None
+                                          BorderThickness: =1
+                                          Color: =ColorValue(Var_ColorBoton)
+                                          Fill: =RGBA(255, 255, 255, 1)
+                                          Height: =SpvCtg_IcnBorrarSubareaSel.Height
+                                          Icon: =Icon.ChevronUp
+                                          OnSelect: =Reset(SpvCtg_LblSubareaSelVerDetalle);SetFocus(SpvCtg_LblSubareaSelVerDetalle)
+                                          PaddingBottom: =5
+                                          PaddingLeft: =5
+                                          PaddingRight: =5
+                                          PaddingTop: =5
+                                          Visible: =false//IsBlank(varUpdateSubAreaSelected)&&Len(SpvCtg_LblSubareaSelNuevaSolucion.Value)>0
+                                          Width: =SpvCtg_IcnBorrarSubareaSel.Width
+                                    - SpvCtg_IcnBorrarSubareaSel:
+                                        Control: Classic/Icon@2.5.0
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.Center
+                                          BorderColor: =RGBA(0, 18, 107, 1)
+                                          Color: =ColorValue(Var_ColorBoton)
+                                          Height: =25
+                                          Icon: =Icon.Cancel
+                                          LayoutMinHeight: =40
+                                          OnSelect: |-
+                                            =UpdateContext({varRaz : true});UpdateContext({varUpdateSubAreaSelected:Blank()});SetFocus(SpvCtg_LblSubareaSelVerDetalle);UpdateContext({varRaz : false});
+                                          PaddingBottom: =5
+                                          PaddingLeft: =5
+                                          PaddingRight: =5
+                                          PaddingTop: =5
+                                          Visible: =IsBlank(varUpdateSubAreaSelected)=false
+                                          Width: =25
+                        - SpvCtg_LblSubareaVerDetalle:
+                            Control: ModernText@1.0.0
+                            Properties:
+                              Fill: =RGBA(255, 255, 255, 1)
+                              Height: =19
+                              PaddingBottom: =0
+                              PaddingLeft: =2
+                              PaddingRight: =0
+                              PaddingTop: =0
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                              Size: =12
+                              Text: ="Subárea"
+                              VerticalAlign: =VerticalAlign.Top
+                              Visible: =!IsBlank(SpvCtg_LblSubareaSelVerDetalle.Value)
+                              Width: =47
+                              X: =16
+                  - SpvCtg_CtnTipoSolicitudVerDetalle:
+                      Control: GroupContainer@1.5.0
+                      Variant: ManualLayout
+                      Properties:
+                        AlignInContainer: =AlignInContainer.SetByContainer
+                        BorderStyle: =BorderStyle.None
+                        DropShadow: =DropShadow.None
+                        FillPortions: =0
+                        Height: =60
+                        LayoutMinHeight: =16
+                        LayoutMinWidth: =0
+                        RadiusBottomLeft: =8
+                        RadiusBottomRight: =8
+                        RadiusTopLeft: =8
+                        RadiusTopRight: =8
+                        Width: =Parent.Width-40
+                      Children:
+                        - SpvCtg_CtnTipoSolicitudInternaVerDetalle:
+                            Control: GroupContainer@1.5.0
+                            Variant: ManualLayout
+                            Properties:
+                              BorderColor: =ColorValue(Var_ColorBordeBoton)
+                              BorderThickness: =1
+                              DropShadow: =DropShadow.None
+                              Height: =45
+                              RadiusBottomLeft: =8
+                              RadiusBottomRight: =8
+                              RadiusTopLeft: =8
+                              RadiusTopRight: =8
+                              Width: =Parent.Width-5
+                              X: =2
+                              Y: =10
+                            Children:
+                              - SpvCtg_TxtTipoSolicitudVerDetalle:
+                                  Control: Classic/TextInput@2.3.2
+                                  Properties:
+                                    BorderColor: =ColorValue(Var_ColorBordeBoton)
+                                    BorderStyle: =BorderStyle.None
+                                    BorderThickness: =0
+                                    Color: =RGBA(50, 49, 48, 1)
+                                    Default: =
+                                    DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                                    DisabledColor: =RGBA(161, 159, 157, 1)
+                                    DisabledFill: =RGBA(0, 0, 0, 0)
+                                    Fill: =RGBA(0, 0, 0, 0)
+                                    Font: =Font.'Open Sans'
+                                    Height: =30
+                                    HintText: ="Tipo solicitud"
+                                    HoverBorderColor: =RGBA(0, 0, 0, 0)
+                                    HoverColor: =RGBA(50, 49, 48, 1)
+                                    HoverFill: =RGBA(0, 0, 0, 0)
+                                    Mode: =TextMode.MultiLine
+                                    PaddingBottom: =0
+                                    PaddingLeft: =10
+                                    PaddingRight: =0
+                                    PressedBorderColor: =RGBA(0, 0, 0, 0)
+                                    PressedColor: =RGBA(0, 0, 0, 1)
+                                    PressedFill: =RGBA(0, 0, 0, 0)
+                                    RadiusBottomLeft: =10
+                                    RadiusBottomRight: =10
+                                    RadiusTopLeft: =10
+                                    RadiusTopRight: =10
+                                    Size: =12
+                                    Width: =Parent.Width
+                                    Y: =8
+                        - SpvCtg_LblTipoSolicitudVerDetalle:
+                            Control: Text@0.0.51
+                            Properties:
+                              Align: ='TextCanvas.Align'.Start
+                              Fill: =RGBA(255, 255, 255, 1)
+                              Font: =Font.'Open Sans'
+                              Height: =16
+                              PaddingLeft: =2
+                              Size: =12
+                              Text: ="Tipo solicitud"
+                              Visible: =!IsBlank(SpvCtg_TxtTipoSolicitudVerDetalle.Text)
+                              Width: =80
+                              Wrap: =false
+                              X: =15
+                  - SpvCtg_CtnBotonesVerDetalle:
+                      Control: GroupContainer@1.5.0
+                      Variant: AutoLayout
+                      Properties:
+                        DropShadow: =DropShadow.None
+                        FillPortions: =0
+                        Height: =470
+                        LayoutAlignItems: =LayoutAlignItems.End
+                        LayoutDirection: =LayoutDirection.Horizontal
+                        LayoutJustifyContent: =LayoutJustifyContent.SpaceBetween
+                        LayoutMaxHeight: =55
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =16
+                        PaddingBottom: =8
+                        PaddingLeft: =5
+                        PaddingRight: =5
+                        PaddingTop: =8
+                      Children:
+                        - SpvCtg_BtnPublicarVerDetalle:
+                            Control: Classic/Button@2.2.0
+                            Properties:
+                              BorderColor: =ColorValue(Var_ColorHoverBoton)
+                              BorderThickness: =1
+                              Color: =RGBA(255, 255, 255, 1)
+                              DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                              Fill: =ColorValue(Var_ColorBoton)
+                              FillPortions: =1
+                              Font: =Font.'Open Sans'
+                              Height: =42
+                              HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                              HoverColor: =ColorValue(Var_ColorBlanco)
+                              HoverFill: =ColorValue(Var_ColorHoverBoton)
+                              LayoutMinWidth: =120
+                              OnSelect: =
+                              PressedBorderColor: =Self.PressedFill
+                              PressedColor: =ColorValue(Var_ColorBlanco)
+                              PressedFill: =ColorValue(Var_ColorPressedBoton)
+                              RadiusBottomLeft: =8
+                              RadiusBottomRight: =8
+                              RadiusTopLeft: =8
+                              RadiusTopRight: =8
+                              Size: =Var_FontSizeBoton
+                              Text: ="Generar"
+                              Width: =170
+            - SpvCtg_CtnSubareaVerDetalle:
+                Control: GroupContainer@1.5.0
+                Variant: ManualLayout
+                Properties:
+                  DropShadow: =DropShadow.Semilight
+                  Fill: =RGBA(255, 255, 255, 1)
+                  Height: =CountRows(SpvCtg_GlrSelSubarea.AllItems) * 37
+                  Visible: =varOpenDropDownUpdateSubarea
+                  Width: =SpvCtg_DetalleSubareaVerDetalle.Width - 2
+                  X: =SpvCtg_CtnVerDetalle.X + 22
+                  Y: =SpvCtg_LblTituloModalVerDetalle.Height + SpvCtg_CtnCbxSubarea.Height * 3 + 20
+                Children:
+                  - SpvCtg_GlrSelSubarea:
+                      Control: Gallery@2.15.0
+                      Variant: VariableHeight
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Height: =Parent.Height
+                        Items: |-
+                          =//Filter(col_gblRol; SpvCtg_LblRolSelNuevaSolucion.Value in ThisRecord.Nombre Or IsBlank(SpvCtg_LblRolSelNuevaSolucion.Value)) col_gblAreaSubArea
+                          Filter(
+                              col_gblAreaSubArea,
+                              Area = varUpdateAreaSelected.Area, // Filtro relacional Padre-Hijo
+                              SpvCtg_LblSubareaSelVerDetalle.Value in Area Or IsBlank(SpvCtg_LblSubareaSelVerDetalle.Value)
+                          )
+                        TemplateSize: =30
+                        Visible: =varOpenDropDownUpdateSubarea
+                        Width: =Parent.Width
+                      Children:
+                        - SpvCtg_BtnSelSubarea:
+                            Control: Classic/Button@2.2.0
+                            Properties:
+                              Align: =Align.Left
+                              BorderColor: =ColorFade(Self.Fill, -15%)
+                              BorderThickness: =0
+                              Color: =ColorValue(Var_ColorGray)
+                              DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                              Fill: =Color.Transparent
+                              Font: =Font.'Open Sans'
+                              Height: =30
+                              HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                              HoverColor: =ColorValue(Var_ColorGray)
+                              HoverFill: =ColorValue(Var_ColorFadeBoton)
+                              OnSelect: |-
+                                =UpdateContext({varUpdateSubAreaSelected : ThisItem , varOpenDropDownUpdateRol: false})
+                              PressedBorderColor: =Self.Fill
+                              PressedColor: =ColorValue(Var_ColorGray)
+                              PressedFill: =ColorValue(Var_ColorFadeBoton)
+                              Size: =12
+                              Text: =ThisItem.SubArea
+                              Width: =Parent.TemplateWidth
+            - SpvCtg_CtnAreaVerDetalle:
+                Control: GroupContainer@1.5.0
+                Variant: ManualLayout
+                Properties:
+                  DropShadow: =DropShadow.Semilight
+                  Fill: =RGBA(255, 255, 255, 1)
+                  Height: =CountRows(SpvCtg_GlrSelArea.AllItems) * 37
+                  Visible: =varOpenDropDownUpdateArea
+                  Width: =SpvCtg_DetalleAreaVerDetalle.Width - 2
+                  X: =SpvCtg_CtnVerDetalle.X + 22
+                  Y: =SpvCtg_LblTituloModalVerDetalle.Height + (SpvCtg_CtnCbxArea.Height * 2) + 20
+                Children:
+                  - SpvCtg_GlrSelArea:
+                      Control: Gallery@2.15.0
+                      Variant: VariableHeight
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Height: =Parent.Height
+                        Items: |-
+                          =//Filter(colEstadosSpvTicket; SpvCtg_LblAreaSelNuevaSolucion.Value in ThisRecord.Value Or IsBlank(SpvCtg_LblAreaSelNuevaSolucion.Value))
+                          Filter(
+                              col_gblGerenciaArea,
+                              Gerencia = varGerenciaSelected.Nombre, // Filtro relacional Padre-Hijo
+                              SpvCtg_LblAreaSelVerDetalle.Value in Area Or IsBlank(SpvCtg_LblAreaSelVerDetalle.Value)
+                          )
+                        TemplateSize: =30
+                        Visible: =varOpenDropDownUpdateArea
+                        Width: =Parent.Width
+                      Children:
+                        - SpvCtg_BtnSelArea:
+                            Control: Classic/Button@2.2.0
+                            Properties:
+                              Align: =Align.Left
+                              BorderColor: =ColorFade(Self.Fill, -15%)
+                              BorderThickness: =0
+                              Color: =ColorValue(Var_ColorGray)
+                              DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                              Fill: =Color.Transparent
+                              Font: =Font.'Open Sans'
+                              Height: =30
+                              HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                              HoverColor: =ColorValue(Var_ColorGray)
+                              HoverFill: =ColorValue(Var_ColorFadeBoton)
+                              OnSelect: |-
+                                =//UpdateContext({varUpdateAreaSelected : ThisItem ; varOpenDropDownUpdateArea: false})
+                                UpdateContext({
+                                    varUpdateAreaSelected: ThisItem, 
+                                    varOpenDropDownUpdateArea: false,
+                                    varUpdateSubAreaSelected: Blank() // Limpiar el nieto si se cambia el hijo
+                                })
+                              PressedBorderColor: =Self.Fill
+                              PressedColor: =ColorValue(Var_ColorGray)
+                              PressedFill: =ColorValue(Var_ColorFadeBoton)
+                              Size: =12
+                              Text: =ThisItem.Area
+                              Width: =Parent.TemplateWidth
+            - SpvCtg_CtnGerenciaVerDetalle:
+                Control: GroupContainer@1.5.0
+                Variant: ManualLayout
+                Properties:
+                  DropShadow: =DropShadow.Semilight
+                  Fill: =RGBA(255, 255, 255, 1)
+                  Height: =CountRows(SpvCtg_GlrSelGerencia.AllItems) * 37
+                  Visible: =varOpenDropDownGerencia
+                  Width: =SpvCtg_DetalleGerenciaVerDetalle.Width - 2
+                  X: =SpvCtg_CtnVerDetalle.X + 22
+                  Y: =SpvCtg_LblTituloModalVerDetalle.Height + SpvCtg_CtnCbxGerencia.Height + 20
+                Children:
+                  - SpvCtg_GlrSelGerencia:
+                      Control: Gallery@2.15.0
+                      Variant: VariableHeight
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Height: =Parent.Height
+                        Items: |-
+                          =//Filter(colSpvCmcGerencia; SpvCtg_LblGerenciaSelNuevaSolucion.Value in ThisRecord.Value Or IsBlank(SpvCtg_LblGerenciaSelNuevaSolucion.Value))
+                          // 1. Items de SpvCtg_GlrSelGerencia
+                          Filter(
+                              col_gblGerencia, 
+                              SpvCtg_LblGerenciaSelVerDetalle.Value in Nombre Or IsBlank(SpvCtg_LblGerenciaSelVerDetalle.Value)
+                          )
+                        TemplateSize: =30
+                        Visible: =varOpenDropDownGerencia
+                        Width: =Parent.Width
+                      Children:
+                        - SpvCtg_BtnSelGerencia:
+                            Control: Classic/Button@2.2.0
+                            Properties:
+                              Align: =Align.Left
+                              BorderColor: =ColorFade(Self.Fill, -15%)
+                              BorderThickness: =0
+                              Color: =ColorValue(Var_ColorGray)
+                              DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                              Fill: =Color.Transparent
+                              Font: =Font.'Open Sans'
+                              Height: =30
+                              HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                              HoverColor: =ColorValue(Var_ColorGray)
+                              HoverFill: =ColorValue(Var_ColorFadeBoton)
+                              OnSelect: |-
+                                =//UpdateContext({varGerenciaSelected : ThisItem ; varOpenDropDownGerencia: false})
+                                UpdateContext({
+                                    varGerenciaSelected: ThisItem, 
+                                    varOpenDropDownGerencia: false,
+                                    varUpdateAreaSelected: Blank(), // Limpia el hijo
+                                    varUpdateSubAreaSelected: Blank() // Limpia el nieto
+                                })
+                              PressedBorderColor: =Self.Fill
+                              PressedColor: =ColorValue(Var_ColorGray)
+                              PressedFill: =ColorValue(Var_ColorFadeBoton)
+                              Size: =12
+                              Text: =ThisItem.Nombre
+                              Width: =Parent.TemplateWidth
