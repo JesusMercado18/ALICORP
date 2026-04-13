@@ -60,16 +60,23 @@ Screens:
 
         If(datosAdjuntos.response = "200", 
 
-        Clear(colAdjuntosDetalleTicketSpv);
-        ForAll(Table(ParseJSON(datosAdjuntos.datosadjuntos)), Collect(colAdjuntosDetalleTicketSpv,{  Nombre: Text(ThisRecord.Value.Nombre) , PesoBytes: Value(ThisRecord.Value.PesoBytes) , Url: Text(ThisRecord.Value.Url) }))
+        Clear(colAdjuntosDetalleTicket);
 
+        ForAll(Table(ParseJSON(datosAdjuntos.datosadjuntos)), 
+        Collect(colAdjuntosDetalleTicket,{  
+            Nombre: Text(ThisRecord.Value.Nombre), 
+            PesoBytes: Value(ThisRecord.Value.PesoBytes), 
+            Url: Text(ThisRecord.Value.Url),
+            TipoAdjunto: Text(ThisRecord.Value.TipoAdjunto)
+            }
+            )
+        )
         );
 
         Set(
             varBytesExistentes,
-            Sum(colAdjuntosDetalleTicketSpv, PesoBytes)
+            Sum(colAdjuntosDetalleTicket, PesoBytes)
         );
-
 
         ClearCollect(colCambiosTicketSpv, colTrackingTicketsSpv );
 
@@ -562,10 +569,7 @@ Screens:
                                                     Properties:
                                                       BorderStyle: =BorderStyle.None
                                                       DropShadow: =DropShadow.None
-                                                      LayoutMinHeight: |-
-                                                        =If(Text(Var_SpvTicketSeleccionada.Estado) = Var_EstadosApp.EstadoDerivado,850, Var_SpvTicketSeleccionada.Estado = Var_EstadosApp.EstadoRechazado, 1250 ,Switch(varEstadoSelected.Value,Var_EstadosApp.EstadoEnEsperaAprobacion,1280+150,1400))
-
-                                                        //If(varEstadoSelected.Value in [Var_EstadosApp.EstadoEnEsperaAprobacion];1280+45;1280)
+                                                      LayoutMinHeight: =1500
                                                       LayoutMinWidth: =16
                                                       X: =40
                                                       Y: =40
@@ -761,7 +765,7 @@ Screens:
                                                                               RadiusTopRight: =8
                                                                               Size: =Var_FontSizeBoton
                                                                               Text: ="Rechazar"
-                                                                              Visible: =If(Text(Var_SpvTicketSeleccionada.Estado) = Var_EstadosApp.EstadoEnRevision,true,false)
+                                                                              Visible: =If(Text(Var_SpvTicketSeleccionada.Estado) = Var_EstadosApp.EstadoEnRevision || Text(Var_SpvTicketSeleccionada.Estado) = Var_EstadosApp.EstadoEnEsperaAprobacion,true,false)
                                                                               Width: =100
                                                                         - Spv_BtnAccionReactivarDetalleTicket:
                                                                             Control: Classic/Button@2.2.0
@@ -1437,6 +1441,113 @@ Screens:
                                                                         Text: '=Var_SpvTicketSeleccionada.Descripcion '
                                                                         VerticalAlign: =VerticalAlign.Top
                                                                         Width: =Parent.Width
+                                                            - Spv_DatosDinamicos_1:
+                                                                Control: Gallery@2.15.0
+                                                                Variant: Vertical
+                                                                Properties:
+                                                                  BorderColor: =RGBA(0, 18, 107, 1)
+                                                                  FillPortions: =0
+                                                                  Height: |-
+                                                                    =With(
+                                                                        {
+                                                                            // 1. Primero obtenemos el conteo total
+                                                                            TotalItems: CountRows(
+                                                                                Filter(
+                                                                                    Table(ParseJSON(Var_SpvTicketSeleccionada.CamposAdicionalesTicket)),
+                                                                                    !IsBlank(ThisRecord.Value.ID) &&
+                                                                                    Text(ThisRecord.Value.Tipo) <> Var_JSONConfigurarTipoCampo.Adjunto && 
+                                                                                    !IsBlank(Text(ThisRecord.Value.ValorSeleccionad)) && 
+                                                                                    Text(ThisRecord.Value.ValorSeleccionad) <> ""
+                                                                                )
+                                                                            )
+                                                                        },
+                                                                        With(
+                                                                            {
+                                                                                // 2. Ahora que TotalItems ya existe, calculamos las filas
+                                                                                Rows: RoundUp(TotalItems / 2, 0)
+                                                                            },
+                                                                            // 3. Aplicamos la lógica de altura (TemplateSize o TemplateHeight)
+                                                                            Min(Rows * Self.TemplateHeight, 600) + 5
+                                                                        )
+                                                                    )
+                                                                  Items: |-
+                                                                    =Filter(
+                                                                        Table(ParseJSON(Var_SpvTicketSeleccionada.CamposAdicionalesTicket)),
+                                                                        // 1. Asegurar que es un campo válido (que tenga ID)
+                                                                        !IsBlank(ThisRecord.Value.ID) &&
+                                                                        // 2. Que no sea de tipo Adjunto
+                                                                        Text(ThisRecord.Value.Tipo) <> Var_JSONConfigurarTipoCampo.Adjunto && 
+                                                                        // 3. Que tenga contenido real
+                                                                        !IsBlank(Text(ThisRecord.Value.ValorSeleccionad)) && 
+                                                                        Text(ThisRecord.Value.ValorSeleccionad) <> ""
+                                                                    )
+                                                                  LayoutMinHeight: =16
+                                                                  LayoutMinWidth: =16
+                                                                  TemplatePadding: =1
+                                                                  TemplateSize: =120
+                                                                  Visible: |
+                                                                    =//--->09/04
+                                                                    true
+                                                                  WrapCount: =2
+                                                                  X: =40
+                                                                  Y: =40
+                                                                Children:
+                                                                  - Container55_1:
+                                                                      Control: GroupContainer@1.5.0
+                                                                      Variant: AutoLayout
+                                                                      Properties:
+                                                                        Height: =Parent.TemplateHeight - 10
+                                                                        LayoutAlignItems: =LayoutAlignItems.Center
+                                                                        LayoutDirection: =LayoutDirection.Vertical
+                                                                        PaddingBottom: =10
+                                                                        PaddingLeft: =10
+                                                                        PaddingRight: =10
+                                                                        PaddingTop: =10
+                                                                        Width: =Parent.TemplateWidth - 10
+                                                                      Children:
+                                                                        - Label36_1:
+                                                                            Control: Label@2.5.1
+                                                                            Properties:
+                                                                              AlignInContainer: =AlignInContainer.Stretch
+                                                                              AutoHeight: =true
+                                                                              BorderColor: =RGBA(0, 18, 107, 1)
+                                                                              FillPortions: =1
+                                                                              Font: =Font.'Open Sans'
+                                                                              FontWeight: =FontWeight.Semibold
+                                                                              Height: =51
+                                                                              OnSelect: =//Select(Parent)
+                                                                              Size: =12
+                                                                              Text: =ThisItem.Value.Label
+                                                                              Width: =339
+                                                                              X: =40
+                                                                              Y: =40
+                                                                        - Label37_1:
+                                                                            Control: Label@2.5.1
+                                                                            Properties:
+                                                                              AlignInContainer: =AlignInContainer.Stretch
+                                                                              BorderColor: =RGBA(0, 18, 107, 1)
+                                                                              Color: =ColorValue(Var_ColorBordeBoton)
+                                                                              FillPortions: =1
+                                                                              Font: =Font.'Open Sans'
+                                                                              OnSelect: =//Select(Parent)
+                                                                              Text: =ThisItem.Value.ValorSeleccionad
+                                                                              Width: =187
+                                                                              X: =40
+                                                                              Y: =40
+                                                            - Spv_LblAdjuntosDetalleTicket_1:
+                                                                Control: Label@2.5.1
+                                                                Properties:
+                                                                  AlignInContainer: =AlignInContainer.Stretch
+                                                                  BorderColor: =RGBA(0, 18, 107, 1)
+                                                                  Font: =Font.'Open Sans'
+                                                                  FontWeight: =FontWeight.Semibold
+                                                                  LayoutMinHeight: =16
+                                                                  LayoutMinWidth: =16
+                                                                  PaddingLeft: =0
+                                                                  Size: =Var_AgregarComentario
+                                                                  Text: ="Documentos Ticket:"
+                                                                  X: =40
+                                                                  Y: =40
                                                             - Spv_GalAdjuntosComentariosDetalleTicket:
                                                                 Control: Gallery@2.15.0
                                                                 Variant: Vertical
@@ -1453,12 +1564,125 @@ Screens:
                                                                         (filasVisibles - 1) * Spv_GalAdjuntosComentariosDetalleTicket.TemplatePadding +
                                                                         12
                                                                     )
-                                                                  Items: =colAdjuntosDetalleTicketSpv
-                                                                  LayoutMinHeight: =35
-                                                                  LayoutMinWidth: =16
+                                                                  Items: =Filter(colAdjuntosDetalleTicket, TipoAdjunto = "TICKET")
                                                                   TemplatePadding: =3
                                                                   TemplateSize: =45
                                                                   WrapCount: =3
+                                                                  X: =40
+                                                                  Y: =40
+                                                                Children:
+                                                                  - Spv_CtnAdjuntosComentariosDetalleTicket:
+                                                                      Control: GroupContainer@1.5.0
+                                                                      Variant: AutoLayout
+                                                                      Properties:
+                                                                        BorderColor: =ColorValue(Var_ColorBordeBoton)
+                                                                        BorderThickness: =1
+                                                                        Height: =Parent.TemplateHeight - 10
+                                                                        LayoutAlignItems: =LayoutAlignItems.Center
+                                                                        LayoutDirection: =LayoutDirection.Horizontal
+                                                                        PaddingLeft: =8
+                                                                        PaddingRight: =8
+                                                                        RadiusBottomLeft: =8
+                                                                        RadiusBottomRight: =8
+                                                                        RadiusTopLeft: =8
+                                                                        RadiusTopRight: =8
+                                                                        Width: '=Parent.TemplateWidth - 10 '
+                                                                        X: =1
+                                                                      Children:
+                                                                        - Spv_IcoAdjuntosComentariosDetalleTicket:
+                                                                            Control: Classic/Icon@2.5.0
+                                                                            Properties:
+                                                                              BorderColor: =RGBA(0, 18, 107, 1)
+                                                                              Color: =ColorValue(Var_ColorIconNegro)
+                                                                              Height: =24
+                                                                              Icon: =Icon.Document
+                                                                              OnSelect: =
+                                                                              Width: =48
+                                                                              X: =8
+                                                                              Y: =8
+                                                                        - Spv_LblAdjuntosComentariosDetalleTicket:
+                                                                            Control: Label@2.5.1
+                                                                            Properties:
+                                                                              AutoHeight: =true
+                                                                              BorderColor: =RGBA(0, 18, 107, 1)
+                                                                              Font: =Font.'Open Sans'
+                                                                              PaddingBottom: =0
+                                                                              PaddingTop: =0
+                                                                              Size: =Var_FontSizeFiltros
+                                                                              Text: |
+                                                                                =With(
+                                                                                    {
+                                                                                        fullName: ThisItem.Nombre,
+                                                                                        dotPos: Find(".", ThisItem.Nombre, Len(ThisItem.Nombre) - 5)
+                                                                                    },
+                                                                                    If(
+                                                                                        Len(fullName) <= 20,
+                                                                                        fullName,
+                                                                                        Left(fullName, 8) & ".." & Mid(fullName, dotPos, Len(fullName) - dotPos + 1)
+                                                                                    )
+                                                                                )
+                                                                              Tooltip: =ThisItem.Nombre
+                                                                              VerticalAlign: =VerticalAlign.Top
+                                                                              Wrap: =false
+                                                                        - Spv_IcoDescargarAdjuntosComentariosDetalleTicket:
+                                                                            Control: Classic/Icon@2.5.0
+                                                                            Properties:
+                                                                              BorderColor: =RGBA(0, 18, 107, 1)
+                                                                              Color: =ColorValue(Var_ColorIconNegro)
+                                                                              Height: =24
+                                                                              Icon: =Icon.Download
+                                                                              OnSelect: |
+                                                                                =With(
+                                                                                    {
+                                                                                        _fullUrl: ThisItem.Url
+                                                                                    },
+                                                                                    Download(
+                                                                                        First(Split(_fullUrl,"LCP_001_Library_cehmjmjlmgdhem")).Value &
+                                                                                        "/_layouts/15/download.aspx?sourceurl=" &
+                                                                                            _fullUrl
+                                                                                    )
+                                                                                )
+                                                                              Width: =34
+                                                                              X: =185
+                                                                              Y: =8
+                                                            - Spv_LblAdjuntosDetalleDatosDinamicos_3:
+                                                                Control: Label@2.5.1
+                                                                Properties:
+                                                                  AlignInContainer: =AlignInContainer.Stretch
+                                                                  BorderColor: =RGBA(0, 18, 107, 1)
+                                                                  Font: =Font.'Open Sans'
+                                                                  FontWeight: =FontWeight.Semibold
+                                                                  LayoutMinHeight: =16
+                                                                  LayoutMinWidth: =16
+                                                                  PaddingLeft: =0
+                                                                  Size: =Var_AgregarComentario
+                                                                  Text: |-
+                                                                    ="Documentos Datos Dinámicos: "
+                                                                  X: =40
+                                                                  Y: =40
+                                                            - Spv_GalAdjuntosComentariosDetalleTicket_1:
+                                                                Control: Gallery@2.15.0
+                                                                Variant: Vertical
+                                                                Properties:
+                                                                  BorderColor: =RGBA(0, 18, 107, 1)
+                                                                  FillPortions: =0
+                                                                  Height: |
+                                                                    =
+                                                                    With(
+                                                                        {
+                                                                            filasReales: RoundUp(CountRows(Spv_GalAdjuntosComentariosDetalleTicket_1.AllItems) / 3, 0),
+                                                                            filasVisibles: Min(3, RoundUp(CountRows(Spv_GalAdjuntosComentariosDetalleTicket_1.AllItems) / 3, 0))
+                                                                        },
+                                                                        filasVisibles * Spv_GalAdjuntosComentariosDetalleTicket_1.TemplateHeight +
+                                                                        (filasVisibles - 1) * Spv_GalAdjuntosComentariosDetalleTicket_1.TemplatePadding +
+                                                                        12
+                                                                    )
+                                                                  Items: =Filter(colAdjuntosDetalleTicket, TipoAdjunto = "DATOS DINAMICOS")
+                                                                  TemplatePadding: =3
+                                                                  TemplateSize: =45
+                                                                  WrapCount: =3
+                                                                  X: =40
+                                                                  Y: =40
                                                                 Children:
                                                                   - Spv_CtnAdjuntosComentariosDetalleTicket_1:
                                                                       Control: GroupContainer@1.5.0
@@ -1476,8 +1700,7 @@ Screens:
                                                                         RadiusTopLeft: =8
                                                                         RadiusTopRight: =8
                                                                         Width: '=Parent.TemplateWidth - 10 '
-                                                                        X: =10
-                                                                        Y: =10
+                                                                        X: =1
                                                                       Children:
                                                                         - Spv_IcoAdjuntosComentariosDetalleTicket_1:
                                                                             Control: Classic/Icon@2.5.0
@@ -1493,13 +1716,9 @@ Screens:
                                                                         - Spv_LblAdjuntosComentariosDetalleTicket_1:
                                                                             Control: Label@2.5.1
                                                                             Properties:
-                                                                              AlignInContainer: =AlignInContainer.Center
                                                                               AutoHeight: =true
                                                                               BorderColor: =RGBA(0, 18, 107, 1)
-                                                                              FillPortions: =1
                                                                               Font: =Font.'Open Sans'
-                                                                              LayoutMinHeight: =16
-                                                                              LayoutMinWidth: =16
                                                                               PaddingBottom: =0
                                                                               PaddingTop: =0
                                                                               Size: =Var_FontSizeFiltros
@@ -1519,6 +1738,118 @@ Screens:
                                                                               VerticalAlign: =VerticalAlign.Top
                                                                               Wrap: =false
                                                                         - Spv_IcoDescargarAdjuntosComentariosDetalleTicket_1:
+                                                                            Control: Classic/Icon@2.5.0
+                                                                            Properties:
+                                                                              BorderColor: =RGBA(0, 18, 107, 1)
+                                                                              Color: =ColorValue(Var_ColorIconNegro)
+                                                                              Height: =24
+                                                                              Icon: =Icon.Download
+                                                                              OnSelect: |
+                                                                                =With(
+                                                                                    {
+                                                                                        _fullUrl: ThisItem.Url
+                                                                                    },
+                                                                                    Download(
+                                                                                        First(Split(_fullUrl,"LCP_001_Library_cehmjmjlmgdhem")).Value &
+                                                                                        "/_layouts/15/download.aspx?sourceurl=" &
+                                                                                            _fullUrl
+                                                                                    )
+                                                                                )
+                                                                              Width: =34
+                                                                              X: =185
+                                                                              Y: =8
+                                                            - Spv_LblAdjuntosDetalleComentarios_2:
+                                                                Control: Label@2.5.1
+                                                                Properties:
+                                                                  AlignInContainer: =AlignInContainer.Stretch
+                                                                  BorderColor: =RGBA(0, 18, 107, 1)
+                                                                  Font: =Font.'Open Sans'
+                                                                  FontWeight: =FontWeight.Semibold
+                                                                  LayoutMinHeight: =16
+                                                                  LayoutMinWidth: =16
+                                                                  PaddingLeft: =0
+                                                                  Size: =Var_AgregarComentario
+                                                                  Text: |-
+                                                                    ="Documentos Comentarios: "
+                                                                  X: =40
+                                                                  Y: =40
+                                                            - Spv_GalAdjuntosComentariosDetalleTicket_2:
+                                                                Control: Gallery@2.15.0
+                                                                Variant: Vertical
+                                                                Properties:
+                                                                  BorderColor: =RGBA(0, 18, 107, 1)
+                                                                  FillPortions: =0
+                                                                  Height: |
+                                                                    =With(
+                                                                        {
+                                                                            filasReales: RoundUp(CountRows(Spv_GalAdjuntosComentariosDetalleTicket_2.AllItems) / 3, 0),
+                                                                            filasVisibles: Min(3, RoundUp(CountRows(Spv_GalAdjuntosComentariosDetalleTicket_2.AllItems) / 3, 0))
+                                                                        },
+                                                                        filasVisibles * Spv_GalAdjuntosComentariosDetalleTicket_2.TemplateHeight +
+                                                                        (filasVisibles - 1) * Spv_GalAdjuntosComentariosDetalleTicket_2.TemplatePadding +
+                                                                        12
+                                                                    )
+                                                                  Items: =Filter(colAdjuntosDetalleTicket, TipoAdjunto = "COMENTARIOS")
+                                                                  TemplatePadding: =3
+                                                                  TemplateSize: =45
+                                                                  WrapCount: =3
+                                                                  X: =40
+                                                                  Y: =40
+                                                                Children:
+                                                                  - Spv_CtnAdjuntosComentariosDetalleTicket_2:
+                                                                      Control: GroupContainer@1.5.0
+                                                                      Variant: AutoLayout
+                                                                      Properties:
+                                                                        BorderColor: =ColorValue(Var_ColorBordeBoton)
+                                                                        BorderThickness: =1
+                                                                        Height: =Parent.TemplateHeight - 10
+                                                                        LayoutAlignItems: =LayoutAlignItems.Center
+                                                                        LayoutDirection: =LayoutDirection.Horizontal
+                                                                        PaddingLeft: =8
+                                                                        PaddingRight: =8
+                                                                        RadiusBottomLeft: =8
+                                                                        RadiusBottomRight: =8
+                                                                        RadiusTopLeft: =8
+                                                                        RadiusTopRight: =8
+                                                                        Width: '=Parent.TemplateWidth - 10 '
+                                                                        X: =1
+                                                                      Children:
+                                                                        - Spv_IcoAdjuntosComentariosDetalleTicket_2:
+                                                                            Control: Classic/Icon@2.5.0
+                                                                            Properties:
+                                                                              BorderColor: =RGBA(0, 18, 107, 1)
+                                                                              Color: =ColorValue(Var_ColorIconNegro)
+                                                                              Height: =24
+                                                                              Icon: =Icon.Document
+                                                                              OnSelect: =
+                                                                              Width: =48
+                                                                              X: =8
+                                                                              Y: =8
+                                                                        - Spv_LblAdjuntosComentariosDetalleTicket_2:
+                                                                            Control: Label@2.5.1
+                                                                            Properties:
+                                                                              AutoHeight: =true
+                                                                              BorderColor: =RGBA(0, 18, 107, 1)
+                                                                              Font: =Font.'Open Sans'
+                                                                              PaddingBottom: =0
+                                                                              PaddingTop: =0
+                                                                              Size: =Var_FontSizeFiltros
+                                                                              Text: |
+                                                                                =With(
+                                                                                    {
+                                                                                        fullName: ThisItem.Nombre,
+                                                                                        dotPos: Find(".", ThisItem.Nombre, Len(ThisItem.Nombre) - 5)
+                                                                                    },
+                                                                                    If(
+                                                                                        Len(fullName) <= 20,
+                                                                                        fullName,
+                                                                                        Left(fullName, 8) & ".." & Mid(fullName, dotPos, Len(fullName) - dotPos + 1)
+                                                                                    )
+                                                                                )
+                                                                              Tooltip: =ThisItem.Nombre
+                                                                              VerticalAlign: =VerticalAlign.Top
+                                                                              Wrap: =false
+                                                                        - Spv_IcoDescargarAdjuntosComentariosDetalleTicket_2:
                                                                             Control: Classic/Icon@2.5.0
                                                                             Properties:
                                                                               BorderColor: =RGBA(0, 18, 107, 1)
@@ -1560,6 +1891,7 @@ Screens:
                                                                   LayoutDirection: =LayoutDirection.Horizontal
                                                                   LayoutMinHeight: =16
                                                                   LayoutMinWidth: =16
+                                                                  Visible: =Var_SpvTicketSeleccionada.Estado = Var_EstadosApp.EstadoCerrado
                                                                 Children:
                                                                   - Spv_ClasCalificacionDetalleTicket:
                                                                       Control: Rating@2.1.0
@@ -1937,7 +2269,7 @@ Screens:
                                                                       Properties:
                                                                         BorderColor: =RGBA(0, 18, 107, 1)
                                                                         Height: =45
-                                                                        Items: =["Discusión","Cambios"]
+                                                                        Items: =["Discusión"]//;"Cambios"
                                                                         TemplateSize: =120
                                                                         Transition: =Transition.Pop
                                                                         Width: =Parent.Width
@@ -2010,6 +2342,7 @@ Screens:
                                                                         Default: =
                                                                         FillPortions: =3
                                                                         Height: =100
+                                                                        LayoutMaxHeight: =200
                                                                         LayoutMinHeight: =180
                                                                         LayoutMinWidth: =16
                                                                         Size: =10
@@ -4338,7 +4671,7 @@ Screens:
                 Properties:
                   CerrarModal: |-
                     =UpdateContext({ Var_Ctx_ModalConfirmacion: false })
-                  Guardar: "=/* 1. VALIDACIONES INICIALES */\r\nIf(\r\n    (Gbl_Confirmation_Update_1.ValorMotivo = \"Otro\" && IsBlank(Trim(Gbl_Confirmation_Update_1.ValorOtro))) || \r\n    IsBlank(Gbl_Confirmation_Update_1.ValorMotivo),\r\n    \r\n    UpdateContext({\r\n        CloseAlert: true,\r\n        Mensaje: If(IsBlank(Gbl_Confirmation_Update_1.ValorMotivo), \"Debes seleccionar el motivo\", \"Debes ingresar el motivo de rechazo.\")\r\n    }),\r\n    \r\n    /* 1. SI LAS VALIDACIONES PASAN, PROCEDEMOS */\r\n    IfError(\r\n\r\n        Switch(Var_Ctx_AccionEstado, Var_EstadosApp.EstadoRechazado,\r\n\r\n        Patch(\r\n            'LCP-001_List_TicketSolicitudes',\r\n            LookUp('LCP-001_List_TicketSolicitudes',ID = Var_SpvTicketSeleccionada.ID),\r\n            {\r\n                EstadoActual: Var_EstadosApp.EstadoRechazado,\r\n                MotivoRechazo: If(\r\n                    Gbl_Confirmation_Update_1.ValorMotivo = \"Otro\",\r\n                    Gbl_Confirmation_Update_1.ValorOtro,\r\n                    Gbl_Confirmation_Update_1.ValorMotivo\r\n                ),\r\n                Comentario: Spv_RichComentariosDetalleTicket.HtmlText,\r\n                FechaModificado: Now(),\r\n                Accionador: \"Supervisor\",\r\n                Evento: Var_EventoTrazabilidadApp.Estado\r\n                \r\n            }\r\n        ),  Var_EstadosApp.EstadoDerivado,\r\n\r\n        Patch(\r\n            'LCP-001_List_TicketSolicitudes',\r\n            LookUp('LCP-001_List_TicketSolicitudes',ID = Var_SpvTicketSeleccionada.ID),\r\n            {\r\n                EstadoActual: If(IsBlank(varUpdateAtendidoPorSelected), varEstadoSelected.Value, Var_EstadosApp.EstadoEnRevision),\r\n                MotivoDerivacion: If(\r\n                    Gbl_Confirmation_Update_1.ValorMotivo = \"Otro\",\r\n                    Gbl_Confirmation_Update_1.ValorOtro,\r\n                    Gbl_Confirmation_Update_1.ValorMotivo\r\n                ),\r\n                Comentario: Spv_RichComentariosDetalleTicket.HtmlText,\r\n                FechaModificado: Now(),\r\n                Accionador: \"Supervisor\",\r\n                Evento: Var_EventoTrazabilidadApp.Estado,\r\n                // Nuevo Analista\r\n                NombreAtendidoPor: varUpdateAtendidoPorSelected.Nombre,\r\n                CorreoAtendidoPor: varUpdateAtendidoPorSelected.Correo,\r\n                // Analista anterior\r\n                AtendidoNombreAnterior: Var_SpvTicketSeleccionada.NombreAtendidoPor,\r\n                AtendidoCorreoAnterior: Var_SpvTicketSeleccionada.CorreoAtendidoPor,\r\n                FechaVencimientoEstado: FechaVencimientoEstado,\r\n                SLAEstado: Var_SLACalculado,\r\n                Derivado: true\r\n                \r\n            }\r\n        ),  Var_EstadosApp.EstadoReactivado,\r\n\r\n        Patch(\r\n            'LCP-001_List_TicketSolicitudes',\r\n            LookUp('LCP-001_List_TicketSolicitudes',ID = Var_SpvTicketSeleccionada.ID),\r\n            {\r\n                EstadoActual: If(IsBlank(varUpdateAtendidoPorSelected), varEstadoSelected.Value, Var_EstadosApp.EstadoEnRevision),\r\n                MotivoDerivacion: If(\r\n                    Gbl_Confirmation_Update_1.ValorMotivo = \"Otro\",\r\n                    Gbl_Confirmation_Update_1.ValorOtro,\r\n                    Gbl_Confirmation_Update_1.ValorMotivo\r\n                ),\r\n                Comentario: Spv_RichComentariosDetalleTicket.HtmlText,\r\n                FechaModificado: Now(),\r\n                Accionador: \"Supervisor\",\r\n                Evento: Var_EventoTrazabilidadApp.Estado,\r\n                // Nuevo Analista\r\n                NombreAtendidoPor: varUpdateAtendidoPorSelected.Nombre,\r\n                CorreoAtendidoPor: varUpdateAtendidoPorSelected.Correo,\r\n                // Analista anterior\r\n                AtendidoNombreAnterior: Var_SpvTicketSeleccionada.NombreAtendidoPor,\r\n                AtendidoCorreoAnterior: Var_SpvTicketSeleccionada.CorreoAtendidoPor,\r\n                //FechaVencimientoEstado: FechaVencimientoEstado;\r\n                //SLAEstado: Var_SLACalculado;\r\n                ReApertura: Var_Ctx_Reactivar\r\n                \r\n            }\r\n        )\r\n        ),\r\n        \r\n        /* 3. MANEJO DE ERRORES (Si el Patch falla) */\r\n        Set(_varError, {\r\n            Fecha: Now(),\r\n            Usuario: {\r\n                Codigo: Var_ProfileUser.Codigo,\r\n                Nombre: Var_ProfileUser.NombreApellido\r\n            },\r\n            CodigoTicket: Var_SpvTicketSeleccionada.Codigo,\r\n            Error: FirstError.Message\r\n        });\r\n        \r\n        Patch('LCP-001_List_ErroresSolicitud', Defaults('LCP-001_List_ErroresSolicitud'), {\r\n            TipoSolicitud: Var_TipoOperacionApp.Actualizar,\r\n            FechaError: Now(),\r\n            Error: JSON(_varError, JSONFormat.Compact),\r\n            CodigoUsuario: Var_ProfileUser.Codigo\r\n        });\r\n        UpdateContext({ CloseAlert: true, Mensaje: \"Error al guardar: \" & FirstError.Message }),\r\n\r\n        \r\n        /* 4. ÉXITO: CONTINUACIÓN SOLO SI NO HUBO ERROR */\r\n        If(\r\n            !IsEmpty(Var_uploadFile_listeAttachment),\r\n            'LCP-001_Flow_SubirAdjuntos'.Run(\r\n                JSON(Var_uploadFile_listeAttachment),\r\n                \"COMENTARIOS\",\r\n                Text(Var_SpvTicketSeleccionada.ID)\r\n            )\r\n        );\r\n        UpdateContext({Var_Ctx_ModalConfirmacion: false});\r\n        Navigate(\r\n            Spv_Ticket,\r\n            ScreenTransition.Fade,\r\n            {\r\n                AlertaSatisfactoria: true,\r\n                MensajeSatisfactorio: \"Se actualizó el estado del ticket.\"\r\n            }\r\n        )\r\n    )\r\n)"
+                  Guardar: "=/* 1. VALIDACIONES INICIALES */\r\nIf(\r\n    (Gbl_Confirmation_Update_1.ValorMotivo = \"Otro\" && IsBlank(Trim(Gbl_Confirmation_Update_1.ValorOtro))) || \r\n    IsBlank(Gbl_Confirmation_Update_1.ValorMotivo),\r\n    \r\n    UpdateContext({\r\n        CloseAlert: true,\r\n        Mensaje: If(IsBlank(Gbl_Confirmation_Update_1.ValorMotivo), \"Debes seleccionar el motivo\", \"Debes ingresar el motivo de rechazo.\")\r\n    }),\r\n    Switch(Var_SpvTicketSeleccionada.Estado,\r\n        Var_EstadosApp.EstadoEnEsperaAprobacion,\r\n            Clear(colAprobadoresCheck);\r\n            ForAll(Table(ParseJSON(Trim(Var_SpvTicketSeleccionada.AprobadoresCheck))),Collect(colAprobadoresCheck, { correo: Text(ThisRecord.Value.correo) , nombre: Text(ThisRecord.Value.nombre) , estado: Text(ThisRecord.Value.estado) , fecha: Text(ThisRecord.Value.fecha) }));\r\n            UpdateIf(colAprobadoresCheck,Var_ProfileUser.CorreoUsuario=correo,{estado: \"Aprobado\",fecha: Text(Now(), \"dd/mm/yyyy hh:mm:ss\")});\r\n        /* 1. SI LAS VALIDACIONES PASAN, PROCEDEMOS */\r\n            IfError(\r\n                Switch(Var_Ctx_AccionEstado, Var_EstadosApp.EstadoRechazado,\r\n                Patch(\r\n                    'LCP-001_List_TicketSolicitudes',\r\n                    LookUp('LCP-001_List_TicketSolicitudes',ID = Var_SpvTicketSeleccionada.ID),\r\n                    {\r\n                        EstadoActual: Var_EstadosApp.EstadoEnProceso,\r\n                        MotivoRechazo: If(\r\n                            Gbl_Confirmation_Update_1.ValorMotivo = \"Otro\",\r\n                            Gbl_Confirmation_Update_1.ValorOtro,\r\n                            Gbl_Confirmation_Update_1.ValorMotivo\r\n                        ),\r\n                        Comentario: Spv_RichComentariosDetalleTicket.HtmlText,\r\n                        FechaModificado: Now(),\r\n                        Accionador: \"Supervisor\",\r\n                        Evento: Var_EventoTrazabilidadApp.Estado,\r\n                        AprobadoresCheck: JSON(colAprobadoresCheck,JSONFormat.Compact)\r\n                    }\r\n                ),  Var_EstadosApp.EstadoDerivado,\r\n\r\n                Patch(\r\n                    'LCP-001_List_TicketSolicitudes',\r\n                    LookUp('LCP-001_List_TicketSolicitudes',ID = Var_SpvTicketSeleccionada.ID),\r\n                    {\r\n                        EstadoActual: If(IsBlank(varUpdateAtendidoPorSelected), varEstadoSelected.Value, Var_EstadosApp.EstadoEnRevision),\r\n                        MotivoDerivacion: If(\r\n                            Gbl_Confirmation_Update_1.ValorMotivo = \"Otro\",\r\n                            Gbl_Confirmation_Update_1.ValorOtro,\r\n                            Gbl_Confirmation_Update_1.ValorMotivo\r\n                        ),\r\n                        Comentario: Spv_RichComentariosDetalleTicket.HtmlText,\r\n                        FechaModificado: Now(),\r\n                        Accionador: \"Supervisor\",\r\n                        Evento: Var_EventoTrazabilidadApp.Estado,\r\n                        // Nuevo Analista\r\n                        NombreAtendidoPor: varUpdateAtendidoPorSelected.Nombre,\r\n                        CorreoAtendidoPor: varUpdateAtendidoPorSelected.Correo,\r\n                        // Analista anterior\r\n                        AtendidoNombreAnterior: Var_SpvTicketSeleccionada.NombreAtendidoPor,\r\n                        AtendidoCorreoAnterior: Var_SpvTicketSeleccionada.CorreoAtendidoPor,\r\n                        FechaVencimientoEstado: FechaVencimientoEstado,\r\n                        SLAEstado: Var_SLACalculado,\r\n                        Derivado: true\r\n\r\n                    }\r\n                ),  Var_EstadosApp.EstadoReactivado,\r\n\r\n                Patch(\r\n                    'LCP-001_List_TicketSolicitudes',\r\n                    LookUp('LCP-001_List_TicketSolicitudes',ID = Var_SpvTicketSeleccionada.ID),\r\n                    {\r\n                        EstadoActual: If(IsBlank(varUpdateAtendidoPorSelected), varEstadoSelected.Value, Var_EstadosApp.EstadoEnRevision),\r\n                        MotivoDerivacion: If(\r\n                            Gbl_Confirmation_Update_1.ValorMotivo = \"Otro\",\r\n                            Gbl_Confirmation_Update_1.ValorOtro,\r\n                            Gbl_Confirmation_Update_1.ValorMotivo\r\n                        ),\r\n                        Comentario: Spv_RichComentariosDetalleTicket.HtmlText,\r\n                        FechaModificado: Now(),\r\n                        Accionador: \"Supervisor\",\r\n                        Evento: Var_EventoTrazabilidadApp.Estado,\r\n                        // Nuevo Analista\r\n                        NombreAtendidoPor: varUpdateAtendidoPorSelected.Nombre,\r\n                        CorreoAtendidoPor: varUpdateAtendidoPorSelected.Correo,\r\n                        // Analista anterior\r\n                        AtendidoNombreAnterior: Var_SpvTicketSeleccionada.NombreAtendidoPor,\r\n                        AtendidoCorreoAnterior: Var_SpvTicketSeleccionada.CorreoAtendidoPor,\r\n                        //FechaVencimientoEstado: FechaVencimientoEstado;\r\n                        //SLAEstado: Var_SLACalculado;\r\n                        ReApertura: Var_Ctx_Reactivar\r\n\r\n                    }\r\n                )\r\n                ),\r\n\r\n                /* 3. MANEJO DE ERRORES (Si el Patch falla) */\r\n                Set(_varError, {\r\n                    Fecha: Now(),\r\n                    Usuario: {\r\n                        Codigo: Var_ProfileUser.Codigo,\r\n                        Nombre: Var_ProfileUser.NombreApellido\r\n                    },\r\n                    CodigoTicket: Var_SpvTicketSeleccionada.Codigo,\r\n                    Error: FirstError.Message\r\n                });\r\n\r\n                Patch('LCP-001_List_ErroresSolicitud', Defaults('LCP-001_List_ErroresSolicitud'), {\r\n                    TipoSolicitud: Var_TipoOperacionApp.Actualizar,\r\n                    FechaError: Now(),\r\n                    Error: JSON(_varError, JSONFormat.Compact),\r\n                    CodigoUsuario: Var_ProfileUser.Codigo\r\n                });\r\n                UpdateContext({ CloseAlert: true, Mensaje: \"Error al guardar: \" & FirstError.Message }),\r\n\r\n                /* 4. ÉXITO: CONTINUACIÓN SOLO SI NO HUBO ERROR */\r\n                If(\r\n                    !IsEmpty(Var_uploadFile_listeAttachment),\r\n                    'LCP-001_Flow_SubirAdjuntos'.Run(\r\n                        JSON(Var_uploadFile_listeAttachment),\r\n                        \"COMENTARIOS\",\r\n                        Text(Var_SpvTicketSeleccionada.ID)\r\n                    )\r\n                );\r\n                UpdateContext({Var_Ctx_ModalConfirmacion: false});\r\n                Navigate(\r\n                    Spv_Ticket,\r\n                    ScreenTransition.Fade,\r\n                    {\r\n                        AlertaSatisfactoria: true,\r\n                        MensajeSatisfactorio: \"Se actualizó el estado del ticket.\"\r\n                    }\r\n                )\r\n            ),\r\n        //==============================\r\n        Var_EstadosApp.EstadoEnRevision,\r\n            /* 1. SI LAS VALIDACIONES PASAN, PROCEDEMOS */\r\n            IfError(\r\n                Switch(Var_Ctx_AccionEstado, Var_EstadosApp.EstadoRechazado,\r\n                Patch(\r\n                    'LCP-001_List_TicketSolicitudes',\r\n                    LookUp('LCP-001_List_TicketSolicitudes',ID = Var_SpvTicketSeleccionada.ID),\r\n                    {\r\n                        EstadoActual: Var_EstadosApp.EstadoRechazado,\r\n                        MotivoRechazo: If(\r\n                            Gbl_Confirmation_Update_1.ValorMotivo = \"Otro\",\r\n                            Gbl_Confirmation_Update_1.ValorOtro,\r\n                            Gbl_Confirmation_Update_1.ValorMotivo\r\n                        ),\r\n                        Comentario: Spv_RichComentariosDetalleTicket.HtmlText,\r\n                        FechaModificado: Now(),\r\n                        Accionador: \"Supervisor\",\r\n                        Evento: Var_EventoTrazabilidadApp.Estado\r\n\r\n                    }\r\n                ),  Var_EstadosApp.EstadoDerivado,\r\n\r\n                Patch(\r\n                    'LCP-001_List_TicketSolicitudes',\r\n                    LookUp('LCP-001_List_TicketSolicitudes',ID = Var_SpvTicketSeleccionada.ID),\r\n                    {\r\n                        EstadoActual: If(IsBlank(varUpdateAtendidoPorSelected), varEstadoSelected.Value, Var_EstadosApp.EstadoEnRevision),\r\n                        MotivoDerivacion: If(\r\n                            Gbl_Confirmation_Update_1.ValorMotivo = \"Otro\",\r\n                            Gbl_Confirmation_Update_1.ValorOtro,\r\n                            Gbl_Confirmation_Update_1.ValorMotivo\r\n                        ),\r\n                        Comentario: Spv_RichComentariosDetalleTicket.HtmlText,\r\n                        FechaModificado: Now(),\r\n                        Accionador: \"Supervisor\",\r\n                        Evento: Var_EventoTrazabilidadApp.Estado,\r\n                        // Nuevo Analista\r\n                        NombreAtendidoPor: varUpdateAtendidoPorSelected.Nombre,\r\n                        CorreoAtendidoPor: varUpdateAtendidoPorSelected.Correo,\r\n                        // Analista anterior\r\n                        AtendidoNombreAnterior: Var_SpvTicketSeleccionada.NombreAtendidoPor,\r\n                        AtendidoCorreoAnterior: Var_SpvTicketSeleccionada.CorreoAtendidoPor,\r\n                        FechaVencimientoEstado: FechaVencimientoEstado,\r\n                        SLAEstado: Var_SLACalculado,\r\n                        Derivado: true\r\n\r\n                    }\r\n                ),  Var_EstadosApp.EstadoReactivado,\r\n\r\n                Patch(\r\n                    'LCP-001_List_TicketSolicitudes',\r\n                    LookUp('LCP-001_List_TicketSolicitudes',ID = Var_SpvTicketSeleccionada.ID),\r\n                    {\r\n                        EstadoActual: If(IsBlank(varUpdateAtendidoPorSelected), varEstadoSelected.Value, Var_EstadosApp.EstadoEnRevision),\r\n                        MotivoDerivacion: If(\r\n                            Gbl_Confirmation_Update_1.ValorMotivo = \"Otro\",\r\n                            Gbl_Confirmation_Update_1.ValorOtro,\r\n                            Gbl_Confirmation_Update_1.ValorMotivo\r\n                        ),\r\n                        Comentario: Spv_RichComentariosDetalleTicket.HtmlText,\r\n                        FechaModificado: Now(),\r\n                        Accionador: \"Supervisor\",\r\n                        Evento: Var_EventoTrazabilidadApp.Estado,\r\n                        // Nuevo Analista\r\n                        NombreAtendidoPor: varUpdateAtendidoPorSelected.Nombre,\r\n                        CorreoAtendidoPor: varUpdateAtendidoPorSelected.Correo,\r\n                        // Analista anterior\r\n                        AtendidoNombreAnterior: Var_SpvTicketSeleccionada.NombreAtendidoPor,\r\n                        AtendidoCorreoAnterior: Var_SpvTicketSeleccionada.CorreoAtendidoPor,\r\n                        //FechaVencimientoEstado: FechaVencimientoEstado;\r\n                        //SLAEstado: Var_SLACalculado;\r\n                        ReApertura: Var_Ctx_Reactivar\r\n\r\n                    }\r\n                )\r\n                ),\r\n\r\n                /* 3. MANEJO DE ERRORES (Si el Patch falla) */\r\n                Set(_varError, {\r\n                    Fecha: Now(),\r\n                    Usuario: {\r\n                        Codigo: Var_ProfileUser.Codigo,\r\n                        Nombre: Var_ProfileUser.NombreApellido\r\n                    },\r\n                    CodigoTicket: Var_SpvTicketSeleccionada.Codigo,\r\n                    Error: FirstError.Message\r\n                });\r\n\r\n                Patch('LCP-001_List_ErroresSolicitud', Defaults('LCP-001_List_ErroresSolicitud'), {\r\n                    TipoSolicitud: Var_TipoOperacionApp.Actualizar,\r\n                    FechaError: Now(),\r\n                    Error: JSON(_varError, JSONFormat.Compact),\r\n                    CodigoUsuario: Var_ProfileUser.Codigo\r\n                });\r\n                UpdateContext({ CloseAlert: true, Mensaje: \"Error al guardar: \" & FirstError.Message }),\r\n\r\n                /* 4. ÉXITO: CONTINUACIÓN SOLO SI NO HUBO ERROR */\r\n                If(\r\n                    !IsEmpty(Var_uploadFile_listeAttachment),\r\n                    'LCP-001_Flow_SubirAdjuntos'.Run(\r\n                        JSON(Var_uploadFile_listeAttachment),\r\n                        \"COMENTARIOS\",\r\n                        Text(Var_SpvTicketSeleccionada.ID)\r\n                    )\r\n                );\r\n                UpdateContext({Var_Ctx_ModalConfirmacion: false});\r\n                Navigate(\r\n                    Spv_Ticket,\r\n                    ScreenTransition.Fade,\r\n                    {\r\n                        AlertaSatisfactoria: true,\r\n                        MensajeSatisfactorio: \"Se actualizó el estado del ticket.\"\r\n                    }\r\n                )\r\n            )\r\n    )\r\n)"
                   Height: =If(Gbl_Confirmation_Update_1.IsOpen,475,Gbl_Confirmation_Update_1.ValorMotivo = "Otro",395,355)
                   MenuCatalogo: =Var_Ctx_DataModal.Menu
                   Placeholder: =Var_Ctx_DataModal.Placeholder
