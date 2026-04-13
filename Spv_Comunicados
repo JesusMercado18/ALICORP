@@ -2225,8 +2225,8 @@ Screens:
             RadiusTopRight: =16
             Visible: =var_RangeDatePicker=true&&var_RangeDatePicker_SelectMonthYear<>true
             Width: '=SpvCmc_CtnFiltroFecha.Width '
-            X: =SpvCmc_CtnFiltros.X + 279
-            Y: =SpvCmc_CtnFiltros.Height + 165
+            X: =SpvCmc_CtnFiltros.X + 270
+            Y: =SpvCmc_CtnFiltros.Height + 180
           Children:
             - SpvCmc_CtnMonthYear:
                 Control: GroupContainer@1.5.0
@@ -2323,6 +2323,7 @@ Screens:
                                   TimeUnit.Days
                               )
                           )
+                        ShowScrollbar: =false
                         TemplatePadding: =0
                         TemplateSize: =Self.Width/If(Self.AllItemsCount>0,Self.AllItemsCount,1)
                         Width: =Parent.Width
@@ -2378,6 +2379,7 @@ Screens:
                                     color,
                                     ThisItem.color
                                 )
+                              ShowScrollbar: =false
                               TemplatePadding: =0
                               TemplateSize: =Self.Height/If(Self.AllItemsCount>0,Self.AllItemsCount,1)
                               Width: =Parent.TemplateWidth
@@ -2390,7 +2392,7 @@ Screens:
                                     Color: =RGBA(180, 214, 250, 1)
                                     Fill: =ColorValue(Var_ColorFadeBoton)
                                     Font: =Font.'Open Sans'
-                                    Height: =Parent.Height - 190
+                                    Height: =Parent.Height - 215
                                     OnSelect: =Select(Parent)
                                     Text: =""
                                     Visible: |-
@@ -2411,9 +2413,7 @@ Screens:
                                     BorderColor: =RGBA(0, 18, 107, 1)
                                     Color: =ColorValue(Var_ColorBoton)
                                     Font: =Font.'Open Sans'
-                                    Height: |-
-                                      =//55
-                                      Parent.Height - 170
+                                    Height: =Parent.Height - 195
                                     OnSelect: =Select(Parent)
                                     PaddingLeft: =3
                                     Text: ="•"
@@ -2865,8 +2865,6 @@ Screens:
                 ComponentName: Gbl_Comunicados
                 ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
                 Properties:
-                  AltoImg: =500
-                  AnchoImg: =500
                   Banner: |-
                     =If(
                         !IsBlank(Var_SpvCmcImagenSeleccionada.Imagen),

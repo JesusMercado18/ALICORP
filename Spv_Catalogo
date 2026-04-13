@@ -1195,7 +1195,7 @@ Screens:
                                                                   HoverBorderColor: =ColorValue(Var_ColorBoton)
                                                                   HoverColor: =ColorValue(Var_ColorBoton)
                                                                   HoverFill: =Color.Transparent
-                                                                  OnSelect: =
+                                                                  OnSelect: "=// 1. Guardar el registro seleccionado para referencia global\r\nSet(Var_SpvCatalogoServicioSeleccionada, ThisItem);\r\n\r\n// 2. Autocompletar las variables del formulario modal buscando el registro completo en los catálogos.\r\n// Se usa Coalesce para construir un registro on-the-fly como plan de contingencia si el LookUp falla.\r\nUpdateContext({\r\n    varGerenciaSelected: Coalesce(\r\n        LookUp(col_gblGerencia, Nombre = ThisItem.Gerencia),\r\n        { Nombre: ThisItem.Gerencia }\r\n    ),\r\n    varUpdateAreaSelected: Coalesce(\r\n        LookUp(col_gblGerenciaArea, Area = ThisItem.Area),\r\n        { Area: ThisItem.Area }\r\n    ),\r\n    varUpdateSubAreaSelected: Coalesce(\r\n        LookUp(col_gblAreaSubArea, SubArea = ThisItem.SubArea),\r\n        { SubArea: ThisItem.SubArea }\r\n    ),\r\n    varUpdateTipoSolicitud: ThisItem.TipoSolicitud,\r\n    \r\n    // 3. Activar la visibilidad del Modal\r\n    Var_Ctx_SpvModal_VerDetalle: true\r\n});"
                                                                   PaddingBottom: =0
                                                                   PaddingLeft: =40
                                                                   PaddingRight: =0
@@ -1439,6 +1439,7 @@ Screens:
           Properties:
             Fill: =RGBA(0, 0, 0, 0.1)
             Height: =768
+            Visible: =Var_Ctx_SpvModal_VerDetalle
             Width: =Parent.Width
           Children:
             - SpvCtg_CtnVerDetalle:
@@ -1504,7 +1505,7 @@ Screens:
                               LayoutMinHeight: =16
                               LayoutMinWidth: =16
                               OnSelect: |-
-                                =UpdateContext({ Var_Ctx_SpvModal_AgregarSolucion: false })
+                                =UpdateContext({ Var_Ctx_SpvModal_VerDetalle: false })
                               Width: =20
                   - SpvCtg_CtnCbxGerencia:
                       Control: GroupContainer@1.5.0
@@ -1973,7 +1974,7 @@ Screens:
                                     BorderStyle: =BorderStyle.None
                                     BorderThickness: =0
                                     Color: =RGBA(50, 49, 48, 1)
-                                    Default: =
+                                    Default: =varUpdateTipoSolicitud
                                     DisabledBorderColor: =RGBA(0, 0, 0, 0)
                                     DisabledColor: =RGBA(161, 159, 157, 1)
                                     DisabledFill: =RGBA(0, 0, 0, 0)
@@ -1986,7 +1987,7 @@ Screens:
                                     HoverFill: =RGBA(0, 0, 0, 0)
                                     Mode: =TextMode.MultiLine
                                     PaddingBottom: =0
-                                    PaddingLeft: =10
+                                    PaddingLeft: =18
                                     PaddingRight: =0
                                     PressedBorderColor: =RGBA(0, 0, 0, 0)
                                     PressedColor: =RGBA(0, 0, 0, 1)
@@ -2030,7 +2031,7 @@ Screens:
                         PaddingRight: =5
                         PaddingTop: =8
                       Children:
-                        - SpvCtg_BtnPublicarVerDetalle:
+                        - SpvCtg_BtnGenerarVerDetalle:
                             Control: Classic/Button@2.2.0
                             Properties:
                               BorderColor: =ColorValue(Var_ColorHoverBoton)
