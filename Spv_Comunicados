@@ -2388,13 +2388,16 @@ Screens:
                               - SpvCmc_LblSelectedDate:
                                   Control: Label@2.5.1
                                   Properties:
+                                    Align: =Align.Center
                                     BorderColor: =RGBA(0, 18, 107, 1)
                                     Color: =RGBA(180, 214, 250, 1)
                                     Fill: =ColorValue(Var_ColorFadeBoton)
                                     Font: =Font.'Open Sans'
                                     Height: =Parent.Height - 215
                                     OnSelect: =Select(Parent)
-                                    Text: =""
+                                    PaddingLeft: =12
+                                    PaddingRight: =12
+                                    Text: =
                                     Visible: |-
                                       =(var_RangeDatePicker_DateEnd_Modify = ThisItem.Value || var_RangeDatePicker_DateStart_Modify = ThisItem.Value) || (IsBlank(var_RangeDatePicker_DateEnd_Modify) = false && IsBlank(var_RangeDatePicker_DateStart_Modify) = false) && DateDiff(
                                           var_RangeDatePicker_DateEnd_Modify,
@@ -2406,6 +2409,7 @@ Screens:
                                           TimeUnit.Days
                                       ) < 0
                                     Width: =Parent.TemplateWidth
+                                    Wrap: =false
                               - SpvCmc_BtnPointDate:
                                   Control: Label@2.5.1
                                   Properties:
@@ -2418,7 +2422,7 @@ Screens:
                                     PaddingLeft: =3
                                     Text: ="•"
                                     Visible: =ThisItem.Value = Today()
-                                    Width: =Parent.Width
+                                    Width: =Parent.Width - 10
                               - SpvCmc_BtnDate:
                                   Control: Classic/Button@2.2.0
                                   Properties:

@@ -1429,6 +1429,7 @@ Screens:
                                                             Icon: =Icon.Information
                                                             LayoutMinHeight: =16
                                                             LayoutMinWidth: =16
+                                                            OnSelect: =Select(Spv_GalItemsTicket)
                                                             PressedBorderColor: =RGBA(0, 0, 0, 0)
                                                             PressedColor: =RGBA(0, 0, 0, 1)
                                                             PressedFill: =RGBA(0, 0, 0, 0)
