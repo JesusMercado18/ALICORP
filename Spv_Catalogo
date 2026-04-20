@@ -3,7 +3,7 @@ Screens:
     Properties:
       Fill: =ColorValue(Var_ColorFondoLateral)
       LoadingSpinnerColor: =RGBA(0, 120, 212, 1)
-      OnVisible: |+
+      OnVisible: |
         =UpdateContext({ 
             menuSelected: 2,
             Var_Ctx_MostrarItemsCatalogoSpv: false,
@@ -264,7 +264,7 @@ Screens:
                                           Color: =ColorValue(Var_ColorNavegarCabecera)
                                           Height: =13
                                           Icon: =Icon.ChevronRight
-                                          Width: =12
+                                          Width: =11
                                           X: =(SpvCtg_CtnFlechaPaginaActual.Width - Self.Width) / 2
                                           Y: =6
                               - SpvCtg_LblPaginaActual:
@@ -372,6 +372,10 @@ Screens:
                                     PaddingLeft: =8
                                     PaddingRight: =8
                                     PaddingTop: =8
+                                    RadiusBottomLeft: =8
+                                    RadiusBottomRight: =8
+                                    RadiusTopLeft: =8
+                                    RadiusTopRight: =8
                                     Width: =450
                                     X: =1019
                                     Y: =105
@@ -493,10 +497,14 @@ Screens:
                                     LayoutGap: =5
                                     LayoutMinHeight: =16
                                     LayoutMinWidth: =16
-                                    PaddingBottom: =8
+                                    PaddingBottom: =15
                                     PaddingLeft: =15
                                     PaddingRight: =15
-                                    PaddingTop: =8
+                                    PaddingTop: =20
+                                    RadiusBottomLeft: =24
+                                    RadiusBottomRight: =24
+                                    RadiusTopLeft: =24
+                                    RadiusTopRight: =24
                                     Width: =348
                                   Children:
                                     - SpvCtg_CtnTicketPopulares:
@@ -624,7 +632,7 @@ Screens:
                                                 TemplateSize: =35
                                                 Visible: =ctx_GerenciaExpandida = ThisItem.Nombre
                                                 Width: =Parent.TemplateWidth
-                                                Y: =SpvCtg_BtnTituloGerencia.Height
+                                                Y: =25
                                               Children:
                                                 - SpvCtg_BtnTituloArea:
                                                     Control: Classic/Button@2.2.0
@@ -860,6 +868,10 @@ Screens:
                                     PaddingLeft: =8
                                     PaddingRight: =8
                                     PaddingTop: =8
+                                    RadiusBottomLeft: =24
+                                    RadiusBottomRight: =24
+                                    RadiusTopLeft: =24
+                                    RadiusTopRight: =24
                                   Children:
                                     - SpvCtg_CtnDatosTituloSubTitulo:
                                         Control: GroupContainer@1.5.0
@@ -1212,7 +1224,8 @@ Screens:
                                                                   Width: =180
                                                                   X: |-
                                                                     =//300
-                                                                    (Parent.Width/2) - 80
+                                                                    //(Parent.Width/2) - 80
+                                                                    (Parent.Width/2) + 140
                                                                   Y: =135
                                                             - SpvCtg_ImgVerDetalle:
                                                                 Control: Image@2.2.3

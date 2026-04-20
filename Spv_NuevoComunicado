@@ -511,9 +511,7 @@ Screens:
                                                             Fill: =ColorValue(Var_ColorFondoAdjuntos)
                                                             FocusedBorderColor: =Blank()
                                                             Font: =Font.'Open Sans'
-                                                            Height: |-
-                                                              =//70
-                                                              Parent.Height + 70
+                                                            Height: =Parent.Height + 70
                                                             HoverColor: =ColorValue(Var_ColorFondoAdjuntos)
                                                             HoverFill: =ColorFade(ColorValue(Var_ColorFondoAdjuntos),20%)
                                                             ItemColor: =RGBA(0, 0, 0, 1)
@@ -799,7 +797,7 @@ Screens:
                                                             DisabledFill: =ColorFade(Self.Fill, 70%)
                                                             Fill: =RGBA(56, 96, 178, 1)
                                                             Font: =Font.'Open Sans'
-                                                            Height: =32
+                                                            Height: =23
                                                             HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
                                                             HoverColor: =RGBA(255, 255, 255, 1)
                                                             HoverFill: =ColorFade(RGBA(56, 96, 178, 1), -20%)
@@ -1762,7 +1760,7 @@ Screens:
                                                       Font: =Font.'Open Sans'
                                                       Height: =25
                                                       OnSelect: =Select(Parent)
-                                                      Size: =Var_FontSizeFiltros
+                                                      Size: =Var_FontSizeFiltros - 2
                                                       Text: =ThisItem.Value
                                                       Width: =Parent.TemplateWidth - SpvNvCmc_ChkbRecurrente.Width - 10
                                                       X: =35
@@ -1954,7 +1952,7 @@ Screens:
                                             =//Parent.Width-50
                                             600
                                         Children:
-                                          - Container6:
+                                          - Container6_3:
                                               Control: GroupContainer@1.5.0
                                               Variant: ManualLayout
                                               Properties:
@@ -3039,7 +3037,7 @@ Screens:
           Properties:
             Evento_CerrarNotificacion: |-
               =UpdateContext( { CloseAlertSpvNuevoComunicado : false })
-            Height: =40
+            Height: =46
             Input_MostrarOcultarNotificacion: =CloseAlertSpvNuevoComunicado
             Input_TextoNotificacion: =SpvNvCmcMensajeError
             Width: =480

@@ -516,7 +516,9 @@ Screens:
                                               Properties:
                                                 AlignInContainer: =AlignInContainer.Start
                                                 DropShadow: =DropShadow.None
-                                                Height: =Spv_LblIndicadorTicket.Height + Spv_LblContadorTicket.Height
+                                                Height: |-
+                                                  =//Spv_LblIndicadorTicket.Height + Spv_LblContadorTicket.Height
+                                                  75
                                                 LayoutAlignItems: =LayoutAlignItems.Center
                                                 LayoutDirection: =LayoutDirection.Vertical
                                                 LayoutMinHeight: =16
@@ -529,12 +531,11 @@ Screens:
                                                     Control: Label@2.5.1
                                                     Properties:
                                                       AlignInContainer: =AlignInContainer.Center
-                                                      AutoHeight: =true
                                                       BorderColor: =RGBA(89, 0, 0, 1)
                                                       Color: =ColorValue(Var_ColorGray)
                                                       Font: =Font.'Open Sans'
                                                       FontWeight: =FontWeight.Semibold
-                                                      Height: =18
+                                                      Height: =36
                                                       LayoutMinHeight: =25
                                                       LayoutMinWidth: =Parent.Width
                                                       PaddingBottom: =0
@@ -567,8 +568,48 @@ Screens:
                                                 Image: |
                                                   =With(
                                                       {
-                                                          _bgColor: Switch(Upper(ThisItem.Title),Var_EstadosApp.EstadoEnRevision,(Var_ColorFadeIconTicketMorado),Var_EstadosApp.EstadoCerrado,(Var_ColorFadeIconTicketVerde),Var_EstadosApp.EstadoEnProceso,(Var_ColorFadeIconTicketCeleste),Var_EstadosApp.EstadoRechazado,(Var_ColorFadeIconTicketMagenta),"OBSERVADOS",(Var_ColorFadeIconTicketNaranja),"ESPERA DE APROBACIÓN",(Var_ColorFadeIconTicketRojo),Var_EstadosApp.EstadoResuelto,(Var_ColorFadeIconTicketVerde),Var_EstadosApp.EstadoDerivado,(Var_ColorFadeIconTicketMorado),Var_ColorFadeIconTicketRojo),   // Usa RGBA(0,0,0,0) si no quieres fondo
-                                                          _iconColor: Switch(Upper(ThisItem.Title),Var_EstadosApp.EstadoEnRevision,(Var_ColorIconTicketMorado),Var_EstadosApp.EstadoCerrado,(Var_ColorIconTicketVerde),Var_EstadosApp.EstadoEnProceso,(Var_ColorIconTicketCeleste),Var_EstadosApp.EstadoRechazado,(Var_ColorIconTicketMagenta),"OBSERVADOS",(Var_ColorIconTicketNaranja),"ESPERA DE APROBACIÓN",(Var_ColorIconTicketRojo),Var_EstadosApp.EstadoResuelto,(Var_ColorIconTicketVerde),Var_EstadosApp.EstadoDerivado,(Var_ColorIconTicketMorado),Var_ColorIconTicketRojo)
+                                                          _bgColor: 
+                                                          Switch(
+                                                              ThisItem.Title,
+                                                              Var_EstadosApp.EstadoEnRevision,
+                                                              (Var_ColorFadeIconTicketMorado),
+                                                              Var_EstadosApp.EstadoCerrado,
+                                                              (Var_ColorFadeIconTicketVerde),
+                                                              Var_EstadosApp.EstadoEnProceso,
+                                                              (Var_ColorFadeIconTicketCeleste),
+                                                              Var_EstadosApp.EstadoRechazado,
+                                                              (Var_ColorFadeIconTicketMagenta),
+                                                              Var_EstadosApp.EstadoObservado,
+                                                              (Var_ColorFadeIconTicketNaranja),
+                                                              Var_EstadosApp.EstadoEnEsperaAprobacion,
+                                                              (Var_ColorFadeIconTicketRojo),
+                                                              Var_EstadosApp.EstadoResuelto,
+                                                              (Var_ColorFadeIconTicketVerde),
+                                                              Var_EstadosApp.EstadoDerivado,
+                                                              (Var_ColorFadeIconTicketMorado),
+                                                              Var_ColorFadeIconTicketRojo
+                                                              ),   // Usa RGBA(0,0,0,0) si no quieres fondo
+                                                          _iconColor: 
+                                                          Switch(
+                                                              ThisItem.Title,
+                                                              Var_EstadosApp.EstadoEnRevision,
+                                                              (Var_ColorIconTicketMorado),
+                                                              Var_EstadosApp.EstadoCerrado,
+                                                              (Var_ColorIconTicketVerde),
+                                                              Var_EstadosApp.EstadoEnProceso,
+                                                              (Var_ColorIconTicketCeleste),
+                                                              Var_EstadosApp.EstadoRechazado,
+                                                              (Var_ColorIconTicketMagenta),
+                                                              Var_EstadosApp.EstadoObservado,
+                                                              (Var_ColorIconTicketNaranja),
+                                                              Var_EstadosApp.EstadoEnEsperaAprobacion,
+                                                              (Var_ColorIconTicketRojo),
+                                                              Var_EstadosApp.EstadoResuelto,
+                                                              (Var_ColorIconTicketVerde),
+                                                              Var_EstadosApp.EstadoDerivado,
+                                                              (Var_ColorIconTicketMorado),
+                                                              Var_ColorIconTicketRojo
+                                                          )
                                                       },
                                                       "data:image/svg+xml;utf8," &
                                                       Substitute(
@@ -695,7 +736,7 @@ Screens:
                               RadiusTopLeft: =24
                               RadiusTopRight: =24
                             Children:
-                              - Rectangle1_3:
+                              - Rectangle1_7:
                                   Control: Rectangle@2.3.0
                                   Properties:
                                     BorderColor: =RGBA(0, 0, 0, 0)
@@ -868,6 +909,7 @@ Screens:
                                                 Height: =50
                                                 LayoutAlignItems: =LayoutAlignItems.Stretch
                                                 LayoutDirection: =LayoutDirection.Horizontal
+                                                LayoutGap: =8
                                                 LayoutMinWidth: =If(Gbl_Menu_Spv_Ticket.verMenu,Parent.Width + 150 ,Parent.Width)
                                                 PaddingBottom: =8
                                                 PaddingLeft: =18
@@ -943,14 +985,15 @@ Screens:
                                                     Properties:
                                                       AlignInContainer: =AlignInContainer.Center
                                                       DropShadow: =DropShadow.None
+                                                      FillPortions: =0
                                                       Height: =Parent.Height
                                                       LayoutMinHeight: =Parent.Height
                                                       LayoutMinWidth: =16
+                                                      Width: =110
                                                     Children:
                                                       - Spv_LblCabeceraNTicket:
                                                           Control: Label@2.5.1
                                                           Properties:
-                                                            Align: =Align.Center
                                                             BorderColor: =RGBA(0, 18, 107, 1)
                                                             Font: =Font.'Open Sans'
                                                             FontWeight: =FontWeight.Semibold
@@ -958,47 +1001,27 @@ Screens:
                                                             Size: =Var_FontSizeHeaderTable
                                                             Text: ="Nº de Ticket"
                                                             Width: =Parent.Width
-                                                - Spv_CtnCabeceraUsuarioTicket:
-                                                    Control: GroupContainer@1.5.0
-                                                    Variant: ManualLayout
-                                                    Properties:
-                                                      AlignInContainer: =AlignInContainer.Center
-                                                      DropShadow: =DropShadow.None
-                                                      Height: =Parent.Height
-                                                      LayoutMinHeight: =16
-                                                      LayoutMinWidth: =16
-                                                    Children:
-                                                      - Spv_LblCabeceraUsuarioTicket:
-                                                          Control: Label@2.5.1
-                                                          Properties:
-                                                            Align: =Align.Center
-                                                            BorderColor: =RGBA(0, 18, 107, 1)
-                                                            Font: =Font.'Open Sans'
-                                                            FontWeight: =FontWeight.Semibold
-                                                            Height: =Parent.Height
-                                                            Size: =Var_FontSizeHeaderTable
-                                                            Text: ="Usuario"
-                                                            Width: =Parent.Width
                                                 - Spv_CtnCabeceraFechaRegistroTicket:
                                                     Control: GroupContainer@1.5.0
                                                     Variant: ManualLayout
                                                     Properties:
                                                       AlignInContainer: =AlignInContainer.Center
                                                       DropShadow: =DropShadow.None
+                                                      FillPortions: =0
                                                       Height: =Parent.Height
                                                       LayoutMinHeight: =16
                                                       LayoutMinWidth: =16
+                                                      Width: =100
                                                     Children:
                                                       - Spv_LblCabeceraFechaRegistroTicket:
                                                           Control: Label@2.5.1
                                                           Properties:
-                                                            Align: =Align.Center
                                                             BorderColor: =RGBA(0, 18, 107, 1)
                                                             Font: =Font.'Open Sans'
                                                             FontWeight: =FontWeight.Semibold
                                                             Height: =Parent.Height
                                                             Size: =Var_FontSizeHeaderTable
-                                                            Text: ="Fecha de registro"
+                                                            Text: ="Fecha"
                                                             Width: =Parent.Width
                                                 - Spv_CtnCabeceraEstadoTicket:
                                                     Control: GroupContainer@1.5.0
@@ -1006,14 +1029,15 @@ Screens:
                                                     Properties:
                                                       AlignInContainer: =AlignInContainer.Center
                                                       DropShadow: =DropShadow.None
+                                                      FillPortions: =0
                                                       Height: =Parent.Height
                                                       LayoutMinHeight: =16
                                                       LayoutMinWidth: =16
+                                                      Width: =100
                                                     Children:
                                                       - Spv_LblCabeceraEstadoTicket:
                                                           Control: Label@2.5.1
                                                           Properties:
-                                                            Align: =Align.Center
                                                             BorderColor: =RGBA(0, 18, 107, 1)
                                                             Font: =Font.'Open Sans'
                                                             FontWeight: =FontWeight.Semibold
@@ -1021,26 +1045,27 @@ Screens:
                                                             Size: =Var_FontSizeHeaderTable
                                                             Text: ="Estado"
                                                             Width: =Parent.Width
-                                                - Spv_CtnCabeceraAreaTicket:
+                                                - Spv_CtnCabeceraCategoriaTicket:
                                                     Control: GroupContainer@1.5.0
                                                     Variant: ManualLayout
                                                     Properties:
                                                       AlignInContainer: =AlignInContainer.Center
                                                       DropShadow: =DropShadow.None
+                                                      FillPortions: =0
                                                       Height: =Parent.Height
                                                       LayoutMinHeight: =16
                                                       LayoutMinWidth: =16
+                                                      Width: =100
                                                     Children:
-                                                      - Spv_LblCabeceraAreaTicket:
+                                                      - Spv_LblCabeceraCategoriaTicket:
                                                           Control: Label@2.5.1
                                                           Properties:
-                                                            Align: =Align.Center
                                                             BorderColor: =RGBA(0, 18, 107, 1)
                                                             Font: =Font.'Open Sans'
                                                             FontWeight: =FontWeight.Semibold
                                                             Height: =Parent.Height
                                                             Size: =Var_FontSizeHeaderTable
-                                                            Text: ="Área"
+                                                            Text: ="Categoria"
                                                             Width: =Parent.Width
                                                 - Spv_CtnCabeceraPrioridadTicket:
                                                     Control: GroupContainer@1.5.0
@@ -1048,14 +1073,15 @@ Screens:
                                                     Properties:
                                                       AlignInContainer: =AlignInContainer.Center
                                                       DropShadow: =DropShadow.None
+                                                      FillPortions: =0
                                                       Height: =Parent.Height
                                                       LayoutMinHeight: =16
                                                       LayoutMinWidth: =16
+                                                      Width: =100
                                                     Children:
                                                       - Spv_LblCabeceraPrioridadTicket:
                                                           Control: Label@2.5.1
                                                           Properties:
-                                                            Align: =Align.Center
                                                             BorderColor: =RGBA(0, 18, 107, 1)
                                                             Font: =Font.'Open Sans'
                                                             FontWeight: =FontWeight.Semibold
@@ -1069,6 +1095,7 @@ Screens:
                                                     Properties:
                                                       AlignInContainer: =AlignInContainer.Center
                                                       DropShadow: =DropShadow.None
+                                                      FillPortions: =4
                                                       Height: =Parent.Height
                                                       LayoutMinHeight: =16
                                                       LayoutMinWidth: =16
@@ -1076,7 +1103,6 @@ Screens:
                                                       - Spv_LblCabeceraTipoSolicitudTicket:
                                                           Control: Label@2.5.1
                                                           Properties:
-                                                            Align: =Align.Center
                                                             BorderColor: =RGBA(0, 18, 107, 1)
                                                             Font: =Font.'Open Sans'
                                                             FontWeight: =FontWeight.Semibold
@@ -1090,6 +1116,7 @@ Screens:
                                                     Properties:
                                                       AlignInContainer: =AlignInContainer.Center
                                                       DropShadow: =DropShadow.None
+                                                      FillPortions: =4
                                                       Height: =Parent.Height
                                                       LayoutMinHeight: =16
                                                       LayoutMinWidth: =16
@@ -1097,7 +1124,6 @@ Screens:
                                                       - Spv_LblCabeceraSolicitanteTicket:
                                                           Control: Label@2.5.1
                                                           Properties:
-                                                            Align: =Align.Center
                                                             BorderColor: =RGBA(0, 18, 107, 1)
                                                             Font: =Font.'Open Sans'
                                                             FontWeight: =FontWeight.Semibold
@@ -1111,6 +1137,7 @@ Screens:
                                                     Properties:
                                                       AlignInContainer: =AlignInContainer.Center
                                                       DropShadow: =DropShadow.None
+                                                      FillPortions: =3
                                                       Height: =Parent.Height
                                                       LayoutMinHeight: =16
                                                       LayoutMinWidth: =16
@@ -1118,7 +1145,6 @@ Screens:
                                                       - Spv_LblCabeceraAtendidoPorTicket:
                                                           Control: Label@2.5.1
                                                           Properties:
-                                                            Align: =Align.Center
                                                             BorderColor: =RGBA(0, 18, 107, 1)
                                                             Font: =Font.'Open Sans'
                                                             FontWeight: =FontWeight.Semibold
@@ -1193,6 +1219,7 @@ Screens:
                                                       Height: =60
                                                       LayoutAlignItems: =LayoutAlignItems.Center
                                                       LayoutDirection: =LayoutDirection.Horizontal
+                                                      LayoutGap: =8
                                                       PaddingBottom: =8
                                                       PaddingLeft: =Spv_CtnCabeceraTicket.PaddingLeft - 5
                                                       PaddingTop: =8
@@ -1266,46 +1293,32 @@ Screens:
                                                       - Spv_LblItemNTicket:
                                                           Control: Label@2.5.1
                                                           Properties:
-                                                            Align: =Align.Center
                                                             BorderColor: =RGBA(0, 18, 107, 1)
-                                                            FillPortions: =1
                                                             Font: =Font.'Open Sans'
                                                             LayoutMinHeight: =16
                                                             LayoutMinWidth: =16
                                                             OnSelect: =Select(Spv_GalItemsTicket)
                                                             Size: =Var_FontSizeCuerpoTable
                                                             Text: =ThisItem.Codigo
-                                                      - Spv_LblItemUsuarioTicket:
-                                                          Control: Label@2.5.1
-                                                          Properties:
-                                                            Align: =Align.Center
-                                                            BorderColor: =RGBA(0, 18, 107, 1)
-                                                            FillPortions: =1
-                                                            Font: =Font.'Open Sans'
-                                                            LayoutMinHeight: =16
-                                                            LayoutMinWidth: =16
-                                                            OnSelect: =Select(Spv_GalItemsTicket)
-                                                            Overflow: =Overflow.Scroll
-                                                            Size: =Var_FontSizeCuerpoTable
-                                                            Text: =ThisItem.SolicitanteNombre
+                                                            Width: =110
                                                       - Spv_LblItemFechaRegistroTicket:
                                                           Control: Label@2.5.1
                                                           Properties:
-                                                            Align: =Align.Center
                                                             BorderColor: =RGBA(0, 18, 107, 1)
-                                                            FillPortions: =1
                                                             Font: =Font.'Open Sans'
                                                             LayoutMinHeight: =16
                                                             LayoutMinWidth: =16
                                                             OnSelect: =Select(Spv_GalItemsTicket)
                                                             Size: =Var_FontSizeCuerpoTable
                                                             Text: =Text(DateValue(ThisItem.FechaCreado),"dd/mm/yyyy")
+                                                            Width: =100
                                                       - Spv_CtnItemEstadoTicket:
                                                           Control: GroupContainer@1.5.0
                                                           Variant: ManualLayout
                                                           Properties:
                                                             AlignInContainer: =AlignInContainer.Center
                                                             DropShadow: =DropShadow.None
+                                                            FillPortions: =0
                                                             Height: =Spv_LblItemEstadoTicket.Height
                                                             LayoutMinHeight: =16
                                                             LayoutMinWidth: =16
@@ -1313,6 +1326,7 @@ Screens:
                                                             RadiusBottomRight: =10
                                                             RadiusTopLeft: =10
                                                             RadiusTopRight: =10
+                                                            Width: =100
                                                           Children:
                                                             - Spv_LblItemEstadoTicket:
                                                                 Control: Label@2.5.1
@@ -1349,37 +1363,36 @@ Screens:
                                                                   Size: =Var_FontSizeCuerpoTable
                                                                   Text: =Upper(Left(ThisItem.Estado, 1)) & Lower(Mid(ThisItem.Estado, 2))
                                                                   Width: =Parent.Width
-                                                      - Spv_LblItemAreaTicket:
+                                                      - Spv_LblItemCategoriaTicket:
                                                           Control: Label@2.5.1
                                                           Properties:
-                                                            Align: =Align.Center
                                                             BorderColor: =RGBA(0, 18, 107, 1)
-                                                            FillPortions: =1
                                                             Font: =Font.'Open Sans'
                                                             LayoutMinHeight: =16
                                                             LayoutMinWidth: =16
                                                             OnSelect: =Select(Spv_GalItemsTicket)
                                                             Overflow: =Overflow.Scroll
                                                             Size: =Var_FontSizeCuerpoTable
-                                                            Text: =ThisItem.Area
+                                                            Text: =ThisItem.Categoria
+                                                            Tooltip: =Self.Text
+                                                            Width: =100
+                                                            Wrap: =false
                                                       - Spv_LblItemPrioridadTicket:
                                                           Control: Label@2.5.1
                                                           Properties:
-                                                            Align: =Align.Center
                                                             BorderColor: =RGBA(0, 18, 107, 1)
-                                                            FillPortions: =1
                                                             Font: =Font.'Open Sans'
                                                             LayoutMinHeight: =16
                                                             LayoutMinWidth: =16
                                                             OnSelect: =Select(Spv_GalItemsTicket)
                                                             Size: =Var_FontSizeCuerpoTable
                                                             Text: =ThisItem.Prioridad
+                                                            Width: =100
                                                       - Spv_LblItemTipoSolicitudTicket:
                                                           Control: Label@2.5.1
                                                           Properties:
-                                                            Align: =Align.Center
                                                             BorderColor: =RGBA(0, 18, 107, 1)
-                                                            FillPortions: =1
+                                                            FillPortions: =4.5
                                                             Font: =Font.'Open Sans'
                                                             LayoutMinHeight: =16
                                                             LayoutMinWidth: =16
@@ -1387,12 +1400,13 @@ Screens:
                                                             Overflow: =Overflow.Scroll
                                                             Size: =Var_FontSizeCuerpoTable
                                                             Text: =ThisItem.TipoSolicitud
+                                                            Width: =0
+                                                            Wrap: =false
                                                       - Spv_LblItemSolicitanteTicket:
                                                           Control: Label@2.5.1
                                                           Properties:
-                                                            Align: =Align.Center
                                                             BorderColor: =RGBA(0, 18, 107, 1)
-                                                            FillPortions: =1
+                                                            FillPortions: =4.5
                                                             Font: =Font.'Open Sans'
                                                             LayoutMinHeight: =16
                                                             LayoutMinWidth: =16
@@ -1400,12 +1414,13 @@ Screens:
                                                             Overflow: =Overflow.Scroll
                                                             Size: =Var_FontSizeCuerpoTable
                                                             Text: =ThisItem.SolicitanteNombre
+                                                            Tooltip: =Self.Text
+                                                            Wrap: =false
                                                       - Spv_LblItemAtendidoPorTicket:
                                                           Control: Label@2.5.1
                                                           Properties:
-                                                            Align: =Align.Center
                                                             BorderColor: =RGBA(0, 18, 107, 1)
-                                                            FillPortions: =1
+                                                            FillPortions: =2.6
                                                             Font: =Font.'Open Sans'
                                                             LayoutMinHeight: =16
                                                             LayoutMinWidth: =16
@@ -1413,7 +1428,9 @@ Screens:
                                                             Overflow: =Overflow.Scroll
                                                             Size: =Var_FontSizeCuerpoTable
                                                             Text: =ThisItem.NombreAtendidoPor
-                                                      - Icon3IcnItemInformacionTicket:
+                                                            Tooltip: =Self.Text
+                                                            Wrap: =false
+                                                      - Icon3IcnItemInformacionTicket_1:
                                                           Control: Classic/Icon@2.5.0
                                                           Properties:
                                                             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1867,7 +1884,8 @@ Screens:
                                                                     AtendidoCorreoAnterior: Text(ThisRecord.Value.AtendidoCorreoAnterior),
                                                                     AtendidoNombreAnterior: Text(ThisRecord.Value.AtendidoNombreAnterior),
                                                                     CorreoAtendidoPor: Text(ThisRecord.Value.CorreoAtendidoPor),
-                                                                    NombreAtendidoPor: Text(ThisRecord.Value.NombreAtendidoPor)
+                                                                    NombreAtendidoPor: Text(ThisRecord.Value.NombreAtendidoPor),
+                                                                    Categoria: Text(ThisRecord.Value.Categoria)
                                                                 }
                                                             )
                                                         );
@@ -2046,6 +2064,7 @@ Screens:
                                           RadiusTopLeft: =16
                                           RadiusTopRight: =16
                                           Visible: =CountRows(colSeleccionados) > 0
+                                          Width: =151
                                           Y: =Parent.Height - Spv_CtnPaginacionTicket.Height - 70
                                         Children:
                                           - Spv_CtnDerivacionMasivaTicket:
@@ -2216,7 +2235,7 @@ Screens:
                                                             Width: =25
                                                             X: =(Parent.Width - Self.Width) / 2
                                                             Y: =(Parent.Width - Self.Width) / 2
-                                    - Rectangle1_1:
+                                    - Rectangle1_8:
                                         Control: Rectangle@2.3.0
                                         Properties:
                                           BorderColor: =RGBA(0, 0, 0, 0)
@@ -3279,7 +3298,7 @@ Screens:
                                                           filas: CountRows(Spv_GalPrioridadTicket.AllItems),
                                                           // Calculamos el alto de una fila basándonos en el control interno
                                                           // Usamos el contenedor o el label directamente
-                                                          altoFila: Container11_2.Height 
+                                                          altoFila: Container11_9.Height 
                                                       },
                                                       If(
                                                           filas > 3,
@@ -3292,19 +3311,19 @@ Screens:
                                                 TemplateSize: =50
                                                 Width: =Parent.Width
                                               Children:
-                                                - Container11_2:
+                                                - Container11_9:
                                                     Control: GroupContainer@1.5.0
                                                     Variant: ManualLayout
                                                     Properties:
                                                       DropShadow: =DropShadow.None
-                                                      Height: =Label8_3.Height
+                                                      Height: =Label8_7.Height
                                                       RadiusBottomLeft: =10
                                                       RadiusBottomRight: =10
                                                       RadiusTopLeft: =10
                                                       RadiusTopRight: =10
                                                       Width: =Parent.TemplateWidth
                                                     Children:
-                                                      - Label8_3:
+                                                      - Label8_7:
                                                           Control: Label@2.5.1
                                                           Properties:
                                                             AutoHeight: =true
@@ -3356,7 +3375,7 @@ Screens:
                                                           filas: CountRows(Spv_GalEstadoTicket.AllItems),
                                                           // Calculamos el alto de una fila basándonos en el control interno
                                                           // Usamos el contenedor o el label directamente
-                                                          altoFila: Container11_4.Height 
+                                                          altoFila: Container11_13.Height 
                                                       },
                                                       If(
                                                           filas > 3,
@@ -3369,19 +3388,19 @@ Screens:
                                                 TemplateSize: =50
                                                 Width: =Parent.Width
                                               Children:
-                                                - Container11_4:
+                                                - Container11_13:
                                                     Control: GroupContainer@1.5.0
                                                     Variant: ManualLayout
                                                     Properties:
                                                       DropShadow: =DropShadow.None
-                                                      Height: =Label8_5.Height
+                                                      Height: =Label8_8.Height
                                                       RadiusBottomLeft: =10
                                                       RadiusBottomRight: =10
                                                       RadiusTopLeft: =10
                                                       RadiusTopRight: =10
                                                       Width: =Parent.TemplateWidth
                                                     Children:
-                                                      - Label8_5:
+                                                      - Label8_8:
                                                           Control: Label@2.5.1
                                                           Properties:
                                                             AutoHeight: =true
@@ -3446,7 +3465,7 @@ Screens:
                   X: =88
                   Y: =120
                 Children:
-                  - TextCanvas6_1:
+                  - TextCanvas6_6:
                       Control: Text@0.0.51
                       Properties:
                         Align: ='TextCanvas.Align'.Center
@@ -3456,7 +3475,7 @@ Screens:
                         Weight: ='TextCanvas.Weight'.Semibold
                         X: =24
                         Y: =20
-                  - Button5_9:
+                  - Button5_45:
                       Control: Classic/Button@2.2.0
                       Properties:
                         BorderColor: =ColorFade(Self.Fill, -15%)
@@ -3477,7 +3496,7 @@ Screens:
                         Width: =95
                         X: =24
                         Y: =199
-                  - Button5_10:
+                  - Button5_46:
                       Control: Classic/Button@2.2.0
                       Properties:
                         BorderColor: =ColorFade(Self.Fill, -15%)
@@ -3502,7 +3521,7 @@ Screens:
                         Width: =108
                         X: =163
                         Y: =195
-                  - Button5_11:
+                  - Button5_47:
                       Control: Classic/Button@2.2.0
                       Properties:
                         BorderColor: =ColorFade(Self.Fill, -15%)
@@ -3527,7 +3546,7 @@ Screens:
                         Width: =128
                         X: =396
                         Y: =307
-                  - Circle1_2:
+                  - Circle1_10:
                       Control: Circle@2.3.0
                       Properties:
                         BorderColor: =RGBA(0, 18, 107, 1)
@@ -3536,7 +3555,7 @@ Screens:
                         Width: =42
                         X: =48
                         Y: =88
-                  - Button5_12:
+                  - Button5_48:
                       Control: Classic/Button@2.2.0
                       Properties:
                         BorderColor: =ColorFade(Self.Fill, -15%)
@@ -3563,7 +3582,7 @@ Screens:
                         Width: =128
                         X: =464
                         Y: =419
-                  - Image2_6:
+                  - Image2_24:
                       Control: Image@2.2.3
                       Properties:
                         BorderColor: =RGBA(0, 18, 107, 1)
@@ -3585,7 +3604,7 @@ Screens:
                         Width: =48
                         X: =308
                         Y: =307
-                  - Button5_13:
+                  - Button5_49:
                       Control: Classic/Button@2.2.0
                       Properties:
                         BorderColor: =ColorFade(Self.Fill, -15%)
@@ -3608,7 +3627,7 @@ Screens:
                         Width: =105
                         X: =486
                         Y: =194
-                  - Button5_14:
+                  - Button5_50:
                       Control: Classic/Button@2.2.0
                       Properties:
                         BorderColor: =ColorFade(Self.Fill, -15%)
@@ -3631,7 +3650,7 @@ Screens:
                         Width: =105
                         X: =370
                         Y: =101
-                  - Image2_7:
+                  - Image2_25:
                       Control: Image@2.2.3
                       Properties:
                         BorderColor: =RGBA(0, 18, 107, 1)
@@ -3653,7 +3672,7 @@ Screens:
                         Width: =49
                         X: =631
                         Y: =186
-                  - Image2_8:
+                  - Image2_26:
                       Control: Image@2.2.3
                       Properties:
                         BorderColor: =RGBA(0, 18, 107, 1)
@@ -3675,7 +3694,7 @@ Screens:
                         Width: =48
                         X: =309
                         Y: =191
-                  - Button5_15:
+                  - Button5_51:
                       Control: Classic/Button@2.2.0
                       Properties:
                         BorderColor: =ColorFade(Self.Fill, -15%)
@@ -3698,7 +3717,7 @@ Screens:
                         Width: =123
                         X: =717
                         Y: =186
-                  - Circle1_3:
+                  - Circle1_11:
                       Control: Circle@2.3.0
                       Properties:
                         BorderColor: =RGBA(0, 18, 107, 1)
@@ -3707,7 +3726,7 @@ Screens:
                         Width: =42
                         X: =1123
                         Y: =194
-                  - Button5_16:
+                  - Button5_52:
                       Control: Classic/Button@2.2.0
                       Properties:
                         BorderColor: =ColorFade(Self.Fill, -15%)
@@ -3730,7 +3749,7 @@ Screens:
                         Width: =86
                         X: =879
                         Y: =186
-                  - Image2_9:
+                  - Image2_27:
                       Control: Image@2.2.3
                       Properties:
                         BorderColor: =RGBA(0, 18, 107, 1)
@@ -3752,7 +3771,7 @@ Screens:
                         Width: =53
                         X: =396
                         Y: =194
-                  - Button5_17:
+                  - Button5_53:
                       Control: Classic/Button@2.2.0
                       Properties:
                         BorderColor: =ColorFade(Self.Fill, -15%)
@@ -3775,7 +3794,7 @@ Screens:
                         Width: =83
                         X: =1003
                         Y: =187
-                  - Image3_13:
+                  - Image3_68:
                       Control: Image@2.2.3
                       Properties:
                         BorderColor: =RGBA(0, 18, 107, 1)
@@ -3796,7 +3815,7 @@ Screens:
                           )
                         X: =19
                         Y: =129
-                  - Image3_14:
+                  - Image3_69:
                       Control: Image@2.2.3
                       Properties:
                         BorderColor: =RGBA(0, 18, 107, 1)
@@ -3818,7 +3837,7 @@ Screens:
                         Width: =37
                         X: =120
                         Y: =212
-                  - Image3_15:
+                  - Image3_70:
                       Control: Image@2.2.3
                       Properties:
                         BorderColor: =RGBA(0, 18, 107, 1)
@@ -3840,7 +3859,7 @@ Screens:
                         Width: =37
                         X: =271
                         Y: =210
-                  - Image3_16:
+                  - Image3_71:
                       Control: Image@2.2.3
                       Properties:
                         BorderColor: =RGBA(0, 18, 107, 1)
@@ -3862,7 +3881,7 @@ Screens:
                         Width: =37
                         X: =357
                         Y: =321
-                  - Image3_17:
+                  - Image3_72:
                       Control: Image@2.2.3
                       Properties:
                         BorderColor: =RGBA(0, 18, 107, 1)
@@ -3884,7 +3903,7 @@ Screens:
                         Width: =37
                         X: =358
                         Y: =211
-                  - Image3_18:
+                  - Image3_73:
                       Control: Image@2.2.3
                       Properties:
                         BorderColor: =RGBA(0, 18, 107, 1)
@@ -3906,7 +3925,7 @@ Screens:
                         Width: =37
                         X: =449
                         Y: =209
-                  - Image3_19:
+                  - Image3_75:
                       Control: Image@2.2.3
                       Properties:
                         BorderColor: =RGBA(0, 18, 107, 1)
@@ -3928,7 +3947,7 @@ Screens:
                         Width: =37
                         X: =592
                         Y: =206
-                  - Image3_20:
+                  - Image3_76:
                       Control: Image@2.2.3
                       Properties:
                         BorderColor: =RGBA(0, 18, 107, 1)
@@ -3950,7 +3969,7 @@ Screens:
                         Width: =37
                         X: =680
                         Y: =204
-                  - Image3_21:
+                  - Image3_77:
                       Control: Image@2.2.3
                       Properties:
                         BorderColor: =RGBA(0, 18, 107, 1)
@@ -3972,7 +3991,7 @@ Screens:
                         Width: =37
                         X: =840
                         Y: =204
-                  - Image3_22:
+                  - Image3_80:
                       Control: Image@2.2.3
                       Properties:
                         BorderColor: =RGBA(0, 18, 107, 1)
@@ -3994,7 +4013,7 @@ Screens:
                         Width: =37
                         X: =965
                         Y: =205
-                  - Image3_23:
+                  - Image3_82:
                       Control: Image@2.2.3
                       Properties:
                         BorderColor: =RGBA(0, 18, 107, 1)
@@ -4016,7 +4035,7 @@ Screens:
                         Width: =37
                         X: =1086
                         Y: =204
-                  - Image3_24:
+                  - Image3_84:
                       Control: Image@2.2.3
                       Properties:
                         BorderColor: =RGBA(0, 18, 107, 1)
@@ -4037,7 +4056,7 @@ Screens:
                           )
                         X: =283
                         Y: =241
-                  - Image3_25:
+                  - Image3_85:
                       Control: Image@2.2.3
                       Properties:
                         BorderColor: =RGBA(0, 18, 107, 1)
@@ -5629,28 +5648,28 @@ Screens:
             Visible: =false
             X: =340
             Y: =40
-      - Gbl_Error_Ticket:
+      - Gbl_Error_Ticket_1:
           Control: CanvasComponent
           ComponentName: Gbl_Error
           ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
           Properties:
             Evento_CerrarNotificacion: |-
               =UpdateContext( { CloseAlert : false })
-            Height: =40
+            Height: =46
             Input_MostrarOcultarNotificacion: =CloseAlert
             Input_TextoNotificacion: =Mensaje
             Visible: =CloseAlert
             Width: =480
             X: =856
             Y: =60
-      - Gbl_Alerta_Ticket:
+      - Gbl_Alerta_Ticket_1:
           Control: CanvasComponent
           ComponentName: Gbl_Alerta
           ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
           Properties:
             Evento_CerrarNotificacion: |-
               =UpdateContext({ AlertaSatisfactoria : false })
-            Height: =40
+            Height: =46
             Input_MostrarOcultarNotificacion: =AlertaSatisfactoria
             Input_TextoNotificacion: =MensajeSatisfactorio
             Visible: =AlertaSatisfactoria

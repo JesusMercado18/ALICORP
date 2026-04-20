@@ -326,7 +326,7 @@ Screens:
                                                 TemplateSize: =40
                                                 Width: =345
                                                 WrapCount: =2.5
-                                                X: =645
+                                                X: =107
                                                 Y: =10
                                               Children:
                                                 - SpvNvCmc_LblGlrEstadoCmcDetalleDetalle:
@@ -419,7 +419,7 @@ Screens:
                                                   =//!IsBlank(SpvNvCmc_LblGerenciaSelDetalle.Value)
                                                   true
                                                 Width: =120
-                                                X: =650
+                                                X: =332
                                           - SpvNvCmc_TxtITituloFormularioDetalle:
                                               Control: Classic/TextInput@2.3.2
                                               Properties:
@@ -447,7 +447,7 @@ Screens:
                                                 RadiusTopLeft: =10
                                                 RadiusTopRight: =10
                                                 Size: =12
-                                                Width: =600
+                                                Width: =452
                                                 Y: =10
                                           - SpvNvCmc_LblTituloFormularioDetalle:
                                               Control: ModernText@1.0.0
@@ -1451,7 +1451,7 @@ Screens:
                                                       Font: =Font.'Open Sans'
                                                       Height: =25
                                                       OnSelect: =Select(Parent)
-                                                      Size: =Var_FontSizeFiltros
+                                                      Size: =Var_FontSizeFiltros - 2
                                                       Text: =ThisItem.Value
                                                       Width: =Parent.TemplateWidth - SpvNvCmc_ChkbRecurrenteDetalle.Width - 10
                                                       X: =35
@@ -1635,6 +1635,7 @@ Screens:
                                                                   Appearance: ='TextInputCanvas.Appearance'.Outline
                                                                   BasePaletteColor: =RGBA(249, 83, 109, 1)
                                                                   BorderStyle: =BorderStyle.None
+                                                                  DisplayMode: =If(First(colEstadoRecurrenteSeleccionadas).Value="Recurrente mensual",DisplayMode.Disabled,DisplayMode.Edit)
                                                                   FillPortions: =1
                                                                   Font: =Font.'Open Sans'
                                                                   FontSize: =Var_FontSizeFiltros + 3.5
@@ -1673,6 +1674,7 @@ Screens:
                                                                   AlignInContainer: =AlignInContainer.Center
                                                                   BorderColor: =RGBA(0, 18, 107, 1)
                                                                   Color: =ColorValue(Var_ColorBoton)
+                                                                  DisplayMode: =If(First(colEstadoRecurrenteSeleccionadas).Value="Recurrente mensual",DisplayMode.Disabled,DisplayMode.Edit)
                                                                   Height: =SpvNvCmc_IcnBorrarMesFinDetalle.Height
                                                                   Icon: =If(!varOpenDropDownMesFin,Icon.ChevronDown,Icon.ChevronUp)
                                                                   OnSelect: |-
@@ -1876,6 +1878,7 @@ Screens:
                                                                   Appearance: ='TextInputCanvas.Appearance'.Outline
                                                                   BasePaletteColor: =RGBA(249, 83, 109, 1)
                                                                   BorderStyle: =BorderStyle.None
+                                                                  DisplayMode: =If(First(colEstadoRecurrenteSeleccionadas).Value="Recurrente mensual",DisplayMode.Disabled,DisplayMode.Edit)
                                                                   FillPortions: =1
                                                                   Font: =Font.'Open Sans'
                                                                   FontSize: =Var_FontSizeFiltros + 3.5
@@ -1914,6 +1917,7 @@ Screens:
                                                                   AlignInContainer: =AlignInContainer.Center
                                                                   BorderColor: =RGBA(0, 18, 107, 1)
                                                                   Color: =ColorValue(Var_ColorBoton)
+                                                                  DisplayMode: =If(First(colEstadoRecurrenteSeleccionadas).Value="Recurrente mensual",DisplayMode.Disabled,DisplayMode.Edit)
                                                                   Height: =SpvNvCmc_IcnBorrarMesInicioDetalle.Height
                                                                   Icon: =If(!varOpenDropDownMesInicio,Icon.ChevronDown,Icon.ChevronUp)
                                                                   OnSelect: |-
@@ -3163,7 +3167,7 @@ Screens:
           Properties:
             Evento_CerrarNotificacion: |-
               =UpdateContext( { CloseAlertSpvNuevoComunicado : false })
-            Height: =85
+            Height: =40
             Input_MostrarOcultarNotificacion: =CloseAlertSpvNuevoComunicado
             Input_TextoNotificacion: =SpvNvCmcMensajeError
             Width: =480
