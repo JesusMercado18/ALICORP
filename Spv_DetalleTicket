@@ -4181,7 +4181,17 @@ Screens:
                                               Properties:
                                                 BorderColor: =RGBA(0, 18, 107, 1)
                                                 Height: =Parent.Height
-                                                Items: =Filter(colUpdateAtendidoPorSpv, Spv_TxtAtendidoPorDetalleTicketGerencia.Value in ThisRecord.Correo Or IsBlank(Spv_TxtAtendidoPorDetalleTicketGerencia.Value))
+                                                Items: |-
+                                                  =//Filter(colUpdateAtendidoPorSpv; Spv_TxtAtendidoPorDetalleTicketGerencia.Value in ThisRecord.Correo Or IsBlank(Spv_TxtAtendidoPorDetalleTicketGerencia.Value))
+                                                  Filter(
+                                                      colUpdateAtendidoPorSpv,
+                                                      (
+                                                          IsBlank(Spv_TxtAtendidoPorDetalleTicketGerencia.Value) Or 
+                                                          Spv_TxtAtendidoPorDetalleTicketGerencia.Value in Nombre Or 
+                                                          Spv_TxtAtendidoPorDetalleTicketGerencia.Value in Correo
+                                                      ) And 
+                                                      Correo <> Var_SpvTicketSeleccionada.AnalistaCorreo
+                                                  )
                                                 TemplateSize: =30
                                                 Visible: =varOpenDropDownUpdateAtendidoPor
                                                 Width: =Parent.Width
@@ -4201,7 +4211,20 @@ Screens:
                                                       HoverColor: =ColorValue(Var_ColorGray)
                                                       HoverFill: =ColorValue(Var_ColorFadeBoton)
                                                       OnSelect: |-
-                                                        =UpdateContext({varUpdateAtendidoPorSelected : ThisItem , varOpenDropDownUpdateAtendidoPor: false})
+                                                        =//UpdateContext({varUpdateAtendidoPorSelected : ThisItem ; varOpenDropDownUpdateAtendidoPor: false})
+                                                        If(
+                                                            ThisItem.Correo = Var_SpvTicketSeleccionada.AnalistaCorreo,
+                                                            // Dispara la alerta ya parametrizada en la arquitectura
+                                                            UpdateContext({
+                                                                CloseAlert: true, 
+                                                                Mensaje: "No se puede reasignar el ticket al analista que ya lo posee."
+                                                            }),
+                                                            // Flujo feliz (Éxito)
+                                                            UpdateContext({
+                                                                varUpdateAtendidoPorSelected: ThisItem, 
+                                                                varOpenDropDownUpdateAtendidoPor: false
+                                                            })
+                                                        )
                                                       PressedBorderColor: =Self.Fill
                                                       PressedColor: =ColorValue(Var_ColorGray)
                                                       PressedFill: =ColorValue(Var_ColorFadeBoton)
