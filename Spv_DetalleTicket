@@ -1746,33 +1746,70 @@ Screens:
                                                                         LayoutMinWidth: =16
                                                                         Size: =14
                                                                         Text: ="("&Text((Spv_ClasCalificacionDetalleTicket.Value),"0.0")&")"
-                                                            - Spv_CtnTrackingDetalleTicket:
+                                                            - Spv_CtnComentariosAdjuntosDetalleTicket:
                                                                 Control: GroupContainer@1.5.0
-                                                                Variant: ManualLayout
+                                                                Variant: AutoLayout
                                                                 Properties:
                                                                   DropShadow: =DropShadow.None
-                                                                  FillPortions: =0
-                                                                  Height: |-
-                                                                    =//200
-                                                                    50 + If(
-                                                                        Spv_GalHeaderTrackingDetalleTicket.Selected.Value = "Discusión",
-                                                                        CountRows(colDiscusionTicketSpv) * 70,
-                                                                        CountRows(colCambiosTicketSpv) * 40
-                                                                    )
-                                                                  LayoutMinHeight: =16
+                                                                  Height: =490
+                                                                  LayoutAlignItems: =LayoutAlignItems.Center
+                                                                  LayoutDirection: =LayoutDirection.Vertical
+                                                                  LayoutGap: =5
+                                                                  LayoutMinHeight: =250
                                                                   LayoutMinWidth: =16
+                                                                  Visible: =If(Text(Var_AnlTicketSeleccionada.Estado) in [Var_EstadosApp.EstadoDerivado],false,true)
                                                                 Children:
+                                                                  - Spv_GalHeaderTrackingDetalleTicket:
+                                                                      Control: Gallery@2.15.0
+                                                                      Variant: Horizontal
+                                                                      Properties:
+                                                                        BorderColor: =RGBA(0, 18, 107, 1)
+                                                                        FillPortions: =0
+                                                                        Height: =45
+                                                                        Items: |-
+                                                                          =//["Discusión";"Cambios"]
+                                                                          ["Discusión"]
+                                                                        TemplateSize: =120
+                                                                        Transition: =Transition.Pop
+                                                                        Width: =Parent.Width
+                                                                        X: =40
+                                                                        Y: =40
+                                                                      Children:
+                                                                        - Spv_RectDiscusionTrackingDetalleTicket:
+                                                                            Control: Rectangle@2.3.0
+                                                                            Properties:
+                                                                              BorderColor: =If(ThisItem.IsSelected,ColorValue(Var_ColorBoton),ColorValue(Var_ColorBlanco))
+                                                                              BorderThickness: =1
+                                                                              Fill: =If(ThisItem.IsSelected,ColorValue(Var_ColorBoton),ColorValue(Var_ColorBlanco))
+                                                                              Height: =2
+                                                                              OnSelect: =Select(Parent)
+                                                                              Width: =120
+                                                                              Y: =33
+                                                                        - Spv_LblDiscusionTrackingDetalleTicket:
+                                                                            Control: Label@2.5.1
+                                                                            Properties:
+                                                                              Align: =Align.Center
+                                                                              BorderColor: =RGBA(0, 18, 107, 1)
+                                                                              Color: =If(ThisItem.IsSelected,ColorValue(Var_ColorBoton),ColorValue(Var_ColorGray))
+                                                                              Font: =Font.'Open Sans'
+                                                                              FontWeight: =FontWeight.Bold
+                                                                              Height: =Parent.TemplateHeight - Spv_RectDiscusionTrackingDetalleTicket.Height
+                                                                              OnSelect: =Select(Parent)
+                                                                              Size: =Var_TituloBoldDiscusionCambio
+                                                                              Text: =ThisItem.Value
+                                                                              Width: =Parent.TemplateWidth
                                                                   - Spv_GalCambiosTrackingDetalleTicket:
                                                                       Control: Gallery@2.15.0
                                                                       Variant: Vertical
                                                                       Properties:
                                                                         BorderColor: =RGBA(0, 18, 107, 1)
                                                                         Height: =Parent.Height - 50
-                                                                        Items: =Sort(Filter(colCambiosTicketSpv,Evento = "Estado" Or Derivado = true),FechaModificado,SortOrder.Descending)
+                                                                        Items: =Sort(Filter(colCambiosTicket,Evento = "Estado" Or Derivado = true),FechaModificado,SortOrder.Descending)
                                                                         TemplateSize: =40
-                                                                        Visible: =If(Spv_GalHeaderTrackingDetalleTicket.Selected.Value <> "Discusión",true,false)
+                                                                        Visible: =Spv_GalHeaderTrackingDetalleTicket.Selected.Value <> "Discusión"
                                                                         Width: =Parent.Width
-                                                                        Y: =50
+                                                                        X: =40
+                                                                        Y: =40
                                                                       Children:
                                                                         - Spv_CtnCambiosTrackingDetalleTicket:
                                                                             Control: GroupContainer@1.5.0
@@ -1805,6 +1842,9 @@ Screens:
                                                                                           AlignInContainer: =AlignInContainer.Center
                                                                                           BorderColor: =RGBA(0, 18, 107, 1)
                                                                                           Height: =30
+                                                                                          Image: |-
+                                                                                            =SampleImage
+                                                                                            //UsuariosdeOffice365.UserPhotoV2(ThisItem.'AprobadorCorreo ')
                                                                                           LayoutMinHeight: =16
                                                                                           LayoutMinWidth: =16
                                                                                           RadiusBottomLeft: =20
@@ -1929,35 +1969,43 @@ Screens:
                                                                               OnSelect: =Select(Parent)
                                                                               Width: =Parent.TemplateWidth
                                                                               Y: =39
-                                                                  - Spv_GlrDiscusionTicketDetalleTicket:
+                                                                  - Spv_RectSeparadorTrackingDetalleTicket:
+                                                                      Control: Rectangle@2.3.0
+                                                                      Properties:
+                                                                        BorderColor: =ColorValue(Var_ColorLine)
+                                                                        BorderThickness: =1
+                                                                        Fill: =RGBA(56, 96, 178, 1)
+                                                                        Height: =1
+                                                                        Width: =Parent.Width
+                                                                        X: =40
+                                                                        Y: =Spv_GalHeaderTrackingDetalleTicket.Height
+                                                                  - Gallery6_Flexible_2:
                                                                       Control: Gallery@2.15.0
                                                                       Variant: VariableHeight
                                                                       Properties:
                                                                         BorderColor: =RGBA(0, 18, 107, 1)
-                                                                        Height: =50
-                                                                        Items: =Sort(colDiscusionTicket,FechaCreado,SortOrder.Descending)
-                                                                        TemplateSize: =200
+                                                                        Height: =175
+                                                                        Items: =Sort(colDiscusionTicketSpv,FechaCreado,SortOrder.Descending)
                                                                         Width: =Parent.Width
+                                                                        Y: =45
                                                                       Children:
                                                                         - Spv_RectSeparadorDiscusionTrackingDetalleTicket:
                                                                             Control: Rectangle@2.3.0
                                                                             Properties:
                                                                               BorderColor: =ColorValue(Var_ColorLine)
                                                                               BorderThickness: =1
-                                                                              Fill: |
-                                                                                =RGBA(56, 96, 178, 1)
-                                                                              Height: =2
+                                                                              Fill: =ColorValue(Var_ColorLine)
+                                                                              Height: =1
                                                                               OnSelect: =Select(Parent)
-                                                                              Visible: |
-                                                                                =true
                                                                               Width: =Parent.TemplateWidth
-                                                                              Y: =40
+                                                                              Y: =Spv_HtmlComentarioDiscusionTrackingDetalleTicket.Y + Spv_HtmlComentarioDiscusionTrackingDetalleTicket.Height + 20
                                                                         - Spv_HtmlComentarioDiscusionTrackingDetalleTicket:
                                                                             Control: HtmlViewer@2.1.0
                                                                             Properties:
                                                                               AutoHeight: =true
+                                                                              Color: =ColorValue(Var_ColorGray)
                                                                               Font: =Font.'Open Sans'
-                                                                              Height: =130
+                                                                              Height: =12
                                                                               HtmlText: |
                                                                                 ="<div style='margin:0; padding:0;'>"
                                                                                 &
@@ -1975,16 +2023,15 @@ Screens:
                                                                               PaddingBottom: =0
                                                                               PaddingTop: =10
                                                                               Size: =Var_CuerpoTexto
-                                                                              Width: =441
-                                                                              Y: =70
+                                                                              Width: =736
+                                                                              Y: =44
                                                                         - Spv_LblCreadoHeaderDiscusionTrackingDetalleTicket:
                                                                             Control: Label@2.5.1
                                                                             Properties:
-                                                                              AutoHeight: =true
                                                                               BorderColor: =RGBA(0, 18, 107, 1)
                                                                               Color: =ColorValue(Var_ColorGray)
                                                                               Font: =Font.'Open Sans'
-                                                                              Height: =0
+                                                                              Height: =30
                                                                               Size: =Var_FontSizeFiltros
                                                                               Text: |-
                                                                                 =With(
@@ -2005,25 +2052,19 @@ Screens:
                                                                                 )
                                                                               Width: |
                                                                                 =250
-                                                                              X: =181
-                                                                              Y: =47
-                                                                        - Spv_ImgDiscusionTrackingDetalleTicket:
-                                                                            Control: Image@2.2.3
+                                                                              X: =195
+                                                                              Y: =8
+                                                                        - Spv_LblUserHeaderDiscusionTrackingDetalleTicket:
+                                                                            Control: Label@2.5.1
                                                                             Properties:
                                                                               BorderColor: =RGBA(0, 18, 107, 1)
-                                                                              Height: =30
-                                                                              Image: |+
-                                                                                =UsuariosdeOffice365.UserPhotoV2(User().EntraObjectId)
-                                                                                //If(!IsBlank(ThisItem.Image);SampleImage;ThisItem.Image)
-                                                                                //07/04
-                                                                                //User().Image
-
-                                                                              RadiusBottomLeft: =20
-                                                                              RadiusBottomRight: =20
-                                                                              RadiusTopLeft: =20
-                                                                              RadiusTopRight: =20
-                                                                              Width: =30
-                                                                              Y: =40
+                                                                              Font: =Font.'Open Sans'
+                                                                              FontWeight: =FontWeight.Semibold
+                                                                              Size: =Var_TituloBoldDiscusionCambio
+                                                                              Text: =ThisItem.UserName
+                                                                              Width: =130
+                                                                              X: =50
+                                                                              Y: =3
                                                                         - Spv_LblPointHeaderDiscusionTrackingDetalleTicket:
                                                                             Control: Label@2.5.1
                                                                             Properties:
@@ -2040,82 +2081,28 @@ Screens:
                                                                               Size: =Var_FontSizeFiltros
                                                                               Text: ="•"
                                                                               Width: =15
-                                                                              X: =166
-                                                                              Y: =55
-                                                                        - Spv_LblUserHeaderDiscusionTrackingDetalleTicket:
-                                                                            Control: Label@2.5.1
+                                                                              X: =180
+                                                                              Y: =16
+                                                                        - Spv_ImgDiscusionTrackingDetalleTicket:
+                                                                            Control: Image@2.2.3
                                                                             Properties:
                                                                               BorderColor: =RGBA(0, 18, 107, 1)
-                                                                              Font: =Font.'Open Sans'
-                                                                              FontWeight: =FontWeight.Semibold
-                                                                              Size: =Var_TituloBoldDiscusionCambio
-                                                                              Text: =ThisItem.UserName
-                                                                              Width: =130
-                                                                              X: =36
-                                                                              Y: =42
-                                                                  - Spv_GalHeaderTrackingDetalleTicket:
-                                                                      Control: Gallery@2.15.0
-                                                                      Variant: Horizontal
-                                                                      Properties:
-                                                                        BorderColor: =RGBA(0, 18, 107, 1)
-                                                                        Height: =45
-                                                                        Items: =["Discusión"]//;"Cambios"
-                                                                        TemplateSize: =120
-                                                                        Transition: =Transition.Pop
-                                                                        Width: =Parent.Width
-                                                                      Children:
-                                                                        - Spv_RectDiscusionTrackingDetalleTicket:
-                                                                            Control: Rectangle@2.3.0
-                                                                            Properties:
-                                                                              BorderColor: =If(ThisItem.IsSelected,ColorValue(Var_ColorBoton),ColorValue(Var_ColorBlanco))
-                                                                              BorderThickness: =1
-                                                                              Fill: =If(ThisItem.IsSelected,ColorValue(Var_ColorBoton),ColorValue(Var_ColorBlanco))
-                                                                              Height: =2
-                                                                              OnSelect: =Select(Parent)
-                                                                              Width: =120
-                                                                              Y: =33
-                                                                        - Spv_LblDiscusionTrackingDetalleTicket:
-                                                                            Control: Label@2.5.1
-                                                                            Properties:
-                                                                              Align: =Align.Center
-                                                                              BorderColor: =RGBA(0, 18, 107, 1)
-                                                                              Color: =If(ThisItem.IsSelected,ColorValue(Var_ColorBoton),ColorValue(Var_ColorGray))
-                                                                              Font: =Font.'Open Sans'
-                                                                              FontWeight: =FontWeight.Bold
-                                                                              Height: =Parent.TemplateHeight - Spv_RectDiscusionTrackingDetalleTicket.Height
-                                                                              OnSelect: =Select(Parent)
-                                                                              Size: =Var_TituloBoldDiscusionCambio
-                                                                              Text: =ThisItem.Value
-                                                                              Width: =Parent.TemplateWidth
-                                                                  - Spv_RectSeparadorTrackingDetalleTicket:
-                                                                      Control: Rectangle@2.3.0
-                                                                      Properties:
-                                                                        BorderColor: =ColorValue(Var_ColorLine)
-                                                                        BorderThickness: =1
-                                                                        Fill: =RGBA(56, 96, 178, 1)
-                                                                        Height: =1
-                                                                        Width: =Parent.Width
-                                                                        Y: =Spv_GalHeaderTrackingDetalleTicket.Height
-                                                            - Spv_CtnComentariosAdjuntosDetalleTicket:
-                                                                Control: GroupContainer@1.5.0
-                                                                Variant: AutoLayout
-                                                                Properties:
-                                                                  DropShadow: =DropShadow.None
-                                                                  Height: |-
-                                                                    =//490
-                                                                    Spv_LblComentariosDetalleTicket.Height + 
-                                                                    Self.LayoutGap +
-                                                                    Spv_RichComentariosDetalleTicket.Height + 
-                                                                    Self.LayoutGap +
-                                                                    If(Spv_GalAdjuntosDetalleTicket.Visible, Spv_GalAdjuntosDetalleTicket.Height + Self.LayoutGap, 0) + 
-                                                                    Spv_CtnSubirArchivoDetalleTicket.Height
-                                                                  LayoutAlignItems: =LayoutAlignItems.Center
-                                                                  LayoutDirection: =LayoutDirection.Vertical
-                                                                  LayoutGap: =5
-                                                                  LayoutMinHeight: =250
-                                                                  LayoutMinWidth: =16
-                                                                  Visible: =If(Text(Var_SpvTicketSeleccionada.Estado) in [Var_EstadosApp.EstadoDerivado],false,true)
-                                                                Children:
+                                                                              Height: =30
+                                                                              Image: |+
+                                                                                =//UsuariosdeOffice365.UserPhotoV2(User().EntraObjectId)
+                                                                                //If(!IsBlank(ThisItem.Image);SampleImage;ThisItem.Image)
+                                                                                //07/04
+                                                                                User().Image
+
+
+
+                                                                              RadiusBottomLeft: =20
+                                                                              RadiusBottomRight: =20
+                                                                              RadiusTopLeft: =20
+                                                                              RadiusTopRight: =20
+                                                                              Width: =30
+                                                                              X: =10
+                                                                              Y: =10
                                                                   - Spv_LblComentariosDetalleTicket:
                                                                       Control: Label@2.5.1
                                                                       Properties:
@@ -2139,7 +2126,6 @@ Screens:
                                                                         Default: =
                                                                         FillPortions: =3
                                                                         Height: =100
-                                                                        LayoutMaxHeight: =200
                                                                         LayoutMinHeight: =180
                                                                         LayoutMinWidth: =16
                                                                         Size: =10
@@ -2219,9 +2205,7 @@ Screens:
                                                                       Variant: ManualLayout
                                                                       Properties:
                                                                         DropShadow: =DropShadow.None
-                                                                        Height: |-
-                                                                          =//493
-                                                                          117 + If(Spv_GalVerAdjuntosDetalleTicket.Visible, Spv_GalVerAdjuntosDetalleTicket.Height + 10, 0)
+                                                                        Height: =493
                                                                         LayoutMinHeight: =250
                                                                         Width: =Parent.Width
                                                                         Y: =214
@@ -2231,13 +2215,12 @@ Screens:
                                                                             Variant: Vertical
                                                                             Properties:
                                                                               BorderColor: =RGBA(0, 18, 107, 1)
-                                                                              Height: |-
-                                                                                =//148
-                                                                                CountRows(Var_uploadFile_listeAttachment) * Self.TemplateHeight + 10
+                                                                              Height: =148
                                                                               Items: =Var_uploadFile_listeAttachment
                                                                               TemplateSize: =45
                                                                               Visible: =CountRows(Var_uploadFile_listeAttachment)>0
                                                                               Width: =Parent.Width
+                                                                              X: =2
                                                                               Y: =Spv_CtnFilesSubirArchivoDetalleTicket.Y + Spv_CtnFilesSubirArchivoDetalleTicket.Height + 2
                                                                             Children:
                                                                               - Spv_CtnVerAdjuntosDetalleTicket:
@@ -2301,7 +2284,7 @@ Screens:
                                                                                         Properties:
                                                                                           AlignInContainer: =AlignInContainer.Stretch
                                                                                           BorderColor: =RGBA(0, 18, 107, 1)
-                                                                                          Image: =ThisItem.contenido
+                                                                                          Image: =ThisItem.Value
                                                                                           LayoutMinHeight: =16
                                                                                           LayoutMinWidth: =16
                                                                                           Visible: =false
@@ -2417,7 +2400,7 @@ Screens:
                                                                                             Clear(colErroresAdjuntos);;
 
                                                                                             ForAll(
-                                                                                                Spv_GalAdjuntosDetalleTicket.AllItems As Fila;
+                                                                                                Anl_GalAdjuntosDetalleTicket.AllItems As Fila;
                                                                                                 If(
                                                                                                     IsBlank(
                                                                                                         LookUp(
@@ -2434,17 +2417,17 @@ Screens:
                                                                                                                 )
                                                                                                             );
                                                                                                             nuevoArchivo: Mid(
-                                                                                                                JSON(Fila.Spv_ImgContenidoAdjuntosDetalleTicket.Image; JSONFormat.IgnoreBinaryData);
-                                                                                                                Find(","; JSON(Fila.Spv_ImgContenidoAdjuntosDetalleTicket.Image; JSONFormat.IgnoreBinaryData)) + 1;
-                                                                                                                Len(JSON(Fila.Spv_ImgContenidoAdjuntosDetalleTicket.Image; JSONFormat.IgnoreBinaryData)) -
-                                                                                                                Find(","; JSON(Fila.Spv_ImgContenidoAdjuntosDetalleTicket.Image; JSONFormat.IgnoreBinaryData)) - 1
+                                                                                                                JSON(Fila.Anl_ImgContenidoAdjuntosDetalleTicket.Image; JSONFormat.IgnoreBinaryData);
+                                                                                                                Find(","; JSON(Fila.Anl_ImgContenidoAdjuntosDetalleTicket.Image; JSONFormat.IgnoreBinaryData)) + 1;
+                                                                                                                Len(JSON(Fila.Anl_ImgContenidoAdjuntosDetalleTicket.Image; JSONFormat.IgnoreBinaryData)) -
+                                                                                                                Find(","; JSON(Fila.Anl_ImgContenidoAdjuntosDetalleTicket.Image; JSONFormat.IgnoreBinaryData)) - 1
                                                                                                             );
                                                                                                             nuevoMB: Len(
                                                                                                                 Mid(
-                                                                                                                    JSON(Fila.Spv_ImgContenidoAdjuntosDetalleTicket.Image; JSONFormat.IgnoreBinaryData);
-                                                                                                                    Find(","; JSON(Fila.Spv_ImgContenidoAdjuntosDetalleTicket.Image; JSONFormat.IgnoreBinaryData)) + 1;
-                                                                                                                    Len(JSON(Fila.Spv_ImgContenidoAdjuntosDetalleTicket.Image; JSONFormat.IgnoreBinaryData)) -
-                                                                                                                    Find(","; JSON(Fila.Spv_ImgContenidoAdjuntosDetalleTicket.Image; JSONFormat.IgnoreBinaryData)) - 1
+                                                                                                                    JSON(Fila.Anl_ImgContenidoAdjuntosDetalleTicket.Image; JSONFormat.IgnoreBinaryData);
+                                                                                                                    Find(","; JSON(Fila.Anl_ImgContenidoAdjuntosDetalleTicket.Image; JSONFormat.IgnoreBinaryData)) + 1;
+                                                                                                                    Len(JSON(Fila.Anl_ImgContenidoAdjuntosDetalleTicket.Image; JSONFormat.IgnoreBinaryData)) -
+                                                                                                                    Find(","; JSON(Fila.Anl_ImgContenidoAdjuntosDetalleTicket.Image; JSONFormat.IgnoreBinaryData)) - 1
                                                                                                                 )
                                                                                                             ) * 0,75 / (1024 * 1024)
                                                                                                         };
@@ -3842,7 +3825,10 @@ Screens:
                                                                         )
                                                                     );
 
-                                                                    If(IsEmpty(colUpdateAtendidoPorSpv),UpdateContext({ CloseAlert: true , Mensaje: "No existen analistas configurados" , varOpenDropDownUpdateAtendidoPor : false}), UpdateContext({varOpenDropDownUpdateAtendidoPor: !varOpenDropDownUpdateAtendidoPor}))
+                                                                    If(IsEmpty(colUpdateAtendidoPorSpv),
+                                                                        UpdateContext({ CloseAlert: true , Mensaje: "No existen analistas configurados" , varOpenDropDownUpdateAtendidoPor : false}),
+                                                                        UpdateContext({varOpenDropDownUpdateAtendidoPor: !varOpenDropDownUpdateAtendidoPor})
+                                                                    )
                                                                   PaddingBottom: =5
                                                                   PaddingLeft: =5
                                                                   PaddingRight: =5
@@ -4083,6 +4069,11 @@ Screens:
                                                       BorderThickness: =1
                                                       Color: =RGBA(255, 255, 255, 1)
                                                       DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                                                      DisplayMode: |-
+                                                        =If(IsEmpty(colUpdateAtendidoPorSpv),
+                                                            DisplayMode.Disabled,
+                                                            DisplayMode.Edit
+                                                        )
                                                       Fill: =ColorValue(Var_ColorBoton)
                                                       Font: =Font.'Open Sans'
                                                       Height: =42
