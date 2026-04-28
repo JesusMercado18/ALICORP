@@ -2,8 +2,9 @@ Screens:
   Gbl_NuevoTicket:
     Properties:
       LoadingSpinnerColor: =RGBA(56, 96, 178, 1)
-      OnVisible: |+
-        =UpdateContext({ menuSelected: 2 , varTipoSolicitudSelected : Blank() , varShowErrors: false});
+      OnVisible: |-
+        =UpdateContext({ menuSelected: 2 , varTipoSolicitudSelected: If(Ctx_IngresoDesdeCatalogo, LookUp(col_Adn_TipoSolicitudNuevoTicket, TipoSolicitud = Ctx_StrTipoSol), Blank()) , varShowErrors: false});
+
         Clear(colFormularioDinamicoNuevoTicket);
 
         ClearCollect(col_Adn_TipoSolicitudNuevoTicket, 'LCP-001_List_Configuracion_Ticket');
@@ -37,7 +38,15 @@ Screens:
         ));
 
         ClearCollect(colPaisCrearTicket, 'LCP-001_List_Pais'.Nombre);
-        UpdateContext({ varGerenciaTipoSolicitudSelected: Blank() , varAreaTipoSolicitudSelected : Blank() , varSubAreaTipoSolicitudSelected: Blank() })
+        UpdateContext({ varGerenciaTipoSolicitudSelected: Blank() , varAreaTipoSolicitudSelected : Blank() , varSubAreaTipoSolicitudSelected: Blank() });
+        UpdateContext({ 
+            varGerenciaTipoSolicitudSelected: If(Ctx_IngresoDesdeCatalogo, {Value: Ctx_StrGerencia}, Blank()), 
+            varAreaTipoSolicitudSelected: If(Ctx_IngresoDesdeCatalogo, {Value: Ctx_StrArea}, Blank()), 
+            varSubAreaTipoSolicitudSelected: If(Ctx_IngresoDesdeCatalogo, {Value: Ctx_StrSubArea}, Blank()) 
+        });
+
+        // Medida de seguridad: Limpiar la bandera para accesos directos posteriores
+        UpdateContext({ Ctx_IngresoDesdeCatalogo: false });
     Children:
       - Container40_3:
           Control: GroupContainer@1.5.0

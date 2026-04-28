@@ -12,7 +12,8 @@ Screens:
             Var_Ctx_Areas: false,
             Var_Ctx_GerenciaSeleccionada: Blank(),
             Var_Ctx_AreaSeleccionada: Blank(),
-            ctx_GerenciaExpandida: Blank()
+            ctx_GerenciaExpandida: Blank(),
+            Var_Ctx_SpvModal_VerDetalle: false
         });
 
         // 2. Limpiar selecciones visuales explícitas en las Galerías (UI Reset)
@@ -1474,6 +1475,7 @@ Screens:
                   RadiusBottomRight: =0
                   RadiusTopLeft: =0
                   RadiusTopRight: =0
+                  Visible: =Var_Ctx_SpvModal_VerDetalle
                   Width: =400
                   X: =Parent.Width - Self.Width
                 Children:
@@ -2059,7 +2061,19 @@ Screens:
                               HoverColor: =ColorValue(Var_ColorBlanco)
                               HoverFill: =ColorValue(Var_ColorHoverBoton)
                               LayoutMinWidth: =120
-                              OnSelect: =
+                              OnSelect: |-
+                                =UpdateContext({Var_Ctx_SpvModal_VerDetalle: false});
+                                Navigate(
+                                    Gbl_NuevoTicket,
+                                    ScreenTransition.Fade,
+                                    {
+                                        Ctx_IngresoDesdeCatalogo: true,
+                                        Ctx_StrGerencia: Text(varGerenciaSelected.Nombre),
+                                        Ctx_StrArea: varUpdateAreaSelected.Area,
+                                        Ctx_StrSubArea: varUpdateSubAreaSelected.SubArea,
+                                        Ctx_StrTipoSol: varUpdateTipoSolicitud
+                                    }
+                                )
                               PressedBorderColor: =Self.PressedFill
                               PressedColor: =ColorValue(Var_ColorBlanco)
                               PressedFill: =ColorValue(Var_ColorPressedBoton)
