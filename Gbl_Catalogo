@@ -1,5 +1,5 @@
 Screens:
-  Spv_Catalogo:
+  Gbl_Catalogo:
     Properties:
       Fill: =ColorValue(Var_ColorFondoLateral)
       LoadingSpinnerColor: =RGBA(0, 120, 212, 1)
