@@ -1,0 +1,12 @@
+{
+  "type": "Compose",
+  "inputs": "@length(body('Get_Count')?['d']?['results'])",
+  "runAfter": {
+    "Get_Count": [
+      "Succeeded"
+    ]
+  },
+  "metadata": {
+    "operationMetadataId": "5fc12403-bda5-4f11-a719-9443b7f2ef13"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "type": "OpenApiConnection",
+  "inputs": {
+    "parameters": {
+      "dataset": "@parameters('LCP-001_Site_Ticketing (tk_LCP001_Site_Ticketing)')",
+      "parameters/method": "GET",
+      "parameters/uri": "_api/web/lists/GetByTitle('LCP-001_List_DjjfgfmlcdgjjMgdhem')/items?$top=@{add(int(triggerBody()['text']),1)}&$orderby=@{if(equals(triggerBody()['text_3'],'PREV'),'ID asc','ID desc')}&$filter=@{if(equals(triggerBody()['text_3'],'PREV'),\r\n    if(empty(triggerBody()['text_2']), \r\n        concat('ID gt ', triggerBody()['text_1']), \r\n        concat(triggerBody()['text_2'], ' and ID gt ', triggerBody()['text_1'])\r\n    ),\r\n    if(or(empty(triggerBody()['text_1']), equals(triggerBody()['text_1'], '0')),\r\n        triggerBody()['text_2'],\r\n        if(empty(triggerBody()['text_2']), \r\n            concat('ID lt ', triggerBody()['text_1']), \r\n            concat(triggerBody()['text_2'], ' and ID lt ', triggerBody()['text_1'])\r\n        )\r\n    )\r\n)}",
+      "parameters/headers": {
+        "Accept": "application/json;odata=nometadata"
+      }
+    },
+    "host": {
+      "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+      "connection": "shared_sharepointonline-1",
+      "operationId": "HttpRequest"
+    },
+    "retryPolicy": {
+      "type": "none"
+    }
+  },
+  "runAfter": {
+    "Redactar_3": [
+      "Succeeded"
+    ]
+  },
+  "metadata": {
+    "operationMetadataId": "25b69389-b689-4a36-9a6f-85122a78eb14"
+  }
+}

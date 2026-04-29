@@ -1,0 +1,27 @@
+{
+  "type": "OpenApiConnection",
+  "inputs": {
+    "parameters": {
+      "dataset": "@parameters('LCP-001_Site_Ticketing (tk_LCP001_Site_Ticketing)')",
+      "table": "@parameters('LCP-001_List_Configuracion_Ticket (tk_LCP001_List_Configuracion_Ticket)')",
+      "$filter": "@outputs('Redactar_Filtro_OData')",
+      "$top": "@triggerBody()['text']"
+    },
+    "host": {
+      "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+      "connection": "shared_sharepointonline-1",
+      "operationId": "GetItems"
+    },
+    "retryPolicy": {
+      "type": "none"
+    }
+  },
+  "runAfter": {
+    "Redactar_Filtro_OData": [
+      "Succeeded"
+    ]
+  },
+  "metadata": {
+    "operationMetadataId": "b062ad07-43e7-42c8-a4fe-aa710ae381bb"
+  }
+}

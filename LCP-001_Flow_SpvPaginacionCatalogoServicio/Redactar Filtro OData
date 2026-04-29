@@ -1,0 +1,9 @@
+{
+  "type": "Compose",
+  "inputs": "@concat(\n    if(empty(triggerBody()['text_2']), '', concat(triggerBody()['text_2'], ' and ')), \n    'ID ', \n    if(equals(triggerBody()['text_3'],'PREV'), 'lt ', 'gt '), \n    triggerBody()['text_1']\n)",
+  "runAfter": {
+    "Redactar": [
+      "Succeeded"
+    ]
+  }
+}

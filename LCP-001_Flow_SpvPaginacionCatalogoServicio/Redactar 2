@@ -1,0 +1,12 @@
+{
+  "type": "Compose",
+  "inputs": "@length(body('Get_Items')?['value'])",
+  "runAfter": {
+    "Get_Items": [
+      "Succeeded"
+    ]
+  },
+  "metadata": {
+    "operationMetadataId": "49d67c23-bf15-4e2d-9733-8d519f3e1841"
+  }
+}

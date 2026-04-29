@@ -1,0 +1,12 @@
+{
+  "type": "Compose",
+  "inputs": "@body('Get_Items')?['odata.nextLink']",
+  "runAfter": {
+    "Redactar_2": [
+      "Succeeded"
+    ]
+  },
+  "metadata": {
+    "operationMetadataId": "175632f6-80c1-4336-bca1-c3274530aa86"
+  }
+}

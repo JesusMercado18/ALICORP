@@ -1,0 +1,41 @@
+{
+  "type": "Response",
+  "kind": "PowerApp",
+  "inputs": {
+    "schema": {
+      "type": "object",
+      "properties": {
+        "response": {
+          "title": "Response",
+          "x-ms-dynamically-added": true,
+          "type": "string"
+        },
+        "totalitems": {
+          "title": "totalitems",
+          "x-ms-dynamically-added": true,
+          "type": "string"
+        },
+        "nextlink": {
+          "title": "nextLink",
+          "x-ms-dynamically-added": true,
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "statusCode": 200,
+    "body": {
+      "response": "@{body('Get_Items')?['value']}",
+      "totalitems": "@{outputs('Redactar_3')}",
+      "nextlink": "@{outputs('Redactar')}"
+    }
+  },
+  "runAfter": {
+    "Obtener_elementos": [
+      "Succeeded"
+    ]
+  },
+  "metadata": {
+    "operationMetadataId": "536e211d-8f5a-4e53-9c44-c8e09d4b5130"
+  }
+}
