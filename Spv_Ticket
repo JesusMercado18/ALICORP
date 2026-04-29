@@ -429,7 +429,7 @@ Screens:
                                                 HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
                                                 HoverColor: =ColorValue(Var_ColorBlanco)
                                                 HoverFill: =ColorValue(Var_ColorHoverBoton)
-                                                OnSelect: =
+                                                OnSelect: =Navigate(Gbl_NuevoTicket)
                                                 PaddingBottom: =0
                                                 PaddingLeft: =14
                                                 PaddingRight: =0

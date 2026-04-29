@@ -166,7 +166,17 @@ Screens:
                               Width: =If(Gbl_Menu_Spv_CatalogoServicio.verMenu,250,70)
                               WidthMenu: =Parent.Width
                               displayNameUser: =User().FullName
-                              itemsMenu: =colMenuSpv
+                              itemsMenu: |-
+                                =Switch(Var_RolSistema,
+                                    Var_RolApp.RolSupervisor,
+                                    colMenuSpv,
+                                   Var_RolApp.RolAnalista,
+                                    colMenu,
+                                    Var_RolApp.RolSolicitante,
+                                    colMenuSol,
+                                    Var_RolApp.RolAdministrador,
+                                    colMenuAdm
+                                )
                               menuSelected: =menuSelected
                               openMenu: =Set(Var_OpenMenu, !Var_OpenMenu)
                               verMenu: =Var_OpenMenu
@@ -2018,16 +2028,18 @@ Screens:
                             Control: Text@0.0.51
                             Properties:
                               Align: ='TextCanvas.Align'.Start
+                              AutoHeight: =true
                               Fill: =RGBA(255, 255, 255, 1)
                               Font: =Font.'Open Sans'
                               Height: =16
                               PaddingLeft: =2
+                              PaddingRight: =2
                               Size: =12
                               Text: ="Tipo solicitud"
                               Visible: =!IsBlank(SpvCtg_TxtTipoSolicitudVerDetalle.Text)
-                              Width: =80
+                              Width: =85
                               Wrap: =false
-                              X: =15
+                              X: =14
                   - SpvCtg_CtnBotonesVerDetalle:
                       Control: GroupContainer@1.5.0
                       Variant: AutoLayout
