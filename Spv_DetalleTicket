@@ -548,7 +548,8 @@ Screens:
                                                                               HoverColor: =ColorValue(Var_ColorFontBotonHover)
                                                                               HoverFill: =ColorValue(Var_ColorBackgroundBotonHover)
                                                                               OnSelect: |
-                                                                                =UpdateContext(
+                                                                                =Reset(Gbl_App_Confirmation_Update_2);
+                                                                                UpdateContext(
                                                                                     {
                                                                                         Var_Ctx_ModalConfirmacion: true,
                                                                                         Var_Ctx_OperacionCatalogo: true,
