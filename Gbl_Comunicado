@@ -1,5 +1,5 @@
 Screens:
-  Spv_Comunicados:
+  Gbl_Comunicado:
     Properties:
       Fill: =ColorValue(Var_ColorFondoLateral)
       LoadingSpinnerColor: =RGBA(0, 120, 212, 1)
@@ -58,7 +58,8 @@ Screens:
                     EstadoComunicado:   ThisRecord.Value.EstadoComunicado,
                     Recurrente:         ThisRecord.Value.Recurrente,
                     TipoRecurrente:     ThisRecord.Value.TipoRecurrente,
-                    EsVisibleHoy:       ThisRecord.Value.EsVisibleHoy
+                    EsVisibleHoy:       ThisRecord.Value.EsVisibleHoy,
+                    TipoPublicacion:    ThisRecord.Value.TipoPublicacion
                 }
             )
         );
@@ -113,7 +114,7 @@ Screens:
                               Width: =If(Gbl_MenuSpvCmc.verMenu,250,70)
                               WidthMenu: =Parent.Width
                               displayNameUser: =User().FullName
-                              itemsMenu: =colMenuSpv
+                              itemsMenu: =colMenuGeneral
                               menuSelected: =menuSelected
                               openMenu: =Set(Var_OpenMenu, !Var_OpenMenu)
                               verMenu: =Var_OpenMenu
@@ -306,6 +307,7 @@ Screens:
                                     RadiusBottomRight: =10
                                     RadiusTopLeft: =10
                                     RadiusTopRight: =10
+                                    Visible: =If(Var_RolSistema in [Var_RolApp.RolSupervisor,Var_RolApp.RolAdministrador],true,false)
                                     Width: =225
                                   Children:
                                     - SpvCmc_BtnNuevoComunicado:
@@ -1562,7 +1564,7 @@ Screens:
                                                                   Width: =Parent.Width - SpvCmc_IcnUsuario.Width - 45
                                                                   X: =40
                                                                   Y: =40
-                                                            - SpvCmc_IcnEditar_1:
+                                                            - SpvCmc_IcnEditar:
                                                                 Control: Image@2.2.3
                                                                 Properties:
                                                                   BorderColor: =RGBA(0, 0, 0, 0)
