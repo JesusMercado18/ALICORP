@@ -3,7 +3,7 @@ Screens:
     Properties:
       Fill: =ColorValue(Var_ColorFondoLateral)
       LoadingSpinnerColor: =RGBA(0, 120, 212, 1)
-      OnVisible: |
+      OnVisible: |-
         =UpdateContext({ 
             menuSelected: 2,
             Var_Ctx_MostrarItemsCatalogoSpv: false,
@@ -157,26 +157,29 @@ Screens:
                         LayoutMinWidth: =16
                         Width: =If(Var_OpenMenu,250,100)
                       Children:
+                        - Gbl_App_Menu_2:
+                            Control: CanvasComponent
+                            ComponentName: Gbl_App_Menu
+                            Properties:
+                              Height: =768
+                              Width: =If(Var_OpenMenu,250,70)
+                              WidthMenu: =Parent.Width
+                              displayNameUser: ="Texto"
+                              itemsMenu: =col_gbl_Menu
+                              menuSelected: =menuSelected
+                              openMenu: =Set(Var_OpenMenu, !Var_OpenMenu)
+                              verMenu: =Var_OpenMenu
                         - Gbl_Menu_Spv_CatalogoServicio:
                             Control: CanvasComponent
                             ComponentName: Gbl_Menu
                             ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
                             Properties:
                               Height: =768
+                              Visible: =false
                               Width: =If(Gbl_Menu_Spv_CatalogoServicio.verMenu,250,70)
                               WidthMenu: =Parent.Width
                               displayNameUser: =User().FullName
-                              itemsMenu: |-
-                                =Switch(Var_RolSistema,
-                                    Var_RolApp.RolSupervisor,
-                                    colMenuSpv,
-                                   Var_RolApp.RolAnalista,
-                                    colMenu,
-                                    Var_RolApp.RolSolicitante,
-                                    colMenuSol,
-                                    Var_RolApp.RolAdministrador,
-                                    colMenuAdm
-                                )
+                              itemsMenu: =col_gbl_Menu
                               menuSelected: =menuSelected
                               openMenu: =Set(Var_OpenMenu, !Var_OpenMenu)
                               verMenu: =Var_OpenMenu
@@ -545,7 +548,12 @@ Screens:
                                                 DisabledBorderColor: =RGBA(0, 0, 0, 0)
                                                 DisabledColor: =RGBA(161, 159, 157, 1)
                                                 DisabledFill: =RGBA(0, 0, 0, 0)
-                                                Fill: =If(Var_Ctx_TicketPopulares, ColorValue("#F5F5F5"), Color.Transparent)
+                                                Fill: |-
+                                                  =If(
+                                                      Var_Ctx_TicketPopulares, 
+                                                      RGBA(225, 223, 221, 1), 
+                                                      RGBA(255, 255, 255, 0)
+                                                  )
                                                 Font: =Font.'Open Sans'
                                                 FontWeight: |-
                                                   =If(
@@ -556,7 +564,9 @@ Screens:
                                                 Height: =Parent.Height
                                                 HoverBorderColor: =RGBA(0, 0, 0, 0)
                                                 HoverColor: =RGBA(0, 0, 0, 1)
-                                                HoverFill: =RGBA(0, 0, 0, 0)
+                                                HoverFill: |-
+                                                  =//RGBA(0; 0; 0; 0)
+                                                  RGBA(243, 242, 241, 1)
                                                 OnSelect: |-
                                                   =// 1. Reset de variables y contextos de interfaz para Tickets Populares
                                                   UpdateContext({
@@ -643,7 +653,7 @@ Screens:
                                                 TemplateSize: =35
                                                 Visible: =ctx_GerenciaExpandida = ThisItem.Nombre
                                                 Width: =Parent.TemplateWidth
-                                                Y: =25
+                                                Y: =35
                                               Children:
                                                 - SpvCtg_BtnTituloArea:
                                                     Control: Classic/Button@2.2.0
@@ -1178,7 +1188,30 @@ Screens:
                                                                 filas * Self.TemplateHeight + 35 // cálculo normal
                                                             )
                                                         ) + Parent.Height - 230
-                                                      Items: =Sort(objGalleryDataSpvCatalogoServicio,Value(ThisRecord.ID), SortOrder.Descending)
+                                                      Items: |-
+                                                        =//Sort(objGalleryDataSpvCatalogoServicio;Value(ThisRecord.ID); SortOrder.Descending)
+                                                        If(
+                                                            Var_Ctx_TicketPopulares,
+                                                            // 1. Calculamos la frecuencia en tiempo de evaluación usando un Alias para evitar pérdida de contexto
+                                                            Sort(
+                                                                AddColumns(
+                                                                    objGalleryDataSpvCatalogoServicio As DatosGaleria,
+                                                                    FrecuenciaCalculada,
+                                                                    CountIf(
+                                                                        objGalleryDataSpvCatalogoServicio,
+                                                                        TipoSolicitud = DatosGaleria.TipoSolicitud
+                                                                    )
+                                                                ),
+                                                                FrecuenciaCalculada,
+                                                                SortOrder.Descending
+                                                            ),
+                                                            // 2. Comportamiento por defecto (ordenamiento estándar)
+                                                            Sort(
+                                                                objGalleryDataSpvCatalogoServicio,
+                                                                Value(ID), // Se retira ThisRecord para evitar conflictos de Scope en la función Sort
+                                                                SortOrder.Descending
+                                                            )
+                                                        )
                                                       LayoutMinHeight: =16
                                                       LayoutMinWidth: =If(Gbl_Menu_Spv_CatalogoServicio.verMenu,Parent.Width ,Parent.Width)
                                                       OnSelect: =Set(Var_SpvCatalogoServicioSeleccionada,ThisItem);
