@@ -57,7 +57,7 @@ Screens:
                               Width: =Parent.Width
                               WidthMenu: =100
                               displayNameUser: =Var_UserProfile.FullName
-                              itemsMenu: =colMenuSpv
+                              itemsMenu: =colMenuGeneral
                               menuSelected: =menuSelected
                               openMenu: =Set(Var_OpenMenu, !Var_OpenMenu)
                               verMenu: =Var_OpenMenu
@@ -592,7 +592,7 @@ Screens:
                                                                                 =UpdateContext(
                                                                                     {
                                                                                         Var_Ctx_ModalConfirmacion: true,
-                                                                                        Var_Ctx_OperacionCatalogo: true,
+                                                                                        Var_Ctx_OperacionCatalogo: false,
                                                                                         Var_Ctx_Reactivar: true,
                                                                                         Var_Ctx_DataModal: {
                                                                                             Title: "Reactivar ticket",
@@ -4589,6 +4589,26 @@ Screens:
                   X: =(Parent.Width - Self.Width) / 2
                   Y: =(Parent.Height - Self.Height) / 2
                   autoWidth: =130
+                  btnTitleConfirm: =Var_Ctx_DataModal.ButtonOk
+            - Gbl_Confirmation_1:
+                Control: CanvasComponent
+                ComponentName: Gbl_Confirmation
+                ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
+                Properties:
+                  CerrarModal: |-
+                    =Reset(Gbl_Confirmation_1);
+                    UpdateContext({ Var_Ctx_ModalConfirmacion: false });
+                    UpdateContext({ Var_Ctx_Reactivar: false })
+                  Guardar: "=If(\r\n    IsBlank(Gbl_Confirmation_1.Comentarios),\r\n    \r\n    UpdateContext({\r\n        CloseAlert: true,\r\n        Mensaje: \"Debes ingresar el comentario.\"\r\n    }),\r\n    /* 1. SI LAS VALIDACIONES PASAN, PROCEDEMOS */\r\n    IfError(\r\n        Switch(Var_Ctx_AccionEstado,\r\n            //Caso switch 1\r\n            Var_EstadosApp.EstadoRechazado,\r\n            Patch(\r\n                'LCP-001_List_TicketSolicitudes',\r\n                LookUp('LCP-001_List_TicketSolicitudes',ID = Var_SpvTicketSeleccionada.ID),\r\n                {\r\n                    EstadoActual: Var_EstadosApp.EstadoRechazado,\r\n                    Motivo: Gbl_Confirmation_1.Comentarios,\r\n                    MotivoObservacion: Gbl_Confirmation_1.Comentarios,\r\n                    Comentario: Spv_RichComentariosDetalleTicket.HtmlText,\r\n                    FechaModificado: Now(),\r\n                    Accionador: \"Supervisor\",\r\n                    Evento: Var_EventoTrazabilidadApp.Estado,\r\n                    Rechazado: true,\r\n                    Derivado: false,\r\n                    VistoBueno: false,\r\n                    VariosAprobadores: false,\r\n                    Aprobacion: false,\r\n                    ReAsignado: false,\r\n                    ReApertura: false\r\n                }\r\n            ),\r\n            //Caso switch 2\r\n            Var_EstadosApp.EstadoDerivado,\r\n            Patch(\r\n                'LCP-001_List_TicketSolicitudes',\r\n                LookUp('LCP-001_List_TicketSolicitudes',ID = Var_SpvTicketSeleccionada.ID),\r\n                {\r\n                    EstadoActual: If(IsBlank(varUpdateAtendidoPorSelected), varEstadoSelected.Value, Var_EstadosApp.EstadoEnRevision),\r\n                    Motivo: Gbl_Confirmation_1.Comentarios,\r\n                    MotivoObservacion: Gbl_Confirmation_1.Comentarios,\r\n                    Comentario: Spv_RichComentariosDetalleTicket.HtmlText,\r\n                    FechaModificado: Now(),\r\n                    Accionador: \"Supervisor\",\r\n                    Evento: Var_EventoTrazabilidadApp.Estado,\r\n                    // Nuevo Analista\r\n                    NombreAtendidoPor: varUpdateAtendidoPorSelected.Nombre,\r\n                    CorreoAtendidoPor: varUpdateAtendidoPorSelected.Correo,\r\n                    // Analista anterior\r\n                    AtendidoNombreAnterior: Var_SpvTicketSeleccionada.NombreAtendidoPor,\r\n                    AtendidoCorreoAnterior: Var_SpvTicketSeleccionada.CorreoAtendidoPor,\r\n                    FechaVencimientoEstado: FechaVencimientoEstado,\r\n                    SLAEstado: Var_SLACalculado,\r\n                    Derivado: true,\r\n                    ReApertura: Var_Ctx_Reactivar,\r\n                    Rechazado: false,\r\n                    VistoBueno: false,\r\n                    VariosAprobadores: false,\r\n                    Aprobacion: false,\r\n                    ReAsignado: false\r\n                }\r\n            ),\r\n            //Caso switch 3\r\n            Var_EstadosApp.EstadoReactivado,\r\n            Patch(\r\n                'LCP-001_List_TicketSolicitudes',\r\n                LookUp('LCP-001_List_TicketSolicitudes',ID = Var_SpvTicketSeleccionada.ID),\r\n                {\r\n                    EstadoActual: If(IsBlank(varUpdateAtendidoPorSelected), varEstadoSelected.Value, Var_EstadosApp.EstadoEnRevision),\r\n                    Motivo: Gbl_Confirmation_1.Comentarios,\r\n                    MotivoObservacion: Gbl_Confirmation_1.Comentarios,\r\n                    Comentario: Spv_RichComentariosDetalleTicket.HtmlText,\r\n                    FechaModificado: Now(),\r\n                    Accionador: \"Supervisor\",\r\n                    Evento: Var_EventoTrazabilidadApp.Estado,\r\n                    // Nuevo Analista\r\n                    NombreAtendidoPor: varUpdateAtendidoPorSelected.Nombre,\r\n                    CorreoAtendidoPor: varUpdateAtendidoPorSelected.Correo,\r\n                    // Analista anterior\r\n                    AtendidoNombreAnterior: Var_SpvTicketSeleccionada.NombreAtendidoPor,\r\n                    AtendidoCorreoAnterior: Var_SpvTicketSeleccionada.CorreoAtendidoPor,\r\n                    //FechaVencimientoEstado: FechaVencimientoEstado;\r\n                    //SLAEstado: Var_SLACalculado;\r\n                    ReApertura: Var_Ctx_Reactivar,\r\n                    Derivado: false,\r\n                    Rechazado: false,\r\n                    VistoBueno: false,\r\n                    VariosAprobadores: false,\r\n                    Aprobacion: false,\r\n                    ReAsignado: false\r\n                }\r\n            )\r\n        ),\r\n        /* 3. MANEJO DE ERRORES (Si el Patch falla) */\r\n        Set(_varError, {\r\n            Fecha: Now(),\r\n            Usuario: {\r\n                Codigo: Var_ProfileUser.Codigo,\r\n                Nombre: Var_ProfileUser.NombreApellido\r\n            },\r\n            CodigoTicket: Var_SpvTicketSeleccionada.Codigo,\r\n            Error: FirstError.Message\r\n        });\r\n        Patch('LCP-001_List_ErroresSolicitud', Defaults('LCP-001_List_ErroresSolicitud'), {\r\n            TipoSolicitud: Var_TipoOperacionApp.Actualizar,\r\n            FechaError: Now(),\r\n            Error: JSON(_varError, JSONFormat.Compact),\r\n            CodigoUsuario: Var_ProfileUser.Codigo\r\n        });\r\n        UpdateContext({ CloseAlert: true, Mensaje: \"Error al guardar: \" & FirstError.Message }),\r\n        /* 4. ÉXITO: CONTINUACIÓN SOLO SI NO HUBO ERROR */\r\n        If(\r\n            !IsEmpty(Var_uploadFile_listeAttachment),\r\n            'LCP-001_Flow_SubirAdjuntos'.Run(\r\n                JSON(Var_uploadFile_listeAttachment),\r\n                \"COMENTARIOS\",\r\n                Text(Var_SpvTicketSeleccionada.ID)\r\n            )\r\n        );\r\n        UpdateContext({Var_Ctx_ModalConfirmacion: false});\r\n        Navigate(\r\n            Spv_Ticket,\r\n            ScreenTransition.Fade,\r\n            {\r\n                AlertaSatisfactoria: true,\r\n                MensajeSatisfactorio: \"Se actualizó el estado del ticket.\"\r\n            }\r\n        )\r\n    )\r\n)"
+                  Height: =362
+                  IsError: =ColorValue("#6C6C6C")
+                  Observacion: =true
+                  Subtitle: =Var_Ctx_DataModal.SubTitle
+                  Title: =Var_Ctx_DataModal.Title
+                  Visible: =Var_Ctx_Reactivar
+                  Width: =441
+                  X: =(Parent.Width - Self.Width) / 2
+                  Y: =(Parent.Height - Self.Height) / 2
                   btnTitleConfirm: =Var_Ctx_DataModal.ButtonOk
       - Spv_TimerAlertaDetalleTicket:
           Control: Timer@2.1.0
