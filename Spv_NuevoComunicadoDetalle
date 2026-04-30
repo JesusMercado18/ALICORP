@@ -930,7 +930,7 @@ Screens:
                                           Height: =70
                                           LayoutMinHeight: =16
                                           LayoutMinWidth: =0
-                                          Visible: =IsEmpty(colEstadoRecurrenteSeleccionadas)
+                                          Visible: =If(First(colEstadoTipoPublicacionSeleccionadas).Value = "Evento único",true, false)
                                           Width: =600
                                         Children:
                                           - SpvNvCmc_FechasTiempoDuracionDetalle:
@@ -1471,6 +1471,7 @@ Screens:
                                           Height: =If(IsEmpty(colEstadoRecurrenteSeleccionadas),70,230)
                                           LayoutMinHeight: =16
                                           LayoutMinWidth: =0
+                                          Visible: =If(First(colEstadoTipoPublicacionSeleccionadas).Value = "Evento único",true, false)
                                           Width: =600
                                         Children:
                                           - SpvNvCmc_GlrChkRecurrenteDetalle:
