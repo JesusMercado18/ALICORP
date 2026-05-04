@@ -95,7 +95,7 @@ Screens:
             )
         );
 
-        Set(Var_Spv_Indicadores,'LCP-001_Flow_IndicadoresTicket'.Run("(AnalistaCorreo eq '" & "test@alicorp.pe" & "'" &" or SolicitanteCorreo eq '" & "test@alicorp.pe" & "')",101));
+        Set(Var_Spv_Indicadores,'LCP-001_Flow_IndicadoresTicket'.Run("(AnalistaCorreo eq '" & Var_ProfileUser.CorreoUsuario & "')",101));
 
         UpdateContext({ Var_Ctx_MostrarItems : false });
 
