@@ -1,5 +1,5 @@
 Screens:
-  Spv_Soluciones:
+  Gbl_Soluciones:
     Properties:
       Fill: =ColorValue(Var_ColorFondoLateral)
       LoadingSpinnerColor: =RGBA(0, 120, 212, 1)
@@ -102,7 +102,7 @@ Screens:
                               Width: =If(Gbl_MenuSpvSoluciones.verMenu,250,70)
                               WidthMenu: =Parent.Width
                               displayNameUser: =User().FullName
-                              itemsMenu: =colMenuSpv
+                              itemsMenu: =colMenuGeneral
                               menuSelected: =menuSelected
                               openMenu: =Set(Var_OpenMenu, !Var_OpenMenu)
                               verMenu: =Var_OpenMenu
@@ -129,7 +129,7 @@ Screens:
                             Properties:
                               AlignInContainer: =AlignInContainer.End
                               Height: =60
-                              Perfil: =App.ActiveScreen
+                              Perfil: =Gbl_Home
                               X: =726
                         - SpvSlc_CtnPaginaActual:
                             Control: GroupContainer@1.5.0
@@ -201,7 +201,7 @@ Screens:
                                           Color: =ColorValue(Var_ColorNavegarCabecera)
                                           Height: =13
                                           Icon: =Icon.ChevronRight
-                                          Width: =12
+                                          Width: =11
                                           X: =(SpvSlc_CtnFlechaPaginaActual.Width - Self.Width) / 2
                                           Y: =6
                               - SpvSlc_LblPaginaActual:
@@ -287,6 +287,7 @@ Screens:
                                     RadiusBottomRight: =8
                                     RadiusTopLeft: =8
                                     RadiusTopRight: =8
+                                    Visible: =If(Var_RolSistema in [Var_RolApp.RolSupervisor,Var_RolApp.RolAdministrador],true,false)
                                     Width: =110
                                   Children:
                                     - SpvSlc_BtnNuevaSolucion:
@@ -990,7 +991,6 @@ Screens:
                                           Height: =CountRows(SpvSlc_GlrEstados.AllItems) * 37
                                           Visible: =varOpenDropDownEstadoSpvSlc
                                           Width: =SpvSlc_CtnSeleccionarEstado.Width - 2
-                                          X: =778
                                           Y: =55
                                         Children:
                                           - SpvSlc_GlrEstados:
@@ -1477,7 +1477,7 @@ Screens:
           ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
           Properties:
             Evento_CerrarNotificacion: "=UpdateContext({ Var_Ctx_SpvMostrarErrorSoluciones: false }) "
-            Height: =40
+            Height: =46
             Input_MostrarOcultarNotificacion: =Var_Ctx_SpvMostrarAlertaSoluciones
             Input_TextoNotificacion: =Var_Ctx_SpvMensajeSatisfactorioSolucion
             Width: =480
@@ -2301,7 +2301,7 @@ Screens:
                                             );
                                           Width: =30
                                           X: =9*SpvSlc_GlrInfoAdjuntoNuevaSolucion.TemplateWidth/10
-                        - tim_initialisation_1:
+                        - tim_initialisation_2:
                             Control: Timer@2.1.0
                             Properties:
                               AutoStart: =true
@@ -2862,7 +2862,7 @@ Screens:
           Properties:
             Evento_CerrarNotificacion: |-
               =UpdateContext( { Var_Ctx_SpvMostrarErrorSoluciones : false })
-            Height: =40
+            Height: =46
             Input_MostrarOcultarNotificacion: =Var_Ctx_SpvMostrarErrorSoluciones
             Input_TextoNotificacion: =SpvSlcMensajeError
             Visible: =Var_Ctx_SpvMostrarErrorSoluciones

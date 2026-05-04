@@ -164,8 +164,8 @@ Screens:
                               Height: =768
                               Width: =If(Var_OpenMenu,250,70)
                               WidthMenu: =Parent.Width
-                              displayNameUser: ="Texto"
-                              itemsMenu: =col_gbl_Menu
+                              displayNameUser: =User().FullName
+                              itemsMenu: =colMenuGeneral
                               menuSelected: =menuSelected
                               openMenu: =Set(Var_OpenMenu, !Var_OpenMenu)
                               verMenu: =Var_OpenMenu
@@ -179,7 +179,7 @@ Screens:
                               Width: =If(Gbl_Menu_Spv_CatalogoServicio.verMenu,250,70)
                               WidthMenu: =Parent.Width
                               displayNameUser: =User().FullName
-                              itemsMenu: =col_gbl_Menu
+                              itemsMenu: =colMenuGeneral
                               menuSelected: =menuSelected
                               openMenu: =Set(Var_OpenMenu, !Var_OpenMenu)
                               verMenu: =Var_OpenMenu
@@ -206,7 +206,7 @@ Screens:
                             Properties:
                               AlignInContainer: =AlignInContainer.End
                               Height: =60
-                              Perfil: =App.ActiveScreen
+                              Perfil: =Gbl_Home
                               X: =726
                         - SpvCtg_CtnPaginaActual:
                             Control: GroupContainer@1.5.0

@@ -4,31 +4,55 @@
 Set(Var_UserProfile; User());;
 Set(Var_OpenMenu; true);;
 Set(Var_JSONTema; {});;
+
+Set(TotalItem;1);;
+Set(TotalItemAdmSoluciones;1);;
+Set(TotalItemAdmComunicados; 1);;
+
+
+Set(Var_GridPageSize; 5);;
+Set(Var_GridPageSizeAdmComunicados; 3);;
+
 // Primera consulta al servidor para obtener los estados en una coleccion ClearCollect(colAppEstados; 'LCP-001_List_Estado');;
 
 ClearCollect(colAppEstados; 'LCP-001_List_Estado');;
+ClearCollect(colRolSistema; 'LCP-001_List_Rol');;
 
 // construir un objeto de estados
 
 Set(Var_EstadosApp; {
-    EstadoCreado: LookUp(colAppEstados;Nombre="Creado").Nombre;
-    EstadoEnRevision: LookUp(colAppEstados;Nombre="En revisión").Nombre;
-    EstadoRechazado: LookUp(colAppEstados;Nombre="Rechazado").Nombre;
-    EstadoEnProceso: LookUp(colAppEstados;Nombre="En proceso").Nombre;
-    EstadoObservado: LookUp(colAppEstados;Nombre="Observado").Nombre;
-    EstadoDerivado: LookUp(colAppEstados;Nombre="Derivado").Nombre;
-    EstadoEnEsperaAprobacion: LookUp(colAppEstados;Nombre="En espera de aprobación").Nombre;
-    EstadoResuelto: LookUp(colAppEstados;Nombre="Resuelto").Nombre;
-    EstadoCerrado: LookUp(colAppEstados;Nombre="Cerrado").Nombre;
-    EstadoReactivado: "Reactivado"
+
+EstadoCreado: LookUp(colAppEstados;Nombre="Creado").Nombre;
+EstadoEnRevision: LookUp(colAppEstados;Nombre="En revisión").Nombre;
+EstadoRechazado: LookUp(colAppEstados;Nombre="Rechazado").Nombre;
+EstadoEnProceso: LookUp(colAppEstados;Nombre="En proceso").Nombre;
+EstadoObservado: LookUp(colAppEstados;Nombre="Observado").Nombre;
+EstadoDerivado: LookUp(colAppEstados;Nombre="Derivado").Nombre;
+EstadoEnEsperaAprobacion: LookUp(colAppEstados;Nombre="En espera de aprobación").Nombre;
+EstadoResuelto: LookUp(colAppEstados;Nombre="Resuelto").Nombre;
+EstadoCerrado: LookUp(colAppEstados;Nombre="Cerrado").Nombre;
+EstadoReactivado: "Reactivado" // INTEGRADO: Nuevo estado de reactivación
 });;
+
+// json de roles
+
+Set(Var_RolApp; {
+
+RolSolicitante: LookUp(colRolSistema;Nombre="Solicitante").Nombre;
+RolAnalista: LookUp(colRolSistema;Nombre="Analista").Nombre;
+RolSupervisor: LookUp(colRolSistema;Nombre="Supervisor").Nombre;
+RolAdministrador: LookUp(colRolSistema;Nombre="Administrador").Nombre;
+RolGerente: LookUp(colRolSistema;Nombre="Gerente").Nombre
+});;
+
+
 
 // Operaciones para el log de errores
 Set(Var_TipoOperacionApp;{
-
     Creado: "Creado";
     Actualizar: "Actualizar";
-    Eliminar: "Eliminar"
+    Elimºr: "Eliminar"; // Se mantiene la línea original
+    Eliminar: "Eliminar" // INTEGRADO: Corrección de sintaxis de la operación
  });;
 
 // Eventos para construir el tracking de estados, se puede usar para los cambios y workflow
@@ -39,15 +63,14 @@ Set(Var_EventoTrazabilidadApp;{
 Set(
     Var_JSONConfigurarTipoCampo;
     {
-        Texto: "Texto";
+        Texto: "Texto corto";
         Fecha: "Fecha";
-        ComboBox: "Combo Box";
+        ComboBox: "Selección Única";
         SiNo: "Sí/No";
         Numerico: "Numérico";
-        Persona: "Persona (cuenta Microsoft)";
         Multiselect: "Multiselect";
         Adjunto: "Adjunto";
-        Multiline: "Multilínea";
+        Multiline: "Texto largo";
         URL: "URL";
         Toggle: "Control Toggle"
     }
@@ -59,7 +82,6 @@ ClearCollect(
     {Value: Var_JSONConfigurarTipoCampo.ComboBox};
     {Value: Var_JSONConfigurarTipoCampo.SiNo};
     {Value: Var_JSONConfigurarTipoCampo.Numerico};
-    {Value: Var_JSONConfigurarTipoCampo.Persona};
     {Value: Var_JSONConfigurarTipoCampo.Multiselect};
     {Value: Var_JSONConfigurarTipoCampo.Adjunto};
     {Value: Var_JSONConfigurarTipoCampo.Multiline};
@@ -67,12 +89,50 @@ ClearCollect(
     {Value: Var_JSONConfigurarTipoCampo.Toggle}
 );;
 
+// Tipos de campos agrupados
+Set(Var_JSONTipoCampo;
+{
+    CampoBase: "Campo base";
+    CampoDependiente: "Campo dependiente";
+    CampoAutocompletado: "Campo autocompletado"
+}
+);;
+
+// ["=";"≠";">";"≥";"<";"≤"]
+Set(Var_JSONOperadores;
+{
+    Igual : "=";
+    DiferenteDe: "≠";
+    Mayor : ">";
+    MayorIgual: "≥";
+    Menor: "<";
+    MenorIgual: "≤"
+
+}
+);;
+
+
 // Inicializamos datos globales o genericos
 ClearCollect(col_gblGerencia; 'LCP-001_List_Gerencia');;
 ClearCollect(col_gblGerenciaArea; 'LCP-001_List_GerenciaArea');;
 ClearCollect(col_gblArea; Distinct('LCP-001_List_GerenciaArea';Area));;
 ClearCollect(col_gblAreaSubArea; 'LCP-001_List_AreaSubArea');;
-ClearCollect(col_gblRol; 'LCP-001_List_Rol');;
+ClearCollect(col_gblCategoria;'LCP-001_List_Categoria');;
+ClearCollect(col_gblRol; 'LCP-001_List_Rol');; // INTEGRADO: Catálogo de roles
+ClearCollect(col_gblPais; 'LCP-001_List_Pais');;
+ClearCollect(col_gblPaisSociedad; 'LCP-001_List_PaisSociedad');;
+ClearCollect(col_gblPaisSubArea; 'LCP-001_List_PaisSubArea');;
+
+
+
+    ClearCollect(col_glbMotivosCerrar;ShowColumns('LCP-001_List_MotivosCierre';Codigo; Motivo; Descripcion));;
+    ClearCollect(col_glbMotivosDerivar;ShowColumns('LCP-001_List_MotivosDerivacion';Codigo; Motivo; Descripcion));;
+    ClearCollect(col_glbMotivosRechazar;ShowColumns('LCP-001_List_MotivosRechazo';Codigo; Motivo; Descripcion));;
+    ClearCollect(col_glbMotivosReaperturar;ShowColumns('LCP-001_List_MotivosReapertura';Codigo; Motivo; Descripcion));;
+    ClearCollect(col_glbMotivosReasignar;ShowColumns('LCP-001_List_MotivosReasignacion';Codigo; Motivo; Descripcion));;
+    ClearCollect(col_glbMotivosObservar;ShowColumns('LCP-001_List_MotivosObservacion';Codigo; Motivo; Descripcion));;
+// Tamaño global de los adjuntos
+Set(Var_MaxAttachmentSize; 25);;
 
 // =========================================================================
 // 2. VARIABLES DE DISEÑO (Colores, Fuentes, Espaciados)
@@ -88,36 +148,36 @@ Set(Var_ColorNavegarCabeceraSeleccionado; "#E62020");;
 // --- Botones Primarios ---
 Set(Var_ColorBoton; "#E62020");;
 Set(Var_ColorFadeBoton; "#FAEFEF");;
-Set(Var_ColorHoverBoton; "#A30000");; // Primary dark
-Set(Var_ColorPressedBoton; "#470000");; // Primary darkest
-Set(Var_ColorBordeBoton; "#6C6C6C");; // Neutral Dark
+Set(Var_ColorHoverBoton; "#A30000");; 
+Set(Var_ColorPressedBoton; "#470000");; 
+Set(Var_ColorBordeBoton; "#6C6C6C");; 
 
 // --- Botones Secundarios ---
 Set(Var_ColorBackgroundBotonSecondary; "#FAEFEF");;
-Set(Var_ColorFontBotonSecondary; "#E62020");; // Primary medium
+Set(Var_ColorFontBotonSecondary; "#E62020");; 
 Set(Var_ColorBorderBotonSecondary; "#E62020");;
 Set(Var_ColorBackgroundBotonHover; "#FAEFEF");; 
 Set(Var_ColorFontBotonHover; "#AC1A1A");;
 Set(Var_ColorBorderBotonHover; "#AC1A1A");;
-Set(Var_ColorBackgroundBotonActive; "#E96767");; // Primary Light
+Set(Var_ColorBackgroundBotonActive; "#E96767");; 
 Set(Var_ColorFontBotonActive; "#570A0A");;
 Set(Var_ColorBorderBotonActive; "#570A0A");;
 
 // --- Iconos y Etiquetas de Colores ---
 Set(Var_ColorIconTicketVerde; "#006B00");;
-Set(Var_ColorFadeIconTicketVerde; "#EFFAEF");; // Support Lightest
+Set(Var_ColorFadeIconTicketVerde; "#EFFAEF");; 
 Set(Var_ColorIconNegro; "#202020");;
 Set(Var_ColorIconTicketRojo; "#E62020");;
-Set(Var_ColorFadeIconTicketRojo; "#FAEFEF");; // Primary Lightest
+Set(Var_ColorFadeIconTicketRojo; "#FAEFEF");; 
 Set(Var_ColorIconTicketMorado; "#6C19DF");;
 Set(Var_ColorFadeIconTicketMorado; "#F5EDFF");;
 Set(Var_ColorFadeBotonMorado; "#F4EDFF");;
 Set(Var_ColorIconTicketCeleste; "#4379EE");;
 Set(Var_ColorFadeIconTicketCeleste; "#EBF1FF");;
 Set(Var_ColorIconTicketNaranja; "#E16C00");;
-Set(Var_ColorFadeIconTicketNaranja; "#FAF4EF");; // Support Lightest
-Set(Var_ColorIconTicketMagenta; "#DF1978");; // Support medium
-Set(Var_ColorFadeIconTicketMagenta; "#FAEFF3");; // Support Lightest
+Set(Var_ColorFadeIconTicketNaranja; "#FAF4EF");; 
+Set(Var_ColorIconTicketMagenta; "#DF1978");; 
+Set(Var_ColorFadeIconTicketMagenta; "#FAEFF3");; 
 
 // --- Fondos y Estructura ---
 Set(Var_ColorFondoLateral; "#F9F9FB");;
@@ -133,19 +193,19 @@ Set(Var_ColorFondoAdjuntos; "#E96767");;
 Set(Var_ColorBlanco; "#FCFCFC");;
 
 // --- Colores de Estados ---
-Set(Var_ColorFontEstadoCerrado; "#006B00");; // Support Dark
-Set(Var_ColorFondoEstadoCerrado; "#79D27952");; // Support Light
+Set(Var_ColorFontEstadoCerrado; "#006B00");; 
+Set(Var_ColorFondoEstadoCerrado; "#79D27952");; 
 Set(Var_ColorFontEstadoEnProceso; "#4379EE");;
 Set(Var_ColorFondoEstadoEnProceso; "#EBF1FF");;
 Set(Var_ColorFontEstadoCreado; "#6C6C6C");;
 Set(Var_ColorFondoEstadoCreado; "#DEDEDE52");;
-Set(Var_ColorFontEstadoObservados; "#A34C00");; // Support warning
-Set(Var_ColorFondoEstadoObservados; "#E16C0052");; // Support medium
+Set(Var_ColorFontEstadoObservados; "#A34C00");; 
+Set(Var_ColorFondoEstadoObservados; "#E16C0052");; 
 Set(Var_ColorFontEstadoRechazado; "#DF1978");;
-Set(Var_ColorFondoEstadoRechazado; "#F787BC52");; // Support Light
+Set(Var_ColorFondoEstadoRechazado; "#F787BC52");; 
 
 // --- Tamaños de Fuentes y Espaciados ---
-Set(Var_TituloBold; 25);; // (En tu código había 24 y 25, dejé 25 para unificar)
+Set(Var_TituloBold; 20);; 
 Set(Var_TituloNavBar; 12);;
 Set(Var_TituloIndicadores; 12);;
 Set(Var_FontSizeBoton; 14);;
@@ -163,147 +223,126 @@ Set(Var_CuerpoDiscusionCambio; 14);;
 Set(Var_TituloBoldDiscusionCambio; 14);;
 Set(Var_TiempoAtencion; 12);;
 Set(Var_AgregarComentario; 14);;
+Set(Var_TextoPerfil;11);;
 
 // =========================================================================
 // 3. FLUJO DE ROLES DEL USUARIO
 // =========================================================================
-// Nota: Se recomienda cambiar "test@alicorp.pe" por User().Email en Producción
-Set(Var_EmailUser; "test@alicorp.pe");; //svc_tkting_03@alicorp.com.pe
+Set(Var_EmailUser; User().Email);; 
 
-//Registro que se toma de la tabla LCP_001_List_Usuarios
-Set(Var_ProfileUser; LookUp('LCP-001_List_Usuarios'; CorreoUsuario = Var_EmailUser));;
+Set(Var_ProfileUser;LookUp('LCP-001_List_Usuarios'; CorreoUsuario = Var_EmailUser));;
 
 ClearCollect(
     colRolesUsuario;
     ForAll(
-        ParseJSON(Var_ProfileUser.RolSistema);
+        Table(ParseJSON(Var_ProfileUser.RolSistema)); 
         { 
-            Rol: Text(ThisRecord.Rol);
+            Rol: Text(ThisRecord.Value.Rol); 
             JerarquiaRol: 
-            If(
-                ThisRecord.Rol = "Administrador";
-                90;
-                ThisRecord.Rol = "Supervisor";
-                80;
-                ThisRecord.Rol = "Gerente";
-                70;
-                ThisRecord.Rol = "Solicitante";
-                60;
-                ThisRecord.Rol = "Analista";
-                50
+            Switch(
+                Text(ThisRecord.Value.Rol);
+                "Administrador"; 90;
+                "Supervisor";    80;
+                "Gerente";       70;
+                "Solicitante";   60;
+                "Analista";      50;
+                0
             )
         }
     )
 );;
+// esto se moverá después de hacer el login
+Set(
+    Var_RolSistema; 
+    First(Sort(colRolesUsuario; JerarquiaRol; SortOrder.Descending)).Rol
+);;
 
-//--->Set(Var_RolSistema; First(Sort(colRolesUsuario; JerarquiaRol; SortOrder.Descending)).Rol);;
-Set(Var_RolSistema; LookUp(colRolesUsuario; Rol = "Analista"));;
 
 // =========================================================================
 // 4. COLECCIONES DE CATÁLOGOS MAESTROS
 // =========================================================================
-ClearCollect(colPrioridades; ["Alto"; "Media"; "Baja"]);;
+ClearCollect(colPrioridades; ["Alto"; "Medio"; "Bajo"]);;
 ClearCollect(colCategorias; ["Certificados"; "Otros servicios"; "Anulación de comprobantes"; "Auto detracciones"]);;
-ClearCollect(colAreasTicketSpv; Distinct('LCP-001_List_AreaSubArea'; Area));;
+ClearCollect(colAreasTicket; Distinct('LCP-001_List_AreaSubArea'; Area));;
+ClearCollect(colAreasTicketSpv; Distinct('LCP-001_List_AreaSubArea'; Area));; // INTEGRADO
 
-// Colecciones de Estados unificadas a la lista maestra
-ClearCollect(colEstadosSpv; 'LCP-001_List_Estado');;
+ClearCollect(colEstados; 'LCP-001_List_Estado');;
+ClearCollect(colEstadosSpv; 'LCP-001_List_Estado');; // INTEGRADO
+
 ClearCollect(colEstadosSpvTicket; 'LCP-001_List_Estado');;
+
 
 // =========================================================================
 // 5. COLECCIONES DE NAVEGACIÓN (MENÚS POR ROL)
 // =========================================================================
 // --- Menú Supervisor ---
 ClearCollect(colMenuSpv;
-{Title: "Home";          Id: 1; Pantalla: App.ActiveScreen; Ico: home; child: false; itemsSubChild: Table()};
-{Title: "Catálogo";      Id: 2; Pantalla: Spv_Catalogo; Ico: catalogo; child: false; itemsSubChild: Table()};
+{Title: "Home";          Id: 1; Pantalla: Gbl_Home; Ico: home; child: false; itemsSubChild: Table()};
+{Title: "Catálogo";      Id: 2; Pantalla: Gbl_Catalogo; Ico: catalogo; child: false; itemsSubChild: Table()};
 {Title: "Ticket";        Id: 3; Pantalla: Spv_Ticket; Ico: ticket; child: false; itemsSubChild: Table()};
-{Title: "Configuración"; Id: 4; Pantalla: App.ActiveScreen; Ico: configuracion; child: true; 
-        itemsSubChild: [
-                        { Title: "Solicitudes"; Id: 3,1; Pantalla: App.ActiveScreen};
-                        { Title: "Notificaciones";     Id: 3,2; Pantalla: App.ActiveScreen};
-                        { Title: "Catálogos del sistema"; Id: 3,3; Pantalla: App.ActiveScreen}
-                       ]
-};
-{Title: "Comunicados";   Id: 5; Pantalla: Spv_Comunicados; Ico: comunicados; child: false; itemsSubChild: Table()};
-{Title: "Soluciones";    Id: 6; Pantalla: Spv_Soluciones; Ico: soluciones; child: false; itemsSubChild: Table()}
+{Title: "Comunicados";   Id: 5; Pantalla: Gbl_Comunicado; Ico: comunicados; child: false; itemsSubChild: Table()};
+{Title: "Soluciones";    Id: 6; Pantalla: Gbl_Soluciones; Ico: soluciones; child: false; itemsSubChild: Table()}
+);;
+
+// --- Menú Analista ---
+ClearCollect(colMenu;
+    {Title: "Home"; Id: 1; Pantalla: Gbl_Home; Ico: home; child: false; itemsSubChild: Table()};
+    {Title: "Catálogo";  Id: 2; Pantalla: Gbl_Catalogo; Ico: catalogo; child: false; itemsSubChild: Table()};
+    {Title: "Ticket"; Id: 3; Pantalla: Anl_Ticket; Ico: ticket; child: false; itemsSubChild: Table()};
+    {Title: "Soluciones"; Id: 5; Pantalla: Gbl_Soluciones; Ico: soluciones; child: false; itemsSubChild: Table()};
+    {Title: "Comunicados"; Id: 6; Pantalla: Gbl_Comunicado; Ico: comunicados; child: false; itemsSubChild: Table()}
+);;
+
+// --- Menú Solicitante ---
+ClearCollect(colMenuSol;
+    {Title: "Home"; Id: 1; Pantalla: Gbl_Home; Ico: home; child: false; itemsSubChild: Table()};
+    {Title: "Catálogo";  Id: 2; Pantalla: Gbl_Catalogo; Ico: catalogo; child: false; itemsSubChild: Table()};
+    {Title: "Ticket"; Id: 3; Pantalla: Sol_Ticket; Ico: ticket; child: false; itemsSubChild: Table()};
+    {Title: "Soluciones"; Id: 5; Pantalla: Gbl_Soluciones; Ico: soluciones; child: false; itemsSubChild: Table()};
+    {Title: "Comunicados"; Id: 6; Pantalla: Gbl_Comunicado; Ico: comunicados; child: false; itemsSubChild: Table()}
 );;
 
 // --- Menú Administrador ---
 ClearCollect(colMenuAdm;
-{Title: "Home";          Id: 1; Pantalla: App.ActiveScreen; Ico: home; child: false; itemsSubChild: Table()};
-{Title: "Catálogo";      Id: 2; Pantalla: App.ActiveScreen; Ico: catalogo; child: false; itemsSubChild: Table()};
-{Title: "Ticket";        Id: 3; Pantalla: Spv_Ticket; Ico: ticket; child: false; itemsSubChild: Table()};
+{Title: "Home";          Id: 1; Pantalla: Gbl_Home; Ico: home; child: false; itemsSubChild: Table()};
+{Title: "Catálogo";      Id: 2; Pantalla: Gbl_Catalogo; Ico: catalogo; child: false; itemsSubChild: Table()};
+{Title: "Ticket";        Id: 3; Pantalla: App.ActiveScreen; Ico: ticket; child: false; itemsSubChild: Table()};
 {Title: "Configuración"; Id: 4; Pantalla: App.ActiveScreen; Ico: configuracion; child: true; 
         itemsSubChild: [
-                        { Title: "Solicitudes"; Id: 3,1; Pantalla: App.ActiveScreen};
-                        { Title: "Notificaciones";     Id: 3,2; Pantalla: App.ActiveScreen};
-                        { Title: "Catálogos del sistema"; Id: 3,3; Pantalla: App.ActiveScreen}
+                        { Title: "Solicitudes"; Id: 4,1; Pantalla: Adm_TipoSolicitudes};
+                        { Title: "Notificaciones";     Id: 4,2; Pantalla: App.ActiveScreen};
+                        { Title: "Catálogos del sistema"; Id: 4,3; Pantalla: App.ActiveScreen}
                        ]
 };
-{Title: "Comunicados";   Id: 5; Pantalla: Spv_Comunicados; Ico: comunicados; child: false; itemsSubChild: Table()};
-{Title: "Soluciones";    Id: 6; Pantalla: Spv_Soluciones; Ico: soluciones; child: false; itemsSubChild: Table()};
-{Title: "Usuarios";    Id: 7; Pantalla: Adm_Usuarios; Ico: soluciones; child: false; itemsSubChild: Table()}
+{Title: "Comunicados";   Id: 5; Pantalla: Gbl_Comunicado; Ico: comunicados; child: false; itemsSubChild: Table()};
+{Title: "Soluciones";    Id: 6; Pantalla: Gbl_Soluciones; Ico: soluciones; child: false; itemsSubChild: Table()};
+{Title: "Usuarios";    Id: 7; Pantalla: App.ActiveScreen; Ico: soluciones; child: false; itemsSubChild: Table()}
 );;
 
-// --- Menú Analista ---
-//ClearCollect(colMenu;
-//    {Title: "Home"; Id: 1; Pantalla: Anl_Home; Ico: "home"; child: false; itemsSubChild: Table()};
-//    {Title: "Ticket"; Id: 2; Pantalla: Anl_Ticket; Ico: "ticket"; child: false; itemsSubChild: Table()};
-//    {Title: "Configuración"; Id: 3; Pantalla: App.ActiveScreen; Ico: "configuracion"; child: true; 
-//        itemsSubChild: [
-//            { Title: "Solicitudes"; Id: 3,1; Pantalla: App.ActiveScreen};
-//            { Title: "Notificaciones"; Id: 3,2; Pantalla: App.ActiveScreen};
-//            { Title: "Catálogos del sistema"; Id: 3,3; Pantalla: App.ActiveScreen}
-//        ]
-//    };
-//    {Title: "Soluciones"; Id: 4; Pantalla: Anl_Soluciones; Ico: "soluciones"; child: false; itemsSubChild: Table()};
-//    {Title: "Comunicados"; Id: 5; Pantalla: Anl_Comunicados; Ico: "comunicados"; child: false; itemsSubChild: Table()}
-//);;
 
 // =========================================================================
 // 6. COLECCIONES DE FILTROS Y QUERYS (Por Rol)
 // =========================================================================
-
-// --- Filtros Comunicados y Soluciones ---
-// (Nota: Se usan los valores dinámicos del Código 1 para Gerencia, ya que es la mejor práctica frente a los valores "CRE", "P2P" en duro)
 ClearCollect(colSpvCmcGerencia; RenameColumns(ShowColumns('LCP-001_List_Gerencia'; Nombre); Nombre; Value));;
-ClearCollect(colSpvCmcPais; RenameColumns(ShowColumns('LCP-001_List_Pais'; Nombre); Nombre; Value));;//Falta agregar en app final
-ClearCollect(colSpvNvCmcGerencia; RenameColumns(ShowColumns('LCP-001_List_Gerencia'; Nombre); Nombre; Value));;
+ClearCollect(colSpvCmcPais; RenameColumns(ShowColumns('LCP-001_List_Pais'; Nombre); Nombre; Value));; // INTEGRADO
+ClearCollect(colSpvNvCmcGerencia; {Value: "Todos"});;
+Collect(colSpvNvCmcGerencia; RenameColumns(ShowColumns('LCP-001_List_Gerencia'; Nombre); Nombre; Value));;
 ClearCollect(colSpvCmcArea; ["Créditos Back Office"; "Tesorería Operativa"; "Gestión de Servicios al Colaborador"]);;
 ClearCollect(colSpvCmcEstado; ["Vigente"; "Vencido"]);;
+ClearCollect(colAdmmcEstado; ["Vigente"; "Vencido"]);;
 ClearCollect(colSpvSlcEstado; ["Publicado"; "Borrador"]);;
-ClearCollect(colSpvDirigidoA; ["Todos"; "Gerencia"; "País"]);;
-// Generamos la colección de los 12 meses del año
+ClearCollect(colSpvDirigidoA; ["Todos"; "Gerencia"; "País"]);; // INTEGRADO
+
+// INTEGRADO: Colección global de meses del año generada dinámicamente
 ClearCollect(
     colSpvNvCmcMeses;
     ForAll(
         Sequence(12);
         {
             ID: Value; 
-            // Usamos Year(Today()) para que sea dinámico y forzamos el idioma español por seguridad
             NombreMes: Proper(Text(Date(Year(Today()); Value; 1); "mmmm"))
         }
     )
-);;
-// --- Queries ADMINISTRADOR ---
-ClearCollect(
-    colQuerysAdmUsuarios;
-    { input: "Codigo";             mark: false; query: "" };
-    { input: "NombreApellido";     mark: false; query: "" };
-    { input: "CorreoUsuario";      mark: false; query: "" };
-    { input: "RolSistema";         mark: false; query: "" };
-    { input: "EstadoSistema";      mark: false; query: "" };
-    { input: "Estado";             mark: false; query: "" };
-    { input: "Gerencia";           mark: false; query: "" };
-    { input: "RolPerfil";          mark: false; query: "" };
-    { input: "Vicepresidencia";    mark: false; query: "" };
-    { input: "Direccion";          mark: false; query: "" };
-    { input: "Area";               mark: false; query: "" };
-    { input: "Pais";               mark: false; query: "" };
-    { input: "Sociedad";           mark: false; query: "" };
-    { input: "NombreJefeDirecto";  mark: false; query: "" };
-    { input: "CorreoJefeDirecto";  mark: false; query: "" }
 );;
 
 // --- Queries SUPERVISOR ---
@@ -314,7 +353,7 @@ ClearCollect(colQuerysSpvCatalogoServicio;
     {input: "AnalistaRol";             mark: false; query: "" };
     {input: "Aprobacion";              mark: false; query: "" };
     {input: "SLA";                     mark: false; query: "" };
-    {input: "Estado";                  mark: false; query: "" };
+    {input: "Estado";                  mark: true; query: "Estado eq 'Activo'" };
     {input: "Descripcion";             mark: false; query: "" };
     {input: "VistoBueno";              mark: false; query: "" };
     {input: "CamposAdicionalesTicket"; mark: false; query: "" };
@@ -387,7 +426,54 @@ ClearCollect(colQuerysSpvSoluciones;
     { input: "Descripcion";   mark: false; query: "" }
 );;
 
-// --- Queries ANALISTA ---
+// --- Queries ADMINISTRADOR (Mantenidas del Script 1) ---
+ClearCollect(Col_Adm_QueryTicket;
+    { input: "Codigo"; mark: false; query: "" }; { input: "SolicitanteNombre"; mark: false; query: "" };
+    { input: "FechaCreado"; mark: false; query: "" }; { input: "EstadoActual"; mark: false; query: "" };
+    { input: "Area"; mark: false; query: "" }; { input: "Prioridad"; mark: false; query: "" };
+    { input: "AprobadorNombre"; mark: false; query: "" }; { input: "TipoSolicitud"; mark: false; query: "" };
+    { input: "Gerencia"; mark: false; query: "" }; { input: "ID"; mark: false; query: "" };
+    { input: "AnalistaCorreo"; mark: true; query: "(AnalistaCorreo eq 'test@alicorp.pe' or SolicitanteCorreo eq 'test@alicorp.pe')" }
+);;
+
+ClearCollect(colQuerysAdmComunicados;
+    { input: "ID"; mark: false; query: "" }; { input: "Gerencia"; mark: false; query: "" };
+    { input: "Area"; mark: false; query: "" }; { input: "Cabecera"; mark: false; query: "" };
+    { input: "Cuerpo"; mark: false; query: "" }; { input: "Imagen"; mark: false; query: "" };
+    { input: "UsuarioCreador"; mark: false; query: "" }; { input: "FechaCreacion"; mark: false; query: "" };
+    { input: "FechaFin"; mark: false; query: "" }; { input: "Estado"; mark: false; query: "" };
+    { input: "Creado"; mark: false; query: "" }; { input: "FechaInicio"; mark: false; query: "" };
+    { input: "DiaInicio"; mark: false; query: "" }; { input: "DiaFin"; mark: false; query: "" };
+    { input: "EstadoComunicado"; mark: false; query: "" }; { input: "Recurrente"; mark: false; query: "" };
+    { input: "DatosAdjuntos"; mark: false; query: "" }
+);;
+
+ClearCollect(colQuerysAdmSoluciones;
+    { input: "ID"; mark: false; query: "" }; { input: "NombreAdjunto"; mark: false; query: "" };
+    { input: "RutaAdjunto"; mark: false; query: "" }; { input: "Estado"; mark: false; query: "" };
+    { input: "Gerencia"; mark: false; query: "" }; { input: "Torre"; mark: false; query: "" }; 
+    { input: "Autor"; mark: false; query: "" }
+);;
+
+ClearCollect(colQuerysAdmUsuarios;
+    { input: "Codigo";             mark: false; query: "" };
+    { input: "NombreApellido";     mark: false; query: "" };
+    { input: "CorreoUsuario";      mark: false; query: "" };
+    { input: "RolSistema";         mark: false; query: "" };
+    { input: "EstadoSistema";      mark: false; query: "" };
+    { input: "Estado";             mark: false; query: "" };
+    { input: "Gerencia";           mark: false; query: "" };
+    { input: "RolPerfil";          mark: false; query: "" };
+    { input: "Vicepresidencia";    mark: false; query: "" };
+    { input: "Direccion";          mark: false; query: "" };
+    { input: "Area";               mark: false; query: "" };
+    { input: "Pais";               mark: false; query: "" };
+    { input: "Sociedad";           mark: false; query: "" };
+    { input: "NombreJefeDirecto";  mark: false; query: "" };
+    { input: "CorreoJefeDirecto";  mark: false; query: "" }
+);;
+
+// INTEGRADO: --- Queries ANALISTA ---
 ClearCollect(Col_Anl_QueryTicket;
     { input: "Codigo"; mark: false; query: "" }; { input: "SolicitanteNombre"; mark: false; query: "" };
     { input: "FechaCreado"; mark: false; query: "" }; { input: "EstadoActual"; mark: false; query: "" };

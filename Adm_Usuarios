@@ -129,7 +129,7 @@ Screens:
                             Properties:
                               AlignInContainer: =AlignInContainer.End
                               Height: =60
-                              Perfil: =App.ActiveScreen
+                              Perfil: =Gbl_Home
                               X: =726
                         - AdmUsr_CtnPaginaActual:
                             Control: GroupContainer@1.5.0
@@ -578,7 +578,7 @@ Screens:
                                           LayoutAlignItems: =LayoutAlignItems.Stretch
                                           LayoutDirection: =LayoutDirection.Vertical
                                           LayoutOverflowX: =LayoutOverflow.Scroll
-                                          Width: = Parent .Width + 200
+                                          Width: =165
                                           Y: =AdmUsr_CtnFiltros.Height + 25
                                         Children:
                                           - AdmUsr_CtnCabeceraDatos:
@@ -891,7 +891,6 @@ Screens:
                                           Height: =CountRows(AdmUsr_GlrEstados.AllItems) * 37
                                           Visible: =varOpenDropDownEstadoSpvSlc
                                           Width: =AdmUsr_CtnSeleccionarEstado.Width
-                                          X: =AdmUsr_CtnSeleccionarEstado.X
                                           Y: =AdmUsr_CtnSeleccionarEstado.Y + 50
                                         Children:
                                           - AdmUsr_GlrEstados:

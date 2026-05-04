@@ -5,6 +5,14 @@ Screens:
       OnVisible: |-
         =UpdateContext({ menuSelected: 3});
 
+        Set(Var_GridPageSizeSpv, 5);
+        Set(Var_CurrentPageSpv, 1);
+        // Configuración para el motor:
+        Set(Var_TargetIDSpv, 0);
+        Set(Var_DirectionSpv, "NEXT");
+        Set(Var_IsIndividualSpv, false);
+        Select(Spv_btn_MotorPaginacion); // <--- Ejecuta la lógica
+
         ClearCollect(colFiltrosTicketSpv,
             {Title: "Gerencia" ,      Open: false},
         	{Title: "Área" ,          Open: false},
@@ -89,14 +97,6 @@ Screens:
 
         Set(Var_Spv_Indicadores,'LCP-001_Flow_IndicadoresTicket'.Run("(AnalistaCorreo eq '" & "test@alicorp.pe" & "'" &" or SolicitanteCorreo eq '" & "test@alicorp.pe" & "')",101));
 
-        Set(Var_GridPageSizeSpv, 5);
-        Set(Var_CurrentPageSpv, 1);
-        // Configuración para el motor:
-        Set(Var_TargetIDSpv, 0);
-        Set(Var_DirectionSpv, "NEXT");
-        Set(Var_IsIndividualSpv, false);
-        Select(Spv_btn_MotorPaginacion); // <--- Ejecuta la lógica
-
         UpdateContext({ Var_Ctx_MostrarItems : false });
 
         ClearCollect(
@@ -165,7 +165,7 @@ Screens:
                               Width: =Parent.Width
                               WidthMenu: =100
                               displayNameUser: =Var_UserProfile.FullName
-                              itemsMenu: =colMenuSpv
+                              itemsMenu: =colMenuGeneral
                               menuSelected: =menuSelected
                               openMenu: =Set(Var_OpenMenu, !Var_OpenMenu)
                               verMenu: =Var_OpenMenu
@@ -197,7 +197,7 @@ Screens:
                             Properties:
                               AlignInContainer: =AlignInContainer.End
                               Height: =60
-                              Perfil: =App.ActiveScreen
+                              Perfil: =Gbl_Home
                         - Spv_CtnSpcCabeceraTicket:
                             Control: GroupContainer@1.5.0
                             Variant: ManualLayout
@@ -245,7 +245,7 @@ Screens:
                                     HoverColor: =ColorValue(Var_ColorNavegarCabecera)
                                     HoverFill: =Color.Transparent
                                     LayoutMinWidth: =50
-                                    OnSelect: =Navigate(Spv_Home)
+                                    OnSelect: =Navigate(Gbl_Home)
                                     PaddingBottom: =0
                                     PaddingTop: =0
                                     PressedBorderColor: =Self.Fill

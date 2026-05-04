@@ -142,7 +142,7 @@ Screens:
                             Properties:
                               AlignInContainer: =AlignInContainer.End
                               Height: =60
-                              Perfil: =App.ActiveScreen
+                              Perfil: =Gbl_Home
                               X: =726
                         - SpvCmc_Espaciado1:
                             Control: GroupContainer@1.5.0

@@ -1,0 +1,265 @@
+Screens:
+  Gbl_Bienvenida:
+    Properties:
+      LoadingSpinnerColor: =RGBA(56, 96, 178, 1)
+      OnVisible: |-
+        =UpdateContext({ menuSelected: 1});
+    Children:
+      - Anl_ImgLogoBienvenida:
+          Control: Image@2.2.3
+          Properties:
+            BorderColor: =RGBA(0, 18, 107, 1)
+            Height: =20
+            Image: =Logotipo
+            Width: =197
+            X: =194
+            Y: =184
+      - Anl_ImgBienvenidaDerecha:
+          Control: Image@2.2.3
+          Properties:
+            BorderColor: =RGBA(0, 18, 107, 1)
+            Height: =768
+            Image: =BienvenidaImagenDerecha
+            Width: =784
+            X: =582
+      - Anl_LblBienvenido:
+          Control: Label@2.5.1
+          Properties:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 18, 107, 1)
+            Font: =Font.'Open Sans'
+            FontWeight: =FontWeight.Bold
+            Height: =50
+            Size: =25
+            Text: ="¡Bienvenido!"
+            Width: =582
+            Y: =209
+      - Anl_ImgUsuario:
+          Control: Image@2.2.3
+          Properties:
+            BorderColor: =RGBA(0, 18, 107, 1)
+            Height: =135
+            Image: =User().Image
+            RadiusBottomLeft: =90
+            RadiusBottomRight: =90
+            RadiusTopLeft: =90
+            RadiusTopRight: =90
+            Width: =136
+            X: =225
+            Y: =259
+      - Anl_LblNombreApellidoUsuario:
+          Control: Label@2.5.1
+          Properties:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 18, 107, 1)
+            Font: =Font.'Open Sans'
+            FontWeight: =FontWeight.Bold
+            Height: =24
+            Text: =Var_ProfileUser.NombreApellido
+            Width: =582
+            Y: =394
+      - Anl_LblCargoUsuario:
+          Control: Label@2.5.1
+          Properties:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 18, 107, 1)
+            Color: =ColorValue(Var_ColorPuestoColaborador)
+            Font: =Font.'Open Sans'
+            Height: =24
+            Size: =10
+            Text: |-
+              =//Registro que se toma de la tabla LCP_001_List_Usuarios
+              Var_ProfileUser.CargoOrganizacional
+            Width: =582
+            X: =1
+            Y: =418
+      - Anl_TimerWarningBienvenida:
+          Control: Timer@2.1.0
+          Properties:
+            BorderColor: =ColorFade(Self.Fill, -15%)
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =ColorFade(Self.BorderColor, 70%)
+            DisabledColor: =ColorFade(Self.Fill, 90%)
+            DisabledFill: =ColorFade(Self.Fill, 70%)
+            Duration: =3000
+            Fill: =RGBA(56, 96, 178, 1)
+            Font: =Font.'Open Sans'
+            HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+            OnSelect: |-
+              =UpdateContext({OpenAlertWarnning: true})
+            OnTimerEnd: |-
+              =UpdateContext({OpenAlertWarnning: false})
+            PressedBorderColor: =Self.Fill
+            PressedColor: =Self.Fill
+            PressedFill: =Self.Color
+            Start: =OpenAlertWarnning
+            Visible: =false
+            X: =40
+            Y: =40
+      - Anl_BtnIngresar:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =ColorFade(Self.Fill, -15%)
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            Fill: =ColorValue(Var_ColorBotonIngresar)
+            Font: =Font.'Open Sans'
+            HoverBorderColor: =ColorFade(Self.BorderColor, 80%)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(ColorValue(Var_ColorBotonIngresar), -20%)
+            OnSelect: |-
+              =Refresh('LCP-001_List_Usuarios');
+
+              Set(Var_ProfileUser,LookUp('LCP-001_List_Usuarios', CorreoUsuario = Var_EmailUser));
+
+              ClearCollect(
+                  colRolesUsuario,
+                  ForAll(
+                      Table(ParseJSON(Var_ProfileUser.RolSistema)), 
+                      { 
+                          Rol: Text(ThisRecord.Value.Rol), 
+                          JerarquiaRol: 
+                          Switch(
+                              Text(ThisRecord.Value.Rol),
+                              "Administrador", 90,
+                              "Supervisor",    80,
+                              "Gerente",       70,
+                              "Solicitante",   60,
+                              "Analista",      50,
+                              0
+                          )
+                      }
+                  )
+              );
+
+              Set(
+                  Var_RolSistema, 
+                  First(Sort(colRolesUsuario, JerarquiaRol, SortOrder.Descending)).Rol
+              );
+
+              //Navegar a la pantalla del rol con mayor jerarquia que tenga el usuario
+              If(CountRows(colRolesUsuario) = 0,
+              //Si no tiene asignado ningun rol salta un mensaje con componente que diga que no tiene asignado rol
+              Select(Anl_TimerWarningBienvenida),
+              //--->Dependiendo de Var_RolSistema que es el rol con mayor jerarquia redirige al usuario a la pantalla que le corresponde
+              /*
+              ClearCollect(colMenuGeneral;
+              {Title: "Home";          Id: 1; Pantalla: Gbl_Home  ; Ico: home; child: false; itemsSubChild: Table()};
+
+              {Title: "Catálogo";      Id: 2; Pantalla: Gbl_Catalogo; Ico: catalogo; child: false; itemsSubChild: Table()};
+
+              /*
+              {Title: "Configuración"; Id: 4; Pantalla: App.ActiveScreen; Ico: configuracion; child: true; 
+                      itemsSubChild: [
+                                      { Title: "Solicitudes"; Id: 4,1; Pantalla: Adm_TipoSolicitudes};
+                                      { Title: "Notificaciones";     Id: 4,2; Pantalla: App.ActiveScreen};
+                                      { Title: "Catálogos del sistema"; Id: 4,3; Pantalla: App.ActiveScreen}
+                                     ]
+              };
+
+
+              {Title: "Comunicados";   Id: 5; Pantalla: Gbl_Comunicado; Ico: comunicados; child: false; itemsSubChild: Table()};
+              {Title: "Soluciones";    Id: 6; Pantalla: Gbl_Soluciones; Ico: soluciones; child: false; itemsSubChild: Table()}
+
+              );;
+
+              Switch(Var_RolSistema;
+                  Var_RolApp.RolSupervisor;
+                  Collect(colMenuGeneral; {Title: "Ticket";        Id: 3; Pantalla: Spv_Ticket; Ico: ticket; child: false; itemsSubChild: Table()});
+                  Var_RolApp.RolAnalista;
+                  Collect(colMenuGeneral; {Title: "Ticket";        Id: 3; Pantalla: Anl_Ticket; Ico: ticket; child: false; itemsSubChild: Table()});
+                  Var_RolApp.RolSolicitante;
+                  Collect(colMenuGeneral; {Title: "Ticket";        Id: 3; Pantalla: Sol_Ticket; Ico: ticket; child: false; itemsSubChild: Table()})
+
+              );;
+
+              If(Var_RolSistema = Var_RolApp.RolAdministrador; Collect(colMenuGeneral;
+              {Title: "Configuración"; Id: 4; Pantalla: App.ActiveScreen; Ico: configuracion; child: true; 
+                      itemsSubChild: [
+                                      { Title: "Solicitudes"; Id: 4,1; Pantalla: Adm_TipoSolicitudes};
+                                      { Title: "Notificaciones";     Id: 4,2; Pantalla: App.ActiveScreen};
+                                      { Title: "Catálogos del sistema"; Id: 4,3; Pantalla: App.ActiveScreen}
+                                     ]
+              }
+              ) 
+              );;
+
+              */
+
+
+              Switch(Var_RolSistema,
+                  Var_RolApp.RolSupervisor,
+                  ClearCollect(colMenuGeneral,colMenuSpv),
+                  Var_RolApp.RolAnalista,
+                  ClearCollect(colMenuGeneral,colMenu),
+                  Var_RolApp.RolSolicitante,
+                  ClearCollect(colMenuGeneral,colMenuSol),
+                  Var_RolApp.RolAdministrador,
+                  ClearCollect(colMenuGeneral,colMenuAdm)
+              );
+
+
+
+
+              Navigate(Gbl_Home, Transition.Push)
+              /*
+              Switch(Var_RolSistema;
+                  Var_RolApp.RolSupervisor;
+                  ClearCollect(col_gbl_Menu;colMenuSpv);
+                  Var_RolApp.RolAnalista;
+                  ClearCollect(col_gbl_Menu;colMenu);
+                  Var_RolApp.RolSolicitante;
+                  ClearCollect(col_gbl_Menu;colMenuSol);
+                  Var_RolApp.RolAdministrador;
+                  ClearCollect(col_gbl_Menu;colMenuAdm)
+              );;
+              */
+
+              /*
+              If(
+
+
+                              Var_RolSistema = "Administrador";
+                              Navigate(Adm_Home; Transition.Push);
+                              Var_RolSistema = "Supervisor";
+                              Navigate(Spv_Home; Transition.Push);
+                              Var_RolSistema = "Gerente";
+                              Navigate(Gbl_Home; Transition.Push);
+                              Var_RolSistema = "Solicitante";
+                              Navigate(Gbl_Home; Transition.Push);
+                              Var_RolSistema = "Analista";
+                              Navigate(Anl_Home; Transition.Push)
+              )
+              */
+
+
+
+
+              )
+            PressedBorderColor: =Self.Fill
+            PressedColor: =Self.Fill
+            PressedFill: =Self.Color
+            RadiusBottomLeft: =5
+            RadiusBottomRight: =5
+            RadiusTopLeft: =5
+            RadiusTopRight: =5
+            Size: =10
+            Text: ="Ingresar"
+            Width: =241
+            X: =172
+            Y: =470
+      - Gbl_Warning_Bienvenida:
+          Control: CanvasComponent
+          ComponentName: Gbl_Warning
+          ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
+          Properties:
+            Evento_CerrarNotificacion: =
+            Height: =40
+            Input_MostrarOcultarNotificacion: =true
+            Input_TextoNotificacion: ="Estimado usuario no cuenta con roles asignados."
+            Visible: =OpenAlertWarnning
+            Width: =480
+            X: =856
+            Y: =60

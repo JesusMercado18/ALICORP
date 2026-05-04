@@ -1,0 +1,538 @@
+Screens:
+  Gbl_Home:
+    Properties:
+      LoadingSpinnerColor: =RGBA(56, 96, 178, 1)
+      OnVisible: |-
+        =UpdateContext({ menuSelected: 1});
+    Children:
+      - Container40_6:
+          Control: GroupContainer@1.5.0
+          Variant: AutoLayout
+          Properties:
+            DropShadow: =DropShadow.None
+            Height: =Parent.Height
+            LayoutAlignItems: =LayoutAlignItems.Center
+            LayoutDirection: =LayoutDirection.Vertical
+            Width: =Parent.Width
+          Children:
+            - Container44_6:
+                Control: GroupContainer@1.5.0
+                Variant: AutoLayout
+                Properties:
+                  DropShadow: =DropShadow.None
+                  LayoutAlignItems: =LayoutAlignItems.Center
+                  LayoutDirection: =LayoutDirection.Horizontal
+                  LayoutMinHeight: =16
+                  LayoutMinWidth: =16
+                Children:
+                  - Container50_12:
+                      Control: GroupContainer@1.5.0
+                      Variant: AutoLayout
+                      Properties:
+                        DropShadow: =DropShadow.None
+                        Fill: =RGBA(255, 255, 255, 1)
+                        FillPortions: =0
+                        LayoutDirection: =LayoutDirection.Vertical
+                        LayoutMinHeight: =16
+                        LayoutMinWidth: =16
+                        RadiusBottomLeft: =0
+                        RadiusBottomRight: =0
+                        RadiusTopLeft: =0
+                        RadiusTopRight: =0
+                        Width: =If(Var_OpenMenu,250,70)
+                      Children:
+                        - Gbl_Menu_12:
+                            Control: CanvasComponent
+                            ComponentName: Gbl_Menu
+                            ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
+                            Properties:
+                              Height: =Parent.Height
+                              Width: =If(Var_OpenMenu,250,70)
+                              WidthMenu: =100
+                              displayNameUser: =Var_UserProfile.FullName
+                              itemsMenu: =colMenuGeneral
+                              menuSelected: =menuSelected
+                              openMenu: =Set(Var_OpenMenu, !Var_OpenMenu)
+                              verMenu: =Var_OpenMenu
+                  - Container50_13:
+                      Control: GroupContainer@1.5.0
+                      Variant: AutoLayout
+                      Properties:
+                        Fill: =ColorValue(Var_ColorFondoLateral)
+                        LayoutAlignItems: =LayoutAlignItems.Center
+                        LayoutDirection: =LayoutDirection.Vertical
+                        LayoutMinHeight: =16
+                        LayoutMinWidth: =16
+                        PaddingBottom: =20
+                        PaddingLeft: =20
+                        PaddingRight: =20
+                      Children:
+                        - Gbl_Header_11:
+                            Control: CanvasComponent
+                            ComponentName: Gbl_Header
+                            ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
+                            Properties:
+                              AlignInContainer: =AlignInContainer.End
+                              Height: =60
+                              Perfil: =App.ActiveScreen
+                        - Container14_17:
+                            Control: GroupContainer@1.5.0
+                            Variant: ManualLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              FillPortions: =0
+                              Height: =30
+                              LayoutMinHeight: =16
+                              LayoutMinWidth: =16
+                              X: =40
+                              Y: =40
+                        - containerLink_5:
+                            Control: GroupContainer@1.5.0
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              FillPortions: =0
+                              Height: =24
+                              LayoutAlignItems: =LayoutAlignItems.Center
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutMinHeight: =16
+                              LayoutMinWidth: =16
+                              PaddingBottom: =8
+                              PaddingRight: =8
+                              PaddingTop: =8
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                              Width: =Parent.Width
+                            Children:
+                              - btnExportarTicket_36:
+                                  Control: Classic/Button@2.2.0
+                                  Properties:
+                                    Align: =Align.Left
+                                    BorderColor: =ColorValue(Var_ColorHoverBoton)
+                                    BorderStyle: =BorderStyle.None
+                                    BorderThickness: =0
+                                    Color: =ColorValue(Var_ColorNavegarCabecera)
+                                    DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                                    Fill: =Color.Transparent
+                                    FillPortions: =1
+                                    Font: =Font.'Open Sans'
+                                    FontWeight: =FontWeight.Normal
+                                    Height: '=Parent.Height   '
+                                    HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                                    HoverColor: =ColorValue(Var_ColorNavegarCabecera)
+                                    HoverFill: =Color.Transparent
+                                    LayoutMinWidth: =50
+                                    OnSelect: =Navigate(Gbl_Home)
+                                    PressedBorderColor: =Self.Fill
+                                    PressedColor: =ColorValue(Var_ColorNavegarCabecera)
+                                    PressedFill: =
+                                    RadiusBottomLeft: =8
+                                    RadiusBottomRight: =8
+                                    RadiusTopLeft: =8
+                                    RadiusTopRight: =8
+                                    Size: =Var_TituloNavBar
+                                    Text: ="Inicio"
+                                    Width: '=Len(Self.Text) * 8.5 '
+                                    X: =40
+                                    Y: =40
+                              - ctnNuevoTicket_8:
+                                  Control: GroupContainer@1.5.0
+                                  Variant: ManualLayout
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.SetByContainer
+                                    BorderStyle: =BorderStyle.None
+                                    DropShadow: =DropShadow.None
+                                    FillPortions: =0
+                                    Height: =Parent.Height
+                                    LayoutMinHeight: =Parent.LayoutMinHeight
+                                    LayoutMinWidth: =Parent.LayoutMinWidth
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Width: =11
+                                  Children:
+                                    - icoExportarTicket_6:
+                                        Control: Classic/Icon@2.5.0
+                                        Properties:
+                                          BorderColor: =RGBA(0, 18, 107, 1)
+                                          Color: =ColorValue(Var_ColorNavegarCabecera)
+                                          Height: =13
+                                          Icon: =Icon.ChevronRight
+                                          Width: =11
+                                          X: =(ctnNuevoTicket_8.Width - Self.Width) / 2
+                                          Y: =6
+                              - Label6_7:
+                                  Control: Label@2.5.1
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Center
+                                    BorderColor: =RGBA(0, 18, 107, 1)
+                                    Color: =ColorValue(Var_ColorNavegarCabeceraSeleccionado)
+                                    FillPortions: =22
+                                    Font: =Font.'Open Sans'
+                                    FontWeight: =FontWeight.Bold
+                                    Height: =24
+                                    LayoutMinHeight: =16
+                                    LayoutMinWidth: =16
+                                    OnSelect: =Navigate(App.ActiveScreen)
+                                    PaddingBottom: =3
+                                    PaddingLeft: =6
+                                    Size: =Var_TituloNavBar
+                                    Text: ="Perfil"
+                                    Width: =1152
+                                    X: =76
+                        - Container14_18:
+                            Control: GroupContainer@1.5.0
+                            Variant: ManualLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              FillPortions: =0
+                              Height: =16
+                              LayoutMinHeight: =16
+                              LayoutMinWidth: =16
+                        - Container7_5:
+                            Control: GroupContainer@1.5.0
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              Fill: =ColorValue(Var_ColorBlanco)
+                              Height: =Parent.Height
+                              LayoutAlignItems: =LayoutAlignItems.Center
+                              LayoutDirection: =LayoutDirection.Vertical
+                              LayoutMinHeight: =16
+                              LayoutMinWidth: =16
+                              PaddingBottom: =8
+                              PaddingLeft: =8
+                              PaddingRight: =8
+                              PaddingTop: =8
+                              RadiusBottomLeft: =8
+                              RadiusBottomRight: =8
+                              RadiusTopLeft: =8
+                              RadiusTopRight: =8
+                              Width: =Parent.Width
+                            Children:
+                              - Container14_19:
+                                  Control: GroupContainer@1.5.0
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutDirection: =LayoutDirection.Vertical
+                                    LayoutGap: =15
+                                    LayoutMinHeight: =16
+                                    LayoutMinWidth: =16
+                                    PaddingBottom: =8
+                                    PaddingLeft: =8
+                                    PaddingRight: =8
+                                    PaddingTop: =8
+                                  Children:
+                                    - Container54_2:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: ManualLayout
+                                        Properties:
+                                          DropShadow: =DropShadow.None
+                                          FillPortions: =0
+                                          Height: =150
+                                          LayoutMinHeight: =16
+                                          LayoutMinWidth: =16
+                                        Children:
+                                          - Label1_66:
+                                              Control: Label@2.5.1
+                                              Properties:
+                                                BorderColor: =RGBA(0, 18, 107, 1)
+                                                Font: =Font.'Open Sans'
+                                                FontWeight: =FontWeight.Semibold
+                                                Height: =26
+                                                Size: =Var_Subtitle
+                                                Text: ="Mi Perfil"
+                                                X: =6
+                                                Y: =12
+                                          - Image14_2:
+                                              Control: Image@2.2.3
+                                              Properties:
+                                                BorderColor: =RGBA(102, 102, 102, 1)
+                                                BorderThickness: =2
+                                                Height: =71
+                                                Image: =User().Image
+                                                RadiusBottomLeft: =Self.Width / 2
+                                                RadiusBottomRight: =Self.Width / 2
+                                                RadiusTopLeft: =Self.Width / 2
+                                                RadiusTopRight: =Self.Width / 2
+                                                Width: =71
+                                                X: =20
+                                                Y: =50
+                                          - Container16:
+                                              Control: GroupContainer@1.5.0
+                                              Variant: AutoLayout
+                                              Properties:
+                                                DropShadow: =DropShadow.None
+                                                Height: =Image14_2.Height
+                                                LayoutDirection: =LayoutDirection.Vertical
+                                                LayoutJustifyContent: =LayoutJustifyContent.Center
+                                                Width: =800
+                                                X: =Image14_2.Width  + Image14_2.X + 8
+                                                Y: =Image14_2.Y
+                                              Children:
+                                                - Label9_5:
+                                                    Control: Label@2.5.1
+                                                    Properties:
+                                                      AlignInContainer: =AlignInContainer.Stretch
+                                                      AutoHeight: =true
+                                                      BorderColor: =RGBA(0, 18, 107, 1)
+                                                      Font: =Font.'Open Sans'
+                                                      FontWeight: =FontWeight.Semibold
+                                                      Text: =Var_ProfileUser.NombreApellido
+                                                      Width: =378
+                                                      X: =40
+                                                      Y: =40
+                                                - Label9_6:
+                                                    Control: Label@2.5.1
+                                                    Properties:
+                                                      AlignInContainer: =AlignInContainer.Stretch
+                                                      AutoHeight: =true
+                                                      BorderColor: =RGBA(0, 18, 107, 1)
+                                                      Font: =Font.'Open Sans'
+                                                      Size: =9
+                                                      Text: =$"{Proper(Lower(Var_ProfileUser.Pais))}, {Var_ProfileUser.Sociedad}"
+                                                      Width: =600
+                                                      X: =40
+                                                      Y: =40
+                                    - Container8_6:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: ManualLayout
+                                        Properties:
+                                          BorderColor: =ColorValue("#E4E7E9")
+                                          BorderThickness: =1
+                                          DropShadow: =DropShadow.None
+                                          FillPortions: =0
+                                          LayoutMinWidth: =225
+                                          RadiusBottomLeft: =12
+                                          RadiusBottomRight: =12
+                                          RadiusTopLeft: =12
+                                          RadiusTopRight: =12
+                                          Width: =1049
+                                          X: =40
+                                          Y: =40
+                                        Children:
+                                          - Label14_24:
+                                              Control: Label@2.5.1
+                                              Properties:
+                                                BorderColor: =RGBA(0, 18, 107, 1)
+                                                Font: =Font.'Open Sans'
+                                                FontWeight: =FontWeight.Semibold
+                                                Height: =35
+                                                Size: =Var_CuerpoTexto
+                                                Text: ="Información Personal"
+                                                Width: =234
+                                                X: =24
+                                                Y: =21
+                                          - Label15_21:
+                                              Control: Label@2.5.1
+                                              Properties:
+                                                BorderColor: =RGBA(0, 18, 107, 1)
+                                                Color: =ColorValue(Var_ColorGray)
+                                                Font: =Font.'Open Sans'
+                                                Size: =Var_TextoPerfil
+                                                Text: ="Nombre"
+                                                Width: =168
+                                                X: =24
+                                                Y: =56
+                                          - Label15_22:
+                                              Control: Label@2.5.1
+                                              Properties:
+                                                BorderColor: =RGBA(0, 18, 107, 1)
+                                                Color: =ColorValue(Var_ColorGray)
+                                                Font: =Font.'Open Sans'
+                                                Size: =Var_TextoPerfil
+                                                Text: ="Código colaborador"
+                                                X: =241
+                                                Y: =56
+                                          - Label15_23:
+                                              Control: Label@2.5.1
+                                              Properties:
+                                                BorderColor: =RGBA(0, 18, 107, 1)
+                                                Color: =ColorValue(Var_ColorGray)
+                                                Font: =Font.'Open Sans'
+                                                Size: =Var_TextoPerfil
+                                                Text: ="Correo"
+                                                X: =439
+                                                Y: =56
+                                          - Label14_25:
+                                              Control: Label@2.5.1
+                                              Properties:
+                                                BorderColor: =RGBA(0, 18, 107, 1)
+                                                Font: =Font.'Open Sans'
+                                                Height: =35
+                                                Size: =Var_TextoPerfil
+                                                Text: =Var_ProfileUser.Codigo
+                                                Width: =190
+                                                X: =241
+                                                Y: =83
+                                          - Label14_26:
+                                              Control: Label@2.5.1
+                                              Properties:
+                                                BorderColor: =RGBA(0, 18, 107, 1)
+                                                Font: =Font.'Open Sans'
+                                                Height: =35
+                                                Size: =Var_TextoPerfil
+                                                Text: =Var_ProfileUser.NombreApellido
+                                                Width: =168
+                                                X: =24
+                                                Y: =84
+                                          - Label14_27:
+                                              Control: Label@2.5.1
+                                              Properties:
+                                                BorderColor: =RGBA(0, 18, 107, 1)
+                                                Font: =Font.'Open Sans'
+                                                Height: =35
+                                                Size: =Var_TextoPerfil
+                                                Text: =Var_ProfileUser.CorreoUsuario
+                                                Width: =220
+                                                X: =441
+                                                Y: =84
+                                          - Label15_24:
+                                              Control: Label@2.5.1
+                                              Properties:
+                                                BorderColor: =RGBA(0, 18, 107, 1)
+                                                Color: =ColorValue(Var_ColorGray)
+                                                Font: =Font.'Open Sans'
+                                                Size: =Var_TextoPerfil
+                                                Text: ="Posición del colaborador"
+                                                Width: =200
+                                                X: =24
+                                                Y: =119
+                                          - Label15_25:
+                                              Control: Label@2.5.1
+                                              Properties:
+                                                BorderColor: =RGBA(0, 18, 107, 1)
+                                                Color: =ColorValue(Var_ColorGray)
+                                                Font: =Font.'Open Sans'
+                                                Size: =Var_TextoPerfil
+                                                Text: ="Rol de mayor jerarquía"
+                                                Width: =180
+                                                X: =241
+                                                Y: =119
+                                          - Label14_28:
+                                              Control: Label@2.5.1
+                                              Properties:
+                                                BorderColor: =RGBA(0, 18, 107, 1)
+                                                Font: =Font.'Open Sans'
+                                                Height: =35
+                                                Size: =Var_TextoPerfil
+                                                Text: =Var_ProfileUser.CargoOrganizacional
+                                                Width: =168
+                                                X: =24
+                                                Y: =146
+                                          - Label14_29:
+                                              Control: Label@2.5.1
+                                              Properties:
+                                                BorderColor: =RGBA(0, 18, 107, 1)
+                                                Font: =Font.'Open Sans'
+                                                Height: =35
+                                                Size: =Var_TextoPerfil
+                                                Text: |-
+                                                  =//Rol Mayor Jerarquia
+                                                  Var_RolSistema
+                                                Width: =220
+                                                X: =241
+                                                Y: =145
+                                    - Container20_3:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: ManualLayout
+                                        Properties:
+                                          BorderColor: =ColorValue("#E4E7E9")
+                                          BorderThickness: =1
+                                          DropShadow: =DropShadow.None
+                                          FillPortions: =0
+                                          Height: |+
+                                            =150
+
+                                          RadiusBottomLeft: =12
+                                          RadiusBottomRight: =12
+                                          RadiusTopLeft: =12
+                                          RadiusTopRight: =12
+                                          Width: =1143
+                                          X: =20
+                                          Y: =362
+                                        Children:
+                                          - Label16_3:
+                                              Control: Label@2.5.1
+                                              Properties:
+                                                BorderColor: =RGBA(0, 18, 107, 1)
+                                                Font: =Font.'Open Sans'
+                                                FontWeight: =FontWeight.Semibold
+                                                Size: =Var_CuerpoTexto
+                                                Text: ="Organización"
+                                                X: =24
+                                                Y: =8
+                                          - Label15_26:
+                                              Control: Label@2.5.1
+                                              Properties:
+                                                BorderColor: =RGBA(0, 18, 107, 1)
+                                                Color: =ColorValue(Var_ColorGray)
+                                                Font: =Font.'Open Sans'
+                                                Size: =Var_TextoPerfil
+                                                Text: ="Vicepresidencia"
+                                                Width: =120
+                                                X: =24
+                                                Y: =48
+                                          - Label15_27:
+                                              Control: Label@2.5.1
+                                              Properties:
+                                                BorderColor: =RGBA(0, 18, 107, 1)
+                                                Color: =ColorValue(Var_ColorGray)
+                                                Font: =Font.'Open Sans'
+                                                Size: =Var_TextoPerfil
+                                                Text: ="Gerencia"
+                                                Width: =115
+                                                X: =239
+                                                Y: =48
+                                          - Label15_28:
+                                              Control: Label@2.5.1
+                                              Properties:
+                                                BorderColor: =RGBA(0, 18, 107, 1)
+                                                Color: =ColorValue(Var_ColorGray)
+                                                Font: =Font.'Open Sans'
+                                                Size: =Var_TextoPerfil
+                                                Text: ="Área"
+                                                Width: =115
+                                                X: =439
+                                                Y: =48
+                                          - Label14_30:
+                                              Control: Label@2.5.1
+                                              Properties:
+                                                BorderColor: =RGBA(0, 18, 107, 1)
+                                                Font: =Font.'Open Sans'
+                                                Height: =35
+                                                Size: =Var_TextoPerfil
+                                                Text: =Var_ProfileUser.Vicepresidencia
+                                                Width: =200
+                                                X: =24
+                                                Y: |+
+                                                  =80
+                                          - Label14_31:
+                                              Control: Label@2.5.1
+                                              Properties:
+                                                BorderColor: =RGBA(0, 18, 107, 1)
+                                                Font: =Font.'Open Sans'
+                                                Height: =50
+                                                Size: =Var_TextoPerfil
+                                                Text: =Var_ProfileUser.Gerencia
+                                                Width: =200
+                                                X: =239
+                                                Y: |+
+                                                  =80
+                                          - Label14_32:
+                                              Control: Label@2.5.1
+                                              Properties:
+                                                BorderColor: =RGBA(0, 18, 107, 1)
+                                                Font: =Font.'Open Sans'
+                                                Height: =35
+                                                Size: =Var_TextoPerfil
+                                                Text: =Var_ProfileUser.Area
+                                                Width: =199
+                                                X: =439
+                                                Y: |+
+                                                  =80
