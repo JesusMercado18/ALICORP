@@ -410,214 +410,6 @@ Screens:
                                     X: =24
                                     Y: =24
                                   Children:
-                                    - SpvSlc_CtnPaginacionSoluciones:
-                                        Control: GroupContainer@1.5.0
-                                        Variant: ManualLayout
-                                        Properties:
-                                          DropShadow: =DropShadow.None
-                                          Height: =50
-                                          Width: =Parent.Width
-                                          Y: =SpvSlc_CtnDatosFiltrados.Height + Self.Height + 60
-                                        Children:
-                                          - SpvSlc_GlrNumeroPaginas:
-                                              Control: Gallery@2.15.0
-                                              Variant: Horizontal
-                                              Properties:
-                                                BorderColor: =RGBA(0, 18, 107, 1)
-                                                DisplayMode: =DisplayMode.View
-                                                Height: =50
-                                                Items: |-
-                                                  =If(
-                                                      !IsBlank(TotalItemSpvSoluciones) && Var_GridPageSizeSpvSoluciones > 0,
-                                                      Sequence(RoundUp(TotalItemSpvSoluciones / Var_GridPageSizeSpvSoluciones, 0), 1),
-                                                      [1] // Secuencia segura inicial
-                                                  )
-                                                ShowNavigation: =true
-                                                TemplateSize: =30
-                                                Width: |-
-                                                  =With(
-                                                      {
-                                                          totalPages: If(Var_GridPageSizeSpvSoluciones > 0, RoundUp(TotalItemSpvSoluciones / Var_GridPageSizeSpvSoluciones, 0), 1),
-                                                          maxVisible: 15,
-                                                          itemWidth: Self.TemplateWidth + Self.TemplatePadding
-                                                      },
-                                                      If(
-                                                          totalPages <= maxVisible,
-                                                          (totalPages * itemWidth) + itemWidth, 
-                                                          maxVisible * itemWidth
-                                                      )
-                                                  )
-                                                X: =(SpvSlc_CtnPaginacionSoluciones.Width - Self.Width) / 2
-                                              Children:
-                                                - SpvSlc_CtnPosicionPagina:
-                                                    Control: GroupContainer@1.5.0
-                                                    Variant: ManualLayout
-                                                    Properties:
-                                                      DropShadow: =DropShadow.None
-                                                      Height: =6
-                                                      Width: =Parent.TemplateWidth
-                                                      Y: =SpvSlc_BtnNumPagSelec.Height
-                                                    Children:
-                                                      - SpvSlc_CtnPosicionPaginaLinea:
-                                                          Control: Label@2.5.1
-                                                          Properties:
-                                                            Align: =Align.Center
-                                                            BorderColor: =RGBA(0, 18, 107, 1)
-                                                            Fill: =If(ThisItem.Value = Var_CurrentPageSpvSoluciones,ColorValue(Var_ColorBoton), Color.Transparent)
-                                                            Font: =Font.'Open Sans'
-                                                            Height: =6
-                                                            OnSelect: =
-                                                            Text: =
-                                                            Width: =Parent.Width
-                                                - SpvSlc_BtnNumPagSelec:
-                                                    Control: Classic/Button@2.2.0
-                                                    Properties:
-                                                      BorderColor: =ColorFade(Self.Fill, -15%)
-                                                      Color: =If(ThisItem.IsSelected,ColorValue(Var_ColorIconNegro),ColorValue(Var_ColorGray))
-                                                      DisabledBorderColor: =RGBA(166, 166, 166, 1)
-                                                      Fill: =RGBA(0, 0, 0, 0)
-                                                      Font: =Font.'Open Sans'
-                                                      FontWeight: |
-                                                        =If(ThisItem.IsSelected,FontWeight.Semibold,FontWeight.Normal)
-                                                      Height: =32
-                                                      HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
-                                                      HoverColor: =ColorValue(Var_ColorBoton)
-                                                      HoverFill: =Color.Transparent
-                                                      OnSelect: "=Set(\r\n    Var_StartIDSpvSoluciones,\r\n    If(\r\n        ThisItem.Value = 1,\r\n        0, // Primera página siempre empieza en 0 para tu flujo\r\n        Last(\r\n            FirstN(\r\n                Table(ParseJSON('LCP-001_Flow_SpvPaginacionSoluciones'.Run(\r\n                    Var_GridPageSizeSpvSoluciones * (ThisItem.Value - 1),\r\n                    0,\r\n                    Concat(Filter(colQuerysSpvSoluciones, mark), query, \" and \"),\r\n                    \"NEXT\"\r\n                ).response)),\r\n                Var_GridPageSizeSpvSoluciones * (ThisItem.Value - 1)\r\n            )\r\n        ).Value.ID\r\n    )\r\n);\r\n\r\nSet(\r\n    Var_ResponseSpvSoluciones,\r\n\r\n        'LCP-001_Flow_SpvPaginacionSoluciones'.Run(\r\n            Var_GridPageSizeSpvSoluciones,\r\n            Var_StartIDSpvSoluciones,\r\n            Concat(Filter(colQuerysSpvSoluciones, mark), query, \" and \"),\r\n            \"NEXT\"\r\n        \r\n    )\r\n);\r\n\r\nSet(\r\n    Var_DataSpvSoluciones,\r\n    Table(ParseJSON(Var_ResponseSpvSoluciones.response))\r\n);\r\n\r\nClear(objGalleryDataSpvSoluciones);\r\nForAll(\r\n    FirstN(Var_DataSpvSoluciones, Var_GridPageSizeSpvSoluciones),\r\n    Collect(\r\n        objGalleryDataSpvSoluciones,\r\n        {\r\n            ID:             ThisRecord.Value.ID,\r\n            NombreAdjunto:  If(\r\n                                // Verificamos si hay adjuntos para evitar errores\r\n                                Boolean(ThisRecord.Value.Attachments), \r\n                                Text(First(Table(ThisRecord.Value.AttachmentFiles)).Value.FileName), \r\n                                Blank()\r\n                            ),\r\n            RutaAdjunto:    If(\r\n                                Boolean(ThisRecord.Value.Attachments), \r\n                                Text(First(Table(ThisRecord.Value.AttachmentFiles)).Value.ServerRelativeUrl), \r\n                                Blank()\r\n                            ),\r\n            Estado:         ThisRecord.Value.Estado,\r\n            Gerencia:       ThisRecord.Value.Gerencia,\r\n            Torre:          ThisRecord.Value.Torre,\r\n            Autor:          ThisRecord.Value.Autor\r\n        }\r\n    )\r\n);\r\n\r\nSet(Var_HasPrevSpvSoluciones, ThisItem.Value > 1);\r\nSet(Var_HasNextSpvSoluciones, ThisItem.Value < RoundUp(TotalItemSpvSoluciones / Var_GridPageSizeSpvSoluciones, 0));\r\nSet(Var_CurrentPageSpvSoluciones, ThisItem.Value); // Actualiza la página seleccionada"
-                                                      PressedBorderColor: =Self.Fill
-                                                      PressedColor: =ColorValue(Var_ColorPressedBoton)
-                                                      PressedFill: =Color.Transparent
-                                                      Size: =12
-                                                      Text: =ThisItem.Value
-                                                      Width: =Parent.TemplateWidth
-                                          - SpvSlc_BtnAnterior:
-                                              Control: Button@0.0.45
-                                              Properties:
-                                                Appearance: ='ButtonCanvas.Appearance'.Outline
-                                                BorderStyle: =BorderStyle.None
-                                                DisplayMode: =If(Var_HasPrevSpvSoluciones, DisplayMode.Edit, DisplayMode.Disabled)
-                                                FontColor: =ColorValue(Var_ColorBoton)
-                                                Icon: ="ChevronLeft"
-                                                OnSelect: |-
-                                                  =Set(
-                                                      Var_ResponseSpvSoluciones,
-                                                      'LCP-001_Flow_SpvPaginacionSoluciones'.Run(
-                                                          Var_GridPageSizeSpvSoluciones,
-                                                          Text(First(SpvSlc_GlrSoluciones.AllItems).ID),
-                                                          Concat(
-                                                              Filter(colQuerysSpvSoluciones, mark),
-                                                              query,
-                                                              " and "
-                                                          ),
-                                                          "PREV"
-                                                      )
-                                                  );
-
-                                                  Set(
-                                                      Var_DataSpvSoluciones,
-                                                      Table(ParseJSON(Var_ResponseSpvSoluciones.response))
-                                                  );
-
-                                                  Clear(objGalleryDataSpvSoluciones);
-                                                  ForAll(
-                                                      FirstN(Var_DataSpvSoluciones, Var_GridPageSizeSpvSoluciones),
-                                                      Collect(
-                                                          objGalleryDataSpvSoluciones,
-                                                          {
-                                                              ID:             ThisRecord.Value.ID,
-                                                              NombreAdjunto:  If(
-                                                                                  // Verificamos si hay adjuntos para evitar errores
-                                                                                  Boolean(ThisRecord.Value.Attachments), 
-                                                                                  Text(First(Table(ThisRecord.Value.AttachmentFiles)).Value.FileName), 
-                                                                                  Blank()
-                                                                              ),
-                                                              RutaAdjunto:    If(
-                                                                                  Boolean(ThisRecord.Value.Attachments), 
-                                                                                  Text(First(Table(ThisRecord.Value.AttachmentFiles)).Value.ServerRelativeUrl), 
-                                                                                  Blank()
-                                                                              ),
-                                                              Estado:         ThisRecord.Value.Estado,
-                                                              Gerencia:       ThisRecord.Value.Gerencia,
-                                                              Torre:          ThisRecord.Value.Torre,
-                                                              Autor:          ThisRecord.Value.Autor
-                                                          }
-                                                      )
-                                                  );
-
-                                                  Set(Var_HasPrevSpvSoluciones, CountRows(Var_DataSpvSoluciones) > Var_GridPageSizeSpvSoluciones);
-                                                  Set(Var_HasNextSpvSoluciones, true);
-                                                  Set(Var_CurrentPageSpvSoluciones, Var_CurrentPageSpvSoluciones - 1)
-                                                Text: ="Anterior"
-                                                Y: =9
-                                          - SpvSlc_BtnSiguiente:
-                                              Control: Button@0.0.45
-                                              Properties:
-                                                Appearance: ='ButtonCanvas.Appearance'.Outline
-                                                BorderStyle: =BorderStyle.None
-                                                DisplayMode: |-
-                                                  =If(
-                                                      Var_HasNextSpvSoluciones,
-                                                      DisplayMode.Edit,
-                                                      DisplayMode.Disabled
-                                                  )
-                                                FontColor: =ColorValue(Var_ColorBoton)
-                                                Icon: ="ChevronRight"
-                                                Layout: ='ButtonCanvas.Layout'.IconAfter
-                                                OnSelect: |-
-                                                  =Set(
-                                                      Var_ResponseSpvSoluciones,
-                                                      'LCP-001_Flow_SpvPaginacionSoluciones'.Run(
-                                                          Var_GridPageSizeSpvSoluciones,
-                                                          Text(Last(SpvSlc_GlrSoluciones.AllItems).ID),
-                                                          Concat(
-                                                              Filter(colQuerysSpvSoluciones, mark),
-                                                              query,
-                                                              " and "
-                                                          ),
-                                                          "NEXT"
-                                                      )
-                                                  );
-
-                                                  Set(
-                                                      Var_DataSpvSoluciones,
-                                                      Table(ParseJSON(Var_ResponseSpvSoluciones.response))
-                                                  );
-
-                                                  Clear(objGalleryDataSpvSoluciones);
-                                                  ForAll(
-                                                      FirstN(Var_DataSpvSoluciones, Var_GridPageSizeSpvSoluciones),
-                                                      Collect(
-                                                          objGalleryDataSpvSoluciones,
-                                                          {
-                                                              ID:             ThisRecord.Value.ID,
-                                                              NombreAdjunto:  If(
-                                                                                  // Verificamos si hay adjuntos para evitar errores
-                                                                                  Boolean(ThisRecord.Value.Attachments), 
-                                                                                  Text(First(Table(ThisRecord.Value.AttachmentFiles)).Value.FileName), 
-                                                                                  Blank()
-                                                                              ),
-                                                              RutaAdjunto:    If(
-                                                                                  Boolean(ThisRecord.Value.Attachments), 
-                                                                                  Text(First(Table(ThisRecord.Value.AttachmentFiles)).Value.ServerRelativeUrl), 
-                                                                                  Blank()
-                                                                              ),
-                                                              Estado:         ThisRecord.Value.Estado,
-                                                              Gerencia:       ThisRecord.Value.Gerencia,
-                                                              Torre:          ThisRecord.Value.Torre,
-                                                              Autor:          ThisRecord.Value.Autor
-                                                          }
-                                                      )
-                                                  );
-
-                                                  Set(Var_HasNextSpvSoluciones, CountRows(Var_DataSpvSoluciones) > Var_GridPageSizeSpvSoluciones);
-                                                  Set(Var_HasPrevSpvSoluciones, true);
-                                                  Set(Var_CurrentPageSpvSoluciones, Var_CurrentPageSpvSoluciones + 1)
-                                                Text: ="Siguiente"
-                                                X: |-
-                                                  =SpvSlc_CtnPaginacionSoluciones.Width
-                                                  - Self.Width
-                                                  - SpvSlc_CtnPaginacionSoluciones.PaddingRight
-                                                Y: =9
                                     - SpvSlc_CtnDatosFiltrados:
                                         Control: GroupContainer@1.5.0
                                         Variant: AutoLayout
@@ -955,7 +747,7 @@ Screens:
                                                                   OnSelect: =Select(SpvSlc_GlrSoluciones)
                                                                   Overflow: =Overflow.Scroll
                                                                   Size: =Var_FontSizeCuerpoTable
-                                                                  Text: =ThisItem.Autor
+                                                                  Text: =ThisItem.Subarea
                                                       - SpvSlc_CtnInfDescargar:
                                                           Control: GroupContainer@1.5.0
                                                           Variant: ManualLayout
@@ -1496,6 +1288,214 @@ Screens:
                                                             PaddingTop: =5
                                                             Visible: =IsBlank(varEstadoSelectedSpvSlc)=false
                                                             Width: =25
+                                    - SpvSlc_CtnPaginacionSoluciones:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: ManualLayout
+                                        Properties:
+                                          DropShadow: =DropShadow.None
+                                          Height: =50
+                                          Width: =Parent.Width
+                                          Y: =SpvSlc_CtnDatosFiltrados.Height + Self.Height + 60
+                                        Children:
+                                          - SpvSlc_BtnAnterior:
+                                              Control: Button@0.0.45
+                                              Properties:
+                                                Appearance: ='ButtonCanvas.Appearance'.Outline
+                                                BorderStyle: =BorderStyle.None
+                                                DisplayMode: =If(Var_HasPrevSpvSoluciones, DisplayMode.Edit, DisplayMode.Disabled)
+                                                FontColor: =ColorValue(Var_ColorBoton)
+                                                Icon: ="ChevronLeft"
+                                                OnSelect: |-
+                                                  =Set(
+                                                      Var_ResponseSpvSoluciones,
+                                                      'LCP-001_Flow_SpvPaginacionSoluciones'.Run(
+                                                          Var_GridPageSizeSpvSoluciones,
+                                                          Text(First(SpvSlc_GlrSoluciones.AllItems).ID),
+                                                          Concat(
+                                                              Filter(colQuerysSpvSoluciones, mark),
+                                                              query,
+                                                              " and "
+                                                          ),
+                                                          "PREV"
+                                                      )
+                                                  );
+
+                                                  Set(
+                                                      Var_DataSpvSoluciones,
+                                                      Table(ParseJSON(Var_ResponseSpvSoluciones.response))
+                                                  );
+
+                                                  Clear(objGalleryDataSpvSoluciones);
+                                                  ForAll(
+                                                      FirstN(Var_DataSpvSoluciones, Var_GridPageSizeSpvSoluciones),
+                                                      Collect(
+                                                          objGalleryDataSpvSoluciones,
+                                                          {
+                                                              ID:             ThisRecord.Value.ID,
+                                                              NombreAdjunto:  If(
+                                                                                  // Verificamos si hay adjuntos para evitar errores
+                                                                                  Boolean(ThisRecord.Value.Attachments), 
+                                                                                  Text(First(Table(ThisRecord.Value.AttachmentFiles)).Value.FileName), 
+                                                                                  Blank()
+                                                                              ),
+                                                              RutaAdjunto:    If(
+                                                                                  Boolean(ThisRecord.Value.Attachments), 
+                                                                                  Text(First(Table(ThisRecord.Value.AttachmentFiles)).Value.ServerRelativeUrl), 
+                                                                                  Blank()
+                                                                              ),
+                                                              Estado:         ThisRecord.Value.Estado,
+                                                              Gerencia:       ThisRecord.Value.Gerencia,
+                                                              Torre:          ThisRecord.Value.Torre,
+                                                              Autor:          ThisRecord.Value.Autor
+                                                          }
+                                                      )
+                                                  );
+
+                                                  Set(Var_HasPrevSpvSoluciones, CountRows(Var_DataSpvSoluciones) > Var_GridPageSizeSpvSoluciones);
+                                                  Set(Var_HasNextSpvSoluciones, true);
+                                                  Set(Var_CurrentPageSpvSoluciones, Var_CurrentPageSpvSoluciones - 1)
+                                                Text: ="Anterior"
+                                                Y: =9
+                                          - SpvSlc_BtnSiguiente:
+                                              Control: Button@0.0.45
+                                              Properties:
+                                                Appearance: ='ButtonCanvas.Appearance'.Outline
+                                                BorderStyle: =BorderStyle.None
+                                                DisplayMode: |-
+                                                  =If(
+                                                      Var_HasNextSpvSoluciones,
+                                                      DisplayMode.Edit,
+                                                      DisplayMode.Disabled
+                                                  )
+                                                FontColor: =ColorValue(Var_ColorBoton)
+                                                Icon: ="ChevronRight"
+                                                Layout: ='ButtonCanvas.Layout'.IconAfter
+                                                OnSelect: |-
+                                                  =Set(
+                                                      Var_ResponseSpvSoluciones,
+                                                      'LCP-001_Flow_SpvPaginacionSoluciones'.Run(
+                                                          Var_GridPageSizeSpvSoluciones,
+                                                          Text(Last(SpvSlc_GlrSoluciones.AllItems).ID),
+                                                          Concat(
+                                                              Filter(colQuerysSpvSoluciones, mark),
+                                                              query,
+                                                              " and "
+                                                          ),
+                                                          "NEXT"
+                                                      )
+                                                  );
+
+                                                  Set(
+                                                      Var_DataSpvSoluciones,
+                                                      Table(ParseJSON(Var_ResponseSpvSoluciones.response))
+                                                  );
+
+                                                  Clear(objGalleryDataSpvSoluciones);
+                                                  ForAll(
+                                                      FirstN(Var_DataSpvSoluciones, Var_GridPageSizeSpvSoluciones),
+                                                      Collect(
+                                                          objGalleryDataSpvSoluciones,
+                                                          {
+                                                              ID:             ThisRecord.Value.ID,
+                                                              NombreAdjunto:  If(
+                                                                                  // Verificamos si hay adjuntos para evitar errores
+                                                                                  Boolean(ThisRecord.Value.Attachments), 
+                                                                                  Text(First(Table(ThisRecord.Value.AttachmentFiles)).Value.FileName), 
+                                                                                  Blank()
+                                                                              ),
+                                                              RutaAdjunto:    If(
+                                                                                  Boolean(ThisRecord.Value.Attachments), 
+                                                                                  Text(First(Table(ThisRecord.Value.AttachmentFiles)).Value.ServerRelativeUrl), 
+                                                                                  Blank()
+                                                                              ),
+                                                              Estado:         ThisRecord.Value.Estado,
+                                                              Gerencia:       ThisRecord.Value.Gerencia,
+                                                              Torre:          ThisRecord.Value.Torre,
+                                                              Autor:          ThisRecord.Value.Autor
+                                                          }
+                                                      )
+                                                  );
+
+                                                  Set(Var_HasNextSpvSoluciones, CountRows(Var_DataSpvSoluciones) > Var_GridPageSizeSpvSoluciones);
+                                                  Set(Var_HasPrevSpvSoluciones, true);
+                                                  Set(Var_CurrentPageSpvSoluciones, Var_CurrentPageSpvSoluciones + 1)
+                                                Text: ="Siguiente"
+                                                X: |-
+                                                  =SpvSlc_CtnPaginacionSoluciones.Width
+                                                  - Self.Width
+                                                  - SpvSlc_CtnPaginacionSoluciones.PaddingRight
+                                                Y: =9
+                                          - SpvSlc_GlrNumeroPaginas:
+                                              Control: Gallery@2.15.0
+                                              Variant: Horizontal
+                                              Properties:
+                                                BorderColor: =RGBA(0, 18, 107, 1)
+                                                DisplayMode: =DisplayMode.View
+                                                Height: =50
+                                                Items: |-
+                                                  =If(
+                                                      !IsBlank(TotalItemSpvSoluciones) && Var_GridPageSizeSpvSoluciones > 0,
+                                                      Sequence(RoundUp(TotalItemSpvSoluciones / Var_GridPageSizeSpvSoluciones, 0), 1),
+                                                      [1] // Secuencia segura inicial
+                                                  )
+                                                ShowNavigation: =true
+                                                TemplateSize: =30
+                                                Width: |-
+                                                  =With(
+                                                      {
+                                                          totalPages: If(Var_GridPageSizeSpvSoluciones > 0, RoundUp(TotalItemSpvSoluciones / Var_GridPageSizeSpvSoluciones, 0), 1),
+                                                          maxVisible: 15,
+                                                          itemWidth: Self.TemplateWidth + Self.TemplatePadding
+                                                      },
+                                                      If(
+                                                          totalPages <= maxVisible,
+                                                          (totalPages * itemWidth) + itemWidth, 
+                                                          maxVisible * itemWidth
+                                                      )
+                                                  )
+                                                X: =(SpvSlc_CtnPaginacionSoluciones.Width - Self.Width) / 2
+                                              Children:
+                                                - SpvSlc_CtnPosicionPagina:
+                                                    Control: GroupContainer@1.5.0
+                                                    Variant: ManualLayout
+                                                    Properties:
+                                                      DropShadow: =DropShadow.None
+                                                      Height: =6
+                                                      Width: =Parent.TemplateWidth
+                                                      Y: =SpvSlc_BtnNumPagSelec.Height
+                                                    Children:
+                                                      - SpvSlc_CtnPosicionPaginaLinea:
+                                                          Control: Label@2.5.1
+                                                          Properties:
+                                                            Align: =Align.Center
+                                                            BorderColor: =RGBA(0, 18, 107, 1)
+                                                            Fill: =If(ThisItem.Value = Var_CurrentPageSpvSoluciones,ColorValue(Var_ColorBoton), Color.Transparent)
+                                                            Font: =Font.'Open Sans'
+                                                            Height: =6
+                                                            OnSelect: =
+                                                            Text: =
+                                                            Width: =Parent.Width
+                                                - SpvSlc_BtnNumPagSelec:
+                                                    Control: Classic/Button@2.2.0
+                                                    Properties:
+                                                      BorderColor: =ColorFade(Self.Fill, -15%)
+                                                      Color: =If(ThisItem.IsSelected,ColorValue(Var_ColorIconNegro),ColorValue(Var_ColorGray))
+                                                      DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                                                      Fill: =RGBA(0, 0, 0, 0)
+                                                      Font: =Font.'Open Sans'
+                                                      FontWeight: |
+                                                        =If(ThisItem.IsSelected,FontWeight.Semibold,FontWeight.Normal)
+                                                      Height: =32
+                                                      HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                                                      HoverColor: =ColorValue(Var_ColorBoton)
+                                                      HoverFill: =Color.Transparent
+                                                      OnSelect: "=Set(\r\n    Var_StartIDSpvSoluciones,\r\n    If(\r\n        ThisItem.Value = 1,\r\n        0, // Primera página siempre empieza en 0 para tu flujo\r\n        Last(\r\n            FirstN(\r\n                Table(ParseJSON('LCP-001_Flow_SpvPaginacionSoluciones'.Run(\r\n                    Var_GridPageSizeSpvSoluciones * (ThisItem.Value - 1),\r\n                    0,\r\n                    Concat(Filter(colQuerysSpvSoluciones, mark), query, \" and \"),\r\n                    \"NEXT\"\r\n                ).response)),\r\n                Var_GridPageSizeSpvSoluciones * (ThisItem.Value - 1)\r\n            )\r\n        ).Value.ID\r\n    )\r\n);\r\n\r\nSet(\r\n    Var_ResponseSpvSoluciones,\r\n\r\n        'LCP-001_Flow_SpvPaginacionSoluciones'.Run(\r\n            Var_GridPageSizeSpvSoluciones,\r\n            Var_StartIDSpvSoluciones,\r\n            Concat(Filter(colQuerysSpvSoluciones, mark), query, \" and \"),\r\n            \"NEXT\"\r\n        \r\n    )\r\n);\r\n\r\nSet(\r\n    Var_DataSpvSoluciones,\r\n    Table(ParseJSON(Var_ResponseSpvSoluciones.response))\r\n);\r\n\r\nClear(objGalleryDataSpvSoluciones);\r\nForAll(\r\n    FirstN(Var_DataSpvSoluciones, Var_GridPageSizeSpvSoluciones),\r\n    Collect(\r\n        objGalleryDataSpvSoluciones,\r\n        {\r\n            ID:             ThisRecord.Value.ID,\r\n            NombreAdjunto:  If(\r\n                                // Verificamos si hay adjuntos para evitar errores\r\n                                Boolean(ThisRecord.Value.Attachments), \r\n                                Text(First(Table(ThisRecord.Value.AttachmentFiles)).Value.FileName), \r\n                                Blank()\r\n                            ),\r\n            RutaAdjunto:    If(\r\n                                Boolean(ThisRecord.Value.Attachments), \r\n                                Text(First(Table(ThisRecord.Value.AttachmentFiles)).Value.ServerRelativeUrl), \r\n                                Blank()\r\n                            ),\r\n            Estado:         ThisRecord.Value.Estado,\r\n            Gerencia:       ThisRecord.Value.Gerencia,\r\n            Torre:          ThisRecord.Value.Torre,\r\n            Autor:          ThisRecord.Value.Autor\r\n        }\r\n    )\r\n);\r\n\r\nSet(Var_HasPrevSpvSoluciones, ThisItem.Value > 1);\r\nSet(Var_HasNextSpvSoluciones, ThisItem.Value < RoundUp(TotalItemSpvSoluciones / Var_GridPageSizeSpvSoluciones, 0));\r\nSet(Var_CurrentPageSpvSoluciones, ThisItem.Value); // Actualiza la página seleccionada"
+                                                      PressedBorderColor: =Self.Fill
+                                                      PressedColor: =ColorValue(Var_ColorPressedBoton)
+                                                      PressedFill: =Color.Transparent
+                                                      Size: =12
+                                                      Text: =ThisItem.Value
+                                                      Width: =Parent.TemplateWidth
       - Spv_TimerErrorSoluciones:
           Control: Timer@2.1.0
           Properties:
