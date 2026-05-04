@@ -7,6 +7,35 @@ Screens:
         =//----Variables-----
         UpdateContext({menuSelected: 6});
         UpdateContext({Var_Ctx_MostrarItems : false });
+
+        // 1. Limpieza de variables de estado de visibilidad alineado al repositorio
+        UpdateContext({Var_Ctx_SpvModal_AgregarSolucion: false});
+
+        // 2. Refresco de los controles de búsqueda para segmentación y filtros
+        Reset(SpvSlc_TxtIBuscarDocumento);
+        Reset(SpvSlc_LblCampoSeleccionarEstado);
+
+        // 1. Limpieza de Variables de Contexto (Jerarquía: Gerencia > Área > Subárea)
+        UpdateContext({
+            varGerenciaSelected: Blank(),
+            varUpdateAreaSelected: Blank(),
+            varUpdateSubAreaSelected: Blank(),
+            varOpenDropDownGerencia: false,
+            varOpenDropDownUpdateArea: false,
+            varOpenDropDownUpdateSubarea: false,
+            varOpenDropDownEstadoSpvSlc: false
+        });
+
+        // 2. Limpieza de Colecciones de Datos (Estados y Archivos Adjuntos)
+        Clear(colEstadoSolucionSeleccionadas);
+        Clear(Var_uploadFile_listAttachmentSpvNvSolucion);
+        Clear(SpvSlc_colErroresAdjuntos);
+
+        // 3. Reinicio de Controles UI Directos (Solo necesarios si no dependen de las variables anteriores)
+        Reset(SpvSlc_TxtDescripcionNuevaSolucion);
+        Reset(SpvSlc_LblCampoSeleccionarEstado);
+        Reset(SpvSlc_AtchAdjuntoNuevaSolucion);
+
         //----Flujo----
         Set(Var_GridPageSizeSpvSoluciones, 5);
         Set(Var_ResponseSpvSoluciones,
@@ -306,7 +335,27 @@ Screens:
                                           HoverColor: =ColorValue(Var_ColorBlanco)
                                           HoverFill: =ColorValue(Var_ColorHoverBoton)
                                           OnSelect: |-
-                                            =UpdateContext({ Var_Ctx_SpvModal_AgregarSolucion: !Var_Ctx_SpvModal_AgregarSolucion })
+                                            =UpdateContext({ Var_Ctx_SpvModal_AgregarSolucion: !Var_Ctx_SpvModal_AgregarSolucion });
+                                            // 1. Limpieza de Variables de Contexto (Jerarquía: Gerencia > Área > Subárea)
+                                            UpdateContext({
+                                                varGerenciaSelected: Blank(),
+                                                varUpdateAreaSelected: Blank(),
+                                                varUpdateSubAreaSelected: Blank(),
+                                                varOpenDropDownGerencia: false,
+                                                varOpenDropDownUpdateArea: false,
+                                                varOpenDropDownUpdateSubarea: false,
+                                                varOpenDropDownEstadoSpvSlc: false
+                                            });
+
+                                            // 2. Limpieza de Colecciones de Datos (Estados y Archivos Adjuntos)
+                                            Clear(colEstadoSolucionSeleccionadas);
+                                            Clear(Var_uploadFile_listAttachmentSpvNvSolucion);
+                                            Clear(SpvSlc_colErroresAdjuntos);
+
+                                            // 3. Reinicio de Controles UI Directos (Solo necesarios si no dependen de las variables anteriores)
+                                            Reset(SpvSlc_TxtDescripcionNuevaSolucion);
+                                            Reset(SpvSlc_LblCampoSeleccionarEstado);
+                                            Reset(SpvSlc_AtchAdjuntoNuevaSolucion);
                                           PaddingLeft: =10
                                           PressedBorderColor: =Self.PressedFill
                                           PressedColor: =ColorValue(Var_ColorBlanco)
@@ -1479,7 +1528,7 @@ Screens:
             Evento_CerrarNotificacion: "=UpdateContext({ Var_Ctx_SpvMostrarErrorSoluciones: false }) "
             Height: =46
             Input_MostrarOcultarNotificacion: =Var_Ctx_SpvMostrarAlertaSoluciones
-            Input_TextoNotificacion: =Var_Ctx_SpvMensajeSatisfactorioSolucion
+            Input_TextoNotificacion: =Var_SpvMensajeSatisfactorioSolucion
             Width: =480
             X: =Parent.Width - Self.Width - 20
             Y: =Gbl_Header_DetalleTicket.Height
@@ -1555,7 +1604,27 @@ Screens:
                               LayoutMinHeight: =16
                               LayoutMinWidth: =16
                               OnSelect: |-
-                                =UpdateContext({ Var_Ctx_SpvModal_AgregarSolucion: false })
+                                =UpdateContext({ Var_Ctx_SpvModal_AgregarSolucion: false });
+                                // 1. Limpieza de Variables de Contexto (Jerarquía: Gerencia > Área > Subárea)
+                                UpdateContext({
+                                    varGerenciaSelected: Blank(),
+                                    varUpdateAreaSelected: Blank(),
+                                    varUpdateSubAreaSelected: Blank(),
+                                    varOpenDropDownGerencia: false,
+                                    varOpenDropDownUpdateArea: false,
+                                    varOpenDropDownUpdateSubarea: false,
+                                    varOpenDropDownEstadoSpvSlc: false
+                                });
+
+                                // 2. Limpieza de Colecciones de Datos (Estados y Archivos Adjuntos)
+                                Clear(colEstadoSolucionSeleccionadas);
+                                Clear(Var_uploadFile_listAttachmentSpvNvSolucion);
+                                Clear(SpvSlc_colErroresAdjuntos);
+
+                                // 3. Reinicio de Controles UI Directos (Solo necesarios si no dependen de las variables anteriores)
+                                Reset(SpvSlc_TxtDescripcionNuevaSolucion);
+                                Reset(SpvSlc_LblCampoSeleccionarEstado);
+                                Reset(SpvSlc_AtchAdjuntoNuevaSolucion);
                               Width: =20
                   - SpvSlc_CtnCbxGerencia:
                       Control: GroupContainer@1.5.0
@@ -2169,6 +2238,7 @@ Screens:
                       Control: GroupContainer@1.5.0
                       Variant: ManualLayout
                       Properties:
+                        BorderStyle: =BorderStyle.None
                         DropShadow: =DropShadow.None
                         Height: =
                         LayoutMaxHeight: =If(IsEmpty(Var_uploadFile_listAttachmentSpvNvSolucion),250,110)
@@ -2654,7 +2724,28 @@ Screens:
                               HoverColor: =ColorValue(Var_ColorFontBotonHover)
                               HoverFill: =ColorValue(Var_ColorBackgroundBotonHover)
                               LayoutMinWidth: =120
-                              OnSelect: "=UpdateContext({ Var_Ctx_SpvMostrarAlertaSoluciones: true ,Var_Ctx_SpvModal_AgregarSolucion: false, Var_Ctx_SpvMensajeSatisfactorioSolucion: \"Se ha creado una nueva solución.\"}) "
+                              OnSelect: |-
+                                =UpdateContext({ Var_Ctx_SpvModal_AgregarSolucion: false });
+                                // 1. Limpieza de Variables de Contexto (Jerarquía: Gerencia > Área > Subárea)
+                                UpdateContext({
+                                    varGerenciaSelected: Blank(),
+                                    varUpdateAreaSelected: Blank(),
+                                    varUpdateSubAreaSelected: Blank(),
+                                    varOpenDropDownGerencia: false,
+                                    varOpenDropDownUpdateArea: false,
+                                    varOpenDropDownUpdateSubarea: false,
+                                    varOpenDropDownEstadoSpvSlc: false
+                                });
+
+                                // 2. Limpieza de Colecciones de Datos (Estados y Archivos Adjuntos)
+                                Clear(colEstadoSolucionSeleccionadas);
+                                Clear(Var_uploadFile_listAttachmentSpvNvSolucion);
+                                Clear(SpvSlc_colErroresAdjuntos);
+
+                                // 3. Reinicio de Controles UI Directos (Solo necesarios si no dependen de las variables anteriores)
+                                Reset(SpvSlc_TxtDescripcionNuevaSolucion);
+                                Reset(SpvSlc_LblCampoSeleccionarEstado);
+                                Reset(SpvSlc_AtchAdjuntoNuevaSolucion);
                               PressedBorderColor: =ColorValue(Var_ColorBorderBotonActive)
                               PressedColor: =ColorValue(Var_ColorFontBotonActive)
                               PressedFill: =ColorValue(Var_ColorBackgroundBotonActive)
@@ -2673,14 +2764,12 @@ Screens:
                               Color: =RGBA(255, 255, 255, 1)
                               DisabledBorderColor: =RGBA(166, 166, 166, 1)
                               Fill: =ColorValue(Var_ColorBoton)
-                              FillPortions: =1
                               Font: =Font.'Open Sans'
                               Height: =42
                               HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
                               HoverColor: =ColorValue(Var_ColorBlanco)
                               HoverFill: =ColorValue(Var_ColorHoverBoton)
-                              LayoutMinWidth: =120
-                              OnSelect: "=//UpdateContext({ Var_Ctx_SpvMostrarAlertaSoluciones: true ;Var_Ctx_SpvModal_AgregarSolucion: false; Var_Ctx_SpvMensajeSatisfactorioSolucion: \"Se ha creado una nueva solución.\"})\r\n// 1. Bloque de validación secuencial para Nueva Solución\r\nIf(\r\n    // Validar Gerencia\r\n    IsBlank(SpvSlc_LblGerenciaSelNuevaSolucion.Value),\r\n        UpdateContext({Var_Ctx_SpvMostrarErrorSoluciones: true, SpvSlcMensajeError: \"Debe seleccionar una Gerencia.\"}),\r\n    \r\n    // Validar Área\r\n    IsBlank(SpvSlc_LblAreaSelNuevaSolucion.Value),\r\n        UpdateContext({Var_Ctx_SpvMostrarErrorSoluciones: true, SpvSlcMensajeError: \"Debe seleccionar una Área.\"}),\r\n\r\n    // Validar Subárea\r\n    IsBlank(SpvSlc_LblSubareaSelNuevaSolucion.Value),\r\n        UpdateContext({Var_Ctx_SpvMostrarErrorSoluciones: true, SpvSlcMensajeError: \"Debe seleccionar una Subárea.\"}),\r\n\r\n    // Validar Estado\r\n    IsEmpty(colEstadoSolucionSeleccionadas),\r\n        UpdateContext({Var_Ctx_SpvMostrarErrorSoluciones: true, SpvSlcMensajeError: \"Debe seleccionar un Estado.\"}),\r\n    \r\n    // Validar Adjuntos (usando la colección de la lógica anterior)\r\n    IsEmpty(Var_uploadFile_listAttachmentSpvNvSolucion),\r\n        UpdateContext({Var_Ctx_SpvMostrarErrorSoluciones: true, SpvSlcMensajeError: \"Debes adjuntar al menos un documento válido.\"}),\r\n\r\n    // Validar Nombre documento\r\n    IsBlank(SpvSlc_TxtNombreDocNuevaSolucion.Text),\r\n        UpdateContext({Var_Ctx_SpvMostrarErrorSoluciones: true, SpvSlcMensajeError: \"Debe ingresar Nombre para el documento.\"}),\r\n    \r\n    // 2. \U0001F539 BLOQUE DE GUARDADO (Ejecutado solo si no aplican los errores anteriores)\r\n    IfError(\r\n        Patch(\r\n            'LCP-001_List_Soluciones', \r\n            Defaults('LCP-001_List_Soluciones'),\r\n            {\r\n                Gerencia: SpvSlc_LblGerenciaSelNuevaSolucion.Value,\r\n                Area: SpvSlc_LblAreaSelNuevaSolucion.Value,\r\n                Subarea: SpvSlc_LblSubareaSelNuevaSolucion.Value,\r\n                Descripcion: Text(SpvSlc_TxtDescripcionNuevaSolucion.Text),\r\n                Estado: First(colEstadoSolucionSeleccionadas).Value,\r\n                //'Datos adjuntos': First(Var_uploadFile_listAttachmentSpvNvSolucion).Value;\r\n                NombreArchivo: First(Var_uploadFile_listAttachmentSpvNvSolucion).Name\r\n            }\r\n        ),\r\n        \r\n        // \U0001F534 Manejador de Error del Patch\r\n        UpdateContext({\r\n            Var_Ctx_SpvMostrarErrorSoluciones: true,\r\n            SpvSlcMensajeError: \"Ocurrió un error al crear la solución.\"\r\n        }),\r\n        \r\n        // \U0001F7E2 Manejador de Éxito del Patch\r\n        Set(SpvSlcAlertaSatisfaccion, true);\r\n        Set(Var_SpvMensajeSatisfactorioSolucion, \"Se ha creado una nueva solución exitosamente.\");\r\n        \r\n        // Limpieza de campos del formulario\r\n        Reset(SpvSlc_LblGerenciaSelNuevaSolucion);\r\n        Reset(SpvSlc_LblAreaSelNuevaSolucion);\r\n        Reset(SpvSlc_LblSubareaSelNuevaSolucion);\r\n        Clear(Var_uploadFile_listAttachmentSpvNvSolucion);\r\n        \r\n        // Cierre del modal y reseteo de validaciones\r\n        UpdateContext({\r\n            Var_Ctx_SpvMostrarErrorSoluciones: false, \r\n            Var_Ctx_SpvMostrarModalNuevaSolucion: false \r\n        })\r\n    )\r\n)"
+                              OnSelect: "=//UpdateContext({ Var_Ctx_SpvMostrarAlertaSoluciones: true ;Var_Ctx_SpvModal_AgregarSolucion: false; Var_Ctx_SpvMensajeSatisfactorioSolucion: \"Se ha creado una nueva solución.\"})\r\n// 1. Bloque de validación secuencial para Nueva Solución\r\nIf(\r\n    // Validar Gerencia\r\n    IsBlank(SpvSlc_LblGerenciaSelNuevaSolucion.Value),\r\n        UpdateContext({Var_Ctx_SpvMostrarErrorSoluciones: true, SpvSlcMensajeError: \"Debe seleccionar una Gerencia.\"}),\r\n    \r\n    // Validar Área\r\n    IsBlank(SpvSlc_LblAreaSelNuevaSolucion.Value),\r\n        UpdateContext({Var_Ctx_SpvMostrarErrorSoluciones: true, SpvSlcMensajeError: \"Debe seleccionar una Área.\"}),\r\n\r\n    // Validar Subárea\r\n    IsBlank(SpvSlc_LblSubareaSelNuevaSolucion.Value),\r\n        UpdateContext({Var_Ctx_SpvMostrarErrorSoluciones: true, SpvSlcMensajeError: \"Debe seleccionar una Subárea.\"}),\r\n\r\n    // Validar Estado\r\n    IsEmpty(colEstadoSolucionSeleccionadas),\r\n        UpdateContext({Var_Ctx_SpvMostrarErrorSoluciones: true, SpvSlcMensajeError: \"Debe seleccionar un Estado.\"}),\r\n    \r\n    // Validar Adjuntos (usando la colección de la lógica anterior)\r\n    IsEmpty(Var_uploadFile_listAttachmentSpvNvSolucion),\r\n        UpdateContext({Var_Ctx_SpvMostrarErrorSoluciones: true, SpvSlcMensajeError: \"Debes adjuntar al menos un documento válido.\"}),\r\n\r\n    // Validar Nombre documento\r\n    IsBlank(SpvSlc_TxtNombreDocNuevaSolucion.Text),\r\n        UpdateContext({Var_Ctx_SpvMostrarErrorSoluciones: true, SpvSlcMensajeError: \"Debe ingresar Nombre para el documento.\"}),\r\n    \r\n    // 2. \U0001F539 BLOQUE DE GUARDADO (Ejecutado solo si no aplican los errores anteriores)\r\n    IfError(\r\n        Patch(\r\n            'LCP-001_List_Soluciones', \r\n            Defaults('LCP-001_List_Soluciones'),\r\n            {\r\n                Gerencia: SpvSlc_LblGerenciaSelNuevaSolucion.Value,\r\n                Area: SpvSlc_LblAreaSelNuevaSolucion.Value,\r\n                Subarea: SpvSlc_LblSubareaSelNuevaSolucion.Value,\r\n                Descripcion: Text(SpvSlc_TxtDescripcionNuevaSolucion.Text),\r\n                Estado: First(colEstadoSolucionSeleccionadas).Value,\r\n                'Datos adjuntos': First(Var_uploadFile_listAttachmentSpvNvSolucion).Value,\r\n                NombreArchivo: SpvSlc_TxtNombreDocNuevaSolucion.Text\r\n            }\r\n        ),\r\n        \r\n        // \U0001F534 Manejador de Error del Patch\r\n        UpdateContext({\r\n            Var_Ctx_SpvMostrarErrorSoluciones: true,\r\n            SpvSlcMensajeError: \"Ocurrió un error al crear la solución.\"\r\n        }),\r\n        \r\n        // \U0001F7E2 Manejador de Éxito del Patch\r\n        Set(SpvSlcAlertaSatisfaccion, true);\r\n        Set(Var_SpvMensajeSatisfactorioSolucion, \"Se ha creado una nueva solución exitosamente.\");\r\n        \r\n        // Limpieza de campos del formulario\r\n        Reset(SpvSlc_LblGerenciaSelNuevaSolucion);\r\n        Reset(SpvSlc_LblAreaSelNuevaSolucion);\r\n        Reset(SpvSlc_LblSubareaSelNuevaSolucion);\r\n        Clear(Var_uploadFile_listAttachmentSpvNvSolucion);\r\n        \r\n        // Cierre del modal y reseteo de validaciones\r\n        UpdateContext({\r\n            Var_Ctx_SpvMostrarErrorSoluciones: false, \r\n            Var_Ctx_SpvMostrarModalNuevaSolucion: false \r\n        })\r\n    )\r\n)"
                               PressedBorderColor: =Self.PressedFill
                               PressedColor: =ColorValue(Var_ColorBlanco)
                               PressedFill: =ColorValue(Var_ColorPressedBoton)
