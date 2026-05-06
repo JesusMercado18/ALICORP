@@ -528,16 +528,16 @@ Screens:
                                                   )
                                                 X: =(AdmUsr_CtnPaginacionUsuarios.Width - Self.Width) / 2
                                               Children:
-                                                - Container8_4:
+                                                - AdmUsr_CtnPosicionPagina:
                                                     Control: GroupContainer@1.5.0
                                                     Variant: ManualLayout
                                                     Properties:
                                                       DropShadow: =DropShadow.None
                                                       Height: =6
                                                       Width: =Parent.TemplateWidth
-                                                      Y: =SpvCmc_BtnNumPagSelec.Height
+                                                      Y: =AdmUsr_BtnNumPagSelec.Height
                                                     Children:
-                                                      - Label1_7:
+                                                      - AdmUsr_CtnPosicionPaginaLinea:
                                                           Control: Label@2.5.1
                                                           Properties:
                                                             Align: =Align.Center
@@ -578,7 +578,7 @@ Screens:
                                           LayoutAlignItems: =LayoutAlignItems.Stretch
                                           LayoutDirection: =LayoutDirection.Vertical
                                           LayoutOverflowX: =LayoutOverflow.Scroll
-                                          Width: =165
+                                          Width: =1028
                                           Y: =AdmUsr_CtnFiltros.Height + 25
                                         Children:
                                           - AdmUsr_CtnCabeceraDatos:
@@ -592,9 +592,7 @@ Screens:
                                                 LayoutAlignItems: =LayoutAlignItems.Stretch
                                                 LayoutDirection: =LayoutDirection.Horizontal
                                                 LayoutGap: =5
-                                                LayoutMinWidth: |-
-                                                  =//1225
-                                                  Parent.Width + 210
+                                                LayoutMinWidth: =If(Gbl_Menu_Spv_Ticket.verMenu,Parent.Width + 150 ,Parent.Width) + 55
                                                 PaddingBottom: =8
                                                 PaddingLeft: =18
                                                 PaddingRight: =8
@@ -702,7 +700,6 @@ Screens:
                                                       - AdmUsr_LblColGerencia:
                                                           Control: Label@2.5.1
                                                           Properties:
-                                                            Align: =Align.Center
                                                             FontWeight: =FontWeight.Semibold
                                                             Size: =Var_FontSizeHeaderTable
                                                             Text: ="Gerencia"
@@ -733,7 +730,7 @@ Screens:
                                                 Height: =350
                                                 Items: =Sort(objGalleryDataAdmUsuarios,Value(ThisRecord.ID), SortOrder.Ascending)
                                                 LayoutMinHeight: =16
-                                                LayoutMinWidth: =If(Gbl_Menu_Spv_Ticket.verMenu,Parent.Width + 150 ,Parent.Width) + 40
+                                                LayoutMinWidth: =If(Gbl_Menu_Spv_Ticket.verMenu,Parent.Width + 150 ,Parent.Width) + 55
                                                 OnSelect: =
                                                 TemplatePadding: =10
                                                 TemplateSize: =60
@@ -756,7 +753,7 @@ Screens:
                                                       RadiusTopRight: =5
                                                       Width: |-
                                                         =//1158
-                                                        Parent.Width - 200
+                                                        Parent.Width
                                                     Children:
                                                       - AdmUsr_CtnCodPersonal:
                                                           Control: GroupContainer@1.5.0
@@ -771,7 +768,9 @@ Screens:
                                                                 Properties:
                                                                   Size: =Var_FontSizeCuerpoTable
                                                                   Text: =ThisItem.Codigo
+                                                                  Tooltip: =ThisItem.Codigo
                                                                   Width: =Parent.Width
+                                                                  Wrap: =false
                                                       - AdmUsr_CtnInfoNombre:
                                                           Control: GroupContainer@1.5.0
                                                           Variant: ManualLayout
@@ -785,7 +784,9 @@ Screens:
                                                                 Properties:
                                                                   Size: =Var_FontSizeCuerpoTable
                                                                   Text: =ThisItem.Nombre
+                                                                  Tooltip: =ThisItem.Nombre
                                                                   Width: =Parent.Width
+                                                                  Wrap: =false
                                                       - AdmUsr_CtnInfoApellido:
                                                           Control: GroupContainer@1.5.0
                                                           Variant: ManualLayout
@@ -799,7 +800,9 @@ Screens:
                                                                 Properties:
                                                                   Size: =Var_FontSizeCuerpoTable
                                                                   Text: =ThisItem.Apellido
+                                                                  Tooltip: =ThisItem.Apellido
                                                                   Width: =Parent.Width
+                                                                  Wrap: =false
                                                       - AdmUsr_CtnInfoCorreo:
                                                           Control: GroupContainer@1.5.0
                                                           Variant: ManualLayout
@@ -813,7 +816,9 @@ Screens:
                                                                 Properties:
                                                                   Size: =Var_FontSizeCuerpoTable
                                                                   Text: =ThisItem.CorreoUsuario
+                                                                  Tooltip: =ThisItem.CorreoUsuario
                                                                   Width: =Parent.Width
+                                                                  Wrap: =false
                                                       - AdmUsr_CtnInfoRol:
                                                           Control: GroupContainer@1.5.0
                                                           Variant: ManualLayout
@@ -828,7 +833,9 @@ Screens:
                                                                   Font: =Font.'Open Sans'
                                                                   Size: =Var_FontSizeCuerpoTable
                                                                   Text: =ThisItem.RolPerfil
+                                                                  Tooltip: =ThisItem.RolPerfil
                                                                   Width: =Parent.Width
+                                                                  Wrap: =false
                                                       - AdmUsr_CtnInfoEstado:
                                                           Control: GroupContainer@1.5.0
                                                           Variant: ManualLayout
@@ -843,7 +850,9 @@ Screens:
                                                                   Align: =Align.Center
                                                                   Size: =Var_FontSizeCuerpoTable
                                                                   Text: =Upper(Left(ThisItem.Estado, 1)) & Lower(Mid(ThisItem.Estado, 2))
+                                                                  Tooltip: =Upper(Left(ThisItem.Estado, 1)) & Lower(Mid(ThisItem.Estado, 2))
                                                                   Width: =Parent.Width
+                                                                  Wrap: =false
                                                       - AdmUsr_CtnGerencia:
                                                           Control: GroupContainer@1.5.0
                                                           Variant: ManualLayout
@@ -858,7 +867,9 @@ Screens:
                                                                   Font: =Font.'Open Sans'
                                                                   Size: =Var_FontSizeCuerpoTable
                                                                   Text: =ThisItem.Gerencia
+                                                                  Tooltip: =ThisItem.Gerencia
                                                                   Width: =Parent.Width
+                                                                  Wrap: =false
                                                       - AdmUsr_CtnInfAcciones:
                                                           Control: GroupContainer@1.5.0
                                                           Variant: ManualLayout
