@@ -603,7 +603,6 @@ Screens:
                                         Properties:
                                           BorderColor: =RGBA(0, 18, 107, 1)
                                           BorderStyle: =BorderStyle.None
-                                          FillPortions: =0
                                           Height: =Parent.Height - Self.Y - 16
                                           Items: =col_gblGerencia
                                           ShowScrollbar: =false
@@ -619,14 +618,21 @@ Screens:
                                               Properties:
                                                 BorderColor: =RGBA(0, 18, 107, 1)
                                                 Height: |-
-                                                  =If(SpvCtg_CtnSubFiltroSubarea.Visible,
-                                                      Min(
-                                                          CountRows(Self.AllItems) * 35, 
-                                                          230
-                                                      ) + SpvCtg_CtnSubFiltroSubarea.Height,
-                                                      Min(
-                                                          CountRows(Self.AllItems) * 35, 
-                                                          230
+                                                  =With(
+                                                      {
+                                                          // 1. Calculamos la altura base de la galería (solo los botones de Área)
+                                                          varBaseHeight: CountRows(Self.AllItems) * 35,
+
+                                                          // 2. Verificamos si el Área actualmente expandida pertenece a esta Gerencia
+                                                          varEsExpandidoAqui: !IsBlank(LookUp(Self.AllItems, Area = ctx_AreaExpandida)),
+
+                                                          // 3. Calculamos dinámicamente la altura de las subáreas (32px por fila aprox)
+                                                          varSubAreaHeight: CountRows(Filter(col_gblAreaSubArea, Area = ctx_AreaExpandida)) * 32
+                                                      },
+                                                      varBaseHeight + If(
+                                                          varEsExpandidoAqui,
+                                                          varSubAreaHeight + 5, // +5px de margen inferior, sin topes exagerados
+                                                          0
                                                       )
                                                   )
                                                 Items: |-
@@ -638,11 +644,10 @@ Screens:
                                                       Area,//ThisRecord.Area
                                                       SortOrder.Ascending
                                                   )
-                                                ShowScrollbar: =false
                                                 TemplateSize: =35
                                                 Visible: =ctx_GerenciaExpandida = ThisItem.Nombre
                                                 Width: =Parent.TemplateWidth
-                                                Y: =35
+                                                Y: =30
                                               Children:
                                                 - SpvCtg_CtnSubFiltroSubarea:
                                                     Control: GroupContainer@1.5.0
@@ -650,19 +655,10 @@ Screens:
                                                     Properties:
                                                       BorderStyle: =BorderStyle.None
                                                       DropShadow: =DropShadow.None
-                                                      Height: |-
-                                                        =Min(
-                                                            CountRows(
-                                                                Filter(
-                                                                    col_gblAreaSubArea,
-                                                                    Area = ThisItem.Area
-                                                                )
-                                                            ) * 35,
-                                                            150
-                                                        ) + 50
+                                                      Height: =(CountRows(Filter(col_gblAreaSubArea,Area=ThisItem.Area))*32)+5
                                                       Visible: =ctx_AreaExpandida = ThisItem.Area
                                                       Width: =310
-                                                      X: =15
+                                                      X: =5
                                                       Y: =SpvCtg_BtnTituloArea.Height
                                                     Children:
                                                       - SpvCtg_TblSubFiltroSubarea:
@@ -670,6 +666,12 @@ Screens:
                                                           Properties:
                                                             EnableRangeSelection: ='PowerAppsOneGrid.EnableRangeSelection'.Disable
                                                             EnableSorting: ='PowerAppsOneGrid.EnableSorting'.Disable
+                                                            Font: =Font.'Open Sans'
+                                                            FontColor: =RGBA(0, 0, 0, 1)
+                                                            FontSize: =12
+                                                            FontWeight: =FontWeight.Normal
+                                                            HeaderFontColor: =RGBA(0, 0, 0, 1)
+                                                            HeaderFontWeight: =FontWeight.Normal
                                                             Height: =Parent.Height
                                                             Items: |-
                                                               =Sort(
@@ -797,7 +799,7 @@ Screens:
                                                       Size: =12
                                                       Text: =ThisItem.Area
                                                       Width: =Parent.Width - 10
-                                                      X: =15
+                                                      X: =3
                                                 - SpvCtg_IcoExpandirArea:
                                                     Control: Classic/Icon@2.5.0
                                                     Properties:
