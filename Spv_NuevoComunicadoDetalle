@@ -45,6 +45,7 @@ Screens:
                             ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
                             Properties:
                               Height: =768
+                              RolUsuario: =Var_RolSistema
                               Width: =If(Gbl_MenuSpvNvCmcDetalle.verMenu,250,70)
                               WidthMenu: =Parent.Width
                               displayNameUser: =User().FullName

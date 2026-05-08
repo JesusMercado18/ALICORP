@@ -68,7 +68,7 @@ Set(
         ComboBox: "Selección Única";
         SiNo: "Sí/No";
         Numerico: "Numérico";
-        Multiselect: "Multiselect";
+        Multiselect: "Selección múltiple";
         Adjunto: "Adjunto";
         Multiline: "Texto largo";
         URL: "URL";
@@ -257,7 +257,6 @@ Set(
     First(Sort(colRolesUsuario; JerarquiaRol; SortOrder.Descending)).Rol
 );;
 
-
 // =========================================================================
 // 4. COLECCIONES DE CATÁLOGOS MAESTROS
 // =========================================================================
@@ -265,12 +264,9 @@ ClearCollect(colPrioridades; ["Alto"; "Medio"; "Bajo"]);;
 ClearCollect(colCategorias; ["Certificados"; "Otros servicios"; "Anulación de comprobantes"; "Auto detracciones"]);;
 ClearCollect(colAreasTicket; Distinct('LCP-001_List_AreaSubArea'; Area));;
 ClearCollect(colAreasTicketSpv; Distinct('LCP-001_List_AreaSubArea'; Area));; // INTEGRADO
-
 ClearCollect(colEstados; 'LCP-001_List_Estado');;
 ClearCollect(colEstadosSpv; 'LCP-001_List_Estado');; // INTEGRADO
-
 ClearCollect(colEstadosSpvTicket; 'LCP-001_List_Estado');;
-
 
 // =========================================================================
 // 5. COLECCIONES DE NAVEGACIÓN (MENÚS POR ROL)
@@ -306,17 +302,17 @@ ClearCollect(colMenuSol;
 ClearCollect(colMenuAdm;
 {Title: "Home";          Id: 1; Pantalla: Gbl_Home; Ico: home; child: false; itemsSubChild: Table()};
 {Title: "Catálogo";      Id: 2; Pantalla: Gbl_Catalogo; Ico: catalogo; child: false; itemsSubChild: Table()};
-{Title: "Ticket";        Id: 3; Pantalla: App.ActiveScreen; Ico: ticket; child: false; itemsSubChild: Table()};
-{Title: "Configuración"; Id: 4; Pantalla: App.ActiveScreen; Ico: configuracion; child: true; 
+{Title: "Ticket";        Id: 3; Pantalla: Blank(); Ico: ticket; child: false; itemsSubChild: Table()};
+{Title: "Configuración"; Id: 4; Pantalla: Blank(); Ico: configuracion; child: true; 
         itemsSubChild: [
                         { Title: "Solicitudes"; Id: 4,1; Pantalla: Adm_TipoSolicitudes};
-                        { Title: "Notificaciones";     Id: 4,2; Pantalla: App.ActiveScreen};
-                        { Title: "Catálogos del sistema"; Id: 4,3; Pantalla: App.ActiveScreen}
+                        { Title: "Notificaciones";     Id: 4,2; Pantalla: Blank()};
+                        { Title: "Catálogos del sistema"; Id: 4,3; Pantalla: Blank()}
                        ]
 };
 {Title: "Comunicados";   Id: 5; Pantalla: Gbl_Comunicado; Ico: comunicados; child: false; itemsSubChild: Table()};
 {Title: "Soluciones";    Id: 6; Pantalla: Gbl_Soluciones; Ico: soluciones; child: false; itemsSubChild: Table()};
-{Title: "Usuarios";    Id: 7; Pantalla: App.ActiveScreen; Ico: soluciones; child: false; itemsSubChild: Table()}
+{Title: "Usuarios";    Id: 7; Pantalla: Blank(); Ico: soluciones; child: false; itemsSubChild: Table()}
 );;
 
 
@@ -346,85 +342,11 @@ ClearCollect(
 );;
 
 // --- Queries SUPERVISOR ---
-ClearCollect(colQuerysSpvCatalogoServicio;
-    {input: "ID";                      mark: false; query: "" };
-    {input: "Gerencia";                mark: false; query: "" };
-    {input: "Prioridad";               mark: false; query: "" };
-    {input: "AnalistaRol";             mark: false; query: "" };
-    {input: "Aprobacion";              mark: false; query: "" };
-    {input: "SLA";                     mark: false; query: "" };
-    {input: "Estado";                  mark: true; query: "Estado eq 'Activo'" };
-    {input: "Descripcion";             mark: false; query: "" };
-    {input: "VistoBueno";              mark: false; query: "" };
-    {input: "CamposAdicionalesTicket"; mark: false; query: "" };
-    {input: "Codigo";                  mark: false; query: "" };
-    {input: "Area";                    mark: false; query: "" };
-    {input: "SubArea";                 mark: false; query: "" };
-    {input: "TipoSolicitud";           mark: false; query: "" };
-    {input: "CabeceraPaisSociedad";    mark: false; query: "" }
-);;
 
-ClearCollect(colQuerysSpvTicket;
-    { input: "ID";                mark: false; query: "" };
-    { input: "Gerencia";          mark: false; query: "" };
-    { input: "Area";              mark: false; query: "" };
-    { input: "Subarea";           mark: false; query: "" };
-    { input: "Pais";              mark: false; query: "" };
-    { input: "Sociedad";          mark: false; query: "" };
-    { input: "Prioridad";         mark: false; query: "" };
-    { input: "AnalistaRol";       mark: false; query: "" };
-    { input: "Aprobacion";        mark: false; query: "" };
-    { input: "SLA";               mark: false; query: "" };
-    { input: "SolicitanteCorreo"; mark: false; query: "" };
-    { input: "SolicitanteNombre"; mark: false; query: "" };
-    { input: "SolicitantePais";   mark: false; query: "" };
-    { input: "NombreAtendidoPor"; mark: false; query: "" };
-    { input: "CorreoAtendidoPor"; mark: false; query: "" };
-    { input: "Codigo";            mark: false; query: "" };
-    { input: "SolicitanteNombre"; mark: false; query: "" };
-    { input: "FechaCreado";       mark: false; query: "" };
-    { input: "Estado";            mark: false; query: "" };
-    { input: "Categoria";         mark: false; query: "" };
-    { input: "Prioridad";         mark: false; query: "" };
-    { input: "AprobadorNombre";   mark: false; query: "" };
-    { input: "TipoRequerimiento"; mark: false; query: "" };
-    { input: "AnalistaCorreo";    mark: false; query: "(AnalistaCorreo eq 'test@alicorp.pe' or SolicitanteCorreo eq 'test@alicorp.pe')"}
-);;
 
-ClearCollect(colQuerysSpvComunicados;
-    { input: "ID";               mark: false; query: "" };
-    { input: "Gerencia";         mark: true; query: "(substringof('" & Var_ProfileUser.Gerencia & "', Gerencia) or Gerencia eq 'Todos' or Gerencia eq null)" };
-    { input: "Pais";             mark: true; query: "(substringof('" & Var_ProfileUser.Pais & "', Pais) or Pais eq 'Todos' or Pais eq null)" };
-    { input: "Cabecera";         mark: false; query: "" };
-    { input: "Cuerpo";           mark: false; query: "" };
-    { input: "Imagen";           mark: false; query: "" };
-    { input: "UsuarioCreador";   mark: false; query: "" };
-    { input: "FechaCreacion";    mark: false; query: "" };
-    { input: "FechaFin";         mark: false; query: "" };
-    { input: "Estado";           mark: true; query: "Estado eq 'Vigente'" };
-    { input: "EstadoComunicado"; mark: true; query: "EstadoComunicado eq 'Activo'" };
-    { input: "EsVisibleHoy";     mark: true; query: "EsVisibleHoy eq 1" };
-    { input: "Creado";           mark: false; query: "" };
-    { input: "FechaInicio";      mark: false; query: "" };
-    { input: "DiaInicio";        mark: false; query: "" };
-    { input: "DiaFin";           mark: false; query: "" };
-    { input: "MesInicio";        mark: false; query: "" };
-    { input: "MesFin";           mark: false; query: "" };
-    { input: "Recurrente";       mark: false; query: "" };
-    { input: "DatosAdjuntos";    mark: false; query: "" }
-);;
 
-ClearCollect(colQuerysSpvSoluciones;
-    { input: "ID";            mark: false; query: "" };
-    { input: "NombreAdjunto"; mark: false; query: "" };
-    { input: "RutaAdjunto";   mark: false; query: "" };
-    { input: "Estado";        mark: false; query: "" };
-    { input: "Gerencia";      mark: false; query: "" };
-    { input: "Area";          mark: false; query: "" };
-    { input: "Autor";         mark: false; query: "" };
-    { input: "Subarea";       mark: false; query: "" };
-    { input: "Descripcion";   mark: false; query: "" }
-);;
+
+
 
 // --- Queries ADMINISTRADOR (Mantenidas del Script 1) ---
 ClearCollect(Col_Adm_QueryTicket;

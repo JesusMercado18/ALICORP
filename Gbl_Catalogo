@@ -6,21 +6,43 @@ Screens:
       OnVisible: |-
         =UpdateContext({ 
             menuSelected: 2,
+            ctx_TextoBuscadoTemporal: Blank(),
             Var_Ctx_MostrarItemsCatalogoSpv: false,
             Var_Ctx_TicketPopulares: true,
             Var_Ctx_Gerencias: false,
             Var_Ctx_Areas: false,
             Var_Ctx_GerenciaSeleccionada: Blank(),
             Var_Ctx_AreaSeleccionada: Blank(),
+            Var_Ctx_SubAreaSeleccionada: Blank(),
             ctx_GerenciaExpandida: Blank(),
-            Var_Ctx_SpvModal_VerDetalle: false
+            ctx_AreaExpandida: Blank(),
+            Var_Ctx_SpvModal_VerDetalle: false,
+            Var_MostrarSimilitudes: false
         });
-
         // 2. Limpiar selecciones visuales explícitas en las Galerías (UI Reset)
         // Nota: Resetear la galería padre reinicia implícitamente la galería anidada de Áreas
         Reset(SpvCtg_GalFiltrosGerencia);
         Reset(SpvCtg_GalItemsCatalogoServicio);
+        Reset(SpvCtg_TxtIBuscar);
         Set(Var_SpvCatalogoServicioSeleccionada, Blank());
+
+        ClearCollect(colQuerysSpvCatalogoServicio,
+            {input: "ID",                      mark: false, query: "" },
+            {input: "Gerencia",                mark: false, query: "" },
+            {input: "Prioridad",               mark: false, query: "" },
+            {input: "AnalistaRol",             mark: false, query: "" },
+            {input: "Aprobacion",              mark: false, query: "" },
+            {input: "SLA",                     mark: false, query: "" },
+            {input: "Estado",                  mark: true, query: "Estado eq 'Activo'" },
+            {input: "Descripcion",             mark: false, query: "" },
+            {input: "VistoBueno",              mark: false, query: "" },
+            {input: "CamposAdicionalesTicket", mark: false, query: "" },
+            {input: "Codigo",                  mark: false, query: "" },
+            {input: "Area",                    mark: false, query: "" },
+            {input: "SubArea",                 mark: false, query: "" },
+            {input: "TipoSolicitud",           mark: false, query: "" },
+            {input: "CabeceraPaisSociedad",    mark: false, query: "" }
+        );
 
         // 3. Asegurar que los filtros OData regresen a estado 0
         Patch(
@@ -31,6 +53,16 @@ Screens:
         Patch(
             colQuerysSpvCatalogoServicio, 
             LookUp(colQuerysSpvCatalogoServicio, input = "Area"), 
+            {mark: false, query: ""}
+        );
+        Patch(
+            colQuerysSpvCatalogoServicio,
+            LookUp(colQuerysSpvCatalogoServicio, input = "SubArea"),
+            {mark: false, query: ""}
+        );
+        Patch(
+            colQuerysSpvCatalogoServicio, 
+            LookUp(colQuerysSpvCatalogoServicio, input = "TipoSolicitud"), 
             {mark: false, query: ""}
         );
 
@@ -100,7 +132,8 @@ Screens:
                           CamposAdicionalesTicket: Text(ThisRecord.Value.CamposAdicionalesTicket),
                           Codigo: Text(ThisRecord.Value.Codigo),
                           TipoSolicitud: Text(ThisRecord.Value.TipoSolicitud),
-                          CabeceraPaisSociedad: Text(ThisRecord.Value.CabeceraPaisSociedad)
+                          CabeceraPaisSociedad: Text(ThisRecord.Value.CabeceraPaisSociedad),
+                          Categoria: Text(ThisRecord.Value.Categoria)
                       }
                   )
               );
@@ -157,30 +190,18 @@ Screens:
                         LayoutMinWidth: =16
                         Width: =If(Var_OpenMenu,250,100)
                       Children:
-                        - Gbl_App_Menu_2:
-                            Control: CanvasComponent
-                            ComponentName: Gbl_App_Menu
-                            Properties:
-                              Height: =768
-                              Width: =If(Var_OpenMenu,250,70)
-                              WidthMenu: =Parent.Width
-                              displayNameUser: =User().FullName
-                              itemsMenu: =colMenuGeneral
-                              menuSelected: =menuSelected
-                              openMenu: =Set(Var_OpenMenu, !Var_OpenMenu)
-                              verMenu: =Var_OpenMenu
                         - Gbl_Menu_Spv_CatalogoServicio:
                             Control: CanvasComponent
                             ComponentName: Gbl_Menu
                             ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
                             Properties:
                               Height: =768
-                              Visible: =false
+                              RolUsuario: =Var_RolSistema
                               Width: =If(Gbl_Menu_Spv_CatalogoServicio.verMenu,250,70)
                               WidthMenu: =Parent.Width
-                              displayNameUser: =User().FullName
+                              displayNameUser: =Var_ProfileUser.'Nombre (Nombre0)'
                               itemsMenu: =colMenuGeneral
-                              menuSelected: =menuSelected
+                              menuSelected: ="Catálogo"
                               openMenu: =Set(Var_OpenMenu, !Var_OpenMenu)
                               verMenu: =Var_OpenMenu
                   - SpvCtg_CtnMain:
@@ -575,7 +596,8 @@ Screens:
                                                       Var_Ctx_Areas: false,
                                                       Var_Ctx_GerenciaSeleccionada: Blank(),
                                                       Var_Ctx_AreaSeleccionada: Blank(),
-                                                      ctx_GerenciaExpandida: Blank() // Forzamos el cierre del acordeón de Gerencias
+                                                      ctx_GerenciaExpandida: Blank(), // Forzamos el cierre del acordeón de Gerencias
+                                                      ctx_AreaExpandida: Blank()
                                                   });
 
                                                   // 2. Limpiar selecciones visuales explícitas de las galerías para no arrastrar filtros gráficos
@@ -655,6 +677,63 @@ Screens:
                                                 Width: =Parent.TemplateWidth
                                                 Y: =35
                                               Children:
+                                                - SpvCtg_GalSubFiltroSubarea:
+                                                    Control: Table@1.0.278
+                                                    Properties:
+                                                      EnableRangeSelection: ='PowerAppsOneGrid.EnableRangeSelection'.Disable
+                                                      EnableSorting: ='PowerAppsOneGrid.EnableSorting'.Disable
+                                                      Font: =Font.'Open Sans'
+                                                      HeaderFont: =Font.'Open Sans'
+                                                      Height: =150
+                                                      Items: |-
+                                                        =Sort(
+                                                            Filter(
+                                                                col_gblAreaSubArea,
+                                                                ThisItem.Area = ThisItem.Area
+                                                            ),
+                                                            ThisRecord.SubArea,
+                                                            SortOrder.Ascending
+                                                        )
+                                                      OnSelect: |-
+                                                        =// 1. Guardar contexto de la selección
+                                                        UpdateContext({
+                                                            Var_Ctx_SubAreaSeleccionada: Self.Selected.SubArea
+                                                        });
+
+                                                        // 2. Inyectar parámetro exacto en el motor OData
+                                                        Patch(
+                                                            colQuerysSpvCatalogoServicio,
+                                                            LookUp(colQuerysSpvCatalogoServicio, input = "SubArea"),
+                                                            {
+                                                                mark: true,
+                                                                query: "SubArea eq '" & Self.Selected.SubArea & "'"
+                                                            }
+                                                        );
+
+                                                        // 3. Resetear motor de paginación y llamar al flujo
+                                                        Set(Var_CurrentPageSpvCatalogoServicio, 1);
+                                                        Set(Var_TargetIDSpvCatalogoServicio, 0);
+                                                        Set(Var_DirectionSpvCatalogoServicio, "NEXT");
+                                                        Set(Var_IsIndividualSpvCatalogoServicio, false);
+
+                                                        Select(Spv_BtnMotorPaginacionCatalogoServicio)
+                                                      ReflowBehavior: ='PowerAppsOneGrid.ReflowBehavior'.GridOnly
+                                                      ShowAvatar: ="no"
+                                                      ShowColumnHeaders: ="no"
+                                                      ShowFooter: ="no"
+                                                      Width: =If(Self.X + 800 > Parent.Width, Parent.Width - Self.X, 800) + 18
+                                                      Y: =SpvCtg_BtnTituloArea.Height + 5
+                                                    Children:
+                                                      - SubArea1:
+                                                          Control: TableDataField@1.5.0
+                                                          Variant: textualColumn
+                                                          Properties:
+                                                            CanGrow: =false
+                                                            FieldDisplayName: ="SubArea"
+                                                            FieldName: ="SubArea"
+                                                            FieldType: ="s"
+                                                            Order: =1
+                                                            Width: =Parent.Width
                                                 - SpvCtg_BtnTituloArea:
                                                     Control: Classic/Button@2.2.0
                                                     Properties:
@@ -683,11 +762,20 @@ Screens:
                                                       HoverColor: =RGBA(50, 49, 48, 1)
                                                       HoverFill: =RGBA(243, 242, 241, 1)
                                                       OnSelect: |-
-                                                        =UpdateContext({
+                                                        =// 1. Manejo del estado del Acordeón (Expandir/Contraer)
+                                                        UpdateContext({ 
+                                                            ctx_AreaExpandida: If(
+                                                                ctx_AreaExpandida = ThisItem.Area, 
+                                                                Blank(), 
+                                                                ThisItem.Area
+                                                            ) 
+                                                        });
+                                                        UpdateContext({
                                                             Var_Ctx_Areas: true,
                                                             Var_Ctx_Gerencias: true,
                                                             Var_Ctx_TicketPopulares: false,
-                                                            Var_Ctx_AreaSeleccionada: ThisItem.Area
+                                                            Var_Ctx_AreaSeleccionada: ThisItem.Area,
+                                                            Var_Ctx_SubAreaSeleccionada: Blank()
                                                         });
                                                         UpdateContext({locTabSeleccionado: ThisItem.Area});
 
@@ -709,7 +797,7 @@ Screens:
                                                                 query: "Area eq '" & ThisItem.Area & "'"
                                                             }
                                                         );
-
+                                                        Patch(colQuerysSpvCatalogoServicio, LookUp(colQuerysSpvCatalogoServicio, input = "SubArea"), {mark: false, query: ""}); //
                                                         Patch(colQuerysSpvCatalogoServicio, LookUp(colQuerysSpvCatalogoServicio, input = "TipoSolicitud"), {mark: false, query: ""});
                                                         // 2. Reseteamos el motor de Paginación
                                                         Set(Var_CurrentPageSpvCatalogoServicio, 1);
@@ -777,7 +865,8 @@ Screens:
                                                           ctx_GerenciaExpandida = ThisItem.Nombre, 
                                                           Blank(), 
                                                           ThisItem.Nombre
-                                                      ) 
+                                                      ),
+                                                      ctx_AreaExpandida: Blank() 
                                                   });
                                                   UpdateContext({locTabSeleccionado: ThisItem.Nombre});
 
@@ -787,7 +876,8 @@ Screens:
                                                       Var_Ctx_Areas: false,
                                                       Var_Ctx_TicketPopulares: false,
                                                       Var_Ctx_GerenciaSeleccionada: ThisItem.Nombre,
-                                                      Var_Ctx_AreaSeleccionada: Blank()
+                                                      Var_Ctx_AreaSeleccionada: Blank(),
+                                                      Var_Ctx_SubAreaSeleccionada: Blank()
                                                   });
 
                                                   // 3. Aplicar filtro OData SOLO para Gerencia y limpiar el Área
@@ -801,7 +891,7 @@ Screens:
                                                       LookUp(colQuerysSpvCatalogoServicio, input = "Area"), 
                                                       {mark: false, query: ""}
                                                   );
-
+                                                  Patch(colQuerysSpvCatalogoServicio, LookUp(colQuerysSpvCatalogoServicio, input = "SubArea"), {mark: false, query: ""});
                                                   Patch(colQuerysSpvCatalogoServicio, LookUp(colQuerysSpvCatalogoServicio, input = "TipoSolicitud"), {mark: false, query: ""});
                                                   // 4. Reiniciar Motor de Paginación a su estado inicial
                                                   Set(Var_CurrentPageSpvCatalogoServicio, 1);
@@ -1037,7 +1127,6 @@ Screens:
                                                             Sequence(RoundUp(TotalItemSpvCatalogoServicio / Var_GridPageSizeSpvCatalogoServicio, 0), 1),
                                                             [1] // Devuelve una secuencia de una sola página en la renderización inicial
                                                         )
-                                                      ShowNavigation: =true
                                                       TemplateSize: =30
                                                       Width: |-
                                                         =With(
@@ -1490,6 +1579,25 @@ Screens:
                         Size: =12
                         Text: =ThisItem.Value
                         Width: =Parent.TemplateWidth
+            - SpvCtg_LblSinResultados:
+                Control: Label@2.5.1
+                Properties:
+                  Align: =Align.Center
+                  BorderColor: =RGBA(0, 0, 0, 0)
+                  BorderStyle: =BorderStyle.None
+                  BorderThickness: =2
+                  Color: =RGBA(50, 49, 48, 1)
+                  DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                  DisabledColor: =RGBA(161, 159, 157, 1)
+                  FocusedBorderThickness: =4
+                  Font: =Font.'Open Sans'
+                  Height: =20
+                  Size: =12
+                  Text: ="No se encuentran resultados para la búsqueda actual."
+                  Visible: =CountRows(SpvCtg_GalSimilitudGerencia.AllItems) = 0 And Not(IsBlank(SpvCtg_TxtIBuscar.Text))
+                  Width: =Parent.Width
+                  Wrap: =false
+                  Y: =55
       - SpvCtg_CtnModalVerDetalle:
           Control: GroupContainer@1.5.0
           Variant: ManualLayout
@@ -2116,7 +2224,8 @@ Screens:
                                         Ctx_StrGerencia: Text(varGerenciaSelected.Nombre),
                                         Ctx_StrArea: varUpdateAreaSelected.Area,
                                         Ctx_StrSubArea: varUpdateSubAreaSelected.SubArea,
-                                        Ctx_StrTipoSol: varUpdateTipoSolicitud
+                                        Ctx_StrTipoSol: varUpdateTipoSolicitud,
+                                        Ctx_StrCategoria: Var_SpvCatalogoServicioSeleccionada.Categoria
                                     }
                                 )
                               PressedBorderColor: =Self.PressedFill

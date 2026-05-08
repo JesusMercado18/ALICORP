@@ -3,7 +3,18 @@ Screens:
     Properties:
       LoadingSpinnerColor: =RGBA(56, 96, 178, 1)
       OnVisible: |-
-        =UpdateContext({ menuSelected: 3});
+        =UpdateContext({ menuSelected: 3 , varOpenDropDownEstado: false , varOpenDropDown: false , varUserSelected: Blank() , varEstadoSelected: Blank() , Var_Ctx_MostrarFiltrosTicket: false   });
+        // Reset de filtros:
+
+        If(Spv_IcoLimpiarFechaTicket.Visible, Select(Spv_IcoLimpiarFechaTicket));
+        Set(Var_FiltroGerencia, Blank()); 
+        Set(Var_FiltroArea, Blank()); 
+        Set(Var_FiltroSubArea, Blank());
+
+        Set(Var_FiltroRequerimiento, Blank());
+        Set(Var_AtendidoPor, Blank());
+        Reset(Spv_TxtBuscarUsuarioTicket);
+
 
         Set(Var_GridPageSizeSpv, 5);
         Set(Var_CurrentPageSpv, 1);
@@ -11,6 +22,38 @@ Screens:
         Set(Var_TargetIDSpv, 0);
         Set(Var_DirectionSpv, "NEXT");
         Set(Var_IsIndividualSpv, false);
+
+
+
+        ClearCollect(colQuerysSpvTicket,
+            { input: "ID",                mark: false, query: "" },
+            { input: "Gerencia",          mark: false, query: "" },
+            { input: "Area",              mark: false, query: "" },
+            { input: "Subarea",           mark: false, query: "" },
+            { input: "Pais",              mark: false, query: "" },
+            { input: "Sociedad",          mark: false, query: "" },
+            { input: "Prioridad",         mark: false, query: "" },
+            { input: "AnalistaRol",       mark: false, query: "" },
+            { input: "Aprobacion",        mark: false, query: "" },
+            { input: "SLA",               mark: false, query: "" },
+            { input: "SolicitanteCorreo", mark: false, query: "" },
+            { input: "SolicitanteNombre", mark: false, query: "" },
+            { input: "SolicitantePais",   mark: false, query: "" },
+            { input: "NombreAtendidoPor", mark: false, query: "" },
+            { input: "CorreoAtendidoPor", mark: false, query: "" },
+            { input: "Codigo",            mark: false, query: "" },
+            { input: "SolicitanteNombre", mark: false, query: "" },
+            { input: "FechaCreado",       mark: false, query: "" },
+            { input: "Estado",            mark: false, query: "" },
+            { input: "Categoria",         mark: false, query: "" },
+            { input: "Prioridad",         mark: false, query: "" },
+            { input: "AprobadorNombre",   mark: false, query: "" },
+            { input: "TipoRequerimiento", mark: false, query: "" },
+            //{ input: "AnalistaCorreo";    mark: false; query: "(AnalistaCorreo eq 'test@alicorp.pe' or SolicitanteCorreo eq 'test@alicorp.pe')"}
+            { input: "AnalistaCorreo",    mark: false, query: "(AnalistaCorreo eq '"&Var_ProfileUser.CorreoUsuario&"' or SolicitanteCorreo eq 'test@alicorp.pe')"}
+        );
+
+
         Select(Spv_btn_MotorPaginacion); // <--- Ejecuta la lógica
 
         ClearCollect(colFiltrosTicketSpv,
@@ -162,11 +205,12 @@ Screens:
                             ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
                             Properties:
                               Height: =Parent.Height
+                              RolUsuario: =Var_RolSistema
                               Width: =Parent.Width
                               WidthMenu: =100
                               displayNameUser: =Var_UserProfile.FullName
                               itemsMenu: =colMenuGeneral
-                              menuSelected: =menuSelected
+                              menuSelected: ="Ticket"
                               openMenu: =Set(Var_OpenMenu, !Var_OpenMenu)
                               verMenu: =Var_OpenMenu
                   - Spv_CtnGestionTicket:
@@ -779,7 +823,6 @@ Screens:
                                                       Sequence(RoundUp(TotalItemSpv / Var_GridPageSizeSpv, 0), 1),
                                                       [1] // Devuelve una secuencia de una sola página mientras carga
                                                   )
-                                                ShowNavigation: =true
                                                 TemplateSize: =30
                                                 Width: |-
                                                   =With(
@@ -1371,7 +1414,6 @@ Screens:
                                                             LayoutMinHeight: =16
                                                             LayoutMinWidth: =16
                                                             OnSelect: =Select(Spv_GalItemsTicket)
-                                                            Overflow: =Overflow.Scroll
                                                             Size: =Var_FontSizeCuerpoTable
                                                             Text: =ThisItem.Categoria
                                                             Tooltip: =Self.Text
@@ -1397,7 +1439,6 @@ Screens:
                                                             LayoutMinHeight: =16
                                                             LayoutMinWidth: =16
                                                             OnSelect: =Select(Spv_GalItemsTicket)
-                                                            Overflow: =Overflow.Scroll
                                                             Size: =Var_FontSizeCuerpoTable
                                                             Text: =ThisItem.TipoSolicitud
                                                             Width: =0
@@ -1411,7 +1452,6 @@ Screens:
                                                             LayoutMinHeight: =16
                                                             LayoutMinWidth: =16
                                                             OnSelect: =Select(Spv_GalItemsTicket)
-                                                            Overflow: =Overflow.Scroll
                                                             Size: =Var_FontSizeCuerpoTable
                                                             Text: =ThisItem.SolicitanteNombre
                                                             Tooltip: =Self.Text
@@ -1425,7 +1465,6 @@ Screens:
                                                             LayoutMinHeight: =16
                                                             LayoutMinWidth: =16
                                                             OnSelect: =Select(Spv_GalItemsTicket)
-                                                            Overflow: =Overflow.Scroll
                                                             Size: =Var_FontSizeCuerpoTable
                                                             Text: =ThisItem.NombreAtendidoPor
                                                             Tooltip: =Self.Text

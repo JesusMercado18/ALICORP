@@ -33,6 +33,18 @@ Screens:
         Reset(SpvSlc_LblCampoSeleccionarEstado);
         Reset(SpvSlc_AtchAdjuntoNuevaSolucion);
 
+        ClearCollect(colQuerysSpvSoluciones,
+            { input: "ID",            mark: false, query: "" },
+            { input: "NombreAdjunto", mark: false, query: "" },
+            { input: "RutaAdjunto",   mark: false, query: "" },
+            { input: "Estado",        mark: false, query: "" },
+            { input: "Gerencia",      mark: false, query: "" },
+            { input: "Area",          mark: false, query: "" },
+            { input: "Autor",         mark: false, query: "" },
+            { input: "Subarea",       mark: false, query: "" },
+            { input: "Descripcion",   mark: false, query: "" }
+        );
+
         //----Variables respuesta flujo----
         Set(Var_GridPageSizeSpvSoluciones, 5);
         Set(Var_ResponseSpvSoluciones,
@@ -117,11 +129,12 @@ Screens:
                             ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
                             Properties:
                               Height: =768
+                              RolUsuario: =Var_RolSistema
                               Width: =If(Gbl_MenuSpvSoluciones.verMenu,250,70)
                               WidthMenu: =Parent.Width
-                              displayNameUser: =User().FullName
+                              displayNameUser: =Var_ProfileUser.'Nombre (Nombre0)'
                               itemsMenu: =colMenuGeneral
-                              menuSelected: =menuSelected
+                              menuSelected: ="Soluciones"
                               openMenu: =Set(Var_OpenMenu, !Var_OpenMenu)
                               verMenu: =Var_OpenMenu
                   - SpvSlc_CtnMain:
@@ -438,10 +451,11 @@ Screens:
                                                     Properties:
                                                       AlignInContainer: =AlignInContainer.Center
                                                       DropShadow: =DropShadow.None
+                                                      FillPortions: =0
                                                       Height: =Parent.Height
                                                       LayoutMinHeight: =Parent.Height
                                                       LayoutMinWidth: =0
-                                                      Width: =300
+                                                      Width: =200
                                                     Children:
                                                       - SpvSlc_LblColDocumentosCargados:
                                                           Control: Label@2.5.1
@@ -453,19 +467,19 @@ Screens:
                                                             Size: =Var_FontSizeHeaderTable
                                                             Text: ="Título"
                                                             Width: =Parent.Width
-                                                - SpvSlc_CtnColEstado:
+                                                - SpvSlc_CtnColDescripcion:
                                                     Control: GroupContainer@1.5.0
                                                     Variant: ManualLayout
                                                     Properties:
-                                                      AlignInContainer: =AlignInContainer.SetByContainer
+                                                      AlignInContainer: =AlignInContainer.Center
                                                       DropShadow: =DropShadow.None
+                                                      FillPortions: =0
                                                       Height: =Parent.Height
-                                                      LayoutMaxWidth: =101
-                                                      LayoutMinHeight: =16
+                                                      LayoutMinHeight: =Parent.Height
                                                       LayoutMinWidth: =0
-                                                      Width: =110
+                                                      Width: =200
                                                     Children:
-                                                      - SpvSlc_LblColEstado:
+                                                      - SpvSlc_LblColDescripcion:
                                                           Control: Label@2.5.1
                                                           Properties:
                                                             BorderColor: =RGBA(0, 18, 107, 1)
@@ -481,10 +495,11 @@ Screens:
                                                     Properties:
                                                       AlignInContainer: =AlignInContainer.SetByContainer
                                                       DropShadow: =DropShadow.None
+                                                      FillPortions: =0
                                                       Height: =Parent.Height
                                                       LayoutMinHeight: =16
                                                       LayoutMinWidth: =16
-                                                      Width: =200
+                                                      Width: =130
                                                     Children:
                                                       - SpvSlc_LblColGerencia:
                                                           Control: Label@2.5.1
@@ -496,18 +511,20 @@ Screens:
                                                             Size: =Var_FontSizeHeaderTable
                                                             Text: ="Gerencia"
                                                             Width: =Parent.Width
-                                                - SpvSlc_CtnColTorre:
+                                                - SpvSlc_CtnColArea:
                                                     Control: GroupContainer@1.5.0
                                                     Variant: ManualLayout
                                                     Properties:
                                                       AlignInContainer: =AlignInContainer.Center
                                                       DropShadow: =DropShadow.None
+                                                      FillPortions: =0
                                                       Height: =Parent.Height
                                                       LayoutMaxWidth: =250
                                                       LayoutMinHeight: =16
                                                       LayoutMinWidth: =16
+                                                      Width: =130
                                                     Children:
-                                                      - SpvSlc_LblColTorre:
+                                                      - SpvSlc_LblColArea:
                                                           Control: Label@2.5.1
                                                           Properties:
                                                             BorderColor: =RGBA(0, 18, 107, 1)
@@ -517,19 +534,20 @@ Screens:
                                                             Size: =Var_FontSizeHeaderTable
                                                             Text: ="Área"
                                                             Width: =Parent.Width
-                                                - SpvSlc_CtnColAutor:
+                                                - SpvSlc_CtnColSubarea:
                                                     Control: GroupContainer@1.5.0
                                                     Variant: ManualLayout
                                                     Properties:
                                                       AlignInContainer: =AlignInContainer.SetByContainer
                                                       DropShadow: =DropShadow.None
+                                                      FillPortions: =0
                                                       Height: =Parent.Height
                                                       LayoutMaxWidth: =250
                                                       LayoutMinHeight: =16
                                                       LayoutMinWidth: =16
-                                                      Width: =120
+                                                      Width: =130
                                                     Children:
-                                                      - SpvSlc_LblColAutor:
+                                                      - SpvSlc_LblColSubarea:
                                                           Control: Label@2.5.1
                                                           Properties:
                                                             BorderColor: =RGBA(0, 18, 107, 1)
@@ -560,7 +578,7 @@ Screens:
                                                             FontWeight: =FontWeight.Semibold
                                                             Height: =Parent.Height
                                                             Size: =Var_FontSizeHeaderTable
-                                                            Text: =
+                                                            Text: ="Acciones"
                                                             Width: =Parent.Width
                                           - SpvSlc_GlrSoluciones:
                                               Control: Gallery@2.15.0
@@ -603,6 +621,7 @@ Screens:
                                                           Variant: ManualLayout
                                                           Properties:
                                                             DropShadow: =DropShadow.None
+                                                            FillPortions: =1.04
                                                             LayoutMaxHeight: =50
                                                             LayoutMinHeight: =16
                                                             LayoutMinWidth: =16
@@ -659,7 +678,7 @@ Screens:
                                                             DropShadow: =DropShadow.None
                                                             Height: =30
                                                             LayoutMaxHeight: =30
-                                                            LayoutMaxWidth: =90
+                                                            LayoutMaxWidth: =100
                                                             LayoutMinHeight: =16
                                                             LayoutMinWidth: =16
                                                             RadiusBottomLeft: =10
@@ -667,6 +686,7 @@ Screens:
                                                             RadiusTopLeft: =10
                                                             RadiusTopRight: =10
                                                             Width: =100
+                                                            X: =
                                                           Children:
                                                             - SpvSlc_LblInfoDescripcion:
                                                                 Control: Label@2.5.1
@@ -678,7 +698,7 @@ Screens:
                                                                   Size: =Var_FontSizeCuerpoTable
                                                                   Text: =ThisItem.Descripcion
                                                                   Tooltip: =ThisItem.Descripcion
-                                                                  Width: =90
+                                                                  Width: =Parent.Width
                                                                   Wrap: =false
                                                       - SpvSlc_CtnInfoGerencia:
                                                           Control: GroupContainer@1.5.0
@@ -1420,7 +1440,6 @@ Screens:
                                                       Sequence(RoundUp(TotalItemSpvSoluciones / Var_GridPageSizeSpvSoluciones, 0), 1),
                                                       [1] // Secuencia segura inicial
                                                   )
-                                                ShowNavigation: =true
                                                 TemplateSize: =30
                                                 Width: |-
                                                   =With(

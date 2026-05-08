@@ -47,11 +47,12 @@ Screens:
                             ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
                             Properties:
                               Height: =Parent.Height
+                              RolUsuario: =Var_RolSistema
                               Width: =If(Var_OpenMenu,250,70)
                               WidthMenu: =100
                               displayNameUser: =Var_UserProfile.FullName
                               itemsMenu: =colMenuGeneral
-                              menuSelected: =menuSelected
+                              menuSelected: =""
                               openMenu: =Set(Var_OpenMenu, !Var_OpenMenu)
                               verMenu: =Var_OpenMenu
                   - Container50_13:

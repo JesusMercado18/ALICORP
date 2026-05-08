@@ -14,6 +14,29 @@ Screens:
         UpdateContext({var_RangeDatePicker_SelectMonthYear : false });
         UpdateContext({Var_SpvCmcDisplayModeArea: false});
         UpdateContext({Var_SpvCmcLoadingSpinnerVisible: true});
+
+        ClearCollect(colQuerysSpvComunicados,
+            { input: "ID",               mark: false, query: "" },
+            { input: "Gerencia",         mark: true, query: "(substringof('" & Var_ProfileUser.Gerencia & "', Gerencia) or Gerencia eq 'Todos' or Gerencia eq null)" },
+            { input: "Pais",             mark: true, query: "(substringof('" & Var_ProfileUser.Pais & "', Pais) or Pais eq 'Todos' or Pais eq null)" },
+            { input: "Cabecera",         mark: false, query: "" },
+            { input: "Cuerpo",           mark: false, query: "" },
+            { input: "Imagen",           mark: false, query: "" },
+            { input: "UsuarioCreador",   mark: false, query: "" },
+            { input: "FechaCreacion",    mark: false, query: "" },
+            { input: "FechaFin",         mark: false, query: "" },
+            { input: "Estado",           mark: true, query: "Estado eq 'Vigente'" },
+            { input: "EstadoComunicado", mark: true, query: "EstadoComunicado eq 'Activo'" },
+            { input: "EsVisibleHoy",     mark: true, query: "EsVisibleHoy eq 1" },
+            { input: "Creado",           mark: false, query: "" },
+            { input: "FechaInicio",      mark: false, query: "" },
+            { input: "DiaInicio",        mark: false, query: "" },
+            { input: "DiaFin",           mark: false, query: "" },
+            { input: "MesInicio",        mark: false, query: "" },
+            { input: "MesFin",           mark: false, query: "" },
+            { input: "Recurrente",       mark: false, query: "" },
+            { input: "DatosAdjuntos",    mark: false, query: "" }
+        );
         //----Flujo----
         Set(Var_GridPageSizeSpvComunicados, 3);
         Set(Var_ResponseSpvComunicados,
@@ -103,7 +126,7 @@ Screens:
                         LayoutDirection: =LayoutDirection.Vertical
                         LayoutMinHeight: =16
                         LayoutMinWidth: =16
-                        Width: =If(Var_OpenMenu,250,100)
+                        Width: =If(Var_OpenMenu,250,70)
                       Children:
                         - Gbl_MenuSpvCmc:
                             Control: CanvasComponent
@@ -111,11 +134,12 @@ Screens:
                             ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
                             Properties:
                               Height: =768
+                              RolUsuario: =Var_RolSistema
                               Width: =If(Gbl_MenuSpvCmc.verMenu,250,70)
                               WidthMenu: =Parent.Width
-                              displayNameUser: =User().FullName
+                              displayNameUser: =Var_ProfileUser.'Nombre (Nombre0)'
                               itemsMenu: =colMenuGeneral
-                              menuSelected: =menuSelected
+                              menuSelected: ="Comunicados"
                               openMenu: =Set(Var_OpenMenu, !Var_OpenMenu)
                               verMenu: =Var_OpenMenu
                   - SpvCmc_CtnMain:

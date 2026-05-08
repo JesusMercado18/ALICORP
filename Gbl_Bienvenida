@@ -46,7 +46,7 @@ Screens:
             RadiusTopRight: =90
             Width: =136
             X: =225
-            Y: =259
+            Y: =285
       - Anl_LblNombreApellidoUsuario:
           Control: Label@2.5.1
           Properties:
@@ -57,7 +57,7 @@ Screens:
             Height: =24
             Text: =Var_ProfileUser.NombreApellido
             Width: =582
-            Y: =394
+            Y: =446
       - Anl_LblCargoUsuario:
           Control: Label@2.5.1
           Properties:
@@ -72,7 +72,7 @@ Screens:
               Var_ProfileUser.CargoOrganizacional
             Width: =582
             X: =1
-            Y: =418
+            Y: =470
       - Anl_TimerWarningBienvenida:
           Control: Timer@2.1.0
           Properties:
@@ -133,7 +133,7 @@ Screens:
                       }
                   )
               );
-
+              // Variable que guar el rol con mayor jerarquia
               Set(
                   Var_RolSistema, 
                   First(Sort(colRolesUsuario, JerarquiaRol, SortOrder.Descending)).Rol
@@ -249,7 +249,7 @@ Screens:
             Text: ="Ingresar"
             Width: =241
             X: =172
-            Y: =470
+            Y: =522
       - Gbl_Warning_Bienvenida:
           Control: CanvasComponent
           ComponentName: Gbl_Warning

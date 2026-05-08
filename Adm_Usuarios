@@ -98,6 +98,7 @@ Screens:
                             ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
                             Properties:
                               Height: =768
+                              RolUsuario: =Var_RolSistema
                               Width: =If(Gbl_MenuAdmUsuarios.verMenu,250,70)
                               WidthMenu: =Parent.Width
                               displayNameUser: =User().FullName
@@ -511,7 +512,6 @@ Screens:
                                                       Sequence(RoundUp(TotalItemAdmUsuarios / Var_GridPageSizeAdmUsuarios, 0), 1),
                                                       [1] // Secuencia segura inicial
                                                   )
-                                                ShowNavigation: =true
                                                 TemplateSize: =30
                                                 Width: |-
                                                   =With(
