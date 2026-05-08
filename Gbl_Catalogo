@@ -431,46 +431,7 @@ Screens:
                                           Image: =Lupa
                                           LayoutMinHeight: =16
                                           LayoutMinWidth: =16
-                                          OnSelect: |-
-                                            =//If(
-                                            //    !IsBlank(Trim(SpvCtg_TxtIBuscar.Text));
-                                            //    UpdateContext({
-                                            //        Var_MostrarSimilitudes: false;
-                                            //        Var_Ctx_BusquedaActiva: true;
-                                            //        Var_Ctx_TicketPopulares: false;
-                                            //        Var_Ctx_Gerencias: false;
-                                            //        Var_Ctx_Areas: false
-                                            //    });;
-                                            //    
-                                            //    Patch(colQuerysSpvCatalogoServicio; LookUp(colQuerysSpvCatalogoServicio; input = "Gerencia"); {mark: false; query: ""});;
-                                            //    Patch(colQuerysSpvCatalogoServicio; LookUp(colQuerysSpvCatalogoServicio; input = "Area"); {mark: false; query: ""});;
-                                            //    
-                                            //    // CORRECCIÓN ODATA: Se usa la COMA y Trim() para blindar el Patch
-                                            //    Patch(
-                                            //        colQuerysSpvCatalogoServicio; 
-                                            //        LookUp(colQuerysSpvCatalogoServicio; input = "TipoSolicitud");
-                                            //        {mark: true; query: "substringof('" & Substitute(Trim(SpvCtg_TxtIBuscar.Text); "'"; "") & "', TipoSolicitud)"}
-                                            //    );;
-                                            //    
-                                            //    Set(Var_CurrentPageSpvCatalogoServicio; 1);;
-                                            //    Set(Var_TargetIDSpvCatalogoServicio; 0);;
-                                            //    Select(Spv_BtnMotorPaginacionCatalogoServicio)
-                                            //    ;
-                                            //    // SI LA LUPA SE PRESIONA EN BLANCO
-                                            //    UpdateContext({
-                                            //        Var_MostrarSimilitudes: false;
-                                            //        Var_Ctx_BusquedaActiva: false;
-                                            //        Var_Ctx_TicketPopulares: true;
-                                            //        Var_Ctx_Gerencias: false;
-                                            //        Var_Ctx_Areas: false
-                                            //    });;
-                                            //    Patch(colQuerysSpvCatalogoServicio; LookUp(colQuerysSpvCatalogoServicio; input = "TipoSolicitud"); {mark: false; query: ""});;
-                                            //    Patch(colQuerysSpvCatalogoServicio; LookUp(colQuerysSpvCatalogoServicio; input = "Gerencia"); {mark: false; query: ""});;
-                                            //    Patch(colQuerysSpvCatalogoServicio; LookUp(colQuerysSpvCatalogoServicio; input = "Area"); {mark: false; query: ""});;
-                                            //    Set(Var_CurrentPageSpvCatalogoServicio; 1);;
-                                            //    Set(Var_TargetIDSpvCatalogoServicio; 0);;
-                                            //    Select(Spv_BtnMotorPaginacionCatalogoServicio)
-                                            //)
+                                          OnSelect: =
                                           PressedBorderColor: =RGBA(0, 0, 0, 0)
                                           PressedFill: =RGBA(0, 0, 0, 0)
                                           Width: =24
@@ -642,6 +603,7 @@ Screens:
                                         Properties:
                                           BorderColor: =RGBA(0, 18, 107, 1)
                                           BorderStyle: =BorderStyle.None
+                                          FillPortions: =0
                                           Height: =Parent.Height - Self.Y - 16
                                           Items: =col_gblGerencia
                                           ShowScrollbar: =false
@@ -653,13 +615,19 @@ Screens:
                                         Children:
                                           - SpvCtg_GalSubFiltroArea:
                                               Control: Gallery@2.15.0
-                                              Variant: Vertical
+                                              Variant: VariableHeight
                                               Properties:
                                                 BorderColor: =RGBA(0, 18, 107, 1)
                                                 Height: |-
-                                                  =Min(
-                                                      CountRows(Self.AllItems) * 35, 
-                                                      230
+                                                  =If(SpvCtg_CtnSubFiltroSubarea.Visible,
+                                                      Min(
+                                                          CountRows(Self.AllItems) * 35, 
+                                                          230
+                                                      ) + SpvCtg_CtnSubFiltroSubarea.Height,
+                                                      Min(
+                                                          CountRows(Self.AllItems) * 35, 
+                                                          230
+                                                      )
                                                   )
                                                 Items: |-
                                                   =Sort(
@@ -667,73 +635,83 @@ Screens:
                                                           col_gblGerenciaArea,
                                                           Gerencia = ThisItem.Nombre
                                                       ),
-                                                      ThisRecord.Area,
+                                                      Area,//ThisRecord.Area
                                                       SortOrder.Ascending
                                                   )
-                                                TemplateFill: =//If(ThisItem.IsSelected; ColorValue("#F5F5F5"); ColorValue("#FFFFFF"))
-                                                TemplatePadding: =0
+                                                ShowScrollbar: =false
                                                 TemplateSize: =35
                                                 Visible: =ctx_GerenciaExpandida = ThisItem.Nombre
                                                 Width: =Parent.TemplateWidth
                                                 Y: =35
                                               Children:
-                                                - SpvCtg_GalSubFiltroSubarea:
-                                                    Control: Table@1.0.278
+                                                - SpvCtg_CtnSubFiltroSubarea:
+                                                    Control: GroupContainer@1.5.0
+                                                    Variant: ManualLayout
                                                     Properties:
-                                                      EnableRangeSelection: ='PowerAppsOneGrid.EnableRangeSelection'.Disable
-                                                      EnableSorting: ='PowerAppsOneGrid.EnableSorting'.Disable
-                                                      Font: =Font.'Open Sans'
-                                                      HeaderFont: =Font.'Open Sans'
-                                                      Height: =150
-                                                      Items: |-
-                                                        =Sort(
-                                                            Filter(
-                                                                col_gblAreaSubArea,
-                                                                ThisItem.Area = ThisItem.Area
-                                                            ),
-                                                            ThisRecord.SubArea,
-                                                            SortOrder.Ascending
-                                                        )
-                                                      OnSelect: |-
-                                                        =// 1. Guardar contexto de la selección
-                                                        UpdateContext({
-                                                            Var_Ctx_SubAreaSeleccionada: Self.Selected.SubArea
-                                                        });
-
-                                                        // 2. Inyectar parámetro exacto en el motor OData
-                                                        Patch(
-                                                            colQuerysSpvCatalogoServicio,
-                                                            LookUp(colQuerysSpvCatalogoServicio, input = "SubArea"),
-                                                            {
-                                                                mark: true,
-                                                                query: "SubArea eq '" & Self.Selected.SubArea & "'"
-                                                            }
-                                                        );
-
-                                                        // 3. Resetear motor de paginación y llamar al flujo
-                                                        Set(Var_CurrentPageSpvCatalogoServicio, 1);
-                                                        Set(Var_TargetIDSpvCatalogoServicio, 0);
-                                                        Set(Var_DirectionSpvCatalogoServicio, "NEXT");
-                                                        Set(Var_IsIndividualSpvCatalogoServicio, false);
-
-                                                        Select(Spv_BtnMotorPaginacionCatalogoServicio)
-                                                      ReflowBehavior: ='PowerAppsOneGrid.ReflowBehavior'.GridOnly
-                                                      ShowAvatar: ="no"
-                                                      ShowColumnHeaders: ="no"
-                                                      ShowFooter: ="no"
-                                                      Width: =If(Self.X + 800 > Parent.Width, Parent.Width - Self.X, 800) + 18
-                                                      Y: =SpvCtg_BtnTituloArea.Height + 5
+                                                      BorderStyle: =BorderStyle.None
+                                                      DropShadow: =DropShadow.None
+                                                      Height: |-
+                                                        =Min(
+                                                            CountRows(
+                                                                Filter(
+                                                                    col_gblAreaSubArea,
+                                                                    Area = ThisItem.Area
+                                                                )
+                                                            ) * 35,
+                                                            150
+                                                        ) + 50
+                                                      Visible: =ctx_AreaExpandida = ThisItem.Area
+                                                      Width: =310
+                                                      X: =15
+                                                      Y: =SpvCtg_BtnTituloArea.Height
                                                     Children:
-                                                      - SubArea1:
-                                                          Control: TableDataField@1.5.0
-                                                          Variant: textualColumn
+                                                      - SpvCtg_TblSubFiltroSubarea:
+                                                          Control: Table@1.0.278
                                                           Properties:
-                                                            CanGrow: =false
-                                                            FieldDisplayName: ="SubArea"
-                                                            FieldName: ="SubArea"
-                                                            FieldType: ="s"
-                                                            Order: =1
+                                                            EnableRangeSelection: ='PowerAppsOneGrid.EnableRangeSelection'.Disable
+                                                            EnableSorting: ='PowerAppsOneGrid.EnableSorting'.Disable
+                                                            Height: =Parent.Height
+                                                            Items: |-
+                                                              =Sort(
+                                                                  Filter(
+                                                                      col_gblAreaSubArea,
+                                                                      Area = ThisItem.Area
+                                                                  ),
+                                                                  SubArea,//ThisRecord.SubArea
+                                                                  SortOrder.Ascending
+                                                              )
+                                                            OnSelect: |-
+                                                              =UpdateContext({
+                                                                  Var_Ctx_SubAreaSeleccionada: Self.Selected.SubArea
+                                                              });
+                                                              Patch(
+                                                                  colQuerysSpvCatalogoServicio,
+                                                                  LookUp(colQuerysSpvCatalogoServicio, input = "SubArea"),
+                                                                  {
+                                                                      mark: true,
+                                                                      query: "SubArea eq '" & Self.Selected.SubArea & "'"
+                                                                  }
+                                                              );
+                                                              Set(Var_CurrentPageSpvCatalogoServicio, 1);
+                                                              Set(Var_TargetIDSpvCatalogoServicio, 0);
+                                                              Set(Var_DirectionSpvCatalogoServicio, "NEXT");
+                                                              Set(Var_IsIndividualSpvCatalogoServicio, false);
+                                                              Select(Spv_BtnMotorPaginacionCatalogoServicio)
+                                                            ShowAvatar: ="no"
+                                                            ShowColumnHeaders: ="no"
+                                                            ShowFooter: ="no"
                                                             Width: =Parent.Width
+                                                          Children:
+                                                            - SubArea1:
+                                                                Control: TableDataField@1.5.0
+                                                                Variant: textualColumn
+                                                                IsLocked: true
+                                                                Properties:
+                                                                  CanGrow: =false
+                                                                  FieldDisplayName: ="SubArea"
+                                                                  FieldName: ="SubArea"
+                                                                  FieldType: ="s"
+                                                                  Order: =1
                                                 - SpvCtg_BtnTituloArea:
                                                     Control: Classic/Button@2.2.0
                                                     Properties:
@@ -797,7 +775,7 @@ Screens:
                                                                 query: "Area eq '" & ThisItem.Area & "'"
                                                             }
                                                         );
-                                                        Patch(colQuerysSpvCatalogoServicio, LookUp(colQuerysSpvCatalogoServicio, input = "SubArea"), {mark: false, query: ""}); //
+                                                        Patch(colQuerysSpvCatalogoServicio, LookUp(colQuerysSpvCatalogoServicio, input = "SubArea"), {mark: false, query: ""});
                                                         Patch(colQuerysSpvCatalogoServicio, LookUp(colQuerysSpvCatalogoServicio, input = "TipoSolicitud"), {mark: false, query: ""});
                                                         // 2. Reseteamos el motor de Paginación
                                                         Set(Var_CurrentPageSpvCatalogoServicio, 1);
@@ -818,8 +796,8 @@ Screens:
                                                       RadiusTopRight: =5
                                                       Size: =12
                                                       Text: =ThisItem.Area
-                                                      Width: =Parent.Width - 15
-                                                      X: =8
+                                                      Width: =Parent.Width - 10
+                                                      X: =15
                                                 - SpvCtg_IcoExpandirArea:
                                                     Control: Classic/Icon@2.5.0
                                                     Properties:
@@ -876,8 +854,8 @@ Screens:
                                                       Var_Ctx_Areas: false,
                                                       Var_Ctx_TicketPopulares: false,
                                                       Var_Ctx_GerenciaSeleccionada: ThisItem.Nombre,
-                                                      Var_Ctx_AreaSeleccionada: Blank(),
-                                                      Var_Ctx_SubAreaSeleccionada: Blank()
+                                                      Var_Ctx_AreaSeleccionada: Blank()//;
+                                                      //Var_Ctx_SubAreaSeleccionada: Blank()
                                                   });
 
                                                   // 3. Aplicar filtro OData SOLO para Gerencia y limpiar el Área
