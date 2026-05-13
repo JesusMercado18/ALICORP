@@ -101,6 +101,7 @@ Screens:
                               RolUsuario: =Var_RolSistema
                               Width: =If(Gbl_MenuAdmUsuarios.verMenu,250,70)
                               WidthMenu: =Parent.Width
+                              btnHome: =Gbl_Home
                               displayNameUser: =User().FullName
                               itemsMenu: =colMenuAdm
                               menuSelected: =menuSelected

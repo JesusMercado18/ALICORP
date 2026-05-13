@@ -6,7 +6,7 @@ Set(Var_OpenMenu; true);;
 Set(Var_JSONTema; {});;
 
 Set(TotalItem;1);;
-Set(TotalItemAdmSoluciones;1);;
+Set(TotalItemAdmSoluciones; 1);;
 Set(TotalItemAdmComunicados; 1);;
 
 
@@ -207,7 +207,7 @@ Set(Var_ColorFondoEstadoRechazado; "#F787BC52");;
 // --- Tamaños de Fuentes y Espaciados ---
 Set(Var_TituloBold; 20);; 
 Set(Var_TituloNavBar; 12);;
-Set(Var_TituloIndicadores; 12);;
+Set(Var_TituloIndicadores; 10);;
 Set(Var_FontSizeBoton; 14);;
 Set(Var_FontSizeTitleHeaderDetalleTicket; 12);;
 Set(Var_FontSizeFiltros; 12);;
@@ -215,7 +215,7 @@ Set(Var_FontSizeHeaderTable; 12);;
 Set(Var_FontSizeCuerpoTable; 12);;
 Set(Var_EspaciadoInterno; 24);;
 Set(Var__Paddding; 24);;
-Set(Var_TituloContadorBold; 24);;
+Set(Var_TituloContadorBold; 20);;
 Set(Var_Subtitle; 16);;
 Set(Var_CuerpoTexto; 14);;
 Set(Var_FontTitleAttachment; 14);;
@@ -277,7 +277,7 @@ ClearCollect(colMenuSpv;
 {Title: "Catálogo";      Id: 2; Pantalla: Gbl_Catalogo; Ico: catalogo; child: false; itemsSubChild: Table()};
 {Title: "Ticket";        Id: 3; Pantalla: Spv_Ticket; Ico: ticket; child: false; itemsSubChild: Table()};
 {Title: "Comunicados";   Id: 5; Pantalla: Gbl_Comunicado; Ico: comunicados; child: false; itemsSubChild: Table()};
-{Title: "Soluciones";    Id: 6; Pantalla: Gbl_Soluciones; Ico: soluciones; child: false; itemsSubChild: Table()}
+{Title: "Soluciones";    Id: 6; Pantalla: Blank(); Ico: soluciones; child: false; itemsSubChild: Table()}
 );;
 
 // --- Menú Analista ---
@@ -285,7 +285,7 @@ ClearCollect(colMenu;
     {Title: "Home"; Id: 1; Pantalla: Gbl_Home; Ico: home; child: false; itemsSubChild: Table()};
     {Title: "Catálogo";  Id: 2; Pantalla: Gbl_Catalogo; Ico: catalogo; child: false; itemsSubChild: Table()};
     {Title: "Ticket"; Id: 3; Pantalla: Anl_Ticket; Ico: ticket; child: false; itemsSubChild: Table()};
-    {Title: "Soluciones"; Id: 5; Pantalla: Gbl_Soluciones; Ico: soluciones; child: false; itemsSubChild: Table()};
+    {Title: "Soluciones"; Id: 5; Pantalla: Blank(); Ico: soluciones; child: false; itemsSubChild: Table()};
     {Title: "Comunicados"; Id: 6; Pantalla: Gbl_Comunicado; Ico: comunicados; child: false; itemsSubChild: Table()}
 );;
 
@@ -294,7 +294,7 @@ ClearCollect(colMenuSol;
     {Title: "Home"; Id: 1; Pantalla: Gbl_Home; Ico: home; child: false; itemsSubChild: Table()};
     {Title: "Catálogo";  Id: 2; Pantalla: Gbl_Catalogo; Ico: catalogo; child: false; itemsSubChild: Table()};
     {Title: "Ticket"; Id: 3; Pantalla: Sol_Ticket; Ico: ticket; child: false; itemsSubChild: Table()};
-    {Title: "Soluciones"; Id: 5; Pantalla: Gbl_Soluciones; Ico: soluciones; child: false; itemsSubChild: Table()};
+    {Title: "Soluciones"; Id: 5; Pantalla: Blank(); Ico: soluciones; child: false; itemsSubChild: Table()};
     {Title: "Comunicados"; Id: 6; Pantalla: Gbl_Comunicado; Ico: comunicados; child: false; itemsSubChild: Table()}
 );;
 
@@ -311,7 +311,7 @@ ClearCollect(colMenuAdm;
                        ]
 };
 {Title: "Comunicados";   Id: 5; Pantalla: Gbl_Comunicado; Ico: comunicados; child: false; itemsSubChild: Table()};
-{Title: "Soluciones";    Id: 6; Pantalla: Gbl_Soluciones; Ico: soluciones; child: false; itemsSubChild: Table()};
+{Title: "Soluciones";    Id: 6; Pantalla: Blank(); Ico: soluciones; child: false; itemsSubChild: Table()};
 {Title: "Usuarios";    Id: 7; Pantalla: Blank(); Ico: soluciones; child: false; itemsSubChild: Table()}
 );;
 
@@ -321,8 +321,7 @@ ClearCollect(colMenuAdm;
 // =========================================================================
 ClearCollect(colSpvCmcGerencia; RenameColumns(ShowColumns('LCP-001_List_Gerencia'; Nombre); Nombre; Value));;
 ClearCollect(colSpvCmcPais; RenameColumns(ShowColumns('LCP-001_List_Pais'; Nombre); Nombre; Value));; // INTEGRADO
-ClearCollect(colSpvNvCmcGerencia; {Value: "Todos"});;
-Collect(colSpvNvCmcGerencia; RenameColumns(ShowColumns('LCP-001_List_Gerencia'; Nombre); Nombre; Value));;
+ClearCollect(colSpvNvCmcGerencia; RenameColumns(ShowColumns('LCP-001_List_Gerencia'; Nombre); Nombre; Value));;
 ClearCollect(colSpvCmcArea; ["Créditos Back Office"; "Tesorería Operativa"; "Gestión de Servicios al Colaborador"]);;
 ClearCollect(colSpvCmcEstado; ["Vigente"; "Vencido"]);;
 ClearCollect(colAdmmcEstado; ["Vigente"; "Vencido"]);;

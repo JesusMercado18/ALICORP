@@ -50,7 +50,8 @@ Screens:
                               RolUsuario: =Var_RolSistema
                               Width: =If(Var_OpenMenu,250,70)
                               WidthMenu: =100
-                              displayNameUser: =Var_UserProfile.FullName
+                              btnHome: =Gbl_Home
+                              displayNameUser: =Var_ProfileUser.'Nombre (Nombre0)'
                               itemsMenu: =colMenuGeneral
                               menuSelected: =""
                               openMenu: =Set(Var_OpenMenu, !Var_OpenMenu)
@@ -75,7 +76,7 @@ Screens:
                             Properties:
                               AlignInContainer: =AlignInContainer.End
                               Height: =60
-                              Perfil: =App.ActiveScreen
+                              Perfil: =Gbl_Home
                         - Container14_17:
                             Control: GroupContainer@1.5.0
                             Variant: ManualLayout
@@ -308,6 +309,7 @@ Screens:
                                           BorderThickness: =1
                                           DropShadow: =DropShadow.None
                                           FillPortions: =0
+                                          Height: =220
                                           LayoutMinWidth: =225
                                           RadiusBottomLeft: =12
                                           RadiusBottomRight: =12
@@ -348,7 +350,7 @@ Screens:
                                                 Font: =Font.'Open Sans'
                                                 Size: =Var_TextoPerfil
                                                 Text: ="Código colaborador"
-                                                X: =241
+                                                X: =257
                                                 Y: =56
                                           - Label15_23:
                                               Control: Label@2.5.1
@@ -358,41 +360,41 @@ Screens:
                                                 Font: =Font.'Open Sans'
                                                 Size: =Var_TextoPerfil
                                                 Text: ="Correo"
-                                                X: =439
+                                                X: =481
                                                 Y: =56
                                           - Label14_25:
                                               Control: Label@2.5.1
                                               Properties:
                                                 BorderColor: =RGBA(0, 18, 107, 1)
                                                 Font: =Font.'Open Sans'
-                                                Height: =35
                                                 Size: =Var_TextoPerfil
                                                 Text: =Var_ProfileUser.Codigo
-                                                Width: =190
-                                                X: =241
+                                                VerticalAlign: =VerticalAlign.Top
+                                                Width: =220
+                                                X: =257
                                                 Y: =83
                                           - Label14_26:
                                               Control: Label@2.5.1
                                               Properties:
                                                 BorderColor: =RGBA(0, 18, 107, 1)
                                                 Font: =Font.'Open Sans'
-                                                Height: =35
                                                 Size: =Var_TextoPerfil
                                                 Text: =Var_ProfileUser.NombreApellido
-                                                Width: =168
+                                                VerticalAlign: =VerticalAlign.Top
+                                                Width: =220
                                                 X: =24
-                                                Y: =84
+                                                Y: =83
                                           - Label14_27:
                                               Control: Label@2.5.1
                                               Properties:
                                                 BorderColor: =RGBA(0, 18, 107, 1)
                                                 Font: =Font.'Open Sans'
-                                                Height: =35
                                                 Size: =Var_TextoPerfil
                                                 Text: =Var_ProfileUser.CorreoUsuario
+                                                VerticalAlign: =VerticalAlign.Top
                                                 Width: =220
-                                                X: =441
-                                                Y: =84
+                                                X: =481
+                                                Y: =83
                                           - Label15_24:
                                               Control: Label@2.5.1
                                               Properties:
@@ -403,7 +405,7 @@ Screens:
                                                 Text: ="Posición del colaborador"
                                                 Width: =200
                                                 X: =24
-                                                Y: =119
+                                                Y: =139
                                           - Label15_25:
                                               Control: Label@2.5.1
                                               Properties:
@@ -413,32 +415,32 @@ Screens:
                                                 Size: =Var_TextoPerfil
                                                 Text: ="Rol de mayor jerarquía"
                                                 Width: =180
-                                                X: =241
-                                                Y: =119
+                                                X: =257
+                                                Y: =139
                                           - Label14_28:
                                               Control: Label@2.5.1
                                               Properties:
                                                 BorderColor: =RGBA(0, 18, 107, 1)
                                                 Font: =Font.'Open Sans'
-                                                Height: =35
                                                 Size: =Var_TextoPerfil
                                                 Text: =Var_ProfileUser.CargoOrganizacional
+                                                VerticalAlign: =VerticalAlign.Top
                                                 Width: =168
                                                 X: =24
-                                                Y: =146
+                                                Y: =166
                                           - Label14_29:
                                               Control: Label@2.5.1
                                               Properties:
                                                 BorderColor: =RGBA(0, 18, 107, 1)
                                                 Font: =Font.'Open Sans'
-                                                Height: =35
                                                 Size: =Var_TextoPerfil
                                                 Text: |-
                                                   =//Rol Mayor Jerarquia
                                                   Var_RolSistema
+                                                VerticalAlign: =VerticalAlign.Top
                                                 Width: =220
-                                                X: =241
-                                                Y: =145
+                                                X: =257
+                                                Y: =166
                                     - Container20_3:
                                         Control: GroupContainer@1.5.0
                                         Variant: ManualLayout
@@ -447,9 +449,7 @@ Screens:
                                           BorderThickness: =1
                                           DropShadow: =DropShadow.None
                                           FillPortions: =0
-                                          Height: |+
-                                            =150
-
+                                          Height: =155
                                           RadiusBottomLeft: =12
                                           RadiusBottomRight: =12
                                           RadiusTopLeft: =12
@@ -464,10 +464,11 @@ Screens:
                                                 BorderColor: =RGBA(0, 18, 107, 1)
                                                 Font: =Font.'Open Sans'
                                                 FontWeight: =FontWeight.Semibold
+                                                Height: =35
                                                 Size: =Var_CuerpoTexto
                                                 Text: ="Organización"
                                                 X: =24
-                                                Y: =8
+                                                Y: =20
                                           - Label15_26:
                                               Control: Label@2.5.1
                                               Properties:
@@ -478,7 +479,7 @@ Screens:
                                                 Text: ="Vicepresidencia"
                                                 Width: =120
                                                 X: =24
-                                                Y: =48
+                                                Y: =56
                                           - Label15_27:
                                               Control: Label@2.5.1
                                               Properties:
@@ -488,8 +489,8 @@ Screens:
                                                 Size: =Var_TextoPerfil
                                                 Text: ="Gerencia"
                                                 Width: =115
-                                                X: =239
-                                                Y: =48
+                                                X: =257
+                                                Y: =56
                                           - Label15_28:
                                               Control: Label@2.5.1
                                               Properties:
@@ -499,41 +500,38 @@ Screens:
                                                 Size: =Var_TextoPerfil
                                                 Text: ="Área"
                                                 Width: =115
-                                                X: =439
-                                                Y: =48
+                                                X: =481
+                                                Y: =56
                                           - Label14_30:
                                               Control: Label@2.5.1
                                               Properties:
                                                 BorderColor: =RGBA(0, 18, 107, 1)
                                                 Font: =Font.'Open Sans'
-                                                Height: =35
                                                 Size: =Var_TextoPerfil
                                                 Text: =Var_ProfileUser.Vicepresidencia
+                                                VerticalAlign: =VerticalAlign.Top
                                                 Width: =200
                                                 X: =24
-                                                Y: |+
-                                                  =80
+                                                Y: =83
                                           - Label14_31:
                                               Control: Label@2.5.1
                                               Properties:
                                                 BorderColor: =RGBA(0, 18, 107, 1)
                                                 Font: =Font.'Open Sans'
-                                                Height: =50
                                                 Size: =Var_TextoPerfil
                                                 Text: =Var_ProfileUser.Gerencia
+                                                VerticalAlign: =VerticalAlign.Top
                                                 Width: =200
-                                                X: =239
-                                                Y: |+
-                                                  =80
+                                                X: =257
+                                                Y: =83
                                           - Label14_32:
                                               Control: Label@2.5.1
                                               Properties:
                                                 BorderColor: =RGBA(0, 18, 107, 1)
                                                 Font: =Font.'Open Sans'
-                                                Height: =35
                                                 Size: =Var_TextoPerfil
                                                 Text: =Var_ProfileUser.Area
+                                                VerticalAlign: =VerticalAlign.Top
                                                 Width: =199
-                                                X: =439
-                                                Y: |+
-                                                  =80
+                                                X: =481
+                                                Y: =83

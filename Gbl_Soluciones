@@ -132,6 +132,7 @@ Screens:
                               RolUsuario: =Var_RolSistema
                               Width: =If(Gbl_MenuSpvSoluciones.verMenu,250,70)
                               WidthMenu: =Parent.Width
+                              btnHome: =Gbl_Home
                               displayNameUser: =Var_ProfileUser.'Nombre (Nombre0)'
                               itemsMenu: =colMenuGeneral
                               menuSelected: ="Soluciones"
@@ -150,7 +151,6 @@ Screens:
                         PaddingBottom: =20
                         PaddingLeft: =20
                         PaddingRight: =20
-                        PaddingTop: =8
                         Width: =Parent.Width - SpvSlc_CtnSidebar.Width
                       Children:
                         - Gbl_Header_7:
@@ -614,7 +614,7 @@ Screens:
                                                       RadiusBottomRight: =8
                                                       RadiusTopLeft: =8
                                                       RadiusTopRight: =8
-                                                      Width: =1008
+                                                      Width: =Parent.TemplateWidth
                                                     Children:
                                                       - SpvSlc_CtnNombreDocumento:
                                                           Control: GroupContainer@1.5.0

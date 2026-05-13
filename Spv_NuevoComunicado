@@ -7,12 +7,15 @@ Screens:
         =UpdateContext({ menuSelected: 5});
         UpdateContext({
             var_RangeDatePicker_DateStart:Blank(),
+            var_RangeDatePicker: Blank(),
+            var_RangeDatePicker_SelectMonthYear: Blank(),
             var_RangeDatePicker_DateEnd:Blank(),
             varDiaInicioSelected:Blank(),
             varDiaFinSelected:Blank(),
             CloseAlertSpvNuevoComunicado:Blank(),
             varDirigidoSelected:Blank(),
             varTextoSeleccionado:Blank(),
+            varOpenDropDownDirigido:Blank(),
             varOpenDropDownDirigidoOpcion:Blank(),
             varOpenDropDownDiaInicio:Blank(),
             varOpenDropDownMesInicio:Blank(),
@@ -21,9 +24,11 @@ Screens:
         });
         Reset(SpvNvCmc_TxtITituloFormulario);
         Reset(SpvNvCmc_TxtIDescripcion);
+        Clear(colEstadoTipoPublicacionSeleccionadas);
         Clear(SpvNvCmc_var_uploadFile_listeAttachment);
         Clear(colEstadoRecurrenteSeleccionadas);
-        Clear(colDirigidoOpcionSeleccionadas)
+        Clear(colDirigidoOpcionSeleccionadas);
+        Clear(colExternalApp)
     Children:
       - SpvNvCmc_ScreenContainer:
           Control: GroupContainer@1.5.0
@@ -68,9 +73,10 @@ Screens:
                               RolUsuario: =Var_RolSistema
                               Width: =If(Gbl_MenuSpvNvCmc.verMenu,250,70)
                               WidthMenu: =Parent.Width
-                              displayNameUser: =User().FullName
+                              btnHome: =Gbl_Home
+                              displayNameUser: =Var_ProfileUser.'Nombre (Nombre0)'
                               itemsMenu: =colMenuGeneral
-                              menuSelected: =menuSelected
+                              menuSelected: ="Comunicados"
                               openMenu: =Set(Var_OpenMenu, !Var_OpenMenu)
                               verMenu: =Var_OpenMenu
                   - SpvNvCmc_CtnMain:
@@ -88,7 +94,6 @@ Screens:
                         PaddingBottom: =20
                         PaddingLeft: =20
                         PaddingRight: =20
-                        PaddingTop: =8
                         Width: =Parent.Width - SpvNvCmc_CtnSidebar.Width
                       Children:
                         - Gbl_HeaderSpvNuevoComunicado:
@@ -100,6 +105,15 @@ Screens:
                               Height: =60
                               Perfil: =Gbl_Home
                               X: =726
+                        - SpvCmc_Espaciado1_1:
+                            Control: GroupContainer@1.5.0
+                            Variant: ManualLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              FillPortions: =0
+                              Height: =30
+                              LayoutMinHeight: =16
+                              LayoutMinWidth: =16
                         - SpvNvCmc_CtnPaginaActual:
                             Control: GroupContainer@1.5.0
                             Variant: AutoLayout
@@ -125,7 +139,6 @@ Screens:
                                     Color: =ColorValue(Var_ColorNavegarCabecera)
                                     DisabledBorderColor: =RGBA(166, 166, 166, 1)
                                     Fill: =Color.Transparent
-                                    FillPortions: =1
                                     Font: =Font.'Open Sans'
                                     FontWeight: =FontWeight.Normal
                                     Height: '=Parent.Height   '
@@ -133,7 +146,7 @@ Screens:
                                     HoverColor: =ColorValue(Var_ColorNavegarCabecera)
                                     HoverFill: =Color.Transparent
                                     LayoutMinWidth: =50
-                                    OnSelect: =Navigate(Spv_Home)
+                                    OnSelect: =Navigate(Gbl_Home)
                                     PressedBorderColor: =Self.Fill
                                     PressedColor: =ColorValue(Var_ColorNavegarCabecera)
                                     PressedFill: =
@@ -179,7 +192,6 @@ Screens:
                                     AlignInContainer: =AlignInContainer.Center
                                     BorderColor: =RGBA(0, 18, 107, 1)
                                     Color: =ColorValue(Var_ColorNavegarCabecera)
-                                    FillPortions: =2.85
                                     Font: =Font.'Open Sans'
                                     Height: =24
                                     LayoutMinHeight: =16
@@ -242,7 +254,7 @@ Screens:
                             Properties:
                               DropShadow: =DropShadow.None
                               FillPortions: =0
-                              Height: =60
+                              Height: =44
                               LayoutAlignItems: =LayoutAlignItems.Center
                               LayoutDirection: =LayoutDirection.Horizontal
                               LayoutJustifyContent: =LayoutJustifyContent.SpaceBetween
@@ -293,23 +305,40 @@ Screens:
                               Height: |-
                                 =If(
                                       // === CASO 1: UI Máxima (Gerencia/País + Recurrente expandido) ===
-                                      SpvNvCmc_CtnDirigidoOpciones.Visible && SpvNvCmc_CtnRecurrente.Visible && !IsEmpty(colEstadoRecurrenteSeleccionadas), 
-                                      925,
+                                      !SpvNvCmc_CtnDirigidoOpciones.Visible && SpvNvCmc_CtnRecurrente.Visible && !IsEmpty(colEstadoRecurrenteSeleccionadas) && (SpvCmc_CtnMesFinInfo.Visible || SpvCmc_CtnDiaFinInfo.Visible), 
+                                      905,
+                                      // === CASO 1: UI Máxima (Gerencia/País + Recurrente expandido) ===
+                                      SpvNvCmc_CtnDirigidoOpciones.Visible && SpvNvCmc_CtnRecurrente.Visible && !IsEmpty(colEstadoRecurrenteSeleccionadas) && (SpvCmc_CtnMesFinInfo.Visible || SpvCmc_CtnDiaFinInfo.Visible), 
+                                      975,
 
-                                      // === CASO 2: UI Media-Alta (Solo Recurrente expandido; SIN Gerencia/País) ===
+                                      // === CASO 2: UI Máxima (Gerencia/País + Recurrente expandido) ===
+                                      SpvNvCmc_CtnDirigidoOpciones.Visible && SpvNvCmc_CtnRecurrente.Visible && !IsEmpty(colEstadoRecurrenteSeleccionadas), 
+                                      895,
+
+                                      // === CASO 3: UI Media-Alta (Solo Recurrente expandido; SIN Gerencia/País) ===
                                       !SpvNvCmc_CtnDirigidoOpciones.Visible && SpvNvCmc_CtnRecurrente.Visible && !IsEmpty(colEstadoRecurrenteSeleccionadas), 
+                                      825,
+
+                                      // === CASO 4: UI Media (Gerencia/País no visible + [Evento Único y Seleccionar fecha esta visible]) ===
+                                      !SpvNvCmc_CtnDirigidoOpciones.Visible && SpvNvCmc_CtnTiempoDuracion.Visible && SpvNvCmc_CtnSeleccionarFecha.Visible, 
                                       855,
 
-                                      // === CASO 3: UI Media (Gerencia/País + [Evento Único o Recurrente sin expandir]) ===
+                                      // === CASO 5: UI Media (Gerencia/País visible + [Evento Único y Seleccionar fecha esta visible]) ===
+                                      SpvNvCmc_CtnDirigidoOpciones.Visible && SpvNvCmc_CtnTiempoDuracion.Visible && SpvNvCmc_CtnSeleccionarFecha.Visible, 
+                                      925,
+
+                                      // === CASO 6: UI Media (Gerencia/País + [Evento Único o Recurrente sin expandir]) ===
                                       SpvNvCmc_CtnDirigidoOpciones.Visible && (SpvNvCmc_CtnRecurrente.Visible || SpvNvCmc_CtnTiempoDuracion.Visible), 
-                                      765,
+                                      735,
 
-                                      // === CASO 4: UI Básica (Solo UN contenedor principal activo) ===
+                                      // === CASO 7: UI Básica (Solo UN contenedor principal activo) ===
                                       SpvNvCmc_CtnDirigidoOpciones.Visible || SpvNvCmc_CtnTiempoDuracion.Visible || SpvNvCmc_CtnRecurrente.Visible, 
-                                      695,
+                                      665,
 
-                                      // === CASO 5: UI Mínima (Todos los campos condicionales desactivados) ===
-                                      630
+                                      SpvNvCmc_Glrfiles.Visible,
+                                      625,
+                                      // === CASO 8: UI Mínima (Todos los campos condicionales desactivados) ===
+                                      595
                                   )
                               LayoutMinHeight: =670
                               LayoutMinWidth: =16
@@ -333,6 +362,7 @@ Screens:
                                         Control: GroupContainer@1.5.0
                                         Variant: ManualLayout
                                         Properties:
+                                          BorderStyle: =BorderStyle.None
                                           DropShadow: =DropShadow.None
                                           FillPortions: =0
                                           Height: =70
@@ -351,17 +381,18 @@ Screens:
                                                 DisabledBorderColor: =RGBA(0, 0, 0, 0)
                                                 DisabledColor: =RGBA(161, 159, 157, 1)
                                                 DisabledFill: =RGBA(242, 242, 241, 0)
+                                                FocusedBorderThickness: =1
                                                 Font: =Font.'Open Sans'
                                                 HintText: ="Título"
-                                                HoverBorderColor: =RGBA(0, 0, 0, 1)
-                                                HoverColor: =RGBA(50, 49, 48, 1)
+                                                HoverBorderColor: =ColorValue(Var_ColorBordeBoton)
+                                                HoverColor: =ColorValue(Var_ColorBordeBoton)
                                                 HoverFill: =RGBA(255, 255, 255, 1)
                                                 PaddingBottom: =0
                                                 PaddingLeft: =10
                                                 PaddingRight: =0
                                                 PaddingTop: =0
-                                                PressedBorderColor: =RGBA(0, 0, 0, 1)
-                                                PressedColor: =RGBA(0, 0, 0, 1)
+                                                PressedBorderColor: =ColorValue(Var_ColorBordeBoton)
+                                                PressedColor: =ColorValue(Var_ColorBordeBoton)
                                                 PressedFill: =RGBA(255, 255, 255, 1)
                                                 RadiusBottomLeft: =10
                                                 RadiusBottomRight: =10
@@ -369,7 +400,7 @@ Screens:
                                                 RadiusTopRight: =10
                                                 Size: =12
                                                 Width: =600
-                                                X: =2
+                                                X: =3
                                                 Y: =10
                                           - SpvNvCmc_LblTituloFormulario:
                                               Control: Text@0.0.51
@@ -384,13 +415,97 @@ Screens:
                                                 Visible: =!IsBlank(SpvNvCmc_TxtITituloFormulario.Text)
                                                 Width: =35
                                                 X: =15
+                                    - SpvNvCmc_CtnDescripcion:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: ManualLayout
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.SetByContainer
+                                          BorderStyle: =BorderStyle.None
+                                          DropShadow: =DropShadow.None
+                                          FillPortions: =0
+                                          Height: =145
+                                          LayoutMinHeight: =16
+                                          LayoutMinWidth: =0
+                                          RadiusBottomLeft: =8
+                                          RadiusBottomRight: =8
+                                          RadiusTopLeft: =8
+                                          RadiusTopRight: =8
+                                          Width: |-
+                                            =//Parent.Width-50
+                                            600
+                                        Children:
+                                          - Container6_3:
+                                              Control: GroupContainer@1.5.0
+                                              Variant: ManualLayout
+                                              Properties:
+                                                BorderColor: =ColorValue(Var_ColorBordeBoton)
+                                                BorderThickness: =1
+                                                DropShadow: =DropShadow.None
+                                                Height: =126
+                                                RadiusBottomLeft: =8
+                                                RadiusBottomRight: =8
+                                                RadiusTopLeft: =8
+                                                RadiusTopRight: =8
+                                                Width: =Parent.Width-5
+                                                X: =3
+                                                Y: =10
+                                              Children:
+                                                - SpvNvCmc_TxtIDescripcion:
+                                                    Control: Classic/TextInput@2.3.2
+                                                    Properties:
+                                                      BorderColor: =ColorValue(Var_ColorBordeBoton)
+                                                      BorderStyle: =BorderStyle.None
+                                                      BorderThickness: =0
+                                                      Color: =RGBA(50, 49, 48, 1)
+                                                      Default: =
+                                                      DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                                                      DisabledColor: =RGBA(161, 159, 157, 1)
+                                                      DisabledFill: =RGBA(0, 0, 0, 0)
+                                                      Fill: =RGBA(0, 0, 0, 0)
+                                                      Font: =Font.'Open Sans'
+                                                      Height: =120
+                                                      HintText: ="Descripción"
+                                                      HoverBorderColor: =RGBA(0, 0, 0, 0)
+                                                      HoverColor: =RGBA(50, 49, 48, 1)
+                                                      HoverFill: =RGBA(0, 0, 0, 0)
+                                                      Mode: =TextMode.MultiLine
+                                                      PaddingBottom: =0
+                                                      PaddingLeft: =10
+                                                      PaddingRight: =0
+                                                      PaddingTop: =0
+                                                      PressedBorderColor: =RGBA(0, 0, 0, 0)
+                                                      PressedColor: =RGBA(0, 0, 0, 1)
+                                                      PressedFill: =RGBA(0, 0, 0, 0)
+                                                      RadiusBottomLeft: =10
+                                                      RadiusBottomRight: =10
+                                                      RadiusTopLeft: =10
+                                                      RadiusTopRight: =10
+                                                      Size: =12
+                                                      Width: =Parent.Width
+                                                      Y: =6
+                                          - SpvNvCmc_LblDescripcion:
+                                              Control: Text@0.0.51
+                                              Properties:
+                                                Align: ='TextCanvas.Align'.Start
+                                                Fill: =RGBA(255, 255, 255, 1)
+                                                Font: =Font.'Open Sans'
+                                                Height: =18
+                                                PaddingLeft: =2
+                                                Size: =12
+                                                Text: ="Descripción"
+                                                Visible: =!IsBlank(SpvNvCmc_TxtIDescripcion.Text)
+                                                Width: =73
+                                                Wrap: =false
+                                                X: =15
                                     - SpvNvCmc_CtnBannerFormulario:
                                         Control: GroupContainer@1.5.0
                                         Variant: ManualLayout
                                         Properties:
                                           DropShadow: =DropShadow.None
                                           FillPortions: =0
-                                          Height: =170
+                                          Height: |-
+                                            =//150
+                                            If(SpvNvCmc_Glrfiles.Visible,130,100)
                                           LayoutMinHeight: =16
                                           LayoutMinWidth: =0
                                         Children:
@@ -398,12 +513,12 @@ Screens:
                                               Control: GroupContainer@1.5.0
                                               Variant: ManualLayout
                                               Properties:
-                                                BorderColor: =ColorValue(Var_ColorFondoAdjuntos)
-                                                BorderStyle: =If(SpvNvCmc_Glrfiles.Visible,BorderStyle.None,BorderStyle.Dashed)
+                                                BorderColor: =ColorValue(Var_ColorBordeBoton)
+                                                BorderStyle: =If(SpvNvCmc_Glrfiles.Visible,BorderStyle.None,BorderStyle.Solid)
                                                 BorderThickness: =1
                                                 DropShadow: =DropShadow.None
-                                                Fill: =If(SpvNvCmc_Glrfiles.Visible,ColorValue("#ffffff"),ColorValue(Var_ColorFadeBoton))
-                                                Height: =Parent.Height-28
+                                                Fill: =If(SpvNvCmc_Glrfiles.Visible,ColorValue("#ffffff"),RGBA(245, 245, 245, 1))
+                                                Height: =If(SpvNvCmc_Glrfiles.Visible, Parent.Height - 20, Parent.Height - 30)
                                                 RadiusBottomLeft: =10
                                                 RadiusBottomRight: =10
                                                 RadiusTopLeft: =10
@@ -411,7 +526,7 @@ Screens:
                                                 Width: |-
                                                   =//1061
                                                   Parent.Width-5
-                                                X: =2
+                                                X: =3
                                                 Y: =25
                                               Children:
                                                 - SpvNvCmc_Glrfiles:
@@ -425,7 +540,7 @@ Screens:
                                                       TemplateSize: =45
                                                       Visible: =CountRows(SpvNvCmc_var_uploadFile_listeAttachment)>0
                                                       Width: =246
-                                                      Y: =10
+                                                      Y: =-10
                                                     Children:
                                                       - SpvNvCmc_CtnImgBanner:
                                                           Control: GroupContainer@1.5.0
@@ -486,39 +601,44 @@ Screens:
                                                     Control: GroupContainer@1.5.0
                                                     Variant: ManualLayout
                                                     Properties:
+                                                      BorderColor: =ColorValue("#E62020")
+                                                      BorderThickness: =1
                                                       DropShadow: =DropShadow.None
-                                                      Height: =70
+                                                      Height: =38
                                                       RadiusBottomLeft: =10
                                                       RadiusBottomRight: =10
                                                       RadiusTopLeft: =10
                                                       RadiusTopRight: =10
                                                       Visible: =If(SpvNvCmc_Glrfiles.Visible,false,true)
-                                                      Width: =Parent.Width - 23
-                                                      X: =12
-                                                      Y: =10
+                                                      Width: =110
+                                                      X: =877
+                                                      Y: =15
                                                     Children:
                                                       - SpvNvCmc_ImgCargada:
                                                           Control: Attachments@2.3.0
                                                           Properties:
                                                             AddAttachmentColor: =Blank()
-                                                            AddAttachmentText: =If(Self.MaxAttachments = CountRows(SpvNvCmc_Glrfiles.AllItems),"Se alcanzó el número máximo de archivos","Selecciona o arrastra tu archivo")
+                                                            AddAttachmentText: =If(Self.MaxAttachments = CountRows(SpvNvCmc_Glrfiles.AllItems),"Se alcanzó el número máximo de archivos","Subir archivo")
                                                             AddedItemColor: =Color.Red
                                                             AddedItemFill: =Color.Red
                                                             BorderColor: =RGBA(0, 0, 0, 0)
                                                             BorderStyle: =BorderStyle.None
-                                                            Color: =RGBA(255, 255, 255, 1)
-                                                            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                                                            DisabledColor: =ColorValue(Var_ColorFondoAdjuntos)
-                                                            DisabledFill: =ColorFade(ColorValue(Var_ColorFondoAdjuntos),50%)
+                                                            BorderThickness: =0
+                                                            Color: =ColorValue("#E62020")
+                                                            DisabledBorderColor: =RGBA(122, 138, 143, 1)
+                                                            DisabledColor: =ColorValue("#FCFCFC")
+                                                            DisabledFill: =ColorFade(ColorValue("#E96767"),50%)
                                                             DisplayMode: =If(Self.MaxAttachments = CountRows(SpvNvCmc_Glrfiles.AllItems),DisplayMode.View,DisplayMode.Edit)
+                                                            DropTargetBorderColor: =Blank()
                                                             DropTargetBorderStyle: =BorderStyle.None
                                                             DropTargetBorderThickness: =0
-                                                            Fill: =ColorValue(Var_ColorFondoAdjuntos)
+                                                            DropTargetTextColor: =RGBA(237, 237, 237, 0.5)
+                                                            Fill: =ColorValue("#FAEFEF")
                                                             FocusedBorderColor: =Blank()
                                                             Font: =Font.'Open Sans'
-                                                            Height: =Parent.Height + 70
-                                                            HoverColor: =ColorValue(Var_ColorFondoAdjuntos)
-                                                            HoverFill: =ColorFade(ColorValue(Var_ColorFondoAdjuntos),20%)
+                                                            Height: =100
+                                                            HoverColor: =RGBA(255, 255, 255, 1)
+                                                            HoverFill: =ColorValue("#A81010")
                                                             ItemColor: =RGBA(0, 0, 0, 1)
                                                             ItemDisabledColor: =Blank()
                                                             ItemDisabledFill: =Blank()
@@ -531,7 +651,8 @@ Screens:
                                                             ItemPressedFill: =Blank()
                                                             ItemSpacing: =12
                                                             Items: =Blank()
-                                                            MaxAttachments: =5
+                                                            MaxAttachmentSize: =2500
+                                                            MaxAttachments: =1
                                                             MaxAttachmentsText: ="Se alcanzo el máximo de archivos"
                                                             NoAttachmentsColor: =RGBA(161, 159, 157, 1)
                                                             NoAttachmentsText: =
@@ -666,19 +787,19 @@ Screens:
 
                                                               // 6️⃣ Reiniciar el control para permitir subir más archivos
                                                               Reset(Self)
-                                                            PaddingLeft: =Parent.Width/2 - 150
+                                                            PaddingLeft: |-
+                                                              =//Parent.Width/2 - 150
+                                                              If(Self.DisplayMode = DisplayMode.Edit, 15, 0)
                                                             PressedColor: =RGBA(255, 255, 255, 1)
-                                                            PressedFill: =RGBA(0, 120, 212, 1)
+                                                            PressedFill: =RGBA(255, 255, 255, 1)
                                                             Size: =12
                                                             Tooltip: =Blank()
-                                                            Width: |-
-                                                              =//1037
-                                                              Parent.Width
-                                                            Y: =-30
+                                                            Width: =Parent.Width + 30
+                                                            X: =-30
+                                                            Y: =-46
                                                 - SpvNvCmc_LblMensajeInformativo:
                                                     Control: Label@2.5.1
                                                     Properties:
-                                                      Align: =Align.Center
                                                       BorderColor: =RGBA(0, 0, 0, 0)
                                                       BorderStyle: =BorderStyle.None
                                                       BorderThickness: =2
@@ -687,13 +808,40 @@ Screens:
                                                       DisabledColor: =RGBA(161, 159, 157, 1)
                                                       FocusedBorderThickness: =4
                                                       Font: =Font.'Open Sans'
-                                                      Height: =45
-                                                      Size: =12
-                                                      Text: ="Total máximo 25 MB por archivo - Formatos .png"
+                                                      Height: =20
+                                                      Size: =8
+                                                      Text: ="Total máximo 25 MB por archivo - Formatos .png; jpg; jpeg"
                                                       Visible: =If(SpvNvCmc_Glrfiles.Visible,false,true)
-                                                      Width: =400
-                                                      X: =Parent.Width/2 - 220
-                                                      Y: =88
+                                                      Width: =300
+                                                      X: =60
+                                                      Y: =41
+                                                - Image4:
+                                                    Control: Image@2.2.3
+                                                    Properties:
+                                                      BorderColor: =RGBA(0, 18, 107, 1)
+                                                      Height: =30
+                                                      Image: =Cargar
+                                                      Visible: =If(SpvNvCmc_Glrfiles.Visible,false,true)
+                                                      Width: =30
+                                                      X: =22
+                                                      Y: =25
+                                                - Gbl_LblTitleAttachment_2:
+                                                    Control: Label@2.5.1
+                                                    Properties:
+                                                      AutoHeight: =true
+                                                      BorderColor: =RGBA(0, 18, 107, 1)
+                                                      Font: =Font.'Open Sans'
+                                                      FontWeight: =FontWeight.Bold
+                                                      Height: =20
+                                                      OnSelect: =//Select(pj_piecejointe_9)
+                                                      Size: =10
+                                                      Text: ="Adjuntar banner"
+                                                      VerticalAlign: =VerticalAlign.Top
+                                                      Visible: =If(SpvNvCmc_Glrfiles.Visible,false,true)
+                                                      Width: =300
+                                                      Wrap: =false
+                                                      X: =60
+                                                      Y: =13
                                           - SpvNvCmc_LblBannerFormulario:
                                               Control: Text@0.0.51
                                               Properties:
@@ -705,16 +853,337 @@ Screens:
                                                 Size: =12
                                                 Text: ="Banner"
                                                 Width: =45
-                                    - SpvNvCmc_CtnSeparacion:
+                                    - SpvNvCmc_CtnDirigido:
                                         Control: GroupContainer@1.5.0
                                         Variant: ManualLayout
                                         Properties:
+                                          AlignInContainer: =AlignInContainer.SetByContainer
                                           BorderStyle: =BorderStyle.None
                                           DropShadow: =DropShadow.None
                                           FillPortions: =0
-                                          Height: =10
+                                          Height: =70
                                           LayoutMinHeight: =16
-                                          LayoutMinWidth: =16
+                                          LayoutMinWidth: =0
+                                          Width: =600
+                                        Children:
+                                          - SpvNvCmc_CtnDirigidoSelOpciones:
+                                              Control: GroupContainer@1.5.0
+                                              Variant: ManualLayout
+                                              Properties:
+                                                BorderColor: =ColorValue(Var_ColorBordeBoton)
+                                                BorderThickness: =1
+                                                DropShadow: =DropShadow.None
+                                                Height: =40
+                                                RadiusBottomLeft: =10
+                                                RadiusBottomRight: =10
+                                                RadiusTopLeft: =10
+                                                RadiusTopRight: =10
+                                                Width: =600
+                                                X: =3
+                                                Y: =14
+                                              Children:
+                                                - SpvNvCmc_CtnDirigidoSel:
+                                                    Control: GroupContainer@1.5.0
+                                                    Variant: ManualLayout
+                                                    Properties:
+                                                      BorderColor: =ColorValue(Var_ColorBordeBoton)
+                                                      BorderStyle: =BorderStyle.None
+                                                      DropShadow: =DropShadow.None
+                                                      Height: =Parent.Height
+                                                      RadiusBottomLeft: =8
+                                                      RadiusBottomRight: =8
+                                                      RadiusTopLeft: =8
+                                                      RadiusTopRight: =8
+                                                      Width: =Parent.Width
+                                                      Y: =(Parent.Height - Self.Height) / 2
+                                                    Children:
+                                                      - SpvNvCmc_CtnDirigidoSelInfo:
+                                                          Control: GroupContainer@1.5.0
+                                                          Variant: AutoLayout
+                                                          Properties:
+                                                            BorderColor: =ColorValue(Var_ColorBordeBoton)
+                                                            DropShadow: =DropShadow.None
+                                                            Fill: =RGBA(255, 255, 255, 0.8)
+                                                            Height: =Parent.Height
+                                                            LayoutAlignItems: =LayoutAlignItems.Center
+                                                            LayoutDirection: =LayoutDirection.Horizontal
+                                                            LayoutGap: =20
+                                                            LayoutJustifyContent: =LayoutJustifyContent.Center
+                                                            RadiusBottomLeft: =8
+                                                            RadiusBottomRight: =8
+                                                            RadiusTopLeft: =8
+                                                            RadiusTopRight: =8
+                                                            Width: =Parent.Width - 10
+                                                            Y: '=0   '
+                                                          Children:
+                                                            - SpvNvCmc_LblDirigidoSel:
+                                                                Control: TextInput@0.0.54
+                                                                Properties:
+                                                                  AccessibleLabel: =
+                                                                  AlignInContainer: =AlignInContainer.Center
+                                                                  Appearance: ='TextInputCanvas.Appearance'.Outline
+                                                                  BasePaletteColor: =RGBA(249, 83, 109, 1)
+                                                                  BorderStyle: =BorderStyle.None
+                                                                  FillPortions: =1
+                                                                  Font: =Font.'Open Sans'
+                                                                  FontSize: =Var_FontSizeFiltros + 3.5
+                                                                  Height: =40
+                                                                  LayoutMinHeight: =16
+                                                                  LayoutMinWidth: =16
+                                                                  OnChange: |-
+                                                                    =UpdateContext({varOpenDropDownDirigido: true})
+                                                                  PaddingBottom: =3
+                                                                  PaddingLeft: =0
+                                                                  Placeholder: ="Dirigido a"
+                                                                  TriggerOutput: ='TextInputCanvas.TriggerOutput'.Keypress
+                                                                  Value: =varDirigidoSelected.Value
+                                                                  Width: =550
+                                                            - SpvNvCmc_IcnAbrirDirigido:
+                                                                Control: Classic/Icon@2.5.0
+                                                                Properties:
+                                                                  AlignInContainer: =AlignInContainer.Center
+                                                                  BorderColor: =RGBA(0, 18, 107, 1)
+                                                                  Color: =ColorValue(Var_ColorBoton)
+                                                                  Height: =SpvNvCmc_IcnBorrarDirigido.Height
+                                                                  Icon: =If(!varOpenDropDownDirigido,Icon.ChevronDown,Icon.ChevronUp)
+                                                                  OnSelect: |-
+                                                                    =UpdateContext({varOpenDropDownDirigido: !varOpenDropDownDirigido})
+                                                                  Visible: =Len(SpvNvCmc_LblDirigidoSel.Value)=0
+                                                                  Width: =SpvNvCmc_IcnBorrarDirigido.Width
+                                                                  Y: =5
+                                                            - SpvNvCmc_IcnCerrarDirigido:
+                                                                Control: Classic/Icon@2.5.0
+                                                                Properties:
+                                                                  AlignInContainer: =AlignInContainer.Center
+                                                                  BorderColor: =RGBA(0, 18, 107, 1)
+                                                                  BorderStyle: =BorderStyle.None
+                                                                  BorderThickness: =1
+                                                                  Color: =ColorValue(Var_ColorIconNegro)
+                                                                  Fill: =RGBA(255, 255, 255, 1)
+                                                                  Height: =SpvNvCmc_IcnBorrarDirigido.Height
+                                                                  Icon: =Icon.ChevronUp
+                                                                  OnSelect: =Reset(SpvNvCmc_LblDirigidoSel);SetFocus(SpvNvCmc_LblDirigidoSel)
+                                                                  PaddingBottom: =5
+                                                                  PaddingLeft: =5
+                                                                  PaddingRight: =5
+                                                                  PaddingTop: =5
+                                                                  Visible: =IsBlank(varDirigidoSelected)&&Len(SpvNvCmc_LblDirigidoSel.Value)>0
+                                                                  Width: =SpvNvCmc_IcnBorrarDirigido.Width
+                                                            - SpvNvCmc_IcnBorrarDirigido:
+                                                                Control: Classic/Icon@2.5.0
+                                                                Properties:
+                                                                  AlignInContainer: =AlignInContainer.Center
+                                                                  BorderColor: =RGBA(0, 18, 107, 1)
+                                                                  Color: =ColorValue(Var_ColorBoton)
+                                                                  Height: =25
+                                                                  Icon: =Icon.Cancel
+                                                                  LayoutMinHeight: =40
+                                                                  OnSelect: |-
+                                                                    =UpdateContext({varRazDirigido : true});
+                                                                    UpdateContext({varDirigidoSelected:Blank()});
+                                                                    UpdateContext({varOpenDropDownDirigidoOpcion:false});
+                                                                    SetFocus(SpvNvCmc_LblDirigidoSel);
+                                                                    UpdateContext({varRazDirigido : false});
+                                                                    Clear(colDirigidoOpcionSeleccionadas);
+                                                                    UpdateContext({varTextoSeleccionado: Blank()})
+                                                                  PaddingBottom: =5
+                                                                  PaddingLeft: =5
+                                                                  PaddingRight: =5
+                                                                  PaddingTop: =5
+                                                                  Visible: =IsBlank(varDirigidoSelected)=false
+                                                                  Width: =25
+                                          - SpvNvCmc_LblDirigido:
+                                              Control: Text@0.0.51
+                                              Properties:
+                                                Align: ='TextCanvas.Align'.Start
+                                                Fill: =RGBA(255, 255, 255, 1)
+                                                Font: =Font.'Open Sans'
+                                                Height: =19
+                                                PaddingLeft: =2
+                                                Size: =12
+                                                Text: ="Dirigido a"
+                                                Visible: =!IsBlank(SpvNvCmc_LblDirigidoSel.Value)
+                                                Width: =65
+                                                Wrap: =false
+                                                X: =15
+                                                Y: =5
+                                    - SpvNvCmc_CtnDirigidoOpciones:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: ManualLayout
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.SetByContainer
+                                          DropShadow: =DropShadow.None
+                                          FillPortions: =0
+                                          Height: =70
+                                          LayoutMinHeight: =16
+                                          LayoutMinWidth: =0
+                                          Visible: =If(varDirigidoSelected.Value="Gerencia" || varDirigidoSelected.Value="País",true,false)
+                                          Width: =600
+                                        Children:
+                                          - SpvNvCmc_CtnDirigidoOpcion:
+                                              Control: GroupContainer@1.5.0
+                                              Variant: ManualLayout
+                                              Properties:
+                                                BorderColor: =ColorValue(Var_ColorBordeBoton)
+                                                BorderThickness: =1
+                                                DropShadow: =DropShadow.None
+                                                Height: =40
+                                                RadiusBottomLeft: =10
+                                                RadiusBottomRight: =10
+                                                RadiusTopLeft: =10
+                                                RadiusTopRight: =10
+                                                Width: =600
+                                                X: =2
+                                                Y: =14
+                                              Children:
+                                                - SpvNvCmc_CtnDirigidoOpcionSel:
+                                                    Control: GroupContainer@1.5.0
+                                                    Variant: ManualLayout
+                                                    Properties:
+                                                      BorderColor: =ColorValue(Var_ColorBordeBoton)
+                                                      BorderStyle: =BorderStyle.None
+                                                      DropShadow: =DropShadow.None
+                                                      Height: =Parent.Height
+                                                      RadiusBottomLeft: =8
+                                                      RadiusBottomRight: =8
+                                                      RadiusTopLeft: =8
+                                                      RadiusTopRight: =8
+                                                      Width: =Parent.Width
+                                                      Y: =(Parent.Height - Self.Height) / 2
+                                                    Children:
+                                                      - SpvNvCmc_CtnDirigidoOpcionSelInfo:
+                                                          Control: GroupContainer@1.5.0
+                                                          Variant: AutoLayout
+                                                          Properties:
+                                                            BorderColor: =ColorValue(Var_ColorBordeBoton)
+                                                            BorderStyle: =BorderStyle.None
+                                                            DropShadow: =DropShadow.None
+                                                            Fill: =RGBA(255, 255, 255, 0.8)
+                                                            Height: =Parent.Height
+                                                            LayoutAlignItems: =LayoutAlignItems.Center
+                                                            LayoutDirection: =LayoutDirection.Horizontal
+                                                            LayoutGap: =20
+                                                            LayoutJustifyContent: =LayoutJustifyContent.Center
+                                                            RadiusBottomLeft: =8
+                                                            RadiusBottomRight: =8
+                                                            RadiusTopLeft: =8
+                                                            RadiusTopRight: =8
+                                                            Width: =Parent.Width - 10
+                                                            Y: '=0   '
+                                                          Children:
+                                                            - SpvNvCmc_LblDirigidoOpcionSel:
+                                                                Control: TextInput@0.0.54
+                                                                Properties:
+                                                                  AlignInContainer: =AlignInContainer.Center
+                                                                  Appearance: ='TextInputCanvas.Appearance'.Outline
+                                                                  BasePaletteColor: =RGBA(249, 83, 109, 1)
+                                                                  BorderStyle: =BorderStyle.None
+                                                                  FillPortions: =1
+                                                                  Font: =Font.'Open Sans'
+                                                                  FontSize: =Var_FontSizeFiltros + 3.5
+                                                                  Height: =40
+                                                                  LayoutMinHeight: =16
+                                                                  LayoutMinWidth: =16
+                                                                  OnChange: |-
+                                                                    =UpdateContext({varOpenDropDownDirigidoOpcion: true});
+                                                                    Clear(colDirigidoOpcionSeleccionadas);
+                                                                    // 2. Usamos Split para separar el texto por ";" y ForAll para procesar cada trozo
+                                                                    ForAll(
+                                                                        Split(Self.Value, ";"),
+                                                                        If(
+                                                                            !IsBlank(Trim(Value)), // Solo procesamos si no es un espacio vacío
+                                                                            Collect(
+                                                                                colDirigidoOpcionSeleccionadas, 
+                                                                                { Value: Trim(Value) } // 'Value' es el resultado del Split, Trim quita espacios
+                                                                            )
+                                                                        )
+                                                                    );
+
+                                                                    // 3. (Opcional) Normalizamos el texto de la variable para que quede bonito 
+                                                                    // (Ej: quita puntos y coma extra que el usuario pudo dejar al final)
+                                                                    UpdateContext({
+                                                                        varTextoSeleccionado: Concat(colDirigidoOpcionSeleccionadas, Value, "; ")
+                                                                    })
+                                                                  PaddingBottom: =3
+                                                                  PaddingLeft: =0
+                                                                  Placeholder: =If(varDirigidoSelected.Value="Gerencia","Gerencia",varDirigidoSelected.Value="País","País")
+                                                                  TriggerOutput: ='TextInputCanvas.TriggerOutput'.Keypress
+                                                                  Value: =varTextoSeleccionado
+                                                                  Width: =550
+                                                            - SpvNvCmc_IcnAbrirDirigidoOpcion:
+                                                                Control: Classic/Icon@2.5.0
+                                                                Properties:
+                                                                  AlignInContainer: =AlignInContainer.Center
+                                                                  BorderColor: =RGBA(0, 18, 107, 1)
+                                                                  Color: =ColorValue(Var_ColorBoton)
+                                                                  Height: =SpvNvCmc_IcnBorrarDirigidoOpcion.Height
+                                                                  Icon: =If(!varOpenDropDownDirigidoOpcion,Icon.ChevronDown,Icon.ChevronUp)
+                                                                  OnSelect: |-
+                                                                    =UpdateContext({varOpenDropDownDirigidoOpcion: !varOpenDropDownDirigidoOpcion})
+                                                                  Visible: |-
+                                                                    =//!IsEmpty(colDirigidoOpcionSeleccionadas)||Len(SpvNvCmc_LblDirigidoOpcionSel.Value)>0
+                                                                    true
+                                                                  Width: =SpvNvCmc_IcnBorrarDirigidoOpcion.Width
+                                                                  Y: =5
+                                                            - SpvNvCmc_IcnCerrarDirigidoOpcion:
+                                                                Control: Classic/Icon@2.5.0
+                                                                Properties:
+                                                                  AlignInContainer: =AlignInContainer.Center
+                                                                  BorderColor: =RGBA(0, 18, 107, 1)
+                                                                  BorderStyle: =BorderStyle.None
+                                                                  BorderThickness: =1
+                                                                  Color: =ColorValue(Var_ColorIconNegro)
+                                                                  Fill: =RGBA(255, 255, 255, 1)
+                                                                  Height: =SpvNvCmc_IcnBorrarDirigidoOpcion.Height
+                                                                  Icon: =Icon.ChevronUp
+                                                                  OnSelect: |-
+                                                                    =Reset(SpvNvCmc_LblDirigidoOpcionSel);SetFocus(SpvNvCmc_LblDirigidoOpcionSel);UpdateContext({varOpenDropDownDirigidoOpcion: !varOpenDropDownDirigidoOpcion})
+                                                                  PaddingBottom: =5
+                                                                  PaddingLeft: =5
+                                                                  PaddingRight: =5
+                                                                  PaddingTop: =5
+                                                                  Visible: |-
+                                                                    =//!IsEmpty(colDirigidoOpcionSeleccionadas)||Len(SpvNvCmc_LblDirigidoOpcionSel.Value)>0
+                                                                    false
+                                                                  Width: =SpvNvCmc_IcnBorrarDirigidoOpcion.Width
+                                                            - SpvNvCmc_IcnBorrarDirigidoOpcion:
+                                                                Control: Classic/Icon@2.5.0
+                                                                Properties:
+                                                                  AlignInContainer: =AlignInContainer.Center
+                                                                  BorderColor: =RGBA(0, 18, 107, 1)
+                                                                  Color: =ColorValue(Var_ColorBoton)
+                                                                  Height: =25
+                                                                  Icon: =Icon.Cancel
+                                                                  LayoutMinHeight: =40
+                                                                  OnSelect: |-
+                                                                    =UpdateContext({varRazDirigidoOpcion : true});
+                                                                    //UpdateContext({varDirigidoOpcionSelected:Blank()});;
+                                                                    SetFocus(SpvNvCmc_LblDirigidoOpcionSel);
+                                                                    UpdateContext({varRazDirigidoOpcion : false});
+                                                                    Clear(colDirigidoOpcionSeleccionadas)
+                                                                  PaddingBottom: =5
+                                                                  PaddingLeft: =5
+                                                                  PaddingRight: =5
+                                                                  PaddingTop: =5
+                                                                  Visible: |-
+                                                                    =//!IsEmpty(colDirigidoOpcionSeleccionadas)
+                                                                    false
+                                                                  Width: =25
+                                          - SpvNvCmc_LblDirigidoOpcion:
+                                              Control: Text@0.0.51
+                                              Properties:
+                                                Align: ='TextCanvas.Align'.Start
+                                                Fill: =RGBA(255, 255, 255, 1)
+                                                Font: =Font.'Open Sans'
+                                                Height: =19
+                                                PaddingLeft: =2
+                                                Size: =12
+                                                Text: =If(varDirigidoSelected.Value="Gerencia","Gerencia",varDirigidoSelected.Value="País","País")
+                                                Visible: =!IsBlank(SpvNvCmc_LblDirigidoOpcionSel.Value)
+                                                Width: =If(varDirigidoSelected.Value="Gerencia", 60, varDirigidoSelected.Value="País",30)
+                                                Wrap: =false
+                                                X: =15
+                                                Y: =5
                                     - SpvNvCmc_CtnTipoPublicacion:
                                         Control: GroupContainer@1.5.0
                                         Variant: ManualLayout
@@ -776,7 +1245,7 @@ Screens:
                                                             HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
                                                             HoverColor: =RGBA(255, 255, 255, 1)
                                                             HoverFill: =ColorValue(Var_ColorFadeBoton)
-                                                            OnSelect: "=// 1. Manejo del Estado Principal (Tipo de Publicación)\nIf(\n    !IsEmpty(colEstadoTipoPublicacionSeleccionadas) && First(colEstadoTipoPublicacionSeleccionadas).Value = ThisItem.Value,\n    // Si ya estaba seleccionado, lo desmarcamos\n    Clear(colEstadoTipoPublicacionSeleccionadas),\n    \n    // Si es un valor nuevo, limpiamos la colección y agregamos el nuevo\n    Clear(colEstadoTipoPublicacionSeleccionadas);\n    Collect(colEstadoTipoPublicacionSeleccionadas, ThisItem)\n);\n\n// 2. Limpieza Transversal de Sub-Estados (Reset UI/UX)\n// Esta acción garantiza que ninguna variable mantenga \"Datos Sucios\" tras un cambio de contexto.\n\n// A. Purgar estado de \"Recurrente\"\nClear(colEstadoRecurrenteSeleccionadas);\n\n// B. Purgar variables contextuales de ambas ramas\nUpdateContext({\n    // Variables de Evento Único\n    var_RangeDatePicker_DateStart: Blank(),\n    var_RangeDatePicker_DateEnd: Blank(),\n    var_RangeDatePicker_DateStart_Modify: Blank(),\n    var_RangeDatePicker_DateEnd_Modify: Blank(),\n    \n    // Variables de Recurrente\n    varDiaInicioSelected: Blank(),\n    varMesInicioSelected: Blank(),\n    varDiaFinSelected: Blank(),\n    varMesFinSelected: Blank(),\n    \n    // Forzar el cierre de cualquier dropdown abierto por seguridad de UI\n    varOpenDropDownDiaInicio: false,\n    varOpenDropDownMesInicio: false,\n    varOpenDropDownDiaFin: false,\n    varOpenDropDownMesFin: false,\n\n    var_RangeDatePicker: false,\n    var_RangeDatePicker_SelectMonthYear: false\n})"
+                                                            OnSelect: "=// 1. Manejo del Estado Principal (Tipo de Publicación)\nIf(\n    !IsEmpty(colEstadoTipoPublicacionSeleccionadas) && First(colEstadoTipoPublicacionSeleccionadas).Value = ThisItem.Value,\n    // Si ya estaba seleccionado, lo desmarcamos\n    Clear(colEstadoTipoPublicacionSeleccionadas),\n    \n    // Si es un valor nuevo, limpiamos la colección y agregamos el nuevo\n    Clear(colEstadoTipoPublicacionSeleccionadas);\n    Collect(colEstadoTipoPublicacionSeleccionadas, ThisItem)\n);\n\n// 2. Limpieza Transversal de Sub-Estados (Reset UI/UX)\n// Esta acción garantiza que ninguna variable mantenga \"Datos Sucios\" tras un cambio de contexto.\n\n// A. Purgar estado de \"Recurrente\"\nClear(colEstadoRecurrenteSeleccionadas);\n\n// B. Purgar variables contextuales de ambas ramas\nUpdateContext({\n    // Variables de Evento Único\n    var_RangeDatePicker_DateStart: Blank(),\n    var_RangeDatePicker_DateEnd: Blank(),\n    var_RangeDatePicker_DateStart_Modify: Blank(),\n    var_RangeDatePicker_DateEnd_Modify: Blank(),\n    \n    // Variables de Recurrente\n    varDiaInicioSelected: Blank(),\n    varMesInicioSelected: Blank(),\n    varDiaFinSelected: Blank(),\n    varMesFinSelected: Blank(),\n    \n    // Forzar el cierre de cualquier dropdown abierto por seguridad de UI\n    varOpenDropDownDiaInicio: false,\n    varOpenDropDownMesInicio: false,\n    varOpenDropDownDiaFin: false,\n    varOpenDropDownMesFin: false,\n    varOpenDropDownDirigido: false,\n\n    var_RangeDatePicker: false,\n    var_RangeDatePicker_SelectMonthYear: false\n})"
                                                             PaddingBottom: =0
                                                             PaddingLeft: =0
                                                             PaddingRight: =0
@@ -817,14 +1286,17 @@ Screens:
                                                 PaddingLeft: =2
                                                 Size: =12
                                                 Text: ="Tipo de publicación"
-                                                Width: =115
+                                                Width: =120
+                                                Wrap: =false
+                                                X: =5
                                     - SpvNvCmc_CtnTiempoDuracion:
                                         Control: GroupContainer@1.5.0
                                         Variant: ManualLayout
                                         Properties:
+                                          BorderStyle: =BorderStyle.None
                                           DropShadow: =DropShadow.None
                                           FillPortions: =0
-                                          Height: =70
+                                          Height: =If(SpvNvCmc_CtnSeleccionarFecha.Visible,260,70)
                                           LayoutMinHeight: =16
                                           LayoutMinWidth: =0
                                           Visible: =If(First(colEstadoTipoPublicacionSeleccionadas).Value = "Evento único",true, false)
@@ -850,7 +1322,7 @@ Screens:
                                                 RadiusTopLeft: =10
                                                 RadiusTopRight: =10
                                                 Width: =600
-                                                X: =2
+                                                X: =3
                                                 Y: =14
                                               Children:
                                                 - SpvNvCmc_CtnFiltroFecha:
@@ -1034,331 +1506,6 @@ Screens:
                                                 Width: =115
                                                 X: =15
                                                 Y: =5
-                                    - SpvNvCmc_CtnDirigido:
-                                        Control: GroupContainer@1.5.0
-                                        Variant: ManualLayout
-                                        Properties:
-                                          AlignInContainer: =AlignInContainer.SetByContainer
-                                          DropShadow: =DropShadow.None
-                                          FillPortions: =0
-                                          Height: =70
-                                          LayoutMinHeight: =16
-                                          LayoutMinWidth: =0
-                                          Width: =600
-                                        Children:
-                                          - SpvNvCmc_CtnDirigidoSelOpciones:
-                                              Control: GroupContainer@1.5.0
-                                              Variant: ManualLayout
-                                              Properties:
-                                                BorderColor: =ColorValue(Var_ColorBordeBoton)
-                                                BorderThickness: =1
-                                                DropShadow: =DropShadow.None
-                                                Height: =40
-                                                RadiusBottomLeft: =10
-                                                RadiusBottomRight: =10
-                                                RadiusTopLeft: =10
-                                                RadiusTopRight: =10
-                                                Width: =600
-                                                X: =2
-                                                Y: =14
-                                              Children:
-                                                - SpvNvCmc_CtnDirigidoSel:
-                                                    Control: GroupContainer@1.5.0
-                                                    Variant: ManualLayout
-                                                    Properties:
-                                                      BorderColor: =ColorValue(Var_ColorBordeBoton)
-                                                      DropShadow: =DropShadow.None
-                                                      Height: =Parent.Height
-                                                      RadiusBottomLeft: =8
-                                                      RadiusBottomRight: =8
-                                                      RadiusTopLeft: =8
-                                                      RadiusTopRight: =8
-                                                      Width: =Parent.Width
-                                                      Y: =(Parent.Height - Self.Height) / 2
-                                                    Children:
-                                                      - SpvNvCmc_CtnDirigidoSelInfo:
-                                                          Control: GroupContainer@1.5.0
-                                                          Variant: AutoLayout
-                                                          Properties:
-                                                            BorderColor: =ColorValue(Var_ColorBordeBoton)
-                                                            DropShadow: =DropShadow.None
-                                                            Fill: =RGBA(255, 255, 255, 0.8)
-                                                            Height: =Parent.Height
-                                                            LayoutAlignItems: =LayoutAlignItems.Center
-                                                            LayoutDirection: =LayoutDirection.Horizontal
-                                                            LayoutGap: =20
-                                                            LayoutJustifyContent: =LayoutJustifyContent.Center
-                                                            RadiusBottomLeft: =8
-                                                            RadiusBottomRight: =8
-                                                            RadiusTopLeft: =8
-                                                            RadiusTopRight: =8
-                                                            Width: =Parent.Width - 10
-                                                            Y: '=0   '
-                                                          Children:
-                                                            - SpvNvCmc_LblDirigidoSel:
-                                                                Control: TextInput@0.0.54
-                                                                Properties:
-                                                                  AccessibleLabel: =
-                                                                  AlignInContainer: =AlignInContainer.Center
-                                                                  Appearance: ='TextInputCanvas.Appearance'.Outline
-                                                                  BasePaletteColor: =RGBA(249, 83, 109, 1)
-                                                                  BorderStyle: =BorderStyle.None
-                                                                  FillPortions: =1
-                                                                  Font: =Font.'Open Sans'
-                                                                  FontSize: =Var_FontSizeFiltros + 3.5
-                                                                  Height: =40
-                                                                  LayoutMinHeight: =16
-                                                                  LayoutMinWidth: =16
-                                                                  OnChange: |-
-                                                                    =UpdateContext({varOpenDropDownDirigido: true})
-                                                                  PaddingBottom: =3
-                                                                  PaddingLeft: =0
-                                                                  Placeholder: ="Nivel de visualización"
-                                                                  TriggerOutput: ='TextInputCanvas.TriggerOutput'.Keypress
-                                                                  Value: =varDirigidoSelected.Value
-                                                                  Width: =550
-                                                            - SpvNvCmc_IcnAbrirDirigido:
-                                                                Control: Classic/Icon@2.5.0
-                                                                Properties:
-                                                                  AlignInContainer: =AlignInContainer.Center
-                                                                  BorderColor: =RGBA(0, 18, 107, 1)
-                                                                  Color: =ColorValue(Var_ColorBoton)
-                                                                  Height: =SpvNvCmc_IcnBorrarDirigido.Height
-                                                                  Icon: =If(!varOpenDropDownDirigido,Icon.ChevronDown,Icon.ChevronUp)
-                                                                  OnSelect: |-
-                                                                    =UpdateContext({varOpenDropDownDirigido: !varOpenDropDownDirigido})
-                                                                  Visible: =Len(SpvNvCmc_LblDirigidoSel.Value)=0
-                                                                  Width: =SpvNvCmc_IcnBorrarDirigido.Width
-                                                                  Y: =5
-                                                            - SpvNvCmc_IcnCerrarDirigido:
-                                                                Control: Classic/Icon@2.5.0
-                                                                Properties:
-                                                                  AlignInContainer: =AlignInContainer.Center
-                                                                  BorderColor: =RGBA(0, 18, 107, 1)
-                                                                  BorderStyle: =BorderStyle.None
-                                                                  BorderThickness: =1
-                                                                  Color: =ColorValue(Var_ColorIconNegro)
-                                                                  Fill: =RGBA(255, 255, 255, 1)
-                                                                  Height: =SpvNvCmc_IcnBorrarDirigido.Height
-                                                                  Icon: =Icon.ChevronUp
-                                                                  OnSelect: =Reset(SpvNvCmc_LblDirigidoSel);SetFocus(SpvNvCmc_LblDirigidoSel)
-                                                                  PaddingBottom: =5
-                                                                  PaddingLeft: =5
-                                                                  PaddingRight: =5
-                                                                  PaddingTop: =5
-                                                                  Visible: =IsBlank(varDirigidoSelected)&&Len(SpvNvCmc_LblDirigidoSel.Value)>0
-                                                                  Width: =SpvNvCmc_IcnBorrarDirigido.Width
-                                                            - SpvNvCmc_IcnBorrarDirigido:
-                                                                Control: Classic/Icon@2.5.0
-                                                                Properties:
-                                                                  AlignInContainer: =AlignInContainer.Center
-                                                                  BorderColor: =RGBA(0, 18, 107, 1)
-                                                                  Color: =ColorValue(Var_ColorBoton)
-                                                                  Height: =25
-                                                                  Icon: =Icon.Cancel
-                                                                  LayoutMinHeight: =40
-                                                                  OnSelect: |-
-                                                                    =UpdateContext({varRazDirigido : true});
-                                                                    UpdateContext({varDirigidoSelected:Blank()});
-                                                                    UpdateContext({varOpenDropDownDirigidoOpcion:false});
-                                                                    SetFocus(SpvNvCmc_LblDirigidoSel);
-                                                                    UpdateContext({varRazDirigido : false});
-                                                                    Clear(colDirigidoOpcionSeleccionadas);
-                                                                    UpdateContext({varTextoSeleccionado: Blank()})
-                                                                  PaddingBottom: =5
-                                                                  PaddingLeft: =5
-                                                                  PaddingRight: =5
-                                                                  PaddingTop: =5
-                                                                  Visible: =IsBlank(varDirigidoSelected)=false
-                                                                  Width: =25
-                                          - SpvNvCmc_LblDirigido:
-                                              Control: Text@0.0.51
-                                              Properties:
-                                                Align: ='TextCanvas.Align'.Start
-                                                Fill: =RGBA(255, 255, 255, 1)
-                                                Font: =Font.'Open Sans'
-                                                Height: =19
-                                                PaddingLeft: =2
-                                                Size: =12
-                                                Text: ="Nivel de visualización"
-                                                Visible: =!IsBlank(SpvNvCmc_LblDirigidoSel.Value)
-                                                Width: =125
-                                                X: =15
-                                                Y: =5
-                                    - SpvNvCmc_CtnDirigidoOpciones:
-                                        Control: GroupContainer@1.5.0
-                                        Variant: ManualLayout
-                                        Properties:
-                                          AlignInContainer: =AlignInContainer.SetByContainer
-                                          DropShadow: =DropShadow.None
-                                          FillPortions: =0
-                                          Height: =70
-                                          LayoutMinHeight: =16
-                                          LayoutMinWidth: =0
-                                          Visible: =If(varDirigidoSelected.Value="Gerencia" || varDirigidoSelected.Value="País",true,false)
-                                          Width: =600
-                                        Children:
-                                          - SpvNvCmc_CtnDirigidoOpcion:
-                                              Control: GroupContainer@1.5.0
-                                              Variant: ManualLayout
-                                              Properties:
-                                                BorderColor: =ColorValue(Var_ColorBordeBoton)
-                                                BorderThickness: =1
-                                                DropShadow: =DropShadow.None
-                                                Height: =40
-                                                RadiusBottomLeft: =10
-                                                RadiusBottomRight: =10
-                                                RadiusTopLeft: =10
-                                                RadiusTopRight: =10
-                                                Width: =600
-                                                X: =2
-                                                Y: =14
-                                              Children:
-                                                - SpvNvCmc_CtnDirigidoOpcionSel:
-                                                    Control: GroupContainer@1.5.0
-                                                    Variant: ManualLayout
-                                                    Properties:
-                                                      BorderColor: =ColorValue(Var_ColorBordeBoton)
-                                                      DropShadow: =DropShadow.None
-                                                      Height: =Parent.Height
-                                                      RadiusBottomLeft: =8
-                                                      RadiusBottomRight: =8
-                                                      RadiusTopLeft: =8
-                                                      RadiusTopRight: =8
-                                                      Width: =Parent.Width
-                                                      Y: =(Parent.Height - Self.Height) / 2
-                                                    Children:
-                                                      - SpvNvCmc_CtnDirigidoOpcionSelInfo:
-                                                          Control: GroupContainer@1.5.0
-                                                          Variant: AutoLayout
-                                                          Properties:
-                                                            BorderColor: =ColorValue(Var_ColorBordeBoton)
-                                                            DropShadow: =DropShadow.None
-                                                            Fill: =RGBA(255, 255, 255, 0.8)
-                                                            Height: =Parent.Height
-                                                            LayoutAlignItems: =LayoutAlignItems.Center
-                                                            LayoutDirection: =LayoutDirection.Horizontal
-                                                            LayoutGap: =20
-                                                            LayoutJustifyContent: =LayoutJustifyContent.Center
-                                                            RadiusBottomLeft: =8
-                                                            RadiusBottomRight: =8
-                                                            RadiusTopLeft: =8
-                                                            RadiusTopRight: =8
-                                                            Width: =Parent.Width - 10
-                                                            Y: '=0   '
-                                                          Children:
-                                                            - SpvNvCmc_LblDirigidoOpcionSel:
-                                                                Control: TextInput@0.0.54
-                                                                Properties:
-                                                                  AlignInContainer: =AlignInContainer.Center
-                                                                  Appearance: ='TextInputCanvas.Appearance'.Outline
-                                                                  BasePaletteColor: =RGBA(249, 83, 109, 1)
-                                                                  BorderStyle: =BorderStyle.None
-                                                                  FillPortions: =1
-                                                                  Font: =Font.'Open Sans'
-                                                                  FontSize: =Var_FontSizeFiltros + 3.5
-                                                                  Height: =40
-                                                                  LayoutMinHeight: =16
-                                                                  LayoutMinWidth: =16
-                                                                  OnChange: |-
-                                                                    =UpdateContext({varOpenDropDownDirigidoOpcion: true});
-                                                                    Clear(colDirigidoOpcionSeleccionadas);
-                                                                    // 2. Usamos Split para separar el texto por ";" y ForAll para procesar cada trozo
-                                                                    ForAll(
-                                                                        Split(Self.Value, ";"),
-                                                                        If(
-                                                                            !IsBlank(Trim(Value)), // Solo procesamos si no es un espacio vacío
-                                                                            Collect(
-                                                                                colDirigidoOpcionSeleccionadas, 
-                                                                                { Value: Trim(Value) } // 'Value' es el resultado del Split, Trim quita espacios
-                                                                            )
-                                                                        )
-                                                                    );
-
-                                                                    // 3. (Opcional) Normalizamos el texto de la variable para que quede bonito 
-                                                                    // (Ej: quita puntos y coma extra que el usuario pudo dejar al final)
-                                                                    UpdateContext({
-                                                                        varTextoSeleccionado: Concat(colDirigidoOpcionSeleccionadas, Value, "; ")
-                                                                    })
-                                                                  PaddingBottom: =3
-                                                                  PaddingLeft: =0
-                                                                  Placeholder: =If(varDirigidoSelected.Value="Gerencia","Gerencia",varDirigidoSelected.Value="País","País")
-                                                                  TriggerOutput: ='TextInputCanvas.TriggerOutput'.Keypress
-                                                                  Value: =varTextoSeleccionado
-                                                                  Width: =550
-                                                            - SpvNvCmc_IcnAbrirDirigidoOpcion:
-                                                                Control: Classic/Icon@2.5.0
-                                                                Properties:
-                                                                  AlignInContainer: =AlignInContainer.Center
-                                                                  BorderColor: =RGBA(0, 18, 107, 1)
-                                                                  Color: =ColorValue(Var_ColorBoton)
-                                                                  Height: =SpvNvCmc_IcnBorrarDirigidoOpcion.Height
-                                                                  Icon: =If(!varOpenDropDownDirigidoOpcion,Icon.ChevronDown,Icon.ChevronUp)
-                                                                  OnSelect: |-
-                                                                    =UpdateContext({varOpenDropDownDirigidoOpcion: !varOpenDropDownDirigidoOpcion})
-                                                                  Visible: |-
-                                                                    =//!IsEmpty(colDirigidoOpcionSeleccionadas)||Len(SpvNvCmc_LblDirigidoOpcionSel.Value)>0
-                                                                    true
-                                                                  Width: =SpvNvCmc_IcnBorrarDirigidoOpcion.Width
-                                                                  Y: =5
-                                                            - SpvNvCmc_IcnCerrarDirigidoOpcion:
-                                                                Control: Classic/Icon@2.5.0
-                                                                Properties:
-                                                                  AlignInContainer: =AlignInContainer.Center
-                                                                  BorderColor: =RGBA(0, 18, 107, 1)
-                                                                  BorderStyle: =BorderStyle.None
-                                                                  BorderThickness: =1
-                                                                  Color: =ColorValue(Var_ColorIconNegro)
-                                                                  Fill: =RGBA(255, 255, 255, 1)
-                                                                  Height: =SpvNvCmc_IcnBorrarDirigidoOpcion.Height
-                                                                  Icon: =Icon.ChevronUp
-                                                                  OnSelect: |-
-                                                                    =Reset(SpvNvCmc_LblDirigidoOpcionSel);SetFocus(SpvNvCmc_LblDirigidoOpcionSel);UpdateContext({varOpenDropDownDirigidoOpcion: !varOpenDropDownDirigidoOpcion})
-                                                                  PaddingBottom: =5
-                                                                  PaddingLeft: =5
-                                                                  PaddingRight: =5
-                                                                  PaddingTop: =5
-                                                                  Visible: |-
-                                                                    =//!IsEmpty(colDirigidoOpcionSeleccionadas)||Len(SpvNvCmc_LblDirigidoOpcionSel.Value)>0
-                                                                    false
-                                                                  Width: =SpvNvCmc_IcnBorrarDirigidoOpcion.Width
-                                                            - SpvNvCmc_IcnBorrarDirigidoOpcion:
-                                                                Control: Classic/Icon@2.5.0
-                                                                Properties:
-                                                                  AlignInContainer: =AlignInContainer.Center
-                                                                  BorderColor: =RGBA(0, 18, 107, 1)
-                                                                  Color: =ColorValue(Var_ColorBoton)
-                                                                  Height: =25
-                                                                  Icon: =Icon.Cancel
-                                                                  LayoutMinHeight: =40
-                                                                  OnSelect: |-
-                                                                    =UpdateContext({varRazDirigidoOpcion : true});
-                                                                    //UpdateContext({varDirigidoOpcionSelected:Blank()});;
-                                                                    SetFocus(SpvNvCmc_LblDirigidoOpcionSel);
-                                                                    UpdateContext({varRazDirigidoOpcion : false});
-                                                                    Clear(colDirigidoOpcionSeleccionadas)
-                                                                  PaddingBottom: =5
-                                                                  PaddingLeft: =5
-                                                                  PaddingRight: =5
-                                                                  PaddingTop: =5
-                                                                  Visible: |-
-                                                                    =//!IsEmpty(colDirigidoOpcionSeleccionadas)
-                                                                    false
-                                                                  Width: =25
-                                          - SpvNvCmc_LblDirigidoOpcion:
-                                              Control: Text@0.0.51
-                                              Properties:
-                                                Align: ='TextCanvas.Align'.Start
-                                                Fill: =RGBA(255, 255, 255, 1)
-                                                Font: =Font.'Open Sans'
-                                                Height: =19
-                                                PaddingLeft: =2
-                                                Size: =12
-                                                Text: =If(varDirigidoSelected.Value="Gerencia","Gerencia",varDirigidoSelected.Value="País","País")
-                                                Visible: =!IsBlank(SpvNvCmc_LblDirigidoOpcionSel.Value)
-                                                Width: =If(varDirigidoSelected.Value="Gerencia", 55, varDirigidoSelected.Value="País",28)
-                                                X: =15
-                                                Y: =5
                                     - SpvNvCmc_CtnRecurrente:
                                         Control: GroupContainer@1.5.0
                                         Variant: ManualLayout
@@ -1367,7 +1514,13 @@ Screens:
                                           BorderStyle: =BorderStyle.None
                                           DropShadow: =DropShadow.None
                                           FillPortions: =0
-                                          Height: =If(IsEmpty(colEstadoRecurrenteSeleccionadas),70,230)
+                                          Height: |-
+                                            =If(
+                                                SpvCmc_CtnMesFinInfo.Visible || SpvCmc_CtnDiaFinInfo.Visible,
+                                                310,
+                                                IsEmpty(colEstadoRecurrenteSeleccionadas),70,230
+
+                                            )
                                           LayoutMinHeight: =16
                                           LayoutMinWidth: =0
                                           Visible: =If(First(colEstadoTipoPublicacionSeleccionadas).Value = "Recurrente",true, false)
@@ -1387,7 +1540,7 @@ Screens:
                                                 RadiusTopRight: =10
                                                 Visible: =If(!IsEmpty(colEstadoRecurrenteSeleccionadas),true,false)
                                                 Width: =150
-                                                X: =180
+                                                X: =If(First(colEstadoRecurrenteSeleccionadas).Value = "Recurrente mensual",2,180)
                                                 Y: =SpvNvCmc_LblTiempoRecurrenciaHasta.Y + 25
                                               Children:
                                                 - SpvNvCmc_CtnDiaFin:
@@ -1395,6 +1548,7 @@ Screens:
                                                     Variant: ManualLayout
                                                     Properties:
                                                       BorderColor: =ColorValue(Var_ColorBordeBoton)
+                                                      BorderStyle: =BorderStyle.None
                                                       DropShadow: =DropShadow.None
                                                       Height: =Parent.Height
                                                       RadiusBottomLeft: =8
@@ -1506,7 +1660,7 @@ Screens:
                                                 RadiusBottomRight: =10
                                                 RadiusTopLeft: =10
                                                 RadiusTopRight: =10
-                                                Visible: =If(!IsEmpty(colEstadoRecurrenteSeleccionadas),true,false)
+                                                Visible: =If(First(colEstadoRecurrenteSeleccionadas).Value = "Recurrente mensual",false,true)
                                                 Width: =150
                                                 X: =2
                                                 Y: =SpvNvCmc_LblTiempoRecurrenciaHasta.Y + 25
@@ -1516,8 +1670,9 @@ Screens:
                                                     Variant: ManualLayout
                                                     Properties:
                                                       BorderColor: =ColorValue(Var_ColorBordeBoton)
+                                                      BorderStyle: =BorderStyle.None
                                                       DropShadow: =DropShadow.None
-                                                      Height: =Parent.Height
+                                                      Height: =Parent.Height - 1
                                                       RadiusBottomLeft: =8
                                                       RadiusBottomRight: =8
                                                       RadiusTopLeft: =8
@@ -1630,7 +1785,7 @@ Screens:
                                                 RadiusTopRight: =10
                                                 Visible: =If(!IsEmpty(colEstadoRecurrenteSeleccionadas),true,false)
                                                 Width: =150
-                                                X: =180
+                                                X: =If(First(colEstadoRecurrenteSeleccionadas).Value = "Recurrente mensual",2,180)
                                                 Y: =SpvNvCmc_LblTiempoRecurrenciaDesde.Y + 25
                                               Children:
                                                 - SpvNvCmc_CtnDiainicio:
@@ -1638,6 +1793,7 @@ Screens:
                                                     Variant: ManualLayout
                                                     Properties:
                                                       BorderColor: =ColorValue(Var_ColorBordeBoton)
+                                                      BorderStyle: =BorderStyle.None
                                                       DropShadow: =DropShadow.None
                                                       Height: =Parent.Height
                                                       RadiusBottomLeft: =8
@@ -1749,7 +1905,7 @@ Screens:
                                                 RadiusBottomRight: =10
                                                 RadiusTopLeft: =10
                                                 RadiusTopRight: =10
-                                                Visible: =If(!IsEmpty(colEstadoRecurrenteSeleccionadas),true,false)
+                                                Visible: =If(First(colEstadoRecurrenteSeleccionadas).Value = "Recurrente mensual",false,true)
                                                 Width: =150
                                                 X: =2
                                                 Y: =SpvNvCmc_LblTiempoRecurrenciaDesde.Y + 25
@@ -1759,6 +1915,7 @@ Screens:
                                                     Variant: ManualLayout
                                                     Properties:
                                                       BorderColor: =ColorValue(Var_ColorBordeBoton)
+                                                      BorderStyle: =BorderStyle.None
                                                       DropShadow: =DropShadow.None
                                                       Height: =Parent.Height
                                                       RadiusBottomLeft: =8
@@ -1919,6 +2076,8 @@ Screens:
                                                               );
                                                               UpdateContext({varOpenDropDownDiaInicio: false});
                                                               UpdateContext({varOpenDropDownDiaFin: false});
+                                                              UpdateContext({varOpenDropDownMesInicio: false});
+                                                              UpdateContext({varOpenDropDownMesFin: false});
                                                               UpdateContext({varRazDiaInicio : true});
                                                               UpdateContext({varDiaInicioSelected:Blank()});
                                                               SetFocus(SpvNvCmc_LblDiaInicio);
@@ -2036,7 +2195,7 @@ Screens:
                                                 PaddingLeft: =2
                                                 Size: =12
                                                 Text: ="Desde"
-                                                Visible: =SpvNvCmc_CtnMesinicioRecurrente.Visible
+                                                Visible: =SpvNvCmc_CtnDiainicioRecurrente.Visible
                                                 Width: =180
                                                 Y: =70
                                           - SpvNvCmc_LblTiempoRecurrenciaHasta:
@@ -2049,90 +2208,19 @@ Screens:
                                                 PaddingLeft: =2
                                                 Size: =12
                                                 Text: ="Hasta"
-                                                Visible: =SpvNvCmc_CtnMesFinRecurrente.Visible
+                                                Visible: =SpvNvCmc_CtnDiaFinRecurrente.Visible
                                                 Width: =180
                                                 Y: =150
-                                    - SpvNvCmc_CtnDescripcion:
+                                    - SpvNvCmc_CtnSeparacion:
                                         Control: GroupContainer@1.5.0
                                         Variant: ManualLayout
                                         Properties:
-                                          AlignInContainer: =AlignInContainer.SetByContainer
                                           BorderStyle: =BorderStyle.None
                                           DropShadow: =DropShadow.None
                                           FillPortions: =0
-                                          Height: =145
+                                          Height: =If(SpvNvCmc_Glrfiles.Visible,20,50)
                                           LayoutMinHeight: =16
-                                          LayoutMinWidth: =0
-                                          RadiusBottomLeft: =8
-                                          RadiusBottomRight: =8
-                                          RadiusTopLeft: =8
-                                          RadiusTopRight: =8
-                                          Width: |-
-                                            =//Parent.Width-50
-                                            600
-                                        Children:
-                                          - Container6_3:
-                                              Control: GroupContainer@1.5.0
-                                              Variant: ManualLayout
-                                              Properties:
-                                                BorderColor: =ColorValue(Var_ColorBordeBoton)
-                                                BorderThickness: =1
-                                                DropShadow: =DropShadow.None
-                                                Height: =126
-                                                RadiusBottomLeft: =8
-                                                RadiusBottomRight: =8
-                                                RadiusTopLeft: =8
-                                                RadiusTopRight: =8
-                                                Width: =Parent.Width-5
-                                                Y: =10
-                                              Children:
-                                                - SpvNvCmc_TxtIDescripcion:
-                                                    Control: Classic/TextInput@2.3.2
-                                                    Properties:
-                                                      BorderColor: =ColorValue(Var_ColorBordeBoton)
-                                                      BorderStyle: =BorderStyle.None
-                                                      BorderThickness: =0
-                                                      Color: =RGBA(50, 49, 48, 1)
-                                                      Default: =
-                                                      DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                                                      DisabledColor: =RGBA(161, 159, 157, 1)
-                                                      DisabledFill: =RGBA(0, 0, 0, 0)
-                                                      Fill: =RGBA(0, 0, 0, 0)
-                                                      Font: =Font.'Open Sans'
-                                                      Height: =120
-                                                      HintText: ="Descripción"
-                                                      HoverBorderColor: =RGBA(0, 0, 0, 0)
-                                                      HoverColor: =RGBA(50, 49, 48, 1)
-                                                      HoverFill: =RGBA(0, 0, 0, 0)
-                                                      Mode: =TextMode.MultiLine
-                                                      PaddingBottom: =0
-                                                      PaddingLeft: =10
-                                                      PaddingRight: =0
-                                                      PaddingTop: =0
-                                                      PressedBorderColor: =RGBA(0, 0, 0, 0)
-                                                      PressedColor: =RGBA(0, 0, 0, 1)
-                                                      PressedFill: =RGBA(0, 0, 0, 0)
-                                                      RadiusBottomLeft: =10
-                                                      RadiusBottomRight: =10
-                                                      RadiusTopLeft: =10
-                                                      RadiusTopRight: =10
-                                                      Size: =12
-                                                      Width: =Parent.Width
-                                                      Y: =6
-                                          - SpvNvCmc_LblDescripcion:
-                                              Control: Text@0.0.51
-                                              Properties:
-                                                Align: ='TextCanvas.Align'.Start
-                                                Fill: =RGBA(255, 255, 255, 1)
-                                                Font: =Font.'Open Sans'
-                                                Height: =16
-                                                PaddingLeft: =2
-                                                Size: =12
-                                                Text: ="Descripción"
-                                                Visible: =!IsBlank(SpvNvCmc_TxtIDescripcion.Text)
-                                                Width: =70
-                                                Wrap: =false
-                                                X: =15
+                                          LayoutMinWidth: =16
                                     - SpvNvCmc_CtnBotones:
                                         Control: GroupContainer@1.5.0
                                         Variant: AutoLayout
@@ -2161,8 +2249,8 @@ Screens:
                                                 Font: =Font.'Open Sans'
                                                 Height: =42
                                                 HoverBorderColor: =ColorValue(Var_ColorHoverBoton)
-                                                HoverColor: =ColorValue(Var_ColorHoverBoton)
-                                                HoverFill: =ColorValue(Var_ColorFadeBoton)
+                                                HoverColor: =RGBA(255, 255, 255, 1)
+                                                HoverFill: =ColorValue(Var_ColorHoverBoton)
                                                 OnSelect: =Navigate(Gbl_Comunicado)
                                                 PaddingLeft: =10
                                                 PressedBorderColor: =ColorValue(Var_ColorPressedBoton)
@@ -2187,11 +2275,12 @@ Screens:
                                                 DisabledBorderColor: =RGBA(166, 166, 166, 1)
                                                 Fill: =ColorValue(Var_ColorBoton)
                                                 Font: =Font.'Open Sans'
+                                                FontWeight: =FontWeight.Bold
                                                 Height: =42
                                                 HoverBorderColor: '=ColorFade(Self.BorderColor, 20%)                       '
                                                 HoverColor: =RGBA(255, 255, 255, 1)
                                                 HoverFill: =ColorValue(Var_ColorHoverBoton)
-                                                OnSelect: "=// 1. Igualación de fechas si el fin está en blanco\nIf(\n    IsBlank(var_RangeDatePicker_DateEnd),\n    UpdateContext({var_RangeDatePicker_DateEnd: var_RangeDatePicker_DateStart})\n);\n\n// 2. Bloque de validación secuencial\nIf(\n    IsBlank(SpvNvCmc_TxtITituloFormulario.Text),\n        UpdateContext({CloseAlertSpvNuevoComunicado:true, SpvNvCmcMensajeError: \"Debes ingresar el Título\"}),\n    \n    IsBlank(First(SpvNvCmc_var_uploadFile_listeAttachment)),\n        UpdateContext({CloseAlertSpvNuevoComunicado:true, SpvNvCmcMensajeError: \"Debes ingresar el Banner\"}),\n\n    IsEmpty(colEstadoTipoPublicacionSeleccionadas),\n        UpdateContext({CloseAlertSpvNuevoComunicado:true, SpvNvCmcMensajeError: \"Debes ingresar el tipo de publicación\"}),\n    \n    SpvNvCmc_LblFechaSeleccionada.Text = \"Tiempo de duración\" && IsEmpty(colEstadoRecurrenteSeleccionadas),\n        UpdateContext({CloseAlertSpvNuevoComunicado:true, SpvNvCmcMensajeError: \"Debes ingresar el Tiempo de duración\"}),\n    \n    IsBlank(SpvNvCmc_LblDirigidoSel.Value),\n        UpdateContext({CloseAlertSpvNuevoComunicado:true, SpvNvCmcMensajeError: \"Debes seleccionar el Dirigido a\"}),\n    \n    // \U0001F539 CORRECCIÓN: Se ignora si el valor principal es \"Todos\"\n    SpvNvCmc_LblDirigidoSel.Value <> \"Todos\" && IsBlank(SpvNvCmc_LblDirigidoOpcionSel.Value),\n        UpdateContext({CloseAlertSpvNuevoComunicado:true, SpvNvCmcMensajeError: If(SpvNvCmc_LblDirigidoSel.Value=\"Gerencia\",\"Debes seleccionar la Gerencia\",\"Debes seleccionar el País\")}),\n    \n    (!IsEmpty(colEstadoRecurrenteSeleccionadas) && IsBlank(varDiaInicioSelected.Value)),\n        UpdateContext({CloseAlertSpvNuevoComunicado:true, SpvNvCmcMensajeError: \"Debes ingresar el Día Inicio\"}),\n    \n    (!IsEmpty(colEstadoRecurrenteSeleccionadas) && IsBlank(varDiaFinSelected.Value)),\n        UpdateContext({CloseAlertSpvNuevoComunicado:true, SpvNvCmcMensajeError: \"Debes ingresar el Día Fin\"}),\n    \n    (!IsBlank(SpvNvCmc_LblMesInicio.Value) && IsBlank(SpvNvCmc_LblMesFin.Value)),\n        UpdateContext({CloseAlertSpvNuevoComunicado:true, SpvNvCmcMensajeError: \"Debes ingresar el Mes Fin\"}),\n    \n    IsBlank(SpvNvCmc_TxtIDescripcion.Text),\n        UpdateContext({CloseAlertSpvNuevoComunicado:true, SpvNvCmcMensajeError: \"Debes ingresar la Descripción\"}),\n    \n    // 3. \U0001F539 BLOQUE DE GUARDADO (Ejecutado solo si no aplican los errores anteriores)\n    IfError(\n        Patch(\n            'LCP-001_List_Comunicados',\n            Defaults('LCP-001_List_Comunicados'),\n            {\n                // Mapeo directo de Gerencia y País aplicando la palabra \"Todos\"\n                Gerencia: If(SpvNvCmc_LblDirigidoSel.Value = \"Todos\", \"Todos\", If(SpvNvCmc_LblDirigidoSel.Value = \"Gerencia\", Text(varTextoSeleccionado), Blank())),\n                Pais: If(SpvNvCmc_LblDirigidoSel.Value = \"Todos\", \"Todos\", If(SpvNvCmc_LblDirigidoSel.Value = \"País\", Text(varTextoSeleccionado), Blank())),\n                Cabecera: SpvNvCmc_TxtITituloFormulario.Text,\n                Cuerpo: SpvNvCmc_TxtIDescripcion.Text,\n                UsuarioCreador: User().FullName,\n                FechaCreacion: Now(),\n                Estado: \"Vigente\",\n                FechaInicio: var_RangeDatePicker_DateStart,\n                FechaFin: var_RangeDatePicker_DateEnd,\n                DiaInicio: Text(varDiaInicioSelected.Value),\n                MesInicio: Text(varMesInicioSelected.ID),\n                DiaFin: Text(varDiaFinSelected.Value),\n                MesFin: Text(varMesFinSelected.ID),\n                EstadoComunicado: \"Activo\",\n                Recurrente: CountRows(colEstadoRecurrenteSeleccionadas) > 0,\n                TipoRecurrente: First(colEstadoRecurrenteSeleccionadas).Value,\n                TipoPublicacion: First(colEstadoTipoPublicacionSeleccionadas).Value,\n                Imagen: If(\n                    !IsEmpty(SpvNvCmc_var_uploadFile_listeAttachment),\n                    {\n                        FileName: First(SpvNvCmc_var_uploadFile_listeAttachment).nombre,\n                        Value: First(SpvNvCmc_var_uploadFile_listeAttachment).VistaPrevia,\n                        Full: Blank(),\n                        Large: Blank(),\n                        Medium: Blank(),\n                        Small: Blank(),\n                        Id: Blank(),\n                        MetaData: Blank()\n                    },\n                    Blank()\n                )\n            }\n        ),\n        // \U0001F534 Manejador de Error del Patch\n        UpdateContext({\n            CloseAlertSpvNuevoComunicado: true,\n            SpvNvCmcMensajeError: \"Ocurrió un error al crear la comunicación\"\n        }),\n        \n        // \U0001F7E2 Manejador de Éxito del Patch\n        Set(SpvNvCmcAlertaSatisfaccion, true);\n        Set(Var_SpvMensajeSatisfactorioComunicacion, \"Se ha creado una nueva comunicación.\");\n        Reset(SpvNvCmc_TxtITituloFormulario);\n        UpdateContext({var_RangeDatePicker_DateStart: Blank(), var_RangeDatePicker_DateEnd: Blank()});\n        Reset(SpvNvCmc_LblDirigidoSel);\n        Remove(SpvNvCmc_var_uploadFile_listeAttachment, First(SpvNvCmc_var_uploadFile_listeAttachment));\n        Reset(SpvNvCmc_TxtIDescripcion);\n        UpdateContext({varTextoSeleccionado : Blank()});\n        Navigate(Gbl_Comunicado)\n    )\n)"
+                                                OnSelect: "=// 1. Igualación de fechas si el fin está en blanco\nIf(\n    IsBlank(var_RangeDatePicker_DateEnd),\n    UpdateContext({var_RangeDatePicker_DateEnd: var_RangeDatePicker_DateStart})\n);\n\n// 2. Bloque de validación secuencial y Guardado\nIf(\n    IsBlank(SpvNvCmc_TxtITituloFormulario.Text),\n        UpdateContext({CloseAlertSpvNuevoComunicado: true, SpvNvCmcMensajeError: \"Debes ingresar el Título\"}),\n\n    IsBlank(SpvNvCmc_TxtIDescripcion.Text),\n        UpdateContext({CloseAlertSpvNuevoComunicado: true, SpvNvCmcMensajeError: \"Debes ingresar la Descripción\"}),\n\n    IsBlank(First(SpvNvCmc_var_uploadFile_listeAttachment)),\n        UpdateContext({CloseAlertSpvNuevoComunicado: true, SpvNvCmcMensajeError: \"Debes adjuntar el Banner\"}),\n\n    IsBlank(SpvNvCmc_LblDirigidoSel.Value),\n        UpdateContext({CloseAlertSpvNuevoComunicado: true, SpvNvCmcMensajeError: \"Debes seleccionar Dirigido a\"}),\n\n    // Se ignora sub-selección si el valor principal es \"Todos\"\n    SpvNvCmc_LblDirigidoSel.Value <> \"Todos\" && IsBlank(SpvNvCmc_LblDirigidoOpcionSel.Value),\n        UpdateContext({\n            CloseAlertSpvNuevoComunicado: true,\n            SpvNvCmcMensajeError: If(SpvNvCmc_LblDirigidoSel.Value = \"Gerencia\", \"Debes seleccionar la Gerencia\", \"Debes seleccionar el País\")\n        }),\n\n    IsEmpty(colEstadoTipoPublicacionSeleccionadas),\n        UpdateContext({CloseAlertSpvNuevoComunicado: true, SpvNvCmcMensajeError: \"Debes ingresar el tipo de publicación\"}),\n\n    First(colEstadoTipoPublicacionSeleccionadas).Value = \"Evento único\" && SpvNvCmc_LblFechaSeleccionada.Text = \"Tiempo de duración\",\n        UpdateContext({CloseAlertSpvNuevoComunicado: true, SpvNvCmcMensajeError: \"Debes ingresar el Tiempo de duración\"}),\n\n    First(colEstadoTipoPublicacionSeleccionadas).Value = \"Recurrente\" && IsEmpty(colEstadoRecurrenteSeleccionadas),\n        UpdateContext({CloseAlertSpvNuevoComunicado: true, SpvNvCmcMensajeError: \"Debes seleccionar el Tipo de recurrencia\"}),\n\n    // Validaciones exclusivas de Recurrencia\n    First(colEstadoRecurrenteSeleccionadas).Value = \"Recurrente anual\" && IsBlank(varMesInicioSelected.ID),\n        UpdateContext({CloseAlertSpvNuevoComunicado: true, SpvNvCmcMensajeError: \"Debes ingresar el Mes Inicio\"}),\n\n    !IsEmpty(colEstadoRecurrenteSeleccionadas) && IsBlank(varDiaInicioSelected.Value),\n        UpdateContext({CloseAlertSpvNuevoComunicado: true, SpvNvCmcMensajeError: \"Debes ingresar el Día Inicio\"}),\n\n    First(colEstadoRecurrenteSeleccionadas).Value = \"Recurrente anual\" && IsBlank(varMesFinSelected.ID),\n        UpdateContext({CloseAlertSpvNuevoComunicado: true, SpvNvCmcMensajeError: \"Debes ingresar el Mes Fin\"}),\n\n    !IsEmpty(colEstadoRecurrenteSeleccionadas) && IsBlank(varDiaFinSelected.Value),\n        UpdateContext({CloseAlertSpvNuevoComunicado: true, SpvNvCmcMensajeError: \"Debes ingresar el Día Fin\"}),\n\n    // 3. BLOQUE DE GUARDADO (Fallback general: Solo ejecuta si no hay errores de validación)\n    IfError(\n        Patch(\n            'LCP-001_List_Comunicados',\n            Defaults('LCP-001_List_Comunicados'),\n            {\n                Gerencia: If(SpvNvCmc_LblDirigidoSel.Value = \"Todos\", \"Todos\", If(SpvNvCmc_LblDirigidoSel.Value = \"Gerencia\", Text(varTextoSeleccionado), Blank())),\n                Pais: If(SpvNvCmc_LblDirigidoSel.Value = \"Todos\", \"Todos\", If(SpvNvCmc_LblDirigidoSel.Value = \"País\", Text(varTextoSeleccionado), Blank())),\n                Cabecera: SpvNvCmc_TxtITituloFormulario.Text,\n                Cuerpo: SpvNvCmc_TxtIDescripcion.Text,\n                UsuarioCreador: User().FullName,\n                FechaCreacion: Now(),\n                Estado: \"Vigente\",\n                EsVisibleHoy: If(\n                    First(colEstadoTipoPublicacionSeleccionadas).Value = \"Evento único\",\n                    // 1. Lógica para Evento Único\n                    !IsBlank(var_RangeDatePicker_DateStart) && !IsBlank(var_RangeDatePicker_DateEnd) && Today() >= var_RangeDatePicker_DateStart && Today() <=              var_RangeDatePicker_DateEnd,\n\n                    First(colEstadoTipoPublicacionSeleccionadas).Value = \"Recurrente\" && First(colEstadoRecurrenteSeleccionadas).Value = \"Recurrente anual\",\n                    // 2. Lógica para Recurrente Anual (evalúa Día y Mes proyectados en el año actual)\n                    If(\n                        !IsBlank(varDiaInicioSelected.Value) && !IsBlank(varMesInicioSelected.ID) && !IsBlank(varDiaFinSelected.Value) && !IsBlank(varMesFinSelected.ID),\n                        With(\n                            {\n                                _fechaIni: Date(Year(Today()), Value(varMesInicioSelected.ID), Value(varDiaInicioSelected.Value)),\n                                _fechaFin: Date(Year(Today()), Value(varMesFinSelected.ID), Value(varDiaFinSelected.Value))\n                            },\n                            If(\n                                _fechaIni <= _fechaFin,\n                                // Rango normal en el mismo año (Ej: Mayo a Agosto)\n                                Today() >= _fechaIni && Today() <= _fechaFin,\n                                // Rango cruzado de año (Ej: Noviembre a Febrero del año siguiente)\n                                Today() >= _fechaIni || Today() <= _fechaFin\n                            )\n                        ),\n                        false\n                    ),\n\n                    First(colEstadoTipoPublicacionSeleccionadas).Value = \"Recurrente\" && First(colEstadoRecurrenteSeleccionadas).Value = \"Recurrente mensual\",\n                    // 3. Lógica para Recurrente Mensual (evalúa únicamente el Día actual)\n                    If(\n                        !IsBlank(varDiaInicioSelected.Value) && !IsBlank(varDiaFinSelected.Value),\n                        If(\n                            Value(varDiaInicioSelected.Value) <= Value(varDiaFinSelected.Value),\n                            // Rango de días normal en el mismo mes (Ej: del día 5 al 20)\n                            Day(Today()) >= Value(varDiaInicioSelected.Value) && Day(Today()) <= Value(varDiaFinSelected.Value),\n                            // Rango de días cruzado de mes (Ej: del día 25 al día 5 del siguiente mes)\n                            Day(Today()) >= Value(varDiaInicioSelected.Value) || Day(Today()) <= Value(varDiaFinSelected.Value)\n                        ),\n                        false\n                    ),\n                    // Caso de escape por defecto\n                    false\n                ),\n                FechaInicio: var_RangeDatePicker_DateStart,\n                FechaFin: var_RangeDatePicker_DateEnd,\n                DiaInicio: Text(varDiaInicioSelected.Value),\n                MesInicio: Text(varMesInicioSelected.ID),\n                DiaFin: Text(varDiaFinSelected.Value),\n                MesFin: Text(varMesFinSelected.ID),\n                EstadoComunicado: \"Activo\",\n                Recurrente: CountRows(colEstadoRecurrenteSeleccionadas) > 0,\n                TipoRecurrente: First(colEstadoRecurrenteSeleccionadas).Value,\n                TipoPublicacion: First(colEstadoTipoPublicacionSeleccionadas).Value,\n                Imagen: If(\n                    !IsEmpty(SpvNvCmc_var_uploadFile_listeAttachment),\n                    {\n                        FileName: First(SpvNvCmc_var_uploadFile_listeAttachment).nombre,\n                        Value: First(SpvNvCmc_var_uploadFile_listeAttachment).VistaPrevia,\n                        Full: Blank(),\n                        Large: Blank(),\n                        Medium: Blank(),\n                        Small: Blank(),\n                        Id: Blank(),\n                        MetaData: Blank()\n                    },\n                    Blank()\n                )\n            }\n        );\n        \n        // Manejador de Éxito Secuencial\n        Set(SpvNvCmcAlertaSatisfaccion, true);\n        Set(Var_SpvMensajeSatisfactorioComunicacion, \"Se ha creado una nueva comunicación.\");\n        Reset(SpvNvCmc_TxtITituloFormulario);\n        UpdateContext({var_RangeDatePicker_DateStart: Blank(), var_RangeDatePicker_DateEnd: Blank()});\n        Reset(SpvNvCmc_LblDirigidoSel);\n        Clear(SpvNvCmc_var_uploadFile_listeAttachment);\n        Reset(SpvNvCmc_TxtIDescripcion);\n        UpdateContext({varTextoSeleccionado: Blank()});\n        Navigate(Gbl_Comunicado),\n\n        // Fallback de Error de Transacción (Se ejecuta si el Patch o cualquier evento de éxito falla)\n        Set(_varError, {\n            Fecha: Now(),\n            Usuario: {\n                Codigo: Var_ProfileUser.Codigo,\n                Nombre: Var_ProfileUser.NombreApellido\n            },\n            Error: FirstError.Message,\n            Details: FirstError.Details,\n            Source: FirstError.Source,\n            Kind: FirstError.Kind\n        });\n        Patch(\n            'LCP-001_List_ErroresSolicitud',\n            Defaults('LCP-001_List_ErroresSolicitud'),\n            {\n                TipoSolicitud: Var_TipoOperacionApp.Creado,\n                FechaError: Now(),\n                Error: JSON(_varError, JSONFormat.Compact),\n                CodigoUsuario: Var_ProfileUser.Codigo\n            }\n        );\n        UpdateContext({\n            CloseAlertSpvNuevoComunicado: true,\n            SpvNvCmcMensajeError: \"Ocurrió un error al crear la comunicación\"\n        })\n    )\n)"
                                                 PaddingLeft: =10
                                                 PressedBorderColor: =Self.PressedFill
                                                 PressedColor: =ColorValue(Var_ColorBlanco)
@@ -2209,11 +2298,11 @@ Screens:
                                   Properties:
                                     DropShadow: =DropShadow.Semilight
                                     Fill: =RGBA(255, 255, 255, 1)
-                                    Height: =CountRows(SpvNvCmc_GlrOpcionesMesFin.AllItems) * 15.4
+                                    Height: =CountRows(SpvNvCmc_GlrOpcionesMesFin.AllItems) * 15.4 - 35
                                     Visible: =varOpenDropDownMesFin
                                     Width: =SpvNvCmc_CtnMesFinRecurrente.Width
                                     X: =SpvNvCmc_CtnMesFinRecurrente.X + 25
-                                    Y: "=If(\r\n    !SpvNvCmc_CtnTiempoDuracion.Visible && !SpvNvCmc_CtnDirigidoOpciones.Visible,\r\n    SpvNvCmc_CtnMesFinRecurrente.Height + 510,\r\n    \r\n    SpvNvCmc_CtnDirigidoOpciones.Visible,\r\n    SpvNvCmc_CtnMesFinRecurrente.Height + 580\r\n)"
+                                    Y: "=If(\r\n    !SpvNvCmc_CtnDirigidoOpciones.Visible && SpvNvCmc_Glrfiles.Visible,\r\n    SpvNvCmc_CtnDiainicioRecurrente.Height + 685,\r\n    \r\n    SpvNvCmc_CtnDirigidoOpciones.Visible && SpvNvCmc_Glrfiles.Visible,\r\n    SpvNvCmc_CtnDiainicioRecurrente.Height + 755,\r\n    \r\n    !SpvNvCmc_CtnTiempoDuracion.Visible && !SpvNvCmc_CtnDirigidoOpciones.Visible,\r\n    SpvNvCmc_CtnMesFinRecurrente.Height + 655,\r\n    \r\n    SpvNvCmc_CtnDirigidoOpciones.Visible,\r\n    SpvNvCmc_CtnMesFinRecurrente.Height + 725\r\n)"
                                   Children:
                                     - SpvNvCmc_GlrOpcionesMesFin:
                                         Control: Gallery@2.15.0
@@ -2253,11 +2342,11 @@ Screens:
                                   Properties:
                                     DropShadow: =DropShadow.Semilight
                                     Fill: =RGBA(255, 255, 255, 1)
-                                    Height: =CountRows(SpvNvCmc_GlrOpcionesDiaFin.AllItems) * 6
+                                    Height: =CountRows(SpvNvCmc_GlrOpcionesDiaFin.AllItems) * 6 - 35
                                     Visible: =varOpenDropDownDiaFin
                                     Width: =SpvNvCmc_CtnDiaFinRecurrente.Width
                                     X: =SpvNvCmc_CtnDiaFinRecurrente.X + 25
-                                    Y: "=//If(!SpvNvCmc_CtnTiempoDuracion.Visible;SpvNvCmc_CtnDiaFinRecurrente.Height + 350)\r\nIf(\r\n    !SpvNvCmc_CtnTiempoDuracion.Visible && !SpvNvCmc_CtnDirigidoOpciones.Visible,\r\n    SpvNvCmc_CtnDiaFinRecurrente.Height + 510,\r\n    \r\n    SpvNvCmc_CtnDirigidoOpciones.Visible,\r\n    SpvNvCmc_CtnDiaFinRecurrente.Height + 580\r\n)"
+                                    Y: "=If(\r\n    !SpvNvCmc_CtnDirigidoOpciones.Visible && SpvNvCmc_Glrfiles.Visible,\r\n    SpvNvCmc_CtnDiainicioRecurrente.Height + 685,\r\n\r\n    SpvNvCmc_CtnDirigidoOpciones.Visible && SpvNvCmc_Glrfiles.Visible,\r\n    SpvNvCmc_CtnDiainicioRecurrente.Height + 755,\r\n\r\n    !SpvNvCmc_CtnTiempoDuracion.Visible && !SpvNvCmc_CtnDirigidoOpciones.Visible,\r\n    SpvNvCmc_CtnDiaFinRecurrente.Height + 655,\r\n    \r\n    SpvNvCmc_CtnDirigidoOpciones.Visible,\r\n    SpvNvCmc_CtnDiaFinRecurrente.Height + 725\r\n)"
                                   Children:
                                     - SpvNvCmc_GlrOpcionesDiaFin:
                                         Control: Gallery@2.15.0
@@ -2302,11 +2391,11 @@ Screens:
                                   Properties:
                                     DropShadow: =DropShadow.Semilight
                                     Fill: =RGBA(255, 255, 255, 1)
-                                    Height: =CountRows(SpvNvCmc_GlrOpcionesMesInicio.AllItems) * 15.4
+                                    Height: =CountRows(SpvNvCmc_GlrOpcionesMesInicio.AllItems) * 15.4 - 35
                                     Visible: =varOpenDropDownMesInicio
                                     Width: =SpvNvCmc_CtnMesinicioRecurrente.Width
                                     X: =SpvNvCmc_CtnMesinicioRecurrente.X + 25
-                                    Y: "=If(\r\n    !SpvNvCmc_CtnTiempoDuracion.Visible && !SpvNvCmc_CtnDirigidoOpciones.Visible,\r\n    SpvNvCmc_CtnMesinicioRecurrente.Height + 430,\r\n    \r\n    SpvNvCmc_CtnDirigidoOpciones.Visible,\r\n    SpvNvCmc_CtnMesinicioRecurrente.Height + 500\r\n)"
+                                    Y: "=If(\r\n    !SpvNvCmc_CtnDirigidoOpciones.Visible && SpvNvCmc_Glrfiles.Visible,\r\n    SpvNvCmc_CtnDiainicioRecurrente.Height + 605,\r\n    \r\n    SpvNvCmc_CtnDirigidoOpciones.Visible && SpvNvCmc_Glrfiles.Visible,\r\n    SpvNvCmc_CtnDiainicioRecurrente.Height + 675,\r\n    \r\n    !SpvNvCmc_CtnTiempoDuracion.Visible && !SpvNvCmc_CtnDirigidoOpciones.Visible,\r\n    SpvNvCmc_CtnMesinicioRecurrente.Height + 575,\r\n    \r\n    SpvNvCmc_CtnDirigidoOpciones.Visible,\r\n    SpvNvCmc_CtnMesinicioRecurrente.Height + 645\r\n)"
                                   Children:
                                     - SpvNvCmc_GlrOpcionesMesInicio:
                                         Control: Gallery@2.15.0
@@ -2346,11 +2435,11 @@ Screens:
                                   Properties:
                                     DropShadow: =DropShadow.Semilight
                                     Fill: =RGBA(255, 255, 255, 1)
-                                    Height: =CountRows(SpvNvCmc_GlrOpcionesDiaInicio.AllItems) * 6
+                                    Height: =CountRows(SpvNvCmc_GlrOpcionesDiaInicio.AllItems) * 6 - 35
                                     Visible: =varOpenDropDownDiaInicio
                                     Width: =SpvNvCmc_CtnDiainicioRecurrente.Width
                                     X: =SpvNvCmc_CtnDiainicioRecurrente.X + 25
-                                    Y: "=If(\r\n    !SpvNvCmc_CtnTiempoDuracion.Visible && !SpvNvCmc_CtnDirigidoOpciones.Visible,\r\n    SpvNvCmc_CtnDiainicioRecurrente.Height + 430,\r\n    \r\n    SpvNvCmc_CtnDirigidoOpciones.Visible,\r\n    SpvNvCmc_CtnDiainicioRecurrente.Height + 500\r\n)"
+                                    Y: "=If(\r\n    !SpvNvCmc_CtnDirigidoOpciones.Visible && SpvNvCmc_Glrfiles.Visible,\r\n    SpvNvCmc_CtnDiainicioRecurrente.Height + 605,\r\n\r\n    SpvNvCmc_CtnDirigidoOpciones.Visible && SpvNvCmc_Glrfiles.Visible,\r\n    SpvNvCmc_CtnDiainicioRecurrente.Height + 675,\r\n\r\n    !SpvNvCmc_CtnTiempoDuracion.Visible && !SpvNvCmc_CtnDirigidoOpciones.Visible,\r\n    SpvNvCmc_CtnDiainicioRecurrente.Height + 575,\r\n    \r\n    SpvNvCmc_CtnDirigidoOpciones.Visible,\r\n    SpvNvCmc_CtnDiainicioRecurrente.Height + 645\r\n)"
                                   Children:
                                     - SpvNvCmc_GlrOpcionesDiaInicio:
                                         Control: Gallery@2.15.0
@@ -2404,14 +2493,7 @@ Screens:
                                     Visible: =varOpenDropDownDirigidoOpcion
                                     Width: =SpvNvCmc_CtnDirigidoOpcionSel.Width - 2
                                     X: =SpvNvCmc_CtnDirigidoOpcionSel.Height - 13
-                                    Y: |-
-                                      =//SpvNvCmc_CtnDirigidoOpcionSel.Width - 75//5
-                                      If(
-                                          !SpvNvCmc_CtnTiempoDuracion.Visible,
-                                          SpvNvCmc_CtnDirigidoOpcionSel.Width - 210,
-
-                                          SpvNvCmc_CtnDirigidoOpcionSel.Width - 140
-                                      )
+                                    Y: =If(SpvNvCmc_Glrfiles.Visible,SpvNvCmc_CtnDirigidoOpcionSel.Height + 455,SpvNvCmc_CtnDirigidoOpcionSel.Height + 425)
                                   Children:
                                     - SpvCmc_GalItemsDirigidoOpcion:
                                         Control: Gallery@2.15.0
@@ -2445,9 +2527,7 @@ Screens:
                                                 HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
                                                 HoverColor: =ColorValue(Var_ColorGray)
                                                 HoverFill: =ColorValue(Var_ColorFadeBoton)
-                                                OnSelect: |-
-                                                  =//UpdateContext({varAreaSelected : ThisItem ; varOpenDropDownArea: false})
-                                                  Select(SpvCmc_BtnChkItemsDirigidoOpcion)
+                                                OnSelect: =Select(SpvCmc_BtnChkItemsDirigidoOpcion)
                                                 PressedBorderColor: =Self.Fill
                                                 PressedColor: =ColorValue(Var_ColorGray)
                                                 PressedFill: =ColorValue(Var_ColorFadeBoton)
@@ -2537,9 +2617,7 @@ Screens:
                                     Visible: =varOpenDropDownDirigido
                                     Width: =SpvNvCmc_CtnDirigidoSel.Width - 2
                                     X: =SpvNvCmc_CtnDirigidoSel.Height - 13
-                                    Y: |-
-                                      =//SpvNvCmc_CtnDirigidoSelOpciones.Height + 280//350
-                                      If(!SpvNvCmc_CtnTiempoDuracion.Visible,SpvNvCmc_CtnDirigidoSelOpciones.Height + 280,SpvNvCmc_CtnDirigidoSelOpciones.Height + 350)
+                                    Y: =If(SpvNvCmc_Glrfiles.Visible,SpvNvCmc_CtnDirigidoSelOpciones.Height + 385,SpvNvCmc_CtnDirigidoSelOpciones.Height + 355)
                                   Children:
                                     - SpvNvCmc_GlrOpcionesDirigido:
                                         Control: Gallery@2.15.0
@@ -2706,7 +2784,7 @@ Screens:
                                       RGBA(0, 0, 0, 1)
                                     DropShadow: =DropShadow.Semibold
                                     Fill: =RGBA(255, 255, 255, 1)
-                                    Height: =Self.Width + 37
+                                    Height: =Self.Width - 35
                                     LayoutDirection: =LayoutDirection.Vertical
                                     RadiusBottomLeft: =16
                                     RadiusBottomRight: =16
@@ -2715,7 +2793,17 @@ Screens:
                                     Visible: =var_RangeDatePicker=true&&var_RangeDatePicker_SelectMonthYear<>true
                                     Width: =SpvCmc_CtnFiltroFecha.Width - 50
                                     X: =SpvNvCmc_FechasTiempoDuracion.X + 24
-                                    Y: =SpvNvCmc_FechasTiempoDuracion.Y + 345
+                                    Y: |-
+                                      =If(
+                                          !SpvNvCmc_CtnDirigidoOpciones.Visible && SpvNvCmc_Glrfiles.Visible,
+                                          SpvNvCmc_FechasTiempoDuracion.Y + 550,
+                                          SpvNvCmc_CtnDirigidoOpciones.Visible && !SpvNvCmc_Glrfiles.Visible,
+                                          SpvNvCmc_FechasTiempoDuracion.Y + 590,
+                                          SpvNvCmc_CtnDirigidoOpciones.Visible && SpvNvCmc_Glrfiles.Visible,
+                                          SpvNvCmc_FechasTiempoDuracion.Y + 620,
+                                          !SpvNvCmc_CtnDirigidoOpciones.Visible && !SpvNvCmc_Glrfiles.Visible,
+                                          SpvNvCmc_FechasTiempoDuracion.Y + 520
+                                      )
                                   Children:
                                     - SpvNvCmc_CtnMonthYear:
                                         Control: GroupContainer@1.5.0
@@ -2931,7 +3019,7 @@ Screens:
                                                             Color: =RGBA(180, 214, 250, 1)
                                                             Fill: =ColorValue(Var_ColorFadeBoton)
                                                             Font: =Font.'Open Sans'
-                                                            Height: =Parent.Height - 175
+                                                            Height: =Parent.Height - 130
                                                             OnSelect: =Select(Parent)
                                                             Text: =""
                                                             Visible: |-
@@ -2952,11 +3040,11 @@ Screens:
                                                             BorderColor: =RGBA(0, 18, 107, 1)
                                                             Color: =ColorValue(Var_ColorBoton)
                                                             Font: =Font.'Open Sans'
-                                                            Height: =3.3333333333333335 + 60
+                                                            Height: =3.3333333333333335 + 40
                                                             OnSelect: =Select(Parent)
                                                             Text: ="•"
                                                             Visible: =ThisItem.Value = Today()
-                                                            Width: =Parent.Width
+                                                            Width: =Parent.Width - 1
                                                       - SpvNvCmc_BtnDate:
                                                           Control: Classic/Button@2.2.0
                                                           Properties:
@@ -2986,7 +3074,7 @@ Screens:
                                                               )
                                                             Font: =Font.'Open Sans'
                                                             FontWeight: =FontWeight.Normal
-                                                            Height: =If(Self.Fill<>Color.LightBlue&&Self.Fill<>Color.Blue, 2*Parent.TemplateHeight/3,2*Parent.TemplateHeight/3) + 15
+                                                            Height: =If(Self.Fill<>Color.LightBlue&&Self.Fill<>Color.Blue, 2*Parent.TemplateHeight/3,2*Parent.TemplateHeight/3) + 2
                                                             HoverBorderColor: =If(Month(ThisItem.Value)=Month(var_RangePickerDateRef), If(var_RangeDatePicker_DateEnd = ThisItem.Value || var_RangeDatePicker_DateStart = ThisItem.Value,ColorValue(Var_ColorBoton),ColorValue(Var_ColorBoton)),Color.White)
                                                             HoverColor: =Color.White
                                                             HoverFill: =ColorValue(Var_ColorBoton)
@@ -3055,7 +3143,8 @@ Screens:
                                                             RadiusTopRight: =4
                                                             Size: =10
                                                             Text: =Day(ThisItem.Value)
-                                                            Width: =Self.Height
+                                                            Width: =Self.Height + 10
+                                                            X: =5
                                     - SpvNvCmc_CtnButtons:
                                         Control: GroupContainer@1.5.0
                                         Variant: AutoLayout
@@ -3172,7 +3261,7 @@ Screens:
             DisabledBorderColor: =RGBA(242, 242, 241, 0)
             DisabledColor: =RGBA(161, 159, 157, 1)
             DisabledFill: =RGBA(242, 242, 241, 0)
-            Duration: =3000
+            Duration: =6000
             Fill: =RGBA(0, 120, 212, 1)
             Font: =Font.'Segoe UI'
             HoverBorderColor: =RGBA(16, 110, 190, 1)

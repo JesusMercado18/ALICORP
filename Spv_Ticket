@@ -3,7 +3,15 @@ Screens:
     Properties:
       LoadingSpinnerColor: =RGBA(56, 96, 178, 1)
       OnVisible: |-
-        =UpdateContext({ menuSelected: 3 , varOpenDropDownEstado: false , varOpenDropDown: false , varUserSelected: Blank() , varEstadoSelected: Blank() , Var_Ctx_MostrarFiltrosTicket: false   });
+        =UpdateContext({
+            menuSelected: 3, 
+            varOpenDropDownEstado: false, 
+            varOpenDropDown: false,
+            varUserSelected: Blank(),
+            varEstadoSelected: Blank(),
+            Var_Ctx_MostrarFiltrosTicket: false,
+            Var_CmcLoadingSpinnerVisible: false
+        });
         // Reset de filtros:
 
         If(Spv_IcoLimpiarFechaTicket.Visible, Select(Spv_IcoLimpiarFechaTicket));
@@ -27,8 +35,8 @@ Screens:
 
         ClearCollect(colQuerysSpvTicket,
             { input: "ID",                mark: false, query: "" },
-            { input: "Gerencia",          mark: false, query: "" },
-            { input: "Area",              mark: false, query: "" },
+            { input: "Gerencia",          mark: true, query: "Gerencia eq '"& Var_ProfileUser.Gerencia &"'" },
+            { input: "Area",              mark: true, query: "Area eq '"& Var_ProfileUser.Area &"'" },
             { input: "Subarea",           mark: false, query: "" },
             { input: "Pais",              mark: false, query: "" },
             { input: "Sociedad",          mark: false, query: "" },
@@ -49,6 +57,7 @@ Screens:
             { input: "Prioridad",         mark: false, query: "" },
             { input: "AprobadorNombre",   mark: false, query: "" },
             { input: "TipoRequerimiento", mark: false, query: "" },
+            { input: "EstadoActual", mark: false, query: "" },
             //{ input: "AnalistaCorreo";    mark: false; query: "(AnalistaCorreo eq 'test@alicorp.pe' or SolicitanteCorreo eq 'test@alicorp.pe')"}
             { input: "AnalistaCorreo",    mark: false, query: "(AnalistaCorreo eq '"&Var_ProfileUser.CorreoUsuario&"' or SolicitanteCorreo eq 'test@alicorp.pe')"}
         );
@@ -60,12 +69,14 @@ Screens:
             {Title: "Gerencia" ,      Open: false},
         	{Title: "Área" ,          Open: false},
         	{Title: "Subárea" ,       Open: false},
-        	{Title: "Requerimiento" , Open: false},
+        	{Title: "Tipo de Solicitud" , Open: false},
         	{Title: "Atendido por" ,  Open: false}
             );
 
         // Cada vez que el usuario visualiza su bandeja de ticket, debemos actualizar 
-        ClearCollect(col_SpvTipoSolicitud, Filter(Distinct('LCP-001_List_TicketSolicitudes', TipoSolicitud), !IsBlank(Value)));
+        ClearCollect(col_SpvTipoSolicitud, Filter('LCP-001_List_Configuracion_Ticket', Estado.Value = "Activo") );
+
+
         ClearCollect(col_SpvAtendidoPor,Filter(Distinct('LCP-001_List_TicketSolicitudes', NombreAtendidoPor), !IsBlank(Value)));
 
         // 1. Limpiamos la colección antes de cargar los datos nuevos
@@ -118,10 +129,11 @@ Screens:
             ForAll(
                 col_SpvTipoSolicitud, // Nombre de tu lista de SharePoint
                 {
-                    Title: "Requerimiento",
-                    Value: ThisRecord.Value, // Cambia 'NombreRequerimiento' por tu columna de SP
-                    ParentGerencia: "",
-                    ParentArea: ""
+                    Title: "Tipo de Solicitud",
+                    Value: TipoSolicitud, // Cambia 'NombreRequerimiento' por tu columna de SP
+                    ParentGerencia: ThisRecord.Gerencia,   /* -- nuevo ---- */
+                    ParentArea: ThisRecord.Area, /* -- nuevo ---- */
+                    ParentSubArea: ThisRecord.SubArea /* -- nuevo ---- */
                 }
             )
         );
@@ -208,7 +220,8 @@ Screens:
                               RolUsuario: =Var_RolSistema
                               Width: =Parent.Width
                               WidthMenu: =100
-                              displayNameUser: =Var_UserProfile.FullName
+                              btnHome: =Gbl_Home
+                              displayNameUser: =Var_ProfileUser.'Nombre (Nombre0)'
                               itemsMenu: =colMenuGeneral
                               menuSelected: ="Ticket"
                               openMenu: =Set(Var_OpenMenu, !Var_OpenMenu)
@@ -356,7 +369,7 @@ Screens:
                             Properties:
                               DropShadow: =DropShadow.None
                               FillPortions: =0
-                              Height: =16
+                              Height: =30
                               LayoutMinHeight: =16
                               LayoutMinWidth: =16
                         - Spv_CtnTituloTicket:
@@ -418,6 +431,7 @@ Screens:
                                             1
                                           Color: =ColorValue(Var_ColorBoton)
                                           DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                                          DisplayMode: =DisplayMode.Disabled
                                           Fill: =RGBA(0, 0, 0, 0)
                                           Font: =Font.'Open Sans'
                                           Height: =42
@@ -815,7 +829,7 @@ Screens:
                                               Variant: Horizontal
                                               Properties:
                                                 BorderColor: =RGBA(0, 18, 107, 1)
-                                                Height: =50
+                                                Height: =80
                                                 Items: |-
                                                   =//Sequence(RoundUp(TotalItemSpv/Var_GridPageSizeSpv; 0); 1)
                                                   If(
@@ -969,7 +983,9 @@ Screens:
                                                       DropShadow: =DropShadow.None
                                                       FillPortions: =0
                                                       Height: =25
-                                                      Visible: =!IsBlank(Var_FiltroRequerimiento)
+                                                      Visible: |-
+                                                        =//!IsBlank(Var_FiltroRequerimiento)
+                                                        false
                                                       Width: =25
                                                       X: =728
                                                       Y: =672
@@ -1280,7 +1296,9 @@ Screens:
                                                             DropShadow: =DropShadow.None
                                                             FillPortions: =0
                                                             Height: =25
-                                                            Visible: =!IsBlank(Var_FiltroRequerimiento)
+                                                            Visible: |-
+                                                              =//!IsBlank(Var_FiltroRequerimiento)
+                                                              false
                                                             Width: =25
                                                             X: =728
                                                             Y: =672
@@ -1861,7 +1879,8 @@ Screens:
                                                       HoverColor: =RGBA(255, 255, 255, 1)
                                                       HoverFill: =ColorFade(RGBA(56, 96, 178, 1), -20%)
                                                       OnSelect: |-
-                                                        =// 1. Llamada al flujo con variables dinámicas
+                                                        =UpdateContext({ Var_CmcLoadingSpinnerVisible: true });
+                                                        // 1. Llamada al flujo con variables dinámicas
                                                         Set(
                                                             Var_ResponseSpv,
                                                             'LCP-001_Flow_SpvPaginacionTicket'.Run(
@@ -1924,7 +1943,10 @@ Screens:
                                                                     AtendidoNombreAnterior: Text(ThisRecord.Value.AtendidoNombreAnterior),
                                                                     CorreoAtendidoPor: Text(ThisRecord.Value.CorreoAtendidoPor),
                                                                     NombreAtendidoPor: Text(ThisRecord.Value.NombreAtendidoPor),
-                                                                    Categoria: Text(ThisRecord.Value.Categoria)
+                                                                    Categoria: Text(ThisRecord.Value.Categoria),
+                                                                    SLAEstado: Text(ThisRecord.Value.SLAEstado),
+                                                                    Motivo: Text(ThisRecord.Value.Motivo),
+                                                                    MotivoObservacion: Text(ThisRecord.Value.MotivoObservacion)
                                                                 }
                                                             )
                                                         );
@@ -1937,91 +1959,9 @@ Screens:
                                                         Set(
                                                             Var_HasPrevSpv, 
                                                             Var_CurrentPageSpv > 1
-                                                        )
-                                                      PressedBorderColor: =Self.Fill
-                                                      PressedColor: =Self.Fill
-                                                      PressedFill: =Self.Color
-                                                      Text: ="+"
-                                                      Visible: =false
-                                                      Width: =30
-                                                - Spv_BtnActualizarFiltrosTicket:
-                                                    Control: Classic/Button@2.2.0
-                                                    Properties:
-                                                      BorderColor: =ColorFade(Self.Fill, -15%)
-                                                      Color: =RGBA(255, 255, 255, 1)
-                                                      DisabledBorderColor: =RGBA(166, 166, 166, 1)
-                                                      Fill: =RGBA(56, 96, 178, 1)
-                                                      Font: =Font.'Open Sans'
-                                                      Height: =34
-                                                      HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
-                                                      HoverColor: =RGBA(255, 255, 255, 1)
-                                                      HoverFill: =ColorFade(RGBA(56, 96, 178, 1), -20%)
-                                                      OnSelect: |
-                                                        =Set(Var_GridPageSizeSpv,5);
-                                                        Set(Var_ResponseSpv, 'LCP-001_Flow_SpvPaginacionTicket'.Run(Var_GridPageSizeSpv,0,
-                                                                Concat(
-                                                                    Filter(
-                                                                        colQuerysSpvTicket,
-                                                                        mark
-                                                                    ),
-                                                                    query,
-                                                                    " and "
-                                                                ),"NEXT"));
-
-                                                        Set(
-                                                            Var_DataSpv,
-                                                            Table(ParseJSON(Var_ResponseSpv.response))
-                                                        );
-                                                        Set(TotalItemSpv, Value(ParseJSON(Var_ResponseSpv.totalitems)));
-                                                        Clear(objGalleryDataSpv);
-                                                        ForAll(
-                                                            FirstN(Var_DataSpv, Var_GridPageSizeSpv),
-                                                            Collect(
-                                                                objGalleryDataSpv,
-                                                                {
-                                                                    ID: Value(ThisRecord.Value.ID),
-                                                                    Gerencia: Text(ThisRecord.Value.Gerencia),
-                                                                    Area: Text(ThisRecord.Value.Area),
-                                                                    SubArea: Text(ThisRecord.Value.SubArea),
-                                                                    Pais: Text(ThisRecord.Value.Pais),
-                                                                    Sociedad: Text(ThisRecord.Value.Sociedad),
-                                                                    Prioridad: Text(ThisRecord.Value.Prioridad),
-                                                                    AnalistaRol: Text(ThisRecord.Value.AnalistaRol),
-                                                                    Aprobacion: Text(ThisRecord.Value.Aprobacion),
-                                                                    SLA: Value(ThisRecord.Value.SLA),
-                                                                    SolicitanteCorreo: Text(ThisRecord.Value.SolicitanteCorreo),
-                                                                    SolicitanteNombre: Text(ThisRecord.Value.SolicitanteNombre),
-                                                                    SolicitantePais: Text(ThisRecord.Value.SolicitantePais),
-                                                                    SolicitanteSociedad: Text(ThisRecord.Value.SolicitanteSociedad),
-                                                                    AnalistaCorreo: Text(ThisRecord.Value.AnalistaCorreo),
-                                                                    AnalistaNombre: Text(ThisRecord.Value.AnalistaNombre),
-                                                                    NombreAtendidoPor: Text(ThisRecord.Value.NombreAtendidoPor),
-                                                                    CorreoAtendidoPor: Text(ThisRecord.Value.CorreoAtendidoPor),
-                                                                    Detalle: Text(ThisRecord.Value.Detalle),
-                                                                    AprobadorCorreo: Text(ThisRecord.Value.AprobadorCorreo),
-                                                                    AprobadorNombre: Text(ThisRecord.Value.AprobadorNombre),
-                                                                    Var_iosAprobadores: Text(ThisRecord.Value.Var_iosAprobadores),
-                                                                    FechaCreado: DateTimeValue(ThisRecord.Value.FechaCreado),
-                                                                    FechaVencimiento: DateTimeValue(ThisRecord.Value.FechaVencimiento),
-                                                                    FechaModificado: DateTimeValue(ThisRecord.Value.FechaModificado),
-                                                                    Codigo: Text(ThisRecord.Value.Codigo),
-                                                                    Requerimiento: Text(ThisRecord.Value.Requerimiento),
-                                                                    TipoSolicitud: Text(ThisRecord.Value.TipoSolicitud),
-                                                                    AprobadoresCheck: Text(ThisRecord.Value.AprobadoresCheck),
-                                                                    Estado: Text(ThisRecord.Value.EstadoActual),
-                                                                    Asunto: Text(ThisRecord.Value.Asunto),
-                                                                    Descripcion: Text(ThisRecord.Value.Descripcion),
-                                                                    MotivoDerivacion: Text(ThisRecord.Value.MotivoDerivacion),
-                                                                    ConfiguracionTicket: Text(ThisRecord.Value.ConfiguracionTicket)
-                                                                }
-                                                            )
                                                         );
 
-                                                        // Guardamos el primer ID REAL de todo el dataset
-                                                        Set(Var_FirstIDSpv, Min(objGalleryDataSpv, ID));
-
-                                                        // Control real de NEXT (Top + 1)
-                                                        Set(Var_HasNextSpv, CountRows(Var_DataSpv) > Var_GridPageSizeSpv);
+                                                        UpdateContext({ Var_CmcLoadingSpinnerVisible: false });
                                                       PressedBorderColor: =Self.Fill
                                                       PressedColor: =Self.Fill
                                                       PressedFill: =Self.Color
@@ -2056,6 +1996,22 @@ Screens:
                                                       Width: =16
                                                       X: =Spv_LblAbrirFiltrosTicket.X + Spv_LblAbrirFiltrosTicket.Width + 5
                                                       Y: =(Parent.Height - Self.Height) / 2
+                                                - Spv_LblAbrirFiltrosTicket:
+                                                    Control: Label@2.5.1
+                                                    Properties:
+                                                      Align: =Align.Center
+                                                      BorderColor: =RGBA(0, 18, 107, 1)
+                                                      Font: =Font.'Open Sans'
+                                                      Height: =20
+                                                      PaddingBottom: =0
+                                                      PaddingLeft: =0
+                                                      PaddingRight: =0
+                                                      PaddingTop: =0
+                                                      Size: =Var_FontSizeFiltros
+                                                      Text: ="Filtros"
+                                                      Width: =Parent.Width - Spv_IcoAbrirFiltrosTicket.Width - 15
+                                                      X: =(Parent.Width - (Spv_IcoAbrirFiltrosTicket.Width + Self.Width + 5)) / 2
+                                                      Y: =(Parent.Height - Self.Height) / 2
                                                 - Spv_BtnAbrirFiltrosTicket:
                                                     Control: Classic/Button@2.2.0
                                                     Properties:
@@ -2075,22 +2031,6 @@ Screens:
                                                       PressedFill: =
                                                       Text: =
                                                       Width: =Parent.Width
-                                                - Spv_LblAbrirFiltrosTicket:
-                                                    Control: Label@2.5.1
-                                                    Properties:
-                                                      Align: =Align.Center
-                                                      BorderColor: =RGBA(0, 18, 107, 1)
-                                                      Font: =Font.'Open Sans'
-                                                      Height: =20
-                                                      PaddingBottom: =0
-                                                      PaddingLeft: =0
-                                                      PaddingRight: =0
-                                                      PaddingTop: =0
-                                                      Size: =Var_FontSizeFiltros
-                                                      Text: ="Filtros"
-                                                      Width: =Parent.Width - Spv_IcoAbrirFiltrosTicket.Width - 15
-                                                      X: =(Parent.Width - (Spv_IcoAbrirFiltrosTicket.Width + Self.Width + 5)) / 2
-                                                      Y: =(Parent.Height - Self.Height) / 2
                                     - Spv_CtnModalDerivacionMasivaTicket:
                                         Control: GroupContainer@1.5.0
                                         Variant: ManualLayout
@@ -2442,6 +2382,8 @@ Screens:
                                                   Set(Var_TargetIDSpv, 0);
                                                   Set(Var_DirectionSpv, "NEXT");
                                                   Set(Var_IsIndividualSpv, false);
+
+
                                                   Select(Spv_btn_MotorPaginacion);
 
                                                   UpdateContext({ Var_Ctx_MostrarFiltrosTicket: false})
@@ -2622,22 +2564,7 @@ Screens:
                                                             CountRows(Self.AllItems) * 35, 
                                                             230
                                                         )
-                                                      Items: |-
-                                                        =Sort(
-                                                            Filter(
-                                                                colFiltrosTicketChildSpv,
-                                                                Title = ThisItem.Title,
-                                                                If(
-                                                                    ThisItem.Title = "Área",
-                                                                    IsBlank(Var_FiltroGerencia) Or ParentGerencia = Var_FiltroGerencia,
-                                                                    ThisItem.Title = "Subárea",
-                                                                    IsBlank(Var_FiltroArea) Or ParentArea = Var_FiltroArea,
-                                                                    true
-                                                                )
-                                                            ),
-                                                            ThisRecord.Value,
-                                                            SortOrder.Ascending
-                                                        )
+                                                      Items: "=/*\nSort(\n    Filter(\n        colFiltrosTicketChildSpv;\n        Title = ThisItem.Title;\n        If(\n            ThisItem.Title = \"Área\";\n            IsBlank(Var_FiltroGerencia) Or ParentGerencia = Var_FiltroGerencia;\n            ThisItem.Title = \"Subárea\";\n            IsBlank(Var_FiltroArea) Or ParentArea = Var_FiltroArea;\n            true\n        )\n    );\n    ThisRecord.Value;\n    SortOrder.Ascending\n)\n*/\n\nSort(\n    Filter(\n        colFiltrosTicketChildSpv,\n        Title = ThisItem.Title,\n        Switch(\n            ThisItem.Title,\n            \n            \"Área\", \n                IsBlank(Var_FiltroGerencia) || ParentGerencia = Var_FiltroGerencia,\n            \n            \"Subárea\", \n                If(\n                    /* 1. Si hay Área seleccionada, manda el filtro de Área */\n                    !IsBlank(Var_FiltroArea), \n                    ParentArea = Var_FiltroArea,\n                    \n                    /* 2. Si NO hay Área pero SÍ hay Gerencia, usamos la tabla relacional como puente */\n                    !IsBlank(Var_FiltroGerencia),\n                    ParentArea in Filter(col_gblGerenciaArea, Gerencia = Var_FiltroGerencia).Area,\n                    \n                    /* 3. Si no hay nada seleccionado arriba, mostrar todas */\n                    true\n                ),\n            \n            \"Tipo de Solicitud\",\n                If(\n                    /* 1. Filtro por Subárea si existe */\n                    !IsBlank(Var_FiltroSubArea), ParentSubArea = Var_FiltroSubArea,\n                    \n                    /* 2. Si no hay subárea, filtro por Área */\n                    !IsBlank(Var_FiltroArea), ParentArea = Var_FiltroArea,\n                    \n                    /* 3. Si solo hay Gerencia, filtramos por las áreas que le pertenecen */\n                    !IsBlank(Var_FiltroGerencia), \n                    ParentArea in Filter(col_gblGerenciaArea, Gerencia = Var_FiltroGerencia).Area,\n                    \n                    /* 4. Si todo está vacío, mostrar todas */\n                    true\n                ),\n            \n            /* Caso por defecto (Gerencia o cualquier otro filtro) */\n            true \n        )\n    ),\n    Value,\n    SortOrder.Ascending\n)"
                                                       TemplatePadding: =0
                                                       TemplateSize: =35
                                                       Visible: =ThisItem.Open
@@ -2695,30 +2622,64 @@ Screens:
                                                                   HoverFill: =ColorValue(Var_ColorFadeBoton)
                                                                   OnSelect: |-
                                                                     =If(
+                                                                        // 1. CONDICIÓN: ¿El valor ya está seleccionado?
                                                                         Switch(
                                                                             ThisItem.Title,
                                                                             "Gerencia", Var_FiltroGerencia = ThisItem.Value,
                                                                             "Área", Var_FiltroArea = ThisItem.Value,
                                                                             "Subárea", Var_FiltroSubArea = ThisItem.Value,
-                                                                            "Requerimiento", Var_FiltroRequerimiento = ThisItem.Value,
+                                                                            "Tipo de Solicitud", Var_FiltroRequerimiento = ThisItem.Value,
                                                                             "Atendido por", Var_AtendidoPor = ThisItem.Value,
                                                                             false
                                                                         ),
+
+                                                                        // 2. TRUE: Si ya estaba seleccionado, lo DESMARCAMOS (Limpieza)
                                                                         Switch(
                                                                             ThisItem.Title,
-                                                                            "Gerencia", Concurrent(Set(Var_FiltroGerencia, Blank()), Set(Var_FiltroArea, Blank()), Set(Var_FiltroSubArea, Blank())),
-                                                                            "Área", Concurrent(Set(Var_FiltroArea, Blank()), Set(Var_FiltroSubArea, Blank())),
-                                                                            "Subárea", Set(Var_FiltroSubArea, Blank()),
-                                                                            "Requerimiento", Set(Var_FiltroRequerimiento, Blank()),
-                                                                            "Atendido por", Set(Var_AtendidoPor, Blank())
+                                                                            "Gerencia", 
+                                                                                Concurrent(
+                                                                                    Set(Var_FiltroGerencia, Blank()), 
+                                                                                    Set(Var_FiltroArea, Blank()), 
+                                                                                    Set(Var_FiltroSubArea, Blank())
+                                                                                ),
+                                                                            "Área", 
+                                                                                Concurrent(
+                                                                                    Set(Var_FiltroArea, Blank()), 
+                                                                                    Set(Var_FiltroSubArea, Blank())
+                                                                                ),
+                                                                            "Subárea", 
+                                                                                Set(Var_FiltroSubArea, Blank()),
+                                                                            "Tipo de Solicitud", 
+                                                                                Set(Var_FiltroRequerimiento, Blank()),
+                                                                            "Atendido por", 
+                                                                                Set(Var_AtendidoPor, Blank())
                                                                         ),
+
+                                                                        // 3. FALSE: Si NO estaba seleccionado, ASIGNAMOS y RESETEAMOS HIJOS
                                                                         Switch(
                                                                             ThisItem.Title,
-                                                                            "Gerencia", Concurrent(Set(Var_FiltroGerencia, ThisItem.Value), Set(Var_FiltroArea, Blank()), Set(Var_FiltroSubArea, Blank())),
-                                                                            "Área", Concurrent(Set(Var_FiltroArea, ThisItem.Value), Set(Var_FiltroSubArea, Blank())),
-                                                                            "Subárea", Set(Var_FiltroSubArea, ThisItem.Value),
-                                                                            "Requerimiento", Set(Var_FiltroRequerimiento, ThisItem.Value),
-                                                                            "Atendido por", Set(Var_AtendidoPor, ThisItem.Value)
+                                                                            "Gerencia", 
+                                                                                Concurrent(
+                                                                                    Set(Var_FiltroGerencia, ThisItem.Value), 
+                                                                                    Set(Var_FiltroArea, Blank()), 
+                                                                                    Set(Var_FiltroSubArea, Blank()),
+                                                                                    Set(Var_FiltroRequerimiento, Blank())
+                                                                                ),
+                                                                            "Área", 
+                                                                                Concurrent(
+                                                                                    Set(Var_FiltroArea, ThisItem.Value), 
+                                                                                    Set(Var_FiltroSubArea, Blank()),
+                                                                                    Set(Var_FiltroRequerimiento, Blank())
+                                                                                ),
+                                                                            "Subárea",
+                                                                                Concurrent( 
+                                                                                Set(Var_FiltroSubArea, ThisItem.Value),
+                                                                                Set(Var_FiltroRequerimiento, Blank())
+                                                                                ),
+                                                                            "Tipo de Solicitud", 
+                                                                                Set(Var_FiltroRequerimiento, ThisItem.Value),
+                                                                            "Atendido por", 
+                                                                                Set(Var_AtendidoPor, ThisItem.Value)
                                                                         )
                                                                     )
                                                                   PaddingBottom: =0
@@ -2805,7 +2766,8 @@ Screens:
                                                       BorderColor: =RGBA(0, 18, 107, 1)
                                                       Font: =Font.'Open Sans'
                                                       Height: =25
-                                                      OnSelect: =Select(Parent)
+                                                      OnSelect: |-
+                                                        =Patch(colFiltrosTicketSpv, ThisItem, { Open: !ThisItem.Open })
                                                       Size: =12
                                                       Text: =ThisItem.Title
                                                       Width: =Parent.TemplateWidth - Spv_IcoExpandirFiltroTicket.Width - 15
@@ -2981,6 +2943,19 @@ Screens:
                                                                               TimeUnit.Days
                                                                           ) < 0
                                                                         Width: =Parent.TemplateWidth
+                                                                  - Spv_LblFocusTicket_1:
+                                                                      Control: Label@2.5.1
+                                                                      Properties:
+                                                                        Align: =Align.Center
+                                                                        BorderColor: =RGBA(0, 18, 107, 1)
+                                                                        Color: =ColorValue(Var_ColorBoton)
+                                                                        Font: =Font.'Open Sans'
+                                                                        Height: =Parent.TemplateHeight + 25
+                                                                        OnSelect: =Select(Parent)
+                                                                        Size: =12
+                                                                        Text: ="•"
+                                                                        Visible: =ThisItem.Value = Today()
+                                                                        Width: =Parent.TemplateWidth
                                                                   - Spv_BtnDiaTicket_1:
                                                                       Control: Classic/Button@2.2.0
                                                                       Properties:
@@ -3077,19 +3052,6 @@ Screens:
                                                                         Width: =Self.Height
                                                                         X: =8
                                                                         Y: =5
-                                                                  - Spv_LblFocusTicket_1:
-                                                                      Control: Label@2.5.1
-                                                                      Properties:
-                                                                        Align: =Align.Center
-                                                                        BorderColor: =RGBA(0, 18, 107, 1)
-                                                                        Color: =ColorValue(Var_ColorBoton)
-                                                                        Font: =Font.'Open Sans'
-                                                                        Height: =Parent.TemplateHeight + 25
-                                                                        OnSelect: =Select(Parent)
-                                                                        Size: =12
-                                                                        Text: ="•"
-                                                                        Visible: =ThisItem.Value = Today()
-                                                                        Width: =Parent.TemplateWidth
                                                 - Spv_CntAccionesFechaTicket_1:
                                                     Control: GroupContainer@1.5.0
                                                     Variant: AutoLayout
@@ -3385,7 +3347,7 @@ Screens:
                                                               Set(Var_TargetIDSpv, 0);
                                                               Set(Var_DirectionSpv, "NEXT");
                                                               Set(Var_IsIndividualSpv, false);
-                                                              Select(Spv_BtnActualizarFiltrosTicket);
+                                                              Select(Spv_btn_MotorPaginacion);
                                                               UpdateContext({varUserSelected : ThisItem , varOpenDropDown: false})
                                                             Size: =12
                                                             Text: =ThisItem.Value
@@ -3462,11 +3424,19 @@ Screens:
                                                               Set(Var_TargetIDSpv, 0);
                                                               Set(Var_DirectionSpv, "NEXT");
                                                               Set(Var_IsIndividualSpv, false);
-                                                              Select(Spv_BtnActualizarFiltrosTicket);
+                                                              Select(Spv_btn_MotorPaginacion);
                                                               UpdateContext({varEstadoSelected : ThisItem , varOpenDropDownEstado: false})
                                                             Size: =12
                                                             Text: =ThisItem.Nombre
                                                             Width: =Parent.Width
+                                    - Gbl_LoadingSpinner_3:
+                                        Control: CanvasComponent
+                                        ComponentName: Gbl_LoadingSpinner
+                                        ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
+                                        Properties:
+                                          Height: =Parent.Height
+                                          Visible: =Var_CmcLoadingSpinnerVisible
+                                          Width: =Parent.Width
                         - Spv_CtnSeparadorBottonTicket:
                             Control: GroupContainer@1.5.0
                             Variant: ManualLayout

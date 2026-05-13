@@ -188,7 +188,7 @@ Screens:
                         LayoutDirection: =LayoutDirection.Vertical
                         LayoutMinHeight: =16
                         LayoutMinWidth: =16
-                        Width: =If(Var_OpenMenu,250,100)
+                        Width: =If(Var_OpenMenu,250,70)
                       Children:
                         - Gbl_Menu_Spv_CatalogoServicio:
                             Control: CanvasComponent
@@ -199,6 +199,7 @@ Screens:
                               RolUsuario: =Var_RolSistema
                               Width: =If(Gbl_Menu_Spv_CatalogoServicio.verMenu,250,70)
                               WidthMenu: =Parent.Width
+                              btnHome: =Gbl_Home
                               displayNameUser: =Var_ProfileUser.'Nombre (Nombre0)'
                               itemsMenu: =colMenuGeneral
                               menuSelected: ="Catálogo"
@@ -217,7 +218,6 @@ Screens:
                         PaddingBottom: =20
                         PaddingLeft: =20
                         PaddingRight: =20
-                        PaddingTop: =8
                         Width: =Parent.Width - SpvCtg_CtnSidebar.Width
                       Children:
                         - Gbl_HeaderCatalogoServicios:
@@ -229,6 +229,15 @@ Screens:
                               Height: =60
                               Perfil: =Gbl_Home
                               X: =726
+                        - Spv_CtnSpcCabeceraNavBarTicket_1:
+                            Control: GroupContainer@1.5.0
+                            Variant: ManualLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              FillPortions: =0
+                              Height: =30
+                              LayoutMinHeight: =16
+                              LayoutMinWidth: =16
                         - SpvCtg_CtnPaginaActual:
                             Control: GroupContainer@1.5.0
                             Variant: AutoLayout
@@ -262,7 +271,7 @@ Screens:
                                     HoverColor: =ColorValue(Var_ColorNavegarCabecera)
                                     HoverFill: =Color.Transparent
                                     LayoutMinWidth: =50
-                                    OnSelect: =Blank()
+                                    OnSelect: =Navigate(Gbl_Home)
                                     PressedBorderColor: =Self.Fill
                                     PressedColor: =ColorValue(Var_ColorNavegarCabecera)
                                     PressedFill: =
@@ -620,18 +629,12 @@ Screens:
                                                 Height: |-
                                                   =With(
                                                       {
-                                                          // 1. Calculamos la altura base de la galería (solo los botones de Área)
                                                           varBaseHeight: CountRows(Self.AllItems) * 35,
-
-                                                          // 2. Verificamos si el Área actualmente expandida pertenece a esta Gerencia
-                                                          varEsExpandidoAqui: !IsBlank(LookUp(Self.AllItems, Area = ctx_AreaExpandida)),
-
-                                                          // 3. Calculamos dinámicamente la altura de las subáreas (32px por fila aprox)
-                                                          varSubAreaHeight: CountRows(Filter(col_gblAreaSubArea, Area = ctx_AreaExpandida)) * 32
+                                                          varEsExpandidoAqui: !IsBlank(LookUp(Self.AllItems, Area = ctx_AreaExpandida))
                                                       },
                                                       varBaseHeight + If(
                                                           varEsExpandidoAqui,
-                                                          varSubAreaHeight + 5, // +5px de margen inferior, sin topes exagerados
+                                                          45,
                                                           0
                                                       )
                                                   )
@@ -655,65 +658,45 @@ Screens:
                                                     Properties:
                                                       BorderStyle: =BorderStyle.None
                                                       DropShadow: =DropShadow.None
-                                                      Height: =(CountRows(Filter(col_gblAreaSubArea,Area=ThisItem.Area))*32)+5
+                                                      Height: |-
+                                                        =//(CountRows(Filter(col_gblAreaSubArea; Area = ThisItem.Area)) * 25/*32*/)+5
+                                                        32
                                                       Visible: =ctx_AreaExpandida = ThisItem.Area
                                                       Width: =310
                                                       X: =5
-                                                      Y: =SpvCtg_BtnTituloArea.Height
+                                                      Y: =SpvCtg_BtnTituloArea.Height + 7
                                                     Children:
                                                       - SpvCtg_TblSubFiltroSubarea:
-                                                          Control: Table@1.0.278
+                                                          Control: ModernCombobox@1.1.0
                                                           Properties:
-                                                            EnableRangeSelection: ='PowerAppsOneGrid.EnableRangeSelection'.Disable
-                                                            EnableSorting: ='PowerAppsOneGrid.EnableSorting'.Disable
+                                                            BasePaletteColor: =ColorValue(Var_ColorBoton)
+                                                            DefaultSelectedItems: |-
+                                                              =If(
+                                                                  !IsBlank(Var_Ctx_SubAreaSeleccionada),
+                                                                  LookUp(col_gblAreaSubArea, SubArea = Var_Ctx_SubAreaSeleccionada),
+                                                                  Blank()
+                                                              )
                                                             Font: =Font.'Open Sans'
-                                                            FontColor: =RGBA(0, 0, 0, 1)
-                                                            FontSize: =12
-                                                            FontWeight: =FontWeight.Normal
-                                                            HeaderFontColor: =RGBA(0, 0, 0, 1)
-                                                            HeaderFontWeight: =FontWeight.Normal
-                                                            Height: =Parent.Height
+                                                            FontWeight: =FontWeight.Semibold
+                                                            ItemDisplayText: =ThisItem.SubArea
                                                             Items: |-
                                                               =Sort(
                                                                   Filter(
                                                                       col_gblAreaSubArea,
                                                                       Area = ThisItem.Area
                                                                   ),
-                                                                  SubArea,//ThisRecord.SubArea
+                                                                  SubArea,
                                                                   SortOrder.Ascending
                                                               )
-                                                            OnSelect: |-
-                                                              =UpdateContext({
-                                                                  Var_Ctx_SubAreaSeleccionada: Self.Selected.SubArea
-                                                              });
-                                                              Patch(
-                                                                  colQuerysSpvCatalogoServicio,
-                                                                  LookUp(colQuerysSpvCatalogoServicio, input = "SubArea"),
-                                                                  {
-                                                                      mark: true,
-                                                                      query: "SubArea eq '" & Self.Selected.SubArea & "'"
-                                                                  }
-                                                              );
-                                                              Set(Var_CurrentPageSpvCatalogoServicio, 1);
-                                                              Set(Var_TargetIDSpvCatalogoServicio, 0);
-                                                              Set(Var_DirectionSpvCatalogoServicio, "NEXT");
-                                                              Set(Var_IsIndividualSpvCatalogoServicio, false);
-                                                              Select(Spv_BtnMotorPaginacionCatalogoServicio)
-                                                            ShowAvatar: ="no"
-                                                            ShowColumnHeaders: ="no"
-                                                            ShowFooter: ="no"
-                                                            Width: =Parent.Width
-                                                          Children:
-                                                            - SubArea1:
-                                                                Control: TableDataField@1.5.0
-                                                                Variant: textualColumn
-                                                                IsLocked: true
-                                                                Properties:
-                                                                  CanGrow: =false
-                                                                  FieldDisplayName: ="SubArea"
-                                                                  FieldName: ="SubArea"
-                                                                  FieldType: ="s"
-                                                                  Order: =1
+                                                            OnChange: "=If(\r\n    !IsBlank(Self.Selected.SubArea),\r\n    // 0. Ocultar similitudes y limpiar buscador temporal\r\n    UpdateContext({\r\n        Var_MostrarSimilitudes: false,\r\n        ctx_TextoBuscadoTemporal: Blank()\r\n    });\r\n    Reset(SpvCtg_TxtIBuscar);\r\n    UpdateContext({\r\n        Var_Ctx_SubAreaSeleccionada: Self.Selected.SubArea\r\n    });\r\n    \r\n    // Inyección de filtro OData\r\n    Patch(\r\n        colQuerysSpvCatalogoServicio,\r\n        LookUp(colQuerysSpvCatalogoServicio, input = \"SubArea\"),\r\n        {\r\n            mark: true,\r\n            query: \"SubArea eq '\" & Self.Selected.SubArea & \"'\"\r\n        }\r\n    );\r\n    \r\n    // Reset del motor de Paginación\r\n    Set(Var_CurrentPageSpvCatalogoServicio, 1);\r\n    Set(Var_TargetIDSpvCatalogoServicio, 0);\r\n    Set(Var_DirectionSpvCatalogoServicio, \"NEXT\");\r\n    Set(Var_IsIndividualSpvCatalogoServicio, false);\r\n    \r\n    // Disparo del flujo\r\n    Select(Spv_BtnMotorPaginacionCatalogoServicio)\r\n)"
+                                                            RadiusBottomLeft: =5
+                                                            RadiusBottomRight: =5
+                                                            RadiusTopLeft: =5
+                                                            RadiusTopRight: =5
+                                                            SelectMultiple: =false
+                                                            Size: =12
+                                                            Width: =300
+                                                            X: =8
                                                 - SpvCtg_BtnTituloArea:
                                                     Control: Classic/Button@2.2.0
                                                     Properties:
@@ -742,7 +725,13 @@ Screens:
                                                       HoverColor: =RGBA(50, 49, 48, 1)
                                                       HoverFill: =RGBA(243, 242, 241, 1)
                                                       OnSelect: |-
-                                                        =// 1. Manejo del estado del Acordeón (Expandir/Contraer)
+                                                        =// 0. Ocultar similitudes y limpiar buscador temporal
+                                                        UpdateContext({
+                                                            Var_MostrarSimilitudes: false,
+                                                            ctx_TextoBuscadoTemporal: Blank()
+                                                        });
+                                                        Reset(SpvCtg_TxtIBuscar);
+                                                        // 1. Manejo del estado del Acordeón (Expandir/Contraer)
                                                         UpdateContext({ 
                                                             ctx_AreaExpandida: If(
                                                                 ctx_AreaExpandida = ThisItem.Area, 
@@ -839,7 +828,13 @@ Screens:
                                                 HoverColor: =RGBA(50, 49, 48, 1)
                                                 HoverFill: =RGBA(243, 242, 241, 1)
                                                 OnSelect: |-
-                                                  =// 1. Manejo del estado del Acordeón (Expandir/Contraer)
+                                                  =// 0. Ocultar similitudes y limpiar buscador temporal
+                                                  UpdateContext({
+                                                      Var_MostrarSimilitudes: false,
+                                                      ctx_TextoBuscadoTemporal: Blank()
+                                                  });
+                                                  Reset(SpvCtg_TxtIBuscar);
+                                                  // 1. Manejo del estado del Acordeón (Expandir/Contraer)
                                                   UpdateContext({ 
                                                       ctx_GerenciaExpandida: If(
                                                           ctx_GerenciaExpandida = ThisItem.Nombre, 
@@ -1320,7 +1315,7 @@ Screens:
                                                                   HoverBorderColor: =ColorValue(Var_ColorBoton)
                                                                   HoverColor: =ColorValue(Var_ColorBoton)
                                                                   HoverFill: =Color.Transparent
-                                                                  OnSelect: "=// 1. Guardar el registro seleccionado para referencia global\r\nSet(Var_SpvCatalogoServicioSeleccionada, ThisItem);\r\n\r\n// 2. Autocompletar las variables del formulario modal buscando el registro completo en los catálogos.\r\n// Se usa Coalesce para construir un registro on-the-fly como plan de contingencia si el LookUp falla.\r\nUpdateContext({\r\n    varGerenciaSelected: Coalesce(\r\n        LookUp(col_gblGerencia, Nombre = ThisItem.Gerencia),\r\n        { Nombre: ThisItem.Gerencia }\r\n    ),\r\n    varUpdateAreaSelected: Coalesce(\r\n        LookUp(col_gblGerenciaArea, Area = ThisItem.Area),\r\n        { Area: ThisItem.Area }\r\n    ),\r\n    varUpdateSubAreaSelected: Coalesce(\r\n        LookUp(col_gblAreaSubArea, SubArea = ThisItem.SubArea),\r\n        { SubArea: ThisItem.SubArea }\r\n    ),\r\n    varUpdateTipoSolicitud: ThisItem.TipoSolicitud,\r\n    \r\n    // 3. Activar la visibilidad del Modal\r\n    Var_Ctx_SpvModal_VerDetalle: true\r\n});"
+                                                                  OnSelect: "=// 1. Guardar el registro seleccionado para referencia global\r\n\r\n\r\nSet(Var_SpvCatalogoServicioSeleccionada, ThisItem);\r\n\r\n// 2. Autocompletar las variables del formulario modal buscando el registro completo en los catálogos.\r\n// Se usa Coalesce para construir un registro on-the-fly como plan de contingencia si el LookUp falla.\r\nUpdateContext({\r\n    varGerenciaSelected: Coalesce(\r\n        LookUp(col_gblGerencia, Nombre = ThisItem.Gerencia),\r\n        { Nombre: ThisItem.Gerencia }\r\n    ),\r\n    varUpdateAreaSelected: Coalesce(\r\n        LookUp(col_gblGerenciaArea, Area = ThisItem.Area),\r\n        { Area: ThisItem.Area }\r\n    ),\r\n    varUpdateSubAreaSelected: Coalesce(\r\n        LookUp(col_gblAreaSubArea, SubArea = ThisItem.SubArea),\r\n        { SubArea: ThisItem.SubArea }\r\n    ),\r\n    varUpdateTipoSolicitud: ThisItem.TipoSolicitud,\r\n    \r\n    // 3. Activar la visibilidad del Modal\r\n    Var_Ctx_SpvModal_VerDetalle: true\r\n});"
                                                                   PaddingBottom: =0
                                                                   PaddingLeft: =40
                                                                   PaddingRight: =0
@@ -1380,7 +1375,9 @@ Screens:
                                                                   Size: =12
                                                                   Text: |-
                                                                     ="Tipo solicitud:      "&ThisItem.TipoSolicitud
+                                                                  Tooltip: =ThisItem.TipoSolicitud
                                                                   Width: =Parent.Width
+                                                                  Wrap: =false
                                                                   Y: =110
                                                             - SpvCtg_LblSubarea:
                                                                 Control: Label@2.5.1
@@ -1452,7 +1449,9 @@ Screens:
                                                                   PaddingLeft: =15
                                                                   Size: =Var_TituloIndicadores
                                                                   Text: =ThisItem.TipoSolicitud
+                                                                  Tooltip: =ThisItem.TipoSolicitud
                                                                   Width: =Parent.Width
+                                                                  Wrap: =false
                                                                   Y: =10
       - Gbl_LoadingSpinnerSpvCatalogoServicio:
           Control: CanvasComponent
@@ -1470,7 +1469,17 @@ Screens:
           Properties:
             DropShadow: =DropShadow.Semilight
             Fill: =RGBA(255, 255, 255, 1)
-            Height: =150
+            Height: |-
+              =//150
+
+              If(SpvCtg_GalSimilitudGerencia.AllItemsCount > 3,
+              150,
+              If(
+                  CountRows(SpvCtg_GalSimilitudGerencia.AllItems) = 0 And Not(IsBlank(SpvCtg_TxtIBuscar.Text)),
+                  50,
+                  100
+              )
+              )
             Visible: =Var_MostrarSimilitudes && !IsBlank(Trim(SpvCtg_TxtIBuscar.Text))
             Width: =SpvCtg_Buscador.Width
             X: =SpvCtg_CtnTituloBuscador.X + SpvCtg_Buscador.X + 250
@@ -1482,12 +1491,20 @@ Screens:
                 Properties:
                   BorderColor: =RGBA(0, 18, 107, 1)
                   BorderStyle: =BorderStyle.None
-                  Height: =Parent.Height - Self.Y
+                  Height: |+
+                    =//Parent.Height - Self.Y
+                    If(
+                        CountRows(SpvCtg_GalSimilitudGerencia.AllItems) = 0 And Not(IsBlank(SpvCtg_TxtIBuscar.Text)),
+                        0,
+                        Parent.Height - Self.Y
+                        //Min(CountRows(Self.AllItems) * 35; 230)
+                    )
+
                   Items: =Filter(Distinct(colSugerenciasBusqueda, Text(Value.Gerencia)), !IsBlank(Value))
                   ShowScrollbar: =false
                   TemplateFill: =If(ctx_GerenciaExpandida = ThisItem.Value, ColorValue("#F5F5F5"), Color.Transparent)
                   TemplatePadding: =0
-                  TemplateSize: =130
+                  TemplateSize: =35
                   Width: =Parent.Width
                 Children:
                   - SpvCtg_GalSubSimilitudTipoSolicitud:
@@ -1501,7 +1518,7 @@ Screens:
                         TemplatePadding: =0
                         TemplateSize: =35
                         Width: =Parent.TemplateWidth
-                        Y: =25
+                        Y: =35
                       Children:
                         - SpvCtg_BtnTituloSimilitudTipoSolicitud:
                             Control: Classic/Button@2.2.0
@@ -1544,7 +1561,7 @@ Screens:
                         Fill: =RGBA(0, 0, 0, 0)
                         Font: =Font.'Open Sans'
                         FontWeight: =FontWeight.Bold
-                        Height: =30
+                        Height: =35
                         HoverBorderColor: =RGBA(0, 0, 0, 0)
                         HoverColor: =RGBA(0, 0, 0, 1)
                         HoverFill: =RGBA(0, 0, 0, 0)
@@ -1571,13 +1588,19 @@ Screens:
                   DisabledColor: =RGBA(161, 159, 157, 1)
                   FocusedBorderThickness: =4
                   Font: =Font.'Open Sans'
-                  Height: =20
+                  Height: =50
                   Size: =12
                   Text: ="No se encuentran resultados para la búsqueda actual."
                   Visible: =CountRows(SpvCtg_GalSimilitudGerencia.AllItems) = 0 And Not(IsBlank(SpvCtg_TxtIBuscar.Text))
                   Width: =Parent.Width
                   Wrap: =false
-                  Y: =55
+                  Y: |-
+                    =//55
+                    If(
+                        CountRows(SpvCtg_GalSimilitudGerencia.AllItems) = 0 And Not(IsBlank(SpvCtg_TxtIBuscar.Text)),
+                        0,
+                        55
+                    )
       - SpvCtg_CtnModalVerDetalle:
           Control: GroupContainer@1.5.0
           Variant: ManualLayout
@@ -2114,36 +2137,17 @@ Screens:
                               Y: =10
                             Children:
                               - SpvCtg_TxtTipoSolicitudVerDetalle:
-                                  Control: Classic/TextInput@2.3.2
+                                  Control: Label@2.5.1
                                   Properties:
-                                    BorderColor: =ColorValue(Var_ColorBordeBoton)
-                                    BorderStyle: =BorderStyle.None
-                                    BorderThickness: =0
-                                    Color: =RGBA(50, 49, 48, 1)
-                                    Default: =varUpdateTipoSolicitud
-                                    DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                                    DisabledColor: =RGBA(161, 159, 157, 1)
-                                    DisabledFill: =RGBA(0, 0, 0, 0)
-                                    Fill: =RGBA(0, 0, 0, 0)
+                                    BorderColor: =RGBA(0, 18, 107, 1)
                                     Font: =Font.'Open Sans'
                                     Height: =30
-                                    HintText: ="Tipo solicitud"
-                                    HoverBorderColor: =RGBA(0, 0, 0, 0)
-                                    HoverColor: =RGBA(50, 49, 48, 1)
-                                    HoverFill: =RGBA(0, 0, 0, 0)
-                                    Mode: =TextMode.MultiLine
-                                    PaddingBottom: =0
                                     PaddingLeft: =18
-                                    PaddingRight: =0
-                                    PressedBorderColor: =RGBA(0, 0, 0, 0)
-                                    PressedColor: =RGBA(0, 0, 0, 1)
-                                    PressedFill: =RGBA(0, 0, 0, 0)
-                                    RadiusBottomLeft: =10
-                                    RadiusBottomRight: =10
-                                    RadiusTopLeft: =10
-                                    RadiusTopRight: =10
                                     Size: =12
+                                    Text: =varUpdateTipoSolicitud
+                                    Tooltip: =Self.Text
                                     Width: =Parent.Width
+                                    Wrap: =false
                                     Y: =8
                         - SpvCtg_LblTipoSolicitudVerDetalle:
                             Control: Text@0.0.51

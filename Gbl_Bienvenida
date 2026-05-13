@@ -133,6 +133,7 @@ Screens:
                       }
                   )
               );
+
               // Variable que guar el rol con mayor jerarquia
               Set(
                   Var_RolSistema, 
@@ -141,52 +142,9 @@ Screens:
 
               //Navegar a la pantalla del rol con mayor jerarquia que tenga el usuario
               If(CountRows(colRolesUsuario) = 0,
+
               //Si no tiene asignado ningun rol salta un mensaje con componente que diga que no tiene asignado rol
               Select(Anl_TimerWarningBienvenida),
-              //--->Dependiendo de Var_RolSistema que es el rol con mayor jerarquia redirige al usuario a la pantalla que le corresponde
-              /*
-              ClearCollect(colMenuGeneral;
-              {Title: "Home";          Id: 1; Pantalla: Gbl_Home  ; Ico: home; child: false; itemsSubChild: Table()};
-
-              {Title: "Catálogo";      Id: 2; Pantalla: Gbl_Catalogo; Ico: catalogo; child: false; itemsSubChild: Table()};
-
-              /*
-              {Title: "Configuración"; Id: 4; Pantalla: App.ActiveScreen; Ico: configuracion; child: true; 
-                      itemsSubChild: [
-                                      { Title: "Solicitudes"; Id: 4,1; Pantalla: Adm_TipoSolicitudes};
-                                      { Title: "Notificaciones";     Id: 4,2; Pantalla: App.ActiveScreen};
-                                      { Title: "Catálogos del sistema"; Id: 4,3; Pantalla: App.ActiveScreen}
-                                     ]
-              };
-
-
-              {Title: "Comunicados";   Id: 5; Pantalla: Gbl_Comunicado; Ico: comunicados; child: false; itemsSubChild: Table()};
-              {Title: "Soluciones";    Id: 6; Pantalla: Gbl_Soluciones; Ico: soluciones; child: false; itemsSubChild: Table()}
-
-              );;
-
-              Switch(Var_RolSistema;
-                  Var_RolApp.RolSupervisor;
-                  Collect(colMenuGeneral; {Title: "Ticket";        Id: 3; Pantalla: Spv_Ticket; Ico: ticket; child: false; itemsSubChild: Table()});
-                  Var_RolApp.RolAnalista;
-                  Collect(colMenuGeneral; {Title: "Ticket";        Id: 3; Pantalla: Anl_Ticket; Ico: ticket; child: false; itemsSubChild: Table()});
-                  Var_RolApp.RolSolicitante;
-                  Collect(colMenuGeneral; {Title: "Ticket";        Id: 3; Pantalla: Sol_Ticket; Ico: ticket; child: false; itemsSubChild: Table()})
-
-              );;
-
-              If(Var_RolSistema = Var_RolApp.RolAdministrador; Collect(colMenuGeneral;
-              {Title: "Configuración"; Id: 4; Pantalla: App.ActiveScreen; Ico: configuracion; child: true; 
-                      itemsSubChild: [
-                                      { Title: "Solicitudes"; Id: 4,1; Pantalla: Adm_TipoSolicitudes};
-                                      { Title: "Notificaciones";     Id: 4,2; Pantalla: App.ActiveScreen};
-                                      { Title: "Catálogos del sistema"; Id: 4,3; Pantalla: App.ActiveScreen}
-                                     ]
-              }
-              ) 
-              );;
-
-              */
 
 
               Switch(Var_RolSistema,
@@ -201,41 +159,7 @@ Screens:
               );
 
 
-
-
               Navigate(Gbl_Home, Transition.Push)
-              /*
-              Switch(Var_RolSistema;
-                  Var_RolApp.RolSupervisor;
-                  ClearCollect(col_gbl_Menu;colMenuSpv);
-                  Var_RolApp.RolAnalista;
-                  ClearCollect(col_gbl_Menu;colMenu);
-                  Var_RolApp.RolSolicitante;
-                  ClearCollect(col_gbl_Menu;colMenuSol);
-                  Var_RolApp.RolAdministrador;
-                  ClearCollect(col_gbl_Menu;colMenuAdm)
-              );;
-              */
-
-              /*
-              If(
-
-
-                              Var_RolSistema = "Administrador";
-                              Navigate(Adm_Home; Transition.Push);
-                              Var_RolSistema = "Supervisor";
-                              Navigate(Spv_Home; Transition.Push);
-                              Var_RolSistema = "Gerente";
-                              Navigate(Gbl_Home; Transition.Push);
-                              Var_RolSistema = "Solicitante";
-                              Navigate(Gbl_Home; Transition.Push);
-                              Var_RolSistema = "Analista";
-                              Navigate(Anl_Home; Transition.Push)
-              )
-              */
-
-
-
 
               )
             PressedBorderColor: =Self.Fill
