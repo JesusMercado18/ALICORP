@@ -1501,7 +1501,6 @@ Screens:
                     )
 
                   Items: =Filter(Distinct(colSugerenciasBusqueda, Text(Value.Gerencia)), !IsBlank(Value))
-                  ShowScrollbar: =false
                   TemplateFill: =If(ctx_GerenciaExpandida = ThisItem.Value, ColorValue("#F5F5F5"), Color.Transparent)
                   TemplatePadding: =0
                   TemplateSize: =35
@@ -1546,6 +1545,7 @@ Screens:
                               PressedFill: =RGBA(0, 0, 0, 0)
                               Size: =12
                               Text: =Text(ThisItem.Value.TipoSolicitud)
+                              Tooltip: =Self.Text
                               Width: =Parent.Width - 20
                   - SpvCtg_BtnTituloSimilitudGerencia:
                       Control: Classic/Button@2.2.0
@@ -2266,7 +2266,7 @@ Screens:
                               HoverColor: =ColorValue(Var_ColorGray)
                               HoverFill: =ColorValue(Var_ColorFadeBoton)
                               OnSelect: |-
-                                =UpdateContext({varUpdateSubAreaSelected : ThisItem , varOpenDropDownUpdateRol: false})
+                                =UpdateContext({varUpdateSubAreaSelected : ThisItem , varOpenDropDownUpdateRol: false, varOpenDropDownUpdateSubarea: false})
                               PressedBorderColor: =Self.Fill
                               PressedColor: =ColorValue(Var_ColorGray)
                               PressedFill: =ColorValue(Var_ColorFadeBoton)

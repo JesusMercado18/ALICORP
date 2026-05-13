@@ -2,7 +2,7 @@ Screens:
   Gbl_NuevoTicket:
     Properties:
       LoadingSpinnerColor: =RGBA(56, 96, 178, 1)
-      OnVisible: "=UpdateContext({ menuSelected: 3 , varTipoSolicitudSelected: If(Ctx_IngresoDesdeCatalogo, LookUp(col_Adn_TipoSolicitudNuevoTicket, TipoSolicitud = Ctx_StrTipoSol), Blank()) , varShowErrors: false , varOpenDropDownSociedadesMultiples: false , varPaisNuevoTicketSelected: Blank() , varOpenDropDownPaisNuevoTicket: false , varRolAnalistaTipoSolicitudSelected : Blank() , varSociedadNuevoTicketSelected : Blank() });\r\n\r\nClear(colSociedadNuevoTicket);\r\nClear(colSociedadesMultiplesSeleccionadas);\r\nClear(colLocalPais);\r\n// Reseteo de inputs:\r\n\r\nReset(Gbl_TxtDescripcionNuevoTicket);\r\nReset(Gbl_Attachment_AdjuntosAdicionales);\r\n\r\nClear(colFormularioDinamicoNuevoTicket);\r\n\r\nClearCollect(col_Adn_TipoSolicitudNuevoTicket, 'LCP-001_List_Configuracion_Ticket');\r\n\r\nClearCollect(\r\n    colFeriados,\r\n    AddColumns(\r\n        Filter(\r\n            'LCP-001_List_CalendarioFestivo',\r\n            Pais = Var_ProfileUser.Pais && Sociedad = Var_ProfileUser.Sociedad\r\n        ),\r\n        FechaCompleta,\r\n        If(\r\n            Len(FechaFestiva) = 10,\r\n            DateValue(FechaFestiva),\r\n            Date(\r\n                Year(Now()),\r\n                Value(Mid(FechaFestiva,4,2)),\r\n                Value(Left(FechaFestiva,2))\r\n            )\r\n        )\r\n    )\r\n);\r\nClearCollect(colGerenciasTipoSolicitud,Sort(\r\n    Distinct(\r\n        'LCP-001_List_Gerencia',\r\n        Nombre\r\n    ),\r\n    Value,\r\n    SortOrder.Ascending\r\n));\r\n\r\nClearCollect(colPaisCrearTicket, 'LCP-001_List_Pais'.Nombre);\r\nUpdateContext({ varGerenciaTipoSolicitudSelected: Blank() , varAreaTipoSolicitudSelected : Blank() , varSubAreaTipoSolicitudSelected: Blank() });\r\nUpdateContext({ \r\n    varGerenciaTipoSolicitudSelected: If(Ctx_IngresoDesdeCatalogo, {Value: Ctx_StrGerencia}, Blank()), \r\n    varAreaTipoSolicitudSelected: If(Ctx_IngresoDesdeCatalogo, {Value: Ctx_StrArea}, Blank()), \r\n    varSubAreaTipoSolicitudSelected: If(Ctx_IngresoDesdeCatalogo, {Value: Ctx_StrSubArea}, Blank()),\r\n    // Ctx_StrCategoria\r\n    \r\n     varRolAnalistaTipoSolicitudSelected: If(Ctx_IngresoDesdeCatalogo, {Value: Ctx_StrCategoria}, Blank())\r\n});\r\n\r\n// ==============================================================================\r\n// [INICIO] NUEVA LÓGICA: Sincronización del formulario dinámico desde Catálogo\r\n// ==============================================================================\r\nIf(\r\n    Ctx_IngresoDesdeCatalogo,\r\n    \r\n    // 1. REASEGURAMIENTO Y CONTROL UI: \r\n    // Hacemos el LookUp de la data y forzamos el cierre del contenedor desplegable \r\n    // para evitar que SolCtnAreaTicket_6_TipoSolicitud_1 se muestre abierto.\r\n    UpdateContext({ \r\n        varTipoSolicitudSelected: LookUp(col_Adn_TipoSolicitudNuevoTicket, TipoSolicitud = Ctx_StrTipoSol),\r\n        varOpenDropDownTipoSolicitud: false \r\n    });\r\n\r\n    If(varAreaTipoSolicitudSelected.Value in [\"Nóminas Perú\",\"Nóminas Países\"],\r\n\r\n    ClearCollect(colLocalPais, RenameColumns(ShowColumns(Filter('LCP-001_List_PaisSubArea',SubArea =  varAreaTipoSolicitudSelected.Value),Pais),Pais,Nombre)),\r\n\r\n    ClearCollect(colLocalPais, col_gblPais )\r\n\r\n    );\r\n\r\n    // 2. Si el registro existe, construimos el formulario dinámico fluido\r\n    If(\r\n        !IsBlank(varTipoSolicitudSelected),\r\n        \r\n        // A. Cargar Campos Adicionales Dinámicos\r\n        With(\r\n            { _jsonTable: Table(ParseJSON(Trim(varTipoSolicitudSelected.CamposAdicionalesTicket))) },\r\n            \r\n            ClearCollect(\r\n                colFormularioDinamicoNuevoTicket,\r\n                ForAll(\r\n                    Sequence(CountRows(_jsonTable)), \r\n                    With(\r\n                        { _registro: Index(_jsonTable, Value).Value }, \r\n                        {\r\n                            ID: Value, \r\n                            Label: Text(_registro.label),\r\n                            Tipo: Text(_registro.Tipo),\r\n                            Open: false,\r\n                            Opciones: Text(_registro.Opciones), \r\n                            Visible: Text(_registro.Visible) = \"Sí\",\r\n                            Configuracion: Text(_registro.configuracion),\r\n                            Condicion: Coalesce(Text(_registro.Condicion), \"=\"), \r\n                            ValorCondicion: Text(_registro.ValorCondicion),\r\n                            DependeDe: Text(_registro.DependeDe),\r\n                            Otros: Boolean(_registro.Otros),\r\n                            Valores: Text(_registro.Valores),\r\n                            ValorSeleccionad: \"\", \r\n                            ValorEncontrado: \"\",\r\n                            CatalogoAutocompletado: Text(_registro.CatalogoAutocompletado),\r\n                            MostrarColumnaFiltrada: Text(_registro.MostrarColumnaFiltrada),\r\n                            Regla: Boolean(_registro.Regla),\r\n                            DiccionarioRegla: Text(_registro.DiccionarioRegla),\r\n                            TextoGuia: Text(_registro.TextoGuia),\r\n                            ReglaFecha: Boolean(_registro.ReglaFecha),\r\n                            CondicionAdicional: Text(_registro.CondicionAdicional),\r\n                            DependeDeAdicional: Text(_registro.DependeDeAdicional),\r\n                            DependeDeAutocompletado: Text(_registro.DependeDeAutocompletado),\r\n                            HasError: false,\r\n                            AlturaCampo: If(Text(_registro.Tipo) in [Var_JSONConfigurarTipoCampo.Texto, Var_JSONConfigurarTipoCampo.URL, Var_JSONConfigurarTipoCampo.Numerico], 60, \r\n                                            Text(_registro.Tipo) = Var_JSONConfigurarTipoCampo.Multiline, 80, \r\n                                            Text(_registro.Tipo) = Var_JSONConfigurarTipoCampo.Adjunto, 88, 60) \r\n                                         + If(IsBlank(Text(_registro.TextoGuia)), 0, 46),\r\n                            FechaReferencia: Today(),\r\n                            SelectorMesAño: false,\r\n                            ExcesoPesoDetectado: false,\r\n                            PermiteExcepcion: true,\r\n                            ValorExcepcion: false,\r\n                            TextoExcepcion: \"\"\r\n                        }\r\n                    )\r\n                )\r\n            );\r\n\r\n            // B. Sincronizar la consolidada\r\n            ClearCollect(colConsolidada, colFormularioDinamicoNuevoTicket);\r\n\r\n            // C. Reparto en Galerías Pares/Impares (Zig-Zag Engine UI)\r\n            With(\r\n                { \r\n                    _visiblesIniciales: Filter(\r\n                        colConsolidada, \r\n                        Visible && (IsBlank(DependeDe) || DependeDe = \"\")\r\n                    ) \r\n                },\r\n                UpdateContext({\r\n                    _tempConIndices: ForAll(\r\n                        Sequence(CountRows(_visiblesIniciales)), \r\n                        Patch(Index(_visiblesIniciales, Value), {PosicionVisual: Value})\r\n                    )\r\n                });\r\n                \r\n                ClearCollect(GaleriaImpares, Filter(_tempConIndices, Mod(PosicionVisual, 2) <> 0));\r\n                ClearCollect(GaleriaPares, Filter(_tempConIndices, Mod(PosicionVisual, 2) = 0))\r\n            )\r\n        );\r\n\r\n        // D. Cargar Cabecera (País/Sociedad) \r\n        With(\r\n            { _jsonTable: Table(ParseJSON(Trim(varTipoSolicitudSelected.CabeceraPaisSociedad))) },\r\n            ClearCollect(\r\n                colFormularioDinamicoCabeceraPaisSociedadNuevoTicket,\r\n                ForAll(\r\n                    _jsonTable,\r\n                    {\r\n                        Etiqueta: Text(ThisRecord.Value.Etiqueta),\r\n                        Obligatorio: Text(ThisRecord.Value.Obligatorio),\r\n                        TipoCampo: Text(ThisRecord.Value.TipoCampo),\r\n                        Visible: Boolean(ThisRecord.Value.Visible),\r\n                        Varios: Boolean(ThisRecord.Value.Varios),\r\n                        ValorSeleccionado: \"\"\r\n                    }\r\n                )\r\n            )\r\n        );\r\n\r\n        // E. Cargar Plantillas Adjuntas\r\n        ClearCollect(colDescargarPlantilla, Filter('LCP-001_Library_AdjuntosConfiguracion', CodigoConfiguracion = Text(varTipoSolicitudSelected.ID)))\r\n    )\r\n);\r\n// ==============================================================================\r\n// [FIN] NUEVA LÓGICA\r\n// ==============================================================================\r\n\r\n// Medida de seguridad: Limpiar la bandera para accesos directos posteriores\r\nUpdateContext({ Ctx_IngresoDesdeCatalogo: false });\r\n\r\n"
+      OnVisible: "=UpdateContext({ menuSelected: 3 , varTipoSolicitudSelected: If(Ctx_IngresoDesdeCatalogo, LookUp(col_Adn_TipoSolicitudNuevoTicket, TipoSolicitud = Ctx_StrTipoSol), Blank()) , varShowErrors: false , varOpenDropDownSociedadesMultiples: false , varPaisNuevoTicketSelected: Blank() , varOpenDropDownPaisNuevoTicket: false , varRolAnalistaTipoSolicitudSelected : Blank() , varSociedadNuevoTicketSelected : Blank() , Var_CmcLoadingSpinnerVisible: false , Var_CmcLoadingSpinnerVisibleEnviar: false} );\r\n\r\nClear(colSociedadNuevoTicket);\r\nClear(colSociedadesMultiplesSeleccionadas);\r\nClear(colLocalPais);\r\nClear(Var_uploadFile_listeAttachmentTicketDinamico);\r\n// Reseteo de inputs:\r\n\r\nReset(Gbl_TxtDescripcionNuevoTicket);\r\nReset(Gbl_Attachment_AdjuntosAdicionales);\r\n\r\nClear(colFormularioDinamicoNuevoTicket);\r\n\r\nClearCollect(col_Adn_TipoSolicitudNuevoTicket, 'LCP-001_List_Configuracion_Ticket');\r\n\r\nClearCollect(\r\n    colFeriados,\r\n    AddColumns(\r\n        Filter(\r\n            'LCP-001_List_CalendarioFestivo',\r\n            Pais = Var_ProfileUser.Pais && Sociedad = Var_ProfileUser.Sociedad\r\n        ),\r\n        FechaCompleta,\r\n        If(\r\n            Len(FechaFestiva) = 10,\r\n            DateValue(FechaFestiva),\r\n            Date(\r\n                Year(Now()),\r\n                Value(Mid(FechaFestiva,4,2)),\r\n                Value(Left(FechaFestiva,2))\r\n            )\r\n        )\r\n    )\r\n);\r\nClearCollect(colGerenciasTipoSolicitud,Sort(\r\n    Distinct(\r\n        'LCP-001_List_Gerencia',\r\n        Nombre\r\n    ),\r\n    Value,\r\n    SortOrder.Ascending\r\n));\r\n\r\nClearCollect(colPaisCrearTicket, 'LCP-001_List_Pais'.Nombre);\r\nUpdateContext({ varGerenciaTipoSolicitudSelected: Blank() , varAreaTipoSolicitudSelected : Blank() , varSubAreaTipoSolicitudSelected: Blank() });\r\nUpdateContext({ \r\n    varGerenciaTipoSolicitudSelected: If(Ctx_IngresoDesdeCatalogo, {Value: Ctx_StrGerencia}, Blank()), \r\n    varAreaTipoSolicitudSelected: If(Ctx_IngresoDesdeCatalogo, {Value: Ctx_StrArea}, Blank()), \r\n    varSubAreaTipoSolicitudSelected: If(Ctx_IngresoDesdeCatalogo, {Value: Ctx_StrSubArea}, Blank()),\r\n    // Ctx_StrCategoria\r\n    \r\n     varRolAnalistaTipoSolicitudSelected: If(Ctx_IngresoDesdeCatalogo, {Value: Ctx_StrCategoria}, Blank())\r\n});\r\n\r\n// ==============================================================================\r\n// [INICIO] NUEVA LÓGICA: Sincronización del formulario dinámico desde Catálogo\r\n// ==============================================================================\r\nIf(\r\n    Ctx_IngresoDesdeCatalogo,\r\n    \r\n    // 1. REASEGURAMIENTO Y CONTROL UI: \r\n    // Hacemos el LookUp de la data y forzamos el cierre del contenedor desplegable \r\n    // para evitar que SolCtnAreaTicket_6_TipoSolicitud_1 se muestre abierto.\r\n    UpdateContext({ \r\n        varTipoSolicitudSelected: LookUp(col_Adn_TipoSolicitudNuevoTicket, TipoSolicitud = Ctx_StrTipoSol),\r\n        varOpenDropDownTipoSolicitud: false \r\n    });\r\n\r\n    If(varAreaTipoSolicitudSelected.Value in [\"Nóminas Perú\",\"Nóminas Países\"],\r\n\r\n    ClearCollect(colLocalPais, RenameColumns(ShowColumns(Filter('LCP-001_List_PaisSubArea',SubArea =  varAreaTipoSolicitudSelected.Value),Pais),Pais,Nombre)),\r\n\r\n    ClearCollect(colLocalPais, col_gblPais )\r\n\r\n    );\r\n\r\n    // 2. Si el registro existe, construimos el formulario dinámico fluido\r\n    If(\r\n        !IsBlank(varTipoSolicitudSelected),\r\n        \r\n        // A. Cargar Campos Adicionales Dinámicos\r\n        With(\r\n            { _jsonTable: Table(ParseJSON(Trim(varTipoSolicitudSelected.CamposAdicionalesTicket))) },\r\n            \r\n            ClearCollect(\r\n                colFormularioDinamicoNuevoTicket,\r\n                ForAll(\r\n                    Sequence(CountRows(_jsonTable)), \r\n                    With(\r\n                        { _registro: Index(_jsonTable, Value).Value }, \r\n                        {\r\n                            ID: Value, \r\n                            Label: Text(_registro.label),\r\n                            Tipo: Text(_registro.Tipo),\r\n                            Open: false,\r\n                            Opciones: Text(_registro.Opciones), \r\n                            Visible: Text(_registro.Visible) = \"Sí\",\r\n                            Configuracion: Text(_registro.configuracion),\r\n                            Condicion: Coalesce(Text(_registro.Condicion), \"=\"), \r\n                            ValorCondicion: Text(_registro.ValorCondicion),\r\n                            DependeDe: Text(_registro.DependeDe),\r\n                            Otros: Boolean(_registro.Otros),\r\n                            Valores: Text(_registro.Valores),\r\n                            ValorSeleccionad: \"\", \r\n                            ValorEncontrado: \"\",\r\n                            CatalogoAutocompletado: Text(_registro.CatalogoAutocompletado),\r\n                            MostrarColumnaFiltrada: Text(_registro.MostrarColumnaFiltrada),\r\n                            Regla: Boolean(_registro.Regla),\r\n                            DiccionarioRegla: Text(_registro.DiccionarioRegla),\r\n                            TextoGuia: Text(_registro.TextoGuia),\r\n                            ReglaFecha: Boolean(_registro.ReglaFecha),\r\n                            CondicionAdicional: Text(_registro.CondicionAdicional),\r\n                            DependeDeAdicional: Text(_registro.DependeDeAdicional),\r\n                            DependeDeAutocompletado: Text(_registro.DependeDeAutocompletado),\r\n                            HasError: false,\r\n                            AlturaCampo: If(Text(_registro.Tipo) in [Var_JSONConfigurarTipoCampo.Texto, Var_JSONConfigurarTipoCampo.URL, Var_JSONConfigurarTipoCampo.Numerico], 60, \r\n                                            Text(_registro.Tipo) = Var_JSONConfigurarTipoCampo.Multiline, 80, \r\n                                            Text(_registro.Tipo) = Var_JSONConfigurarTipoCampo.Adjunto, 88, 60) \r\n                                         + If(IsBlank(Text(_registro.TextoGuia)), 0, 46),\r\n                            FechaReferencia: Today(),\r\n                            SelectorMesAño: false,\r\n                            ExcesoPesoDetectado: false,\r\n                            PermiteExcepcion: true,\r\n                            ValorExcepcion: false,\r\n                            TextoExcepcion: \"\"\r\n                        }\r\n                    )\r\n                )\r\n            );\r\n\r\n            // B. Sincronizar la consolidada\r\n            ClearCollect(colConsolidada, colFormularioDinamicoNuevoTicket);\r\n\r\n            // C. Reparto en Galerías Pares/Impares (Zig-Zag Engine UI)\r\n            With(\r\n                { \r\n                    _visiblesIniciales: Filter(\r\n                        colConsolidada, \r\n                        Visible && (IsBlank(DependeDe) || DependeDe = \"\")\r\n                    ) \r\n                },\r\n                UpdateContext({\r\n                    _tempConIndices: ForAll(\r\n                        Sequence(CountRows(_visiblesIniciales)), \r\n                        Patch(Index(_visiblesIniciales, Value), {PosicionVisual: Value})\r\n                    )\r\n                });\r\n                \r\n                ClearCollect(GaleriaImpares, Filter(_tempConIndices, Mod(PosicionVisual, 2) <> 0));\r\n                ClearCollect(GaleriaPares, Filter(_tempConIndices, Mod(PosicionVisual, 2) = 0))\r\n            )\r\n        );\r\n\r\n        // D. Cargar Cabecera (País/Sociedad) \r\n        With(\r\n            { _jsonTable: Table(ParseJSON(Trim(varTipoSolicitudSelected.CabeceraPaisSociedad))) },\r\n            ClearCollect(\r\n                colFormularioDinamicoCabeceraPaisSociedadNuevoTicket,\r\n                ForAll(\r\n                    _jsonTable,\r\n                    {\r\n                        Etiqueta: Text(ThisRecord.Value.Etiqueta),\r\n                        Obligatorio: Text(ThisRecord.Value.Obligatorio),\r\n                        TipoCampo: Text(ThisRecord.Value.TipoCampo),\r\n                        Visible: Boolean(ThisRecord.Value.Visible),\r\n                        Varios: Boolean(ThisRecord.Value.Varios),\r\n                        ValorSeleccionado: \"\"\r\n                    }\r\n                )\r\n            )\r\n        );\r\n\r\n        // E. Cargar Plantillas Adjuntas\r\n        ClearCollect(colDescargarPlantilla, Filter('LCP-001_Library_AdjuntosConfiguracion', CodigoConfiguracion = Text(varTipoSolicitudSelected.ID)))\r\n    )\r\n);\r\n// ==============================================================================\r\n// [FIN] NUEVA LÓGICA\r\n// ==============================================================================\r\n\r\n// Medida de seguridad: Limpiar la bandera para accesos directos posteriores\r\nUpdateContext({ Ctx_IngresoDesdeCatalogo: false });\r\n\r\n"
     Children:
       - Container40_3:
           Control: GroupContainer@1.5.0
@@ -177,7 +177,7 @@ Screens:
                                     Height: =24
                                     LayoutMinHeight: =16
                                     LayoutMinWidth: =16
-                                    OnSelect: =Navigate(Gbl_NuevoTicket)
+                                    OnSelect: =Blank()
                                     PaddingBottom: =3
                                     PaddingLeft: =6
                                     Size: =Var_TituloNavBar
@@ -232,6 +232,10 @@ Screens:
                               LayoutMinHeight: =250
                               LayoutMinWidth: =16
                               LayoutOverflowY: =LayoutOverflow.Scroll
+                              RadiusBottomLeft: =24
+                              RadiusBottomRight: =24
+                              RadiusTopLeft: =24
+                              RadiusTopRight: =24
                             Children:
                               - Container1:
                                   Control: GroupContainer@1.5.0
@@ -409,6 +413,7 @@ Screens:
                                                                                     BorderThickness: =0
                                                                                     Default: =varPaisNuevoTicketSelected.Nombre
                                                                                     DisabledFill: =RGBA(0, 0, 0, 0)
+                                                                                    DisplayMode: =If(IsBlank(varTipoSolicitudSelected.TipoSolicitud),DisplayMode.Disabled,DisplayMode.Edit)
                                                                                     FillPortions: =1
                                                                                     Font: =Font.'Open Sans'
                                                                                     Height: =Parent.Height- 4
@@ -432,6 +437,8 @@ Screens:
                                                                                     AlignInContainer: =AlignInContainer.Center
                                                                                     BorderColor: =RGBA(0, 18, 107, 1)
                                                                                     Color: =ColorValue(Var_ColorBoton)
+                                                                                    DisabledColor: =ColorValue(Var_ColorGray)
+                                                                                    DisplayMode: =If(IsBlank(varTipoSolicitudSelected.TipoSolicitud),DisplayMode.Disabled,DisplayMode.Edit)
                                                                                     Height: =SolIcoCerrarBuscarAreaTicket_16.Height
                                                                                     Icon: =If(!varOpenDropDownPaisNuevoTicket,Icon.ChevronDown,Icon.ChevronUp)
                                                                                     OnSelect: |-
@@ -529,6 +536,7 @@ Screens:
                                                                                     BorderThickness: =0
                                                                                     Default: =varSociedadNuevoTicketSelected.Sociedad
                                                                                     DisabledFill: =RGBA(0, 0, 0, 0)
+                                                                                    DisplayMode: =If(IsBlank(varPaisNuevoTicketSelected.Nombre),DisplayMode.Disabled,DisplayMode.Edit)
                                                                                     FillPortions: =1
                                                                                     Font: =Font.'Open Sans'
                                                                                     Height: =Parent.Height - 4
@@ -552,6 +560,8 @@ Screens:
                                                                                     AlignInContainer: =AlignInContainer.Center
                                                                                     BorderColor: =RGBA(0, 18, 107, 1)
                                                                                     Color: =ColorValue(Var_ColorBoton)
+                                                                                    DisabledColor: =ColorValue(Var_ColorGray)
+                                                                                    DisplayMode: =If(IsBlank(varPaisNuevoTicketSelected.Nombre),DisplayMode.Disabled,DisplayMode.Edit)
                                                                                     Height: =SolIcoCerrarBuscarAreaTicket_17.Height
                                                                                     Icon: =If(!varOpenDropDownSociedadNuevoTicket,Icon.ChevronDown,Icon.ChevronUp)
                                                                                     OnSelect: |-
@@ -741,7 +751,9 @@ Screens:
                                                                                     BorderColor: =RGBA(0, 18, 107, 1)
                                                                                     BorderStyle: =BorderStyle.None
                                                                                     BorderThickness: =1
-                                                                                    Color: =ColorValue(Var_ColorIconNegro)
+                                                                                    Color: =ColorValue(Var_ColorBoton)
+                                                                                    DisabledColor: =ColorValue(Var_ColorGray)
+                                                                                    DisplayMode: =If(IsBlank(varPaisNuevoTicketSelected.Nombre),DisplayMode.Disabled,DisplayMode.Edit)
                                                                                     Fill: =RGBA(255, 255, 255, 1)
                                                                                     Height: =25
                                                                                     Icon: =If(varOpenDropDownSociedadesMultiples,Icon.ChevronUp,Icon.ChevronDown)
@@ -825,6 +837,7 @@ Screens:
                                                                                     BorderThickness: =0
                                                                                     Default: =varAreaTipoSolicitudSelected.Value
                                                                                     DisabledFill: =RGBA(0, 0, 0, 0)
+                                                                                    DisplayMode: =If( And( IsBlank(varGerenciaTipoSolicitudSelected.Value) , IsEmpty(Col_Adm_AreaTipoSolicitud) ),DisplayMode.Disabled,DisplayMode.Edit)
                                                                                     FillPortions: =1
                                                                                     Font: =Font.'Open Sans'
                                                                                     Height: =Parent.Height- 4
@@ -848,6 +861,8 @@ Screens:
                                                                                     AlignInContainer: =AlignInContainer.Center
                                                                                     BorderColor: =RGBA(0, 18, 107, 1)
                                                                                     Color: =ColorValue(Var_ColorBoton)
+                                                                                    DisabledColor: =ColorValue(Var_ColorGray)
+                                                                                    DisplayMode: =If( Or( IsBlank(varGerenciaTipoSolicitudSelected.Value) , IsEmpty(Col_Adm_AreaTipoSolicitud) ),DisplayMode.Disabled,DisplayMode.Edit)
                                                                                     Height: =SolIcoCerrarBuscarAreaTicket_14.Height
                                                                                     Icon: =If(!varOpenDropDownAreaTipoSolicitud,Icon.ChevronDown,Icon.ChevronUp)
                                                                                     OnSelect: |+
@@ -953,6 +968,11 @@ Screens:
                                                                                     BorderThickness: =0
                                                                                     Default: =varRolAnalistaTipoSolicitudSelected.Value
                                                                                     DisabledFill: =RGBA(0, 0, 0, 0)
+                                                                                    DisplayMode: |-
+                                                                                      =If( Or(IsBlank(varSubAreaTipoSolicitudSelected.Value), IsEmpty(Filter(
+                                                                                                      col_gblCategoria, 
+                                                                                                      SubArea = varSubAreaTipoSolicitudSelected.Value
+                                                                                                  )) )  ,DisplayMode.Disabled,DisplayMode.Edit)
                                                                                     FillPortions: =1
                                                                                     Font: =Font.'Open Sans'
                                                                                     Height: =Parent.Height- 4
@@ -976,6 +996,12 @@ Screens:
                                                                                     AlignInContainer: =AlignInContainer.Center
                                                                                     BorderColor: =RGBA(0, 18, 107, 1)
                                                                                     Color: =ColorValue(Var_ColorBoton)
+                                                                                    DisabledColor: =ColorValue(Var_ColorGray)
+                                                                                    DisplayMode: |-
+                                                                                      =If( Or(IsBlank(varSubAreaTipoSolicitudSelected.Value), IsEmpty(Filter(
+                                                                                                      col_gblCategoria, 
+                                                                                                      SubArea = varSubAreaTipoSolicitudSelected.Value
+                                                                                                  )) )  ,DisplayMode.Disabled,DisplayMode.Edit)
                                                                                     Height: =SolIcoCerrarBuscarAreaTicket_15.Height
                                                                                     Icon: =If(!varOpenDropDownRolAnalistaTipoSolicitud,Icon.ChevronDown,Icon.ChevronUp)
                                                                                     OnSelect: |-
@@ -1233,6 +1259,7 @@ Screens:
                                                                                     BorderThickness: =0
                                                                                     Default: =varSubAreaTipoSolicitudSelected.Value
                                                                                     DisabledFill: =RGBA(0, 0, 0, 0)
+                                                                                    DisplayMode: =If( And(IsBlank(varAreaTipoSolicitudSelected.Value),IsEmpty(Col_Adm_SubAreaTipoSolicitud)),DisplayMode.Disabled,DisplayMode.Edit)
                                                                                     FillPortions: =1
                                                                                     Font: =Font.'Open Sans'
                                                                                     Height: =Parent.Height- 4
@@ -1256,6 +1283,8 @@ Screens:
                                                                                     AlignInContainer: =AlignInContainer.Center
                                                                                     BorderColor: =RGBA(0, 18, 107, 1)
                                                                                     Color: =ColorValue(Var_ColorBoton)
+                                                                                    DisabledColor: =ColorValue(Var_ColorGray)
+                                                                                    DisplayMode: =If( Or(IsBlank(varAreaTipoSolicitudSelected.Value),IsEmpty(Col_Adm_SubAreaTipoSolicitud)),DisplayMode.Disabled,DisplayMode.Edit)
                                                                                     Height: =SolIcoCerrarBuscarAreaTicket_19.Height
                                                                                     Icon: =If(!varOpenDropDownSubAreaTipoSolicitud,Icon.ChevronDown,Icon.ChevronUp)
                                                                                     OnSelect: |-
@@ -1361,6 +1390,12 @@ Screens:
                                                                                     BorderThickness: =0
                                                                                     Default: =varTipoSolicitudSelected.TipoSolicitud
                                                                                     DisabledFill: =RGBA(0, 0, 0, 0)
+                                                                                    DisplayMode: |-
+                                                                                      =If( Or(IsBlank(varSubAreaTipoSolicitudSelected.Value),IsBlank(varGerenciaTipoSolicitudSelected.Value),IsBlank(varAreaTipoSolicitudSelected.Value), 
+
+                                                                                      IsEmpty( Filter(col_Adn_TipoSolicitudNuevoTicket, Gerencia = varGerenciaTipoSolicitudSelected.Value, Area = varAreaTipoSolicitudSelected.Value , SubArea =  varSubAreaTipoSolicitudSelected.Value , Estado.Value = "Activo" ) )
+
+                                                                                      ),DisplayMode.Disabled,DisplayMode.Edit)
                                                                                     FillPortions: =1
                                                                                     Font: =Font.'Open Sans'
                                                                                     Height: =Parent.Height- 4
@@ -1384,6 +1419,13 @@ Screens:
                                                                                     AlignInContainer: =AlignInContainer.Center
                                                                                     BorderColor: =RGBA(0, 18, 107, 1)
                                                                                     Color: =ColorValue(Var_ColorBoton)
+                                                                                    DisabledColor: =ColorValue(Var_ColorGray)
+                                                                                    DisplayMode: |-
+                                                                                      =If(Or(IsBlank(varSubAreaTipoSolicitudSelected.Value),IsBlank(varGerenciaTipoSolicitudSelected.Value),IsBlank(varAreaTipoSolicitudSelected.Value), 
+
+                                                                                      IsEmpty( Filter(col_Adn_TipoSolicitudNuevoTicket, Gerencia = varGerenciaTipoSolicitudSelected.Value, Area = varAreaTipoSolicitudSelected.Value , SubArea =  varSubAreaTipoSolicitudSelected.Value , Estado.Value = "Activo" ) )
+
+                                                                                      ),DisplayMode.Disabled,DisplayMode.Edit)
                                                                                     Height: =SolIcoCerrarBuscarAreaTicket_20.Height
                                                                                     Icon: =If(!varOpenDropDownTipoSolicitud,Icon.ChevronDown,Icon.ChevronUp)
                                                                                     OnSelect: |-
@@ -1493,7 +1535,7 @@ Screens:
                                                                   HintText: ="Descripción"
                                                                   HoverBorderColor: =RGBA(0, 18, 107, 1)
                                                                   HoverFill: =RGBA(0, 0, 0, 0)
-                                                                  MaxLength: =2000
+                                                                  MaxLength: =4000
                                                                   Mode: =TextMode.MultiLine
                                                                   PaddingTop: =10
                                                                   RadiusBottomLeft: =8
@@ -1536,7 +1578,7 @@ Screens:
                                                 LayoutMinHeight: =450
                                                 LayoutMinWidth: =16
                                               Children:
-                                                - btnRecalcularPosiciones:
+                                                - Label11:
                                                     Control: Label@2.5.1
                                                     Properties:
                                                       AlignInContainer: =AlignInContainer.Stretch
@@ -1545,9 +1587,26 @@ Screens:
                                                       FontWeight: =FontWeight.Semibold
                                                       LayoutMinHeight: =16
                                                       LayoutMinWidth: =16
-                                                      OnSelect: "=/*\r\n// 1. Filtramos los visibles basándonos en la Consolidada (el buffer)\r\nUpdateContext({\r\n    _camposVisibles: Filter(\r\n        colConsolidada As CampoHijo;\r\n        CampoHijo.Visible && (\r\n            IsBlank(CampoHijo.DependeDe) || \r\n            With(\r\n                { _padre: LookUp(colConsolidada; Label = CampoHijo.DependeDe) };\r\n                Trim(Lower(_padre.ValorSeleccionad)) = Trim(Lower(CampoHijo.ValorCondicion))\r\n            )\r\n        )\r\n    )\r\n});;\r\n\r\n// 2. Limpiamos las galerías de vista\r\nClear(GaleriaImpares);;\r\nClear(GaleriaPares);;\r\n\r\n// 3. Repartimos desde la tabla consolidada\r\nIf(CountRows(_camposVisibles) > 0;\r\n    ForAll(\r\n        Sequence(CountRows(_camposVisibles));\r\n        With(\r\n            { _registro: Index(_camposVisibles; Value) };\r\n            If(\r\n                Mod(Value; 2) <> 0;\r\n                Collect(GaleriaImpares; _registro);\r\n                Collect(GaleriaPares; _registro)\r\n            )\r\n        )\r\n    )\r\n);;\r\n\r\n// 4. Sincronizamos la Maestra final con lo que quedó en la Consolidada\r\nClearCollect(colFormularioDinamicoNuevoTicket; colConsolidada)\r\n*/\r\n\r\n// --- PASO 1: Identificar quién es visible (con soporte a números y texto) ---\r\nUpdateContext({\r\n    _camposVisibles: Filter(\r\n        colConsolidada As Hijo,\r\n        Hijo.Visible && (\r\n            IsBlank(Hijo.DependeDe) || \r\n            With({ _P: LookUp(colConsolidada, Label = Hijo.DependeDe) },\r\n                If(IsBlank(_P), false,\r\n                    With({ _vP: _P.ValorSeleccionad, _vC: Hijo.ValorCondicion, _op: Coalesce(Hijo.Condicion, \"=\") },\r\n                        Switch(_op,\r\n                            Var_JSONOperadores.Igual,  Trim(Lower(Text(_vP))) = Trim(Lower(Text(_vC))),\r\n                            Var_JSONOperadores.Mayor,      !IsBlank(_vP) && Value(Coalesce(_vP, \"0\")) > Value(Coalesce(_vC, \"0\")),\r\n                            Var_JSONOperadores.Menor,      !IsBlank(_vP) && Value(Coalesce(_vP, \"0\")) < Value(Coalesce(_vC, \"0\")),\r\n                            Var_JSONOperadores.MayorIgual, !IsBlank(_vP) && Value(Coalesce(_vP, \"0\")) >= Value(Coalesce(_vC, \"0\")),\r\n                            Var_JSONOperadores.MenorIgual, !IsBlank(_vP) && Value(Coalesce(_vP, \"0\")) <= Value(Coalesce(_vC, \"0\")),\r\n                            \r\n                            Var_JSONOperadores.DiferenteDe, !IsBlank(_vP) && Len(Text(_vP)) > 0 && Value(Coalesce(_vP, \"0\")) <> Value(Coalesce(_vC, \"0\")),\r\n                            false\r\n                        )\r\n                    )\r\n                )\r\n            )\r\n        )\r\n    )\r\n});\r\n\r\n// --- PASO 2: Numerar y Repartir (Sin usar Index repetitivo) ---\r\nClear(GaleriaImpares); Clear(GaleriaPares);\r\n\r\nClearCollect(\r\n    _bufferConIndices, \r\n    ForAll(Sequence(CountRows(_camposVisibles)), \r\n        Patch(Index(_camposVisibles, Value), {IndexFila: Value})\r\n    )\r\n);\r\n\r\nCollect(GaleriaImpares, Filter(_bufferConIndices, Mod(IndexFila, 2) <> 0));\r\nCollect(GaleriaPares, Filter(_bufferConIndices, Mod(IndexFila, 2) = 0));\r\n\r\n// --- PASO 3: Sincronizar Maestra ---\r\nClearCollect(colFormularioDinamicoNuevoTicket, colConsolidada)"
                                                       Size: =12
                                                       Text: ="Datos adjuntos"
+                                                - btnRecalcularPosiciones:
+                                                    Control: Classic/Button@2.2.0
+                                                    Properties:
+                                                      BorderColor: =ColorFade(Self.Fill, -15%)
+                                                      Color: =RGBA(255, 255, 255, 1)
+                                                      DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                                                      Fill: =RGBA(56, 96, 178, 1)
+                                                      Font: =Font.'Open Sans'
+                                                      HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                                                      HoverColor: =RGBA(255, 255, 255, 1)
+                                                      HoverFill: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+                                                      LayoutMinHeight: =16
+                                                      LayoutMinWidth: =16
+                                                      OnSelect: "=// --- PASO 1: Identificar quién es visible (con soporte a números y texto) ---\r\nUpdateContext({\r\n    _camposVisibles: Filter(\r\n        colConsolidada As Hijo,\r\n        Hijo.Visible && (\r\n            IsBlank(Hijo.DependeDe) || \r\n            With({ _P: LookUp(colConsolidada, Label = Hijo.DependeDe) },\r\n                If(IsBlank(_P), false,\r\n                    With({ _vP: _P.ValorSeleccionad, _vC: Hijo.ValorCondicion, _op: Coalesce(Hijo.Condicion, \"=\") },\r\n                        Switch(_op,\r\n                            Var_JSONOperadores.Igual,  Trim(Lower(Text(_vP))) = Trim(Lower(Text(_vC))),\r\n                            Var_JSONOperadores.Mayor,      !IsBlank(_vP) && Value(Coalesce(_vP, \"0\")) > Value(Coalesce(_vC, \"0\")),\r\n                            Var_JSONOperadores.Menor,      !IsBlank(_vP) && Value(Coalesce(_vP, \"0\")) < Value(Coalesce(_vC, \"0\")),\r\n                            Var_JSONOperadores.MayorIgual, !IsBlank(_vP) && Value(Coalesce(_vP, \"0\")) >= Value(Coalesce(_vC, \"0\")),\r\n                            Var_JSONOperadores.MenorIgual, !IsBlank(_vP) && Value(Coalesce(_vP, \"0\")) <= Value(Coalesce(_vC, \"0\")),\r\n                            \r\n                            Var_JSONOperadores.DiferenteDe, !IsBlank(_vP) && Len(Text(_vP)) > 0 && Value(Coalesce(_vP, \"0\")) <> Value(Coalesce(_vC, \"0\")),\r\n                            false\r\n                        )\r\n                    )\r\n                )\r\n            )\r\n        )\r\n    )\r\n});\r\n\r\n// --- PASO 2: Numerar y Repartir (Sin usar Index repetitivo) ---\r\nClear(GaleriaImpares); Clear(GaleriaPares);\r\n\r\nClearCollect(\r\n    _bufferConIndices, \r\n    ForAll(Sequence(CountRows(_camposVisibles)), \r\n        Patch(Index(_camposVisibles, Value), {IndexFila: Value})\r\n    )\r\n);\r\n\r\nCollect(GaleriaImpares, Filter(_bufferConIndices, Mod(IndexFila, 2) <> 0));\r\nCollect(GaleriaPares, Filter(_bufferConIndices, Mod(IndexFila, 2) = 0));\r\n\r\n// --- PASO 3: Sincronizar Maestra ---\r\nClearCollect(colFormularioDinamicoNuevoTicket, colConsolidada);\r\n\r\nUpdateContext( { Var_CmcLoadingSpinnerVisible: false })\r\n\r\n"
+                                                      PressedBorderColor: =Self.Fill
+                                                      PressedColor: =Self.Fill
+                                                      PressedFill: =Self.Color
+                                                      Visible: =false
                                                 - Container23_2_DescargarPlantilla:
                                                     Control: GroupContainer@1.5.0
                                                     Variant: ManualLayout
@@ -1752,18 +1811,6 @@ Screens:
                                                             Width: '=If(varTipoSolicitudSelected.VistoBueno,Parent.Width / 2 - 5 ,0) '
                                                             Y: =214
                                                           Children:
-                                                            - TextCanvas16_12:
-                                                                Control: Text@0.0.51
-                                                                Properties:
-                                                                  Align: ='TextCanvas.Align'.Center
-                                                                  FontColor: =RGBA(255, 255, 255, 1)
-                                                                  Height: =45
-                                                                  Text: ="Se alcanzó el número máximo de archivos"
-                                                                  VerticalAlign: =VerticalAlign.Middle
-                                                                  Visible: =If(pj_piecejointe_8.MaxAttachments = CountRows(gal_files_8.AllItems),true,false)
-                                                                  Width: =pj_piecejointe_8.Width
-                                                                  X: =(pj_piecejointe_8.Width - Self.Width) / 2
-                                                                  Y: =40
                                                             - gal_files_8:
                                                                 Control: Gallery@2.15.0
                                                                 Variant: Vertical
@@ -2148,6 +2195,16 @@ Screens:
                                                                                           Visible: =false
                                                                                           Width: =70
                                                                                           Y: =(Parent.Height-Self.Height)/2
+                                                                                    - Image1_61:
+                                                                                        Control: Image@2.2.3
+                                                                                        Properties:
+                                                                                          BorderColor: =RGBA(0, 18, 107, 1)
+                                                                                          Height: =15
+                                                                                          HoverFill: =Color.Transparent
+                                                                                          Image: =Cargar_B
+                                                                                          Width: =15
+                                                                                          X: =Parent.Width - Self.Width - 10
+                                                                                          Y: '=(Parent.Height - Self.Height) / 2 '
                                                                                     - pj_piecejointe_8:
                                                                                         Control: Attachments@2.3.0
                                                                                         Properties:
@@ -2198,16 +2255,6 @@ Screens:
                                                                                           Width: =Parent.Width + 15
                                                                                           X: =-21
                                                                                           Y: =-40
-                                                                                    - Image1_61:
-                                                                                        Control: Image@2.2.3
-                                                                                        Properties:
-                                                                                          BorderColor: =RGBA(0, 18, 107, 1)
-                                                                                          Height: =15
-                                                                                          HoverFill: =Color.Transparent
-                                                                                          Image: =Cargar_B
-                                                                                          Width: =15
-                                                                                          X: =Parent.Width - Self.Width - 10
-                                                                                          Y: '=(Parent.Height - Self.Height) / 2 '
                                                             - Gallery9:
                                                                 Control: Gallery@2.15.0
                                                                 Variant: BrowseLayout_Vertical_OneTextOneImageVariant_ver5.0
@@ -2288,6 +2335,18 @@ Screens:
                                                                         OnSelect: =Select(Parent)
                                                                         Visible: =ThisItem.IsSelected
                                                                         Width: =4
+                                                            - TextCanvas16_12:
+                                                                Control: Text@0.0.51
+                                                                Properties:
+                                                                  Align: ='TextCanvas.Align'.Center
+                                                                  FontColor: =RGBA(255, 255, 255, 1)
+                                                                  Height: =45
+                                                                  Text: ="Se alcanzó el número máximo de archivos"
+                                                                  VerticalAlign: =VerticalAlign.Middle
+                                                                  Visible: =If(pj_piecejointe_8.MaxAttachments = CountRows(gal_files_8.AllItems),true,false)
+                                                                  Width: =pj_piecejointe_8.Width
+                                                                  X: =(pj_piecejointe_8.Width - Self.Width) / 2
+                                                                  Y: =40
                                                       - cont_uploadfile_9_AgregarPlantilla:
                                                           Control: GroupContainer@1.5.0
                                                           Variant: ManualLayout
@@ -2301,18 +2360,6 @@ Screens:
                                                             Width: =Parent.Width
                                                             Y: =214
                                                           Children:
-                                                            - TextCanvas16_13:
-                                                                Control: Text@0.0.51
-                                                                Properties:
-                                                                  Align: ='TextCanvas.Align'.Center
-                                                                  FontColor: =RGBA(255, 255, 255, 1)
-                                                                  Height: =45
-                                                                  Text: ="Se alcanzó el número máximo de archivos"
-                                                                  VerticalAlign: =VerticalAlign.Middle
-                                                                  Visible: =If(pj_piecejointe_9.MaxAttachments = CountRows(gal_files_9.AllItems),true,false)
-                                                                  Width: =pj_piecejointe_9.Width
-                                                                  X: =(pj_piecejointe_9.Width - Self.Width) / 2
-                                                                  Y: =40
                                                             - gal_files_9:
                                                                 Control: Gallery@2.15.0
                                                                 Variant: Vertical
@@ -2828,6 +2875,18 @@ Screens:
                                                                         OnSelect: =Select(Parent)
                                                                         Visible: =ThisItem.IsSelected
                                                                         Width: =4
+                                                            - TextCanvas16_13:
+                                                                Control: Text@0.0.51
+                                                                Properties:
+                                                                  Align: ='TextCanvas.Align'.Center
+                                                                  FontColor: =RGBA(255, 255, 255, 1)
+                                                                  Height: =45
+                                                                  Text: ="Se alcanzó el número máximo de archivos"
+                                                                  VerticalAlign: =VerticalAlign.Middle
+                                                                  Visible: =If(pj_piecejointe_9.MaxAttachments = CountRows(gal_files_9.AllItems),true,false)
+                                                                  Width: =pj_piecejointe_9.Width
+                                                                  X: =(pj_piecejointe_9.Width - Self.Width) / 2
+                                                                  Y: =40
                                                       - Gbl_Attachment_AdjuntosAdicionales:
                                                           Control: CanvasComponent
                                                           ComponentName: Gbl_Attachment
@@ -2864,26 +2923,10 @@ Screens:
                                                 FontWeight: =FontWeight.Semibold
                                                 LayoutMinHeight: =16
                                                 LayoutMinWidth: =16
+                                                OnSelect: =//Select(btnRecalcularPosiciones)
                                                 Size: =12
                                                 Text: ="Formulario Dinámico"
                                                 Visible: =!IsEmpty(colFormularioDinamicoNuevoTicket)
-                                          - TextInput5:
-                                              Control: Classic/TextInput@2.3.2
-                                              Properties:
-                                                BorderColor: =RGBA(0, 18, 107, 1)
-                                                BorderStyle: =BorderStyle.None
-                                                BorderThickness: =0
-                                                Font: =Font.'Open Sans'
-                                                Height: =1
-                                                HoverBorderColor: =RGBA(0, 18, 107, 1)
-                                                HoverFill: =RGBA(186, 202, 226, 1)
-                                                LayoutMinHeight: =16
-                                                LayoutMinWidth: =16
-                                                RadiusBottomLeft: =0
-                                                RadiusBottomRight: =0
-                                                RadiusTopLeft: =0
-                                                RadiusTopRight: =0
-                                                Width: =1
                                           - ContainerFormularioDinamico_DatosTicket:
                                               Control: GroupContainer@1.5.0
                                               Variant: AutoLayout
@@ -3207,17 +3250,6 @@ Screens:
                                                                                     Width: =Parent.Width
                                                                                     X: =(Parent.Width-Self.Width)/2
                                                                                   Children:
-                                                                                    - lbl_legendDayOfWeek_5:
-                                                                                        Control: Text@0.0.51
-                                                                                        Properties:
-                                                                                          Align: ='TextCanvas.Align'.Center
-                                                                                          FontColor: =ThisItem.color
-                                                                                          Height: =Self.Width
-                                                                                          Text: |
-                                                                                            =Proper(Left(Text(ThisItem.DateDeb,"ddd"),1))
-                                                                                          VerticalAlign: =VerticalAlign.Middle
-                                                                                          Weight: ='TextCanvas.Weight'.Semibold
-                                                                                          Width: =Parent.TemplateWidth
                                                                                     - gal_days_5:
                                                                                         Control: Gallery@2.15.0
                                                                                         Variant: Vertical
@@ -3340,6 +3372,17 @@ Screens:
                                                                                                 Width: =Self.Height
                                                                                                 X: =8
                                                                                                 Y: =5
+                                                                                    - lbl_legendDayOfWeek_5:
+                                                                                        Control: Text@0.0.51
+                                                                                        Properties:
+                                                                                          Align: ='TextCanvas.Align'.Center
+                                                                                          FontColor: =ThisItem.color
+                                                                                          Height: =Self.Width
+                                                                                          Text: |
+                                                                                            =Proper(Left(Text(ThisItem.DateDeb,"ddd"),1))
+                                                                                          VerticalAlign: =VerticalAlign.Middle
+                                                                                          Weight: ='TextCanvas.Weight'.Semibold
+                                                                                          Width: =Parent.TemplateWidth
                                                                         - ico_refreshMonth_5:
                                                                             Control: Classic/Icon@2.5.0
                                                                             Properties:
@@ -3586,16 +3629,6 @@ Screens:
                                                                               Text: =ThisItem.Label
                                                                               Visible: =IsBlank(ThisItem.ValorSeleccionad)
                                                                               Width: =Parent.Width
-                                                                        - ico_calendar_5:
-                                                                            Control: Icon@0.0.7
-                                                                            Properties:
-                                                                              Height: =Parent.Height - 10
-                                                                              Icon: ="Calendar"
-                                                                              IconColor: =ColorValue(Var_ColorBoton)
-                                                                              IconStyle: ='Icon.IconStyle'.Outline
-                                                                              Width: =Parent.Height - 10
-                                                                              X: =Parent.Width - Self.Width - 5
-                                                                              Y: =(Parent.Height - Self.Height) / 2
                                                                         - tim_initialization_5:
                                                                             Control: Timer@2.1.0
                                                                             Properties:
@@ -3785,6 +3818,16 @@ Screens:
                                                                               Width: =Parent.Height - 10
                                                                               X: =If(IsBlank(ThisItem.ValorSeleccionad),Label23_4.X,5)
                                                                               Y: =5
+                                                                        - ico_calendar_5:
+                                                                            Control: Icon@0.0.7
+                                                                            Properties:
+                                                                              Height: =Parent.Height - 10
+                                                                              Icon: ="Calendar"
+                                                                              IconColor: =ColorValue(Var_ColorBoton)
+                                                                              IconStyle: ='Icon.IconStyle'.Outline
+                                                                              Width: =Parent.Height - 10
+                                                                              X: =Parent.Width - Self.Width - 5
+                                                                              Y: =(Parent.Height - Self.Height) / 2
                                                                   - Label26_3:
                                                                       Control: Label@2.5.1
                                                                       Properties:
@@ -4162,6 +4205,7 @@ Screens:
                                                                               HoverFill: =RGBA(0, 0, 0, 0)
                                                                               LayoutMinHeight: =16
                                                                               LayoutMinWidth: =16
+                                                                              MaxLength: =4000
                                                                               Mode: |-
                                                                                 =
                                                                                 If(ThisItem.Tipo in [Var_JSONConfigurarTipoCampo.Texto,Var_JSONConfigurarTipoCampo.URL],TextMode.SingleLine, ThisItem.Tipo = Var_JSONConfigurarTipoCampo.Multiline,  TextMode.MultiLine, TextMode.SingleLine)
@@ -4248,18 +4292,6 @@ Screens:
                                                                   Width: =Parent.Width
                                                                   Y: =214
                                                                 Children:
-                                                                  - TextCanvas16_16:
-                                                                      Control: Text@0.0.51
-                                                                      Properties:
-                                                                        Align: ='TextCanvas.Align'.Center
-                                                                        FontColor: =RGBA(255, 255, 255, 1)
-                                                                        Height: =45
-                                                                        Text: ="Se alcanzó el número máximo de archivos"
-                                                                        VerticalAlign: =VerticalAlign.Middle
-                                                                        Visible: =If(pj_piecejointe_13.MaxAttachments = CountRows(gal_files_12.AllItems),true,false)
-                                                                        Width: =pj_piecejointe_13.Width
-                                                                        X: =(pj_piecejointe_13.Width - Self.Width) / 2
-                                                                        Y: =95
                                                                   - ctnExcepcionPeso:
                                                                       Control: GroupContainer@1.5.0
                                                                       Variant: AutoLayout
@@ -4275,42 +4307,6 @@ Screens:
                                                                         X: =2
                                                                         Y: =Container36_1_23.Height + gal_files_12.Height +  45
                                                                       Children:
-                                                                        - tog_HabilitarTexto:
-                                                                            Control: Classic/Toggle@2.1.0
-                                                                            Properties:
-                                                                              BorderColor: =RGBA(0, 18, 107, 1)
-                                                                              BorderStyle: =BorderStyle.None
-                                                                              Default: |-
-                                                                                =//ThisItem.ValorExcepcion
-                                                                                true
-                                                                              Font: =Font.'Open Sans'
-                                                                              LayoutMinHeight: =16
-                                                                              LayoutMinWidth: =16
-                                                                              OnCheck: |-
-                                                                                =// Solo ejecutamos si el valor en la colección es distinto (esto rompe el bucle)
-
-
-                                                                                /*
-                                                                                If(LookUp(colFormularioDinamicoNuevoTicket; ID = ThisItem.ID).ValorExcepcion = false;
-
-                                                                                    // 1. Actualizar la Fuente Maestra
-                                                                                    UpdateIf(colFormularioDinamicoNuevoTicket; ID = ThisItem.ID; { ValorExcepcion: true });;
-
-                                                                                    // 2. Sincronizar las Vistas Espejo
-                                                                                    UpdateIf(GaleriaImpares; ID = ThisItem.ID; { ValorExcepcion: true });;
-                                                                                    UpdateIf(GaleriaPares; ID = ThisItem.ID; { ValorExcepcion: true });;
-
-                                                                                    // 3. Consolidar
-                                                                                    ClearCollect(colConsolidada; colFormularioDinamicoNuevoTicket);;
-
-                                                                                    // 4. Recalcular posiciones
-                                                                                    Select(btnRecalcularPosiciones)
-                                                                                )
-                                                                                */
-                                                                              OnUncheck: "=// 1. Actualizar Fuente Maestra (quitamos el check y borramos la URL)\r\n// TextoExcepcion\r\n\r\n// Solo ejecutamos si el valor en la colección es distinto\r\n\r\n/*\r\n\r\nIf(LookUp(colFormularioDinamicoNuevoTicket; ID = ThisItem.ID).ValorExcepcion = true;\r\n\r\n    UpdateIf(colFormularioDinamicoNuevoTicket; ID = ThisItem.ID; { ValorExcepcion: false; TextoExcepcion: Blank() });;\r\n    \r\n    UpdateIf(GaleriaImpares; ID = ThisItem.ID; { ValorExcepcion: false; TextoExcepcion: Blank() });;\r\n    UpdateIf(GaleriaPares; ID = ThisItem.ID; { ValorExcepcion: false; TextoExcepcion: Blank() });;\r\n\r\n    ClearCollect(colConsolidada; colFormularioDinamicoNuevoTicket);;\r\n\r\n    Select(btnRecalcularPosiciones)\r\n)\r\n\r\n*/"
-                                                                              Size: =12
-                                                                              TrueFill: =ColorValue(Var_ColorBoton)
-                                                                              Width: =155
                                                                         - Container45_2:
                                                                             Control: GroupContainer@1.5.0
                                                                             Variant: ManualLayout
@@ -4348,6 +4344,30 @@ Screens:
                                                                                     X: =1
                                                                                     Y: =(Parent.Height - Self.Height) / 2
                                                                                   Children:
+                                                                                    - SolIcoCerrarBuscarAreaTicket_32:
+                                                                                        Control: Classic/Icon@2.5.0
+                                                                                        Properties:
+                                                                                          AlignInContainer: =AlignInContainer.Center
+                                                                                          BorderColor: =RGBA(0, 18, 107, 1)
+                                                                                          Color: =ColorValue(Var_ColorIconNegro)
+                                                                                          Height: =25
+                                                                                          Icon: =Icon.Cancel
+                                                                                          LayoutMinHeight: =40
+                                                                                          OnSelect: |-
+                                                                                            =UpdateIf(colFormularioDinamicoNuevoTicket, ID = ThisItem.ID, { TextoExcepcion: Blank() });
+                                                                                            UpdateIf(GaleriaImpares, ID = ThisItem.ID, { TextoExcepcion: Blank() });
+                                                                                            UpdateIf(GaleriaPares, ID = ThisItem.ID, { TextoExcepcion: Blank() });
+                                                                                            // 3. Consolidar
+                                                                                            ClearCollect(colConsolidada, colFormularioDinamicoNuevoTicket);
+
+                                                                                            // 4. Recalcular posiciones
+                                                                                            Select(btnRecalcularPosiciones)
+                                                                                          PaddingBottom: =5
+                                                                                          PaddingLeft: =5
+                                                                                          PaddingRight: =5
+                                                                                          PaddingTop: =5
+                                                                                          Visible: =IsBlank(ThisItem.TextoExcepcion)=false
+                                                                                          Width: =25
                                                                                     - SolTxtBuscarAreaTicket_32:
                                                                                         Control: Classic/TextInput@2.3.2
                                                                                         Properties:
@@ -4368,7 +4388,8 @@ Screens:
                                                                                             =
                                                                                             If(ThisItem.Tipo in [Var_JSONConfigurarTipoCampo.Texto,Var_JSONConfigurarTipoCampo.URL],TextMode.SingleLine, ThisItem.Tipo = Var_JSONConfigurarTipoCampo.Multiline,  TextMode.MultiLine, TextMode.SingleLine)
                                                                                           OnChange: |+
-                                                                                            =With({
+                                                                                            =UpdateContext( { Var_CmcLoadingSpinnerVisible: true });
+                                                                                            With({
 
                                                                                                 _TextoUrl: Self.Text
 
@@ -4394,30 +4415,6 @@ Screens:
                                                                                           PressedFill: =
                                                                                           Size: =Var_FontSizeFiltros
                                                                                           Tooltip: =If(IsBlank(Self.Text),"",Self.Text)
-                                                                                    - SolIcoCerrarBuscarAreaTicket_32:
-                                                                                        Control: Classic/Icon@2.5.0
-                                                                                        Properties:
-                                                                                          AlignInContainer: =AlignInContainer.Center
-                                                                                          BorderColor: =RGBA(0, 18, 107, 1)
-                                                                                          Color: =ColorValue(Var_ColorIconNegro)
-                                                                                          Height: =25
-                                                                                          Icon: =Icon.Cancel
-                                                                                          LayoutMinHeight: =40
-                                                                                          OnSelect: |-
-                                                                                            =UpdateIf(colFormularioDinamicoNuevoTicket, ID = ThisItem.ID, { TextoExcepcion: Blank() });
-                                                                                            UpdateIf(GaleriaImpares, ID = ThisItem.ID, { TextoExcepcion: Blank() });
-                                                                                            UpdateIf(GaleriaPares, ID = ThisItem.ID, { TextoExcepcion: Blank() });
-                                                                                            // 3. Consolidar
-                                                                                            ClearCollect(colConsolidada, colFormularioDinamicoNuevoTicket);
-
-                                                                                            // 4. Recalcular posiciones
-                                                                                            Select(btnRecalcularPosiciones)
-                                                                                          PaddingBottom: =5
-                                                                                          PaddingLeft: =5
-                                                                                          PaddingRight: =5
-                                                                                          PaddingTop: =5
-                                                                                          Visible: =IsBlank(ThisItem.TextoExcepcion)=false
-                                                                                          Width: =25
                                                                               - Label33_2:
                                                                                   Control: Label@2.5.1
                                                                                   Properties:
@@ -4436,6 +4433,42 @@ Screens:
                                                                                     Wrap: =false
                                                                                     X: =SolCtnItemsBuscarAreaTicket_35.X + 10
                                                                                     Y: =SolCtnItemsBuscarAreaTicket_35.Y - (Self.Height / 2)
+                                                                        - tog_HabilitarTexto:
+                                                                            Control: Classic/Toggle@2.1.0
+                                                                            Properties:
+                                                                              BorderColor: =RGBA(0, 18, 107, 1)
+                                                                              BorderStyle: =BorderStyle.None
+                                                                              Default: |-
+                                                                                =//ThisItem.ValorExcepcion
+                                                                                true
+                                                                              Font: =Font.'Open Sans'
+                                                                              LayoutMinHeight: =16
+                                                                              LayoutMinWidth: =16
+                                                                              OnCheck: |-
+                                                                                =// Solo ejecutamos si el valor en la colección es distinto (esto rompe el bucle)
+
+
+                                                                                /*
+                                                                                If(LookUp(colFormularioDinamicoNuevoTicket; ID = ThisItem.ID).ValorExcepcion = false;
+
+                                                                                    // 1. Actualizar la Fuente Maestra
+                                                                                    UpdateIf(colFormularioDinamicoNuevoTicket; ID = ThisItem.ID; { ValorExcepcion: true });;
+
+                                                                                    // 2. Sincronizar las Vistas Espejo
+                                                                                    UpdateIf(GaleriaImpares; ID = ThisItem.ID; { ValorExcepcion: true });;
+                                                                                    UpdateIf(GaleriaPares; ID = ThisItem.ID; { ValorExcepcion: true });;
+
+                                                                                    // 3. Consolidar
+                                                                                    ClearCollect(colConsolidada; colFormularioDinamicoNuevoTicket);;
+
+                                                                                    // 4. Recalcular posiciones
+                                                                                    Select(btnRecalcularPosiciones)
+                                                                                )
+                                                                                */
+                                                                              OnUncheck: "=// 1. Actualizar Fuente Maestra (quitamos el check y borramos la URL)\r\n// TextoExcepcion\r\n\r\n// Solo ejecutamos si el valor en la colección es distinto\r\n\r\n/*\r\n\r\nIf(LookUp(colFormularioDinamicoNuevoTicket; ID = ThisItem.ID).ValorExcepcion = true;\r\n\r\n    UpdateIf(colFormularioDinamicoNuevoTicket; ID = ThisItem.ID; { ValorExcepcion: false; TextoExcepcion: Blank() });;\r\n    \r\n    UpdateIf(GaleriaImpares; ID = ThisItem.ID; { ValorExcepcion: false; TextoExcepcion: Blank() });;\r\n    UpdateIf(GaleriaPares; ID = ThisItem.ID; { ValorExcepcion: false; TextoExcepcion: Blank() });;\r\n\r\n    ClearCollect(colConsolidada; colFormularioDinamicoNuevoTicket);;\r\n\r\n    Select(btnRecalcularPosiciones)\r\n)\r\n\r\n*/"
+                                                                              Size: =12
+                                                                              TrueFill: =ColorValue(Var_ColorBoton)
+                                                                              Width: =155
                                                                   - gal_files_12:
                                                                       Control: Gallery@2.15.0
                                                                       Variant: Vertical
@@ -4502,7 +4535,7 @@ Screens:
                                                                                     Icon: =Icon.CancelBadge
                                                                                     LayoutMinHeight: =30
                                                                                     LayoutMinWidth: =20
-                                                                                    OnSelect: "=// 1. Referencias previas\nUpdateContext({ _lblPadre: ThisItem.label });\n\n// 2. Borrado del archivo\nRemove(Var_uploadFile_listeAttachmentTicketDinamico, ThisItem);\n\n// 3. Obtención de datos actualizados para esta sección\nWith(\n    { \n        _idPadre: LookUp(colFormularioDinamicoNuevoTicket, Label = _lblPadre).ID,\n        _archivosRestantes: Filter(Var_uploadFile_listeAttachmentTicketDinamico, label = _lblPadre)\n    },\n    With(\n        {\n            // Calculamos el peso tras la eliminación\n            _pesoRestanteBytes: Sum(_archivosRestantes, PesoBytes),\n            _registroMaestro: LookUp(colFormularioDinamicoNuevoTicket, ID = _idPadre)\n        },\n        With(\n            {\n                // Si el peso ya es legal (<=25MB), forzamos el cierre de la excepción\n                _mostrarExcepcion: If(_pesoRestanteBytes > varLimiteSeccionBytes, _registroMaestro.ExcesoPesoDetectado, false),\n                _altGal: If(CountRows(_archivosRestantes) > 3, 135, CountRows(_archivosRestantes) * 45)\n            },\n            With(\n                {\n                    // Recalculamos la altura restando los 60px si la excepción se apaga\n                    _nuevaAltura: 86 + _altGal + 10 + If(_mostrarExcepcion, 60, 0) + If(IsBlank(LookUp(colFormularioDinamicoNuevoTicket, Label = _lblPadre).TextoGuia),0,46)\n                },\n\n                // A. Actualizar la Maestra con el nuevo peso y estado de alerta\n                UpdateIf(\n                    colFormularioDinamicoNuevoTicket,\n                    ID = _idPadre,\n                    {\n                        ValorSeleccionad: If(IsEmpty(_archivosRestantes), Blank(), JSON(ShowColumns(_archivosRestantes, nombre), JSONFormat.Compact)),\n                        AlturaCampo: _nuevaAltura,\n                        ExcesoPesoDetectado: _mostrarExcepcion,\n                        // Si se apaga la alerta, también reseteamos el check del toggle\n                        ValorExcepcion: If(!_mostrarExcepcion, false, ValorExcepcion)\n                    }\n                );\n\n                // B. Sincronizar Vistas Espejo\n                UpdateIf(GaleriaImpares, ID = _idPadre, { AlturaCampo: _nuevaAltura, ExcesoPesoDetectado: _mostrarExcepcion });\n                UpdateIf(GaleriaPares, ID = _idPadre, { AlturaCampo: _nuevaAltura, ExcesoPesoDetectado: _mostrarExcepcion });\n                \n                // C. Consolidar y reorganizar el zigzag de la pantalla\n                ClearCollect(colConsolidada, colFormularioDinamicoNuevoTicket);\n                Select(btnRecalcularPosiciones)\n            )\n        )\n    )\n)"
+                                                                                    OnSelect: "=// 1. Referencias previas\n\nUpdateContext( { Var_CmcLoadingSpinnerVisible: true });\n\nUpdateContext({ _lblPadre: ThisItem.label });\n\n// 2. Borrado del archivo\nRemove(Var_uploadFile_listeAttachmentTicketDinamico, ThisItem);\n\n// 3. Obtención de datos actualizados para esta sección\nWith(\n    { \n        _idPadre: LookUp(colFormularioDinamicoNuevoTicket, Label = _lblPadre).ID,\n        _archivosRestantes: Filter(Var_uploadFile_listeAttachmentTicketDinamico, label = _lblPadre)\n    },\n    With(\n        {\n            // Calculamos el peso tras la eliminación\n            _pesoRestanteBytes: Sum(_archivosRestantes, PesoBytes),\n            _registroMaestro: LookUp(colFormularioDinamicoNuevoTicket, ID = _idPadre)\n        },\n        With(\n            {\n                // Si el peso ya es legal (<=25MB), forzamos el cierre de la excepción\n                _mostrarExcepcion: If(_pesoRestanteBytes > varLimiteSeccionBytes, _registroMaestro.ExcesoPesoDetectado, false),\n                _altGal: If(CountRows(_archivosRestantes) > 3, 135, CountRows(_archivosRestantes) * 45)\n            },\n            With(\n                {\n                    // Recalculamos la altura restando los 60px si la excepción se apaga\n                    _nuevaAltura: 86 + _altGal + 10 + If(_mostrarExcepcion, 60, 0) + If(IsBlank(LookUp(colFormularioDinamicoNuevoTicket, Label = _lblPadre).TextoGuia),0,46)\n                },\n\n                // A. Actualizar la Maestra con el nuevo peso y estado de alerta\n                UpdateIf(\n                    colFormularioDinamicoNuevoTicket,\n                    ID = _idPadre,\n                    {\n                        ValorSeleccionad: If(IsEmpty(_archivosRestantes), Blank(), JSON(ShowColumns(_archivosRestantes, nombre), JSONFormat.Compact)),\n                        AlturaCampo: _nuevaAltura,\n                        ExcesoPesoDetectado: _mostrarExcepcion,\n                        // Si se apaga la alerta, también reseteamos el check del toggle\n                        ValorExcepcion: If(!_mostrarExcepcion, false, ValorExcepcion)\n                    }\n                );\n\n                // B. Sincronizar Vistas Espejo\n                UpdateIf(GaleriaImpares, ID = _idPadre, { AlturaCampo: _nuevaAltura, ExcesoPesoDetectado: _mostrarExcepcion });\n                UpdateIf(GaleriaPares, ID = _idPadre, { AlturaCampo: _nuevaAltura, ExcesoPesoDetectado: _mostrarExcepcion });\n                \n                // C. Consolidar y reorganizar el zigzag de la pantalla\n                ClearCollect(colConsolidada, colFormularioDinamicoNuevoTicket);\n                Select(btnRecalcularPosiciones)\n            )\n        )\n    )\n)"
                                                                                     Width: =30
                                                                                     X: =9*gal_files_12.TemplateWidth/10
                                                                               - Image4_12:
@@ -4680,6 +4713,16 @@ Screens:
                                                                                                 Visible: =false
                                                                                                 Width: =70
                                                                                                 Y: =(Parent.Height-Self.Height)/2
+                                                                                          - Image1_65:
+                                                                                              Control: Image@2.2.3
+                                                                                              Properties:
+                                                                                                BorderColor: =RGBA(0, 18, 107, 1)
+                                                                                                Height: =15
+                                                                                                HoverFill: =Color.Transparent
+                                                                                                Image: =Cargar_B
+                                                                                                Width: =15
+                                                                                                X: =50
+                                                                                                Y: '=(Parent.Height - Self.Height) / 2 '
                                                                                           - pj_piecejointe_13:
                                                                                               Control: Attachments@2.3.0
                                                                                               Properties:
@@ -4719,7 +4762,7 @@ Screens:
                                                                                                 MaxAttachments: =5
                                                                                                 MaxAttachmentsText: ="Se alcanzo el máximo de archivos"
                                                                                                 NoAttachmentsText: =
-                                                                                                OnAddFile: "=// 1️⃣ Definir el límite y contexto\nSet(varLimiteSeccionBytes, Var_MaxAttachmentSize * 1024 * 1024);\nUpdateContext({ _idActual: ThisItem.ID, _labelActual: ThisItem.Label });\nClear(colErroresAdjuntos);\n\nForAll(\n    GalleryIzquierdaArchivos.AllItems As Fila, \n    With(\n        { _jsonRaw: JSON(Fila.Image8.Image, JSONFormat.IgnoreBinaryData) },\n        If(\n            IsBlank(LookUp(Var_uploadFile_listeAttachmentTicketDinamico As A, A.nombre = Fila.Name && A.label = _labelActual)),\n            With(\n                {\n                    // Ya no usamos 'extension' para validar, pero la dejamos por si la necesitas luego\n                    base64Contenido: Mid(_jsonRaw, Find(\",\", _jsonRaw) + 1, Len(_jsonRaw) - Find(\",\", _jsonRaw) - 1)\n                },\n                With(\n                    { \n                        nuevoBytes: Len(base64Contenido) * 0.75, \n                        pesoActualSeccion: Sum(Filter(Var_uploadFile_listeAttachmentTicketDinamico, label = _labelActual), PesoBytes)\n                    },\n                    If(\n                        // --- AHORA SOLO VALIDAMOS EL PESO ---\n                        (pesoActualSeccion + nuevoBytes) > varLimiteSeccionBytes,\n                        Concurrent(\n                            UpdateIf(colFormularioDinamicoNuevoTicket, ID = _idActual, { ExcesoPesoDetectado: true }),\n                            Collect(colErroresAdjuntos, { Tipo: \"TamanoSeccion\" })\n                        ),\n\n                        // --- ÉXITO (CUALQUIER FORMATO) ---\n                        Concurrent(\n                            Collect(\n                                Var_uploadFile_listeAttachmentTicketDinamico,\n                                {\n                                    nombre: Fila.Name,\n                                    contenido: base64Contenido,\n                                    PesoBytes: nuevoBytes,\n                                    label: _labelActual\n                                }\n                            ),\n                            UpdateIf(\n                                colFormularioDinamicoNuevoTicket, \n                                ID = _idActual, \n                                { ExcesoPesoDetectado: (pesoActualSeccion + nuevoBytes) > varLimiteSeccionBytes }\n                            )\n                        )\n                    )\n                )\n            )\n        )\n    )\n);\n\n// --- CRITICAL: ACTUALIZACIÓN DE ALTURA Y SINCRONIZACIÓN ESPEJO ---\nWith(\n    { \n        _archivosDeEsteLabel: ShowColumns(Filter(Var_uploadFile_listeAttachmentTicketDinamico, label = _labelActual), nombre),\n        _registroMaestro: LookUp(colFormularioDinamicoNuevoTicket, ID = _idActual)\n    },\n    With(\n        {\n            _mostrarExcepcion: _registroMaestro.ExcesoPesoDetectado,\n            _altGal: If(CountRows(_archivosDeEsteLabel) > 3, 135, CountRows(_archivosDeEsteLabel) * 45)\n        },\n        With(\n            {\n                _nuevaAltura: 86 + _altGal + 10 + If(_mostrarExcepcion, 60, 0) + If(IsBlank(ThisItem.TextoGuia), 0, 46)\n            },\n            \n            UpdateIf(\n                colFormularioDinamicoNuevoTicket,\n                ID = _idActual,\n                {\n                    ValorSeleccionad: If(IsEmpty(_archivosDeEsteLabel), Blank(), JSON(_archivosDeEsteLabel, JSONFormat.Compact)),\n                    AlturaCampo: _nuevaAltura\n                }\n            );\n\n            UpdateIf(GaleriaImpares, ID = _idActual, { \n                ValorSeleccionad: If(IsEmpty(_archivosDeEsteLabel), Blank(), JSON(_archivosDeEsteLabel, JSONFormat.Compact)),\n                AlturaCampo: _nuevaAltura, \n                ExcesoPesoDetectado: _mostrarExcepcion \n            });\n            \n            UpdateIf(GaleriaPares, ID = _idActual, { \n                ValorSeleccionad: If(IsEmpty(_archivosDeEsteLabel), Blank(), JSON(_archivosDeEsteLabel, JSONFormat.Compact)),\n                AlturaCampo: _nuevaAltura, \n                ExcesoPesoDetectado: _mostrarExcepcion \n            });\n            \n            ClearCollect(colConsolidada, colFormularioDinamicoNuevoTicket);\n            Select(btnRecalcularPosiciones)\n        )\n    )\n);\n\n// 4️⃣ Manejo de Errores (Se removió la lógica de \"Formato\")\nSet(varMensajeError, \n    If(!IsBlank(LookUp(colErroresAdjuntos, Tipo = \"TamanoSeccion\")), \"Límite de 25 MB excedido.\", Blank())\n);\n\nIf(!IsBlank(varMensajeError), UpdateContext({ CloseAlert: true, Mensaje: varMensajeError }));\nReset(Self)"
+                                                                                                OnAddFile: "=// 1️⃣ Definir el límite y contexto\nUpdateContext( { Var_CmcLoadingSpinnerVisible: true });\n\nSet(varLimiteSeccionBytes, Var_MaxAttachmentSize * 1024 * 1024);\nUpdateContext({ _idActual: ThisItem.ID, _labelActual: ThisItem.Label });\nClear(colErroresAdjuntos);\n\nForAll(\n    GalleryIzquierdaArchivos.AllItems As Fila, \n    With(\n        { _jsonRaw: JSON(Fila.Image8.Image, JSONFormat.IgnoreBinaryData) },\n        If(\n            IsBlank(LookUp(Var_uploadFile_listeAttachmentTicketDinamico As A, A.nombre = Fila.Name && A.label = _labelActual)),\n            With(\n                {\n                    // Ya no usamos 'extension' para validar, pero la dejamos por si la necesitas luego\n                    base64Contenido: Mid(_jsonRaw, Find(\",\", _jsonRaw) + 1, Len(_jsonRaw) - Find(\",\", _jsonRaw) - 1)\n                },\n                With(\n                    { \n                        nuevoBytes: Len(base64Contenido) * 0.75, \n                        pesoActualSeccion: Sum(Filter(Var_uploadFile_listeAttachmentTicketDinamico, label = _labelActual), PesoBytes)\n                    },\n                    If(\n                        // --- AHORA SOLO VALIDAMOS EL PESO ---\n                        (pesoActualSeccion + nuevoBytes) > varLimiteSeccionBytes,\n                        Concurrent(\n                            UpdateIf(colFormularioDinamicoNuevoTicket, ID = _idActual, { ExcesoPesoDetectado: true }),\n                            Collect(colErroresAdjuntos, { Tipo: \"TamanoSeccion\" })\n                        ),\n\n                        // --- ÉXITO (CUALQUIER FORMATO) ---\n                        Concurrent(\n                            Collect(\n                                Var_uploadFile_listeAttachmentTicketDinamico,\n                                {\n                                    nombre: Fila.Name,\n                                    contenido: base64Contenido,\n                                    PesoBytes: nuevoBytes,\n                                    label: _labelActual\n                                }\n                            ),\n                            UpdateIf(\n                                colFormularioDinamicoNuevoTicket, \n                                ID = _idActual, \n                                { ExcesoPesoDetectado: (pesoActualSeccion + nuevoBytes) > varLimiteSeccionBytes }\n                            )\n                        )\n                    )\n                )\n            )\n        )\n    )\n);\n\n// --- CRITICAL: ACTUALIZACIÓN DE ALTURA Y SINCRONIZACIÓN ESPEJO ---\nWith(\n    { \n        _archivosDeEsteLabel: ShowColumns(Filter(Var_uploadFile_listeAttachmentTicketDinamico, label = _labelActual), nombre),\n        _registroMaestro: LookUp(colFormularioDinamicoNuevoTicket, ID = _idActual)\n    },\n    With(\n        {\n            _mostrarExcepcion: _registroMaestro.ExcesoPesoDetectado,\n            _altGal: If(CountRows(_archivosDeEsteLabel) > 3, 135, CountRows(_archivosDeEsteLabel) * 45)\n        },\n        With(\n            {\n                _nuevaAltura: 86 + _altGal + 10 + If(_mostrarExcepcion, 60, 0) + If(IsBlank(ThisItem.TextoGuia), 0, 46)\n            },\n            \n            UpdateIf(\n                colFormularioDinamicoNuevoTicket,\n                ID = _idActual,\n                {\n                    ValorSeleccionad: If(IsEmpty(_archivosDeEsteLabel), Blank(), JSON(_archivosDeEsteLabel, JSONFormat.Compact)),\n                    AlturaCampo: _nuevaAltura\n                }\n            );\n\n            UpdateIf(GaleriaImpares, ID = _idActual, { \n                ValorSeleccionad: If(IsEmpty(_archivosDeEsteLabel), Blank(), JSON(_archivosDeEsteLabel, JSONFormat.Compact)),\n                AlturaCampo: _nuevaAltura, \n                ExcesoPesoDetectado: _mostrarExcepcion \n            });\n            \n            UpdateIf(GaleriaPares, ID = _idActual, { \n                ValorSeleccionad: If(IsEmpty(_archivosDeEsteLabel), Blank(), JSON(_archivosDeEsteLabel, JSONFormat.Compact)),\n                AlturaCampo: _nuevaAltura, \n                ExcesoPesoDetectado: _mostrarExcepcion \n            });\n            \n            ClearCollect(colConsolidada, colFormularioDinamicoNuevoTicket);\n            Select(btnRecalcularPosiciones)\n        )\n    )\n);\n\n// 4️⃣ Manejo de Errores (Se removió la lógica de \"Formato\")\nSet(varMensajeError, \n    If(!IsBlank(LookUp(colErroresAdjuntos, Tipo = \"TamanoSeccion\")), \"Límite de 25 MB excedido.\", Blank())\n);\n\nIf(!IsBlank(varMensajeError), UpdateContext({ CloseAlert: true, Mensaje: varMensajeError }));\nReset(Self);\n"
                                                                                                 PaddingLeft: =If(Self.DisplayMode = DisplayMode.Edit, 5, 0)
                                                                                                 PressedColor: =RGBA(255, 255, 255, 1)
                                                                                                 PressedFill: =RGBA(0, 0, 0, 0)
@@ -4728,16 +4771,18 @@ Screens:
                                                                                                 Width: =100
                                                                                                 X: =-21
                                                                                                 Y: =-40
-                                                                                          - Image1_65:
-                                                                                              Control: Image@2.2.3
-                                                                                              Properties:
-                                                                                                BorderColor: =RGBA(0, 18, 107, 1)
-                                                                                                Height: =15
-                                                                                                HoverFill: =Color.Transparent
-                                                                                                Image: =Cargar_B
-                                                                                                Width: =15
-                                                                                                X: =50
-                                                                                                Y: '=(Parent.Height - Self.Height) / 2 '
+                                                                  - TextCanvas16_16:
+                                                                      Control: Text@0.0.51
+                                                                      Properties:
+                                                                        Align: ='TextCanvas.Align'.Center
+                                                                        FontColor: =RGBA(255, 255, 255, 1)
+                                                                        Height: =45
+                                                                        Text: ="Se alcanzó el número máximo de archivos"
+                                                                        VerticalAlign: =VerticalAlign.Middle
+                                                                        Visible: =If(pj_piecejointe_13.MaxAttachments = CountRows(gal_files_12.AllItems),true,false)
+                                                                        Width: =pj_piecejointe_13.Width
+                                                                        X: =(pj_piecejointe_13.Width - Self.Width) / 2
+                                                                        Y: =95
                                                             - Label18_10:
                                                                 Control: Label@2.5.1
                                                                 Properties:
@@ -5453,17 +5498,6 @@ Screens:
                                                                                     Width: =Parent.Width
                                                                                     X: =(Parent.Width-Self.Width)/2
                                                                                   Children:
-                                                                                    - lbl_legendDayOfWeek_3:
-                                                                                        Control: Text@0.0.51
-                                                                                        Properties:
-                                                                                          Align: ='TextCanvas.Align'.Center
-                                                                                          FontColor: =ThisItem.color
-                                                                                          Height: =Self.Width
-                                                                                          Text: |
-                                                                                            =Proper(Left(Text(ThisItem.DateDeb,"ddd"),1))
-                                                                                          VerticalAlign: =VerticalAlign.Middle
-                                                                                          Weight: ='TextCanvas.Weight'.Semibold
-                                                                                          Width: =Parent.TemplateWidth
                                                                                     - gal_days_3:
                                                                                         Control: Gallery@2.15.0
                                                                                         Variant: Vertical
@@ -5586,6 +5620,17 @@ Screens:
                                                                                                 Width: =Self.Height
                                                                                                 X: =8
                                                                                                 Y: =5
+                                                                                    - lbl_legendDayOfWeek_3:
+                                                                                        Control: Text@0.0.51
+                                                                                        Properties:
+                                                                                          Align: ='TextCanvas.Align'.Center
+                                                                                          FontColor: =ThisItem.color
+                                                                                          Height: =Self.Width
+                                                                                          Text: |
+                                                                                            =Proper(Left(Text(ThisItem.DateDeb,"ddd"),1))
+                                                                                          VerticalAlign: =VerticalAlign.Middle
+                                                                                          Weight: ='TextCanvas.Weight'.Semibold
+                                                                                          Width: =Parent.TemplateWidth
                                                                         - ico_refreshMonth_3:
                                                                             Control: Classic/Icon@2.5.0
                                                                             Properties:
@@ -5832,16 +5877,6 @@ Screens:
                                                                               Text: =ThisItem.Label
                                                                               Visible: =IsBlank(ThisItem.ValorSeleccionad)
                                                                               Width: =Parent.Width
-                                                                        - ico_calendar_3:
-                                                                            Control: Icon@0.0.7
-                                                                            Properties:
-                                                                              Height: =Parent.Height - 10
-                                                                              Icon: ="Calendar"
-                                                                              IconColor: =ColorValue(Var_ColorBoton)
-                                                                              IconStyle: ='Icon.IconStyle'.Outline
-                                                                              Width: =Parent.Height - 10
-                                                                              X: =Parent.Width - Self.Width - 5
-                                                                              Y: =(Parent.Height - Self.Height) / 2
                                                                         - tim_initialization_3:
                                                                             Control: Timer@2.1.0
                                                                             Properties:
@@ -6022,6 +6057,16 @@ Screens:
                                                                               Width: =Parent.Height - 10
                                                                               X: =If(IsBlank(ThisItem.ValorSeleccionad),Label23_2.X,5)
                                                                               Y: =5
+                                                                        - ico_calendar_3:
+                                                                            Control: Icon@0.0.7
+                                                                            Properties:
+                                                                              Height: =Parent.Height - 10
+                                                                              Icon: ="Calendar"
+                                                                              IconColor: =ColorValue(Var_ColorBoton)
+                                                                              IconStyle: ='Icon.IconStyle'.Outline
+                                                                              Width: =Parent.Height - 10
+                                                                              X: =Parent.Width - Self.Width - 5
+                                                                              Y: =(Parent.Height - Self.Height) / 2
                                                                   - Label26_1:
                                                                       Control: Label@2.5.1
                                                                       Properties:
@@ -6401,6 +6446,7 @@ Screens:
                                                                               HoverFill: =RGBA(0, 0, 0, 0)
                                                                               LayoutMinHeight: =16
                                                                               LayoutMinWidth: =16
+                                                                              MaxLength: =4000
                                                                               Mode: |-
                                                                                 =
                                                                                 If(ThisItem.Tipo in [Var_JSONConfigurarTipoCampo.Texto,Var_JSONConfigurarTipoCampo.URL],TextMode.SingleLine, ThisItem.Tipo = Var_JSONConfigurarTipoCampo.Multiline,  TextMode.MultiLine, TextMode.SingleLine)
@@ -6487,18 +6533,6 @@ Screens:
                                                                   Width: =Parent.Width
                                                                   Y: =214
                                                                 Children:
-                                                                  - TextCanvas16_17:
-                                                                      Control: Text@0.0.51
-                                                                      Properties:
-                                                                        Align: ='TextCanvas.Align'.Center
-                                                                        FontColor: =RGBA(255, 255, 255, 1)
-                                                                        Height: =45
-                                                                        Text: ="Se alcanzó el número máximo de archivos"
-                                                                        VerticalAlign: =VerticalAlign.Middle
-                                                                        Visible: =If(pj_piecejointe_14.MaxAttachments = CountRows(gal_files_13.AllItems),true,false)
-                                                                        Width: =pj_piecejointe_14.Width
-                                                                        X: =(pj_piecejointe_14.Width - Self.Width) / 2
-                                                                        Y: =95
                                                                   - ctnExcepcionPeso_1:
                                                                       Control: GroupContainer@1.5.0
                                                                       Variant: AutoLayout
@@ -6514,41 +6548,6 @@ Screens:
                                                                         X: =2
                                                                         Y: =Container36_1_24.Height + gal_files_13.Height +  45
                                                                       Children:
-                                                                        - tog_HabilitarTexto_1:
-                                                                            Control: Classic/Toggle@2.1.0
-                                                                            Properties:
-                                                                              BorderColor: =RGBA(0, 18, 107, 1)
-                                                                              BorderStyle: =BorderStyle.None
-                                                                              Default: |-
-                                                                                =//ThisItem.ValorExcepcion
-                                                                                true
-                                                                              Font: =Font.'Open Sans'
-                                                                              LayoutMinHeight: =16
-                                                                              LayoutMinWidth: =16
-                                                                              OnCheck: |-
-                                                                                =// Solo ejecutamos si el valor en la colección es distinto (esto rompe el bucle)
-
-                                                                                /*
-                                                                                If(LookUp(colFormularioDinamicoNuevoTicket; ID = ThisItem.ID).ValorExcepcion = false;
-
-                                                                                    // 1. Actualizar la Fuente Maestra
-                                                                                    UpdateIf(colFormularioDinamicoNuevoTicket; ID = ThisItem.ID; { ValorExcepcion: true });;
-
-                                                                                    // 2. Sincronizar las Vistas Espejo
-                                                                                    UpdateIf(GaleriaImpares; ID = ThisItem.ID; { ValorExcepcion: true });;
-                                                                                    UpdateIf(GaleriaPares; ID = ThisItem.ID; { ValorExcepcion: true });;
-
-                                                                                    // 3. Consolidar
-                                                                                    ClearCollect(colConsolidada; colFormularioDinamicoNuevoTicket);;
-
-                                                                                    // 4. Recalcular posiciones
-                                                                                    Select(btnRecalcularPosiciones)
-                                                                                )
-                                                                                */
-                                                                              OnUncheck: "=// 1. Actualizar Fuente Maestra (quitamos el check y borramos la URL)\r\n// TextoExcepcion\r\n\r\n// Solo ejecutamos si el valor en la colección es distinto\r\n\r\n/*\r\nIf(LookUp(colFormularioDinamicoNuevoTicket; ID = ThisItem.ID).ValorExcepcion = true;\r\n\r\n    UpdateIf(colFormularioDinamicoNuevoTicket; ID = ThisItem.ID; { ValorExcepcion: false; TextoExcepcion: Blank() });;\r\n    \r\n    UpdateIf(GaleriaImpares; ID = ThisItem.ID; { ValorExcepcion: false; TextoExcepcion: Blank() });;\r\n    UpdateIf(GaleriaPares; ID = ThisItem.ID; { ValorExcepcion: false; TextoExcepcion: Blank() });;\r\n\r\n    ClearCollect(colConsolidada; colFormularioDinamicoNuevoTicket);;\r\n\r\n    Select(btnRecalcularPosiciones)\r\n)\r\n\r\n*/"
-                                                                              Size: =12
-                                                                              TrueFill: =ColorValue(Var_ColorBoton)
-                                                                              Width: =155
                                                                         - Container45_3:
                                                                             Control: GroupContainer@1.5.0
                                                                             Variant: ManualLayout
@@ -6585,6 +6584,30 @@ Screens:
                                                                                     X: =1
                                                                                     Y: =(Parent.Height - Self.Height) / 2
                                                                                   Children:
+                                                                                    - SolIcoCerrarBuscarAreaTicket_33:
+                                                                                        Control: Classic/Icon@2.5.0
+                                                                                        Properties:
+                                                                                          AlignInContainer: =AlignInContainer.Center
+                                                                                          BorderColor: =RGBA(0, 18, 107, 1)
+                                                                                          Color: =ColorValue(Var_ColorIconNegro)
+                                                                                          Height: =25
+                                                                                          Icon: =Icon.Cancel
+                                                                                          LayoutMinHeight: =40
+                                                                                          OnSelect: |-
+                                                                                            =UpdateIf(colFormularioDinamicoNuevoTicket, ID = ThisItem.ID, { TextoExcepcion: Blank() });
+                                                                                            UpdateIf(GaleriaImpares, ID = ThisItem.ID, { TextoExcepcion: Blank() });
+                                                                                            UpdateIf(GaleriaPares, ID = ThisItem.ID, { TextoExcepcion: Blank() });
+                                                                                            // 3. Consolidar
+                                                                                            ClearCollect(colConsolidada, colFormularioDinamicoNuevoTicket);
+
+                                                                                            // 4. Recalcular posiciones
+                                                                                            Select(btnRecalcularPosiciones)
+                                                                                          PaddingBottom: =5
+                                                                                          PaddingLeft: =5
+                                                                                          PaddingRight: =5
+                                                                                          PaddingTop: =5
+                                                                                          Visible: =IsBlank(ThisItem.TextoExcepcion)=false
+                                                                                          Width: =25
                                                                                     - SolTxtBuscarAreaTicket_33:
                                                                                         Control: Classic/TextInput@2.3.2
                                                                                         Properties:
@@ -6604,35 +6627,34 @@ Screens:
                                                                                           Mode: |-
                                                                                             =
                                                                                             If(ThisItem.Tipo in [Var_JSONConfigurarTipoCampo.Texto,Var_JSONConfigurarTipoCampo.URL],TextMode.SingleLine, ThisItem.Tipo = Var_JSONConfigurarTipoCampo.Multiline,  TextMode.MultiLine, TextMode.SingleLine)
-                                                                                          OnChange: |-
-                                                                                            =UpdateIf(colFormularioDinamicoNuevoTicket, ID = ThisItem.ID, { TextoExcepcion: Self.Text });
-                                                                                            UpdateIf(GaleriaImpares, ID = ThisItem.ID, { TextoExcepcion: Self.Text });
-                                                                                            UpdateIf(GaleriaPares, ID = ThisItem.ID, { TextoExcepcion: Self.Text })
+                                                                                          OnChange: |+
+                                                                                            =UpdateContext( { Var_CmcLoadingSpinnerVisible: true });
+                                                                                            With({
+
+                                                                                                _TextoUrl: Self.Text
+
+
+                                                                                            },
+
+                                                                                            UpdateIf(colFormularioDinamicoNuevoTicket, ID = ThisItem.ID, { TextoExcepcion: _TextoUrl});
+                                                                                            UpdateIf(GaleriaImpares, ID = ThisItem.ID, { TextoExcepcion: _TextoUrl });
+                                                                                            UpdateIf(GaleriaPares, ID = ThisItem.ID, { TextoExcepcion: _TextoUrl });
+
+                                                                                                // 3. Consolidar
+                                                                                                ClearCollect(colConsolidada, colFormularioDinamicoNuevoTicket);
+
+                                                                                                // 4. Recalcular posiciones
+                                                                                                Select(btnRecalcularPosiciones)
+
+
+                                                                                            )
+
                                                                                           OnSelect: |-
                                                                                             =UpdateContext( { varOpenDropDownCategoria : true })
                                                                                           PaddingLeft: =5
                                                                                           PressedFill: =
                                                                                           Size: =Var_FontSizeFiltros
                                                                                           Tooltip: =If(IsBlank(Self.Text),"",Self.Text)
-                                                                                    - SolIcoCerrarBuscarAreaTicket_33:
-                                                                                        Control: Classic/Icon@2.5.0
-                                                                                        Properties:
-                                                                                          AlignInContainer: =AlignInContainer.Center
-                                                                                          BorderColor: =RGBA(0, 18, 107, 1)
-                                                                                          Color: =ColorValue(Var_ColorIconNegro)
-                                                                                          Height: =25
-                                                                                          Icon: =Icon.Cancel
-                                                                                          LayoutMinHeight: =40
-                                                                                          OnSelect: |-
-                                                                                            =UpdateIf(colFormularioDinamicoNuevoTicket, ID = ThisItem.ID, { TextoExcepcion: Blank() });
-                                                                                            UpdateIf(GaleriaImpares, ID = ThisItem.ID, { TextoExcepcion: Blank() });
-                                                                                            UpdateIf(GaleriaPares, ID = ThisItem.ID, { TextoExcepcion: Blank() })
-                                                                                          PaddingBottom: =5
-                                                                                          PaddingLeft: =5
-                                                                                          PaddingRight: =5
-                                                                                          PaddingTop: =5
-                                                                                          Visible: =IsBlank(ThisItem.ValorSeleccionad)=false
-                                                                                          Width: =25
                                                                               - Label33_3:
                                                                                   Control: Label@2.5.1
                                                                                   Properties:
@@ -6651,6 +6673,41 @@ Screens:
                                                                                     Wrap: =false
                                                                                     X: =SolCtnItemsBuscarAreaTicket_36.X + 10
                                                                                     Y: =SolCtnItemsBuscarAreaTicket_36.Y - (Self.Height / 2)
+                                                                        - tog_HabilitarTexto_1:
+                                                                            Control: Classic/Toggle@2.1.0
+                                                                            Properties:
+                                                                              BorderColor: =RGBA(0, 18, 107, 1)
+                                                                              BorderStyle: =BorderStyle.None
+                                                                              Default: |-
+                                                                                =//ThisItem.ValorExcepcion
+                                                                                true
+                                                                              Font: =Font.'Open Sans'
+                                                                              LayoutMinHeight: =16
+                                                                              LayoutMinWidth: =16
+                                                                              OnCheck: |-
+                                                                                =// Solo ejecutamos si el valor en la colección es distinto (esto rompe el bucle)
+
+                                                                                /*
+                                                                                If(LookUp(colFormularioDinamicoNuevoTicket; ID = ThisItem.ID).ValorExcepcion = false;
+
+                                                                                    // 1. Actualizar la Fuente Maestra
+                                                                                    UpdateIf(colFormularioDinamicoNuevoTicket; ID = ThisItem.ID; { ValorExcepcion: true });;
+
+                                                                                    // 2. Sincronizar las Vistas Espejo
+                                                                                    UpdateIf(GaleriaImpares; ID = ThisItem.ID; { ValorExcepcion: true });;
+                                                                                    UpdateIf(GaleriaPares; ID = ThisItem.ID; { ValorExcepcion: true });;
+
+                                                                                    // 3. Consolidar
+                                                                                    ClearCollect(colConsolidada; colFormularioDinamicoNuevoTicket);;
+
+                                                                                    // 4. Recalcular posiciones
+                                                                                    Select(btnRecalcularPosiciones)
+                                                                                )
+                                                                                */
+                                                                              OnUncheck: "=// 1. Actualizar Fuente Maestra (quitamos el check y borramos la URL)\r\n// TextoExcepcion\r\n\r\n// Solo ejecutamos si el valor en la colección es distinto\r\n\r\n/*\r\nIf(LookUp(colFormularioDinamicoNuevoTicket; ID = ThisItem.ID).ValorExcepcion = true;\r\n\r\n    UpdateIf(colFormularioDinamicoNuevoTicket; ID = ThisItem.ID; { ValorExcepcion: false; TextoExcepcion: Blank() });;\r\n    \r\n    UpdateIf(GaleriaImpares; ID = ThisItem.ID; { ValorExcepcion: false; TextoExcepcion: Blank() });;\r\n    UpdateIf(GaleriaPares; ID = ThisItem.ID; { ValorExcepcion: false; TextoExcepcion: Blank() });;\r\n\r\n    ClearCollect(colConsolidada; colFormularioDinamicoNuevoTicket);;\r\n\r\n    Select(btnRecalcularPosiciones)\r\n)\r\n\r\n*/"
+                                                                              Size: =12
+                                                                              TrueFill: =ColorValue(Var_ColorBoton)
+                                                                              Width: =155
                                                                   - gal_files_13:
                                                                       Control: Gallery@2.15.0
                                                                       Variant: Vertical
@@ -6717,7 +6774,7 @@ Screens:
                                                                                     Icon: =Icon.CancelBadge
                                                                                     LayoutMinHeight: =30
                                                                                     LayoutMinWidth: =20
-                                                                                    OnSelect: "=// 1. Referencias previas\nUpdateContext({ _lblPadre: ThisItem.label });\n\n// 2. Borrado del archivo\nRemove(Var_uploadFile_listeAttachmentTicketDinamico, ThisItem);\n\n// 3. Obtención de datos actualizados para esta sección\nWith(\n    { \n        _idPadre: LookUp(colFormularioDinamicoNuevoTicket, Label = _lblPadre).ID,\n        _archivosRestantes: Filter(Var_uploadFile_listeAttachmentTicketDinamico, label = _lblPadre)\n    },\n    With(\n        {\n            // Calculamos el peso tras la eliminación\n            _pesoRestanteBytes: Sum(_archivosRestantes, PesoBytes),\n            _registroMaestro: LookUp(colFormularioDinamicoNuevoTicket, ID = _idPadre)\n        },\n        With(\n            {\n                // Si el peso ya es legal (<=25MB), forzamos el cierre de la excepción\n                _mostrarExcepcion: If(_pesoRestanteBytes > varLimiteSeccionBytes, _registroMaestro.ExcesoPesoDetectado, false),\n                _altGal: If(CountRows(_archivosRestantes) > 3, 135, CountRows(_archivosRestantes) * 45)\n            },\n            With(\n                {\n                    // Recalculamos la altura restando los 60px si la excepción se apaga\n                    _nuevaAltura: 86 + _altGal + 10 + If(_mostrarExcepcion, 60, 0) + If(IsBlank(LookUp(colFormularioDinamicoNuevoTicket, Label = _lblPadre).TextoGuia),0,46)\n                },\n\n                // A. Actualizar la Maestra con el nuevo peso y estado de alerta\n                UpdateIf(\n                    colFormularioDinamicoNuevoTicket,\n                    ID = _idPadre,\n                    {\n                        ValorSeleccionad: If(IsEmpty(_archivosRestantes), Blank(), JSON(ShowColumns(_archivosRestantes, nombre), JSONFormat.Compact)),\n                        AlturaCampo: _nuevaAltura,\n                        ExcesoPesoDetectado: _mostrarExcepcion,\n                        // Si se apaga la alerta, también reseteamos el check del toggle\n                        ValorExcepcion: If(!_mostrarExcepcion, false, ValorExcepcion)\n                    }\n                );\n\n                // B. Sincronizar Vistas Espejo\n                UpdateIf(GaleriaImpares, ID = _idPadre, { AlturaCampo: _nuevaAltura, ExcesoPesoDetectado: _mostrarExcepcion });\n                UpdateIf(GaleriaPares, ID = _idPadre, { AlturaCampo: _nuevaAltura, ExcesoPesoDetectado: _mostrarExcepcion });\n                \n                // C. Consolidar y reorganizar el zigzag de la pantalla\n                ClearCollect(colConsolidada, colFormularioDinamicoNuevoTicket);\n                Select(btnRecalcularPosiciones)\n            )\n        )\n    )\n)"
+                                                                                    OnSelect: "=// 1. Referencias previas\nUpdateContext( { Var_CmcLoadingSpinnerVisible: true });\n\nUpdateContext({ _lblPadre: ThisItem.label });\n\n// 2. Borrado del archivo\nRemove(Var_uploadFile_listeAttachmentTicketDinamico, ThisItem);\n\n// 3. Obtención de datos actualizados para esta sección\nWith(\n    { \n        _idPadre: LookUp(colFormularioDinamicoNuevoTicket, Label = _lblPadre).ID,\n        _archivosRestantes: Filter(Var_uploadFile_listeAttachmentTicketDinamico, label = _lblPadre)\n    },\n    With(\n        {\n            // Calculamos el peso tras la eliminación\n            _pesoRestanteBytes: Sum(_archivosRestantes, PesoBytes),\n            _registroMaestro: LookUp(colFormularioDinamicoNuevoTicket, ID = _idPadre)\n        },\n        With(\n            {\n                // Si el peso ya es legal (<=25MB), forzamos el cierre de la excepción\n                _mostrarExcepcion: If(_pesoRestanteBytes > varLimiteSeccionBytes, _registroMaestro.ExcesoPesoDetectado, false),\n                _altGal: If(CountRows(_archivosRestantes) > 3, 135, CountRows(_archivosRestantes) * 45)\n            },\n            With(\n                {\n                    // Recalculamos la altura restando los 60px si la excepción se apaga\n                    _nuevaAltura: 86 + _altGal + 10 + If(_mostrarExcepcion, 60, 0) + If(IsBlank(LookUp(colFormularioDinamicoNuevoTicket, Label = _lblPadre).TextoGuia),0,46)\n                },\n\n                // A. Actualizar la Maestra con el nuevo peso y estado de alerta\n                UpdateIf(\n                    colFormularioDinamicoNuevoTicket,\n                    ID = _idPadre,\n                    {\n                        ValorSeleccionad: If(IsEmpty(_archivosRestantes), Blank(), JSON(ShowColumns(_archivosRestantes, nombre), JSONFormat.Compact)),\n                        AlturaCampo: _nuevaAltura,\n                        ExcesoPesoDetectado: _mostrarExcepcion,\n                        // Si se apaga la alerta, también reseteamos el check del toggle\n                        ValorExcepcion: If(!_mostrarExcepcion, false, ValorExcepcion)\n                    }\n                );\n\n                // B. Sincronizar Vistas Espejo\n                UpdateIf(GaleriaImpares, ID = _idPadre, { AlturaCampo: _nuevaAltura, ExcesoPesoDetectado: _mostrarExcepcion });\n                UpdateIf(GaleriaPares, ID = _idPadre, { AlturaCampo: _nuevaAltura, ExcesoPesoDetectado: _mostrarExcepcion });\n                \n                // C. Consolidar y reorganizar el zigzag de la pantalla\n                ClearCollect(colConsolidada, colFormularioDinamicoNuevoTicket);\n                Select(btnRecalcularPosiciones)\n            )\n        )\n    )\n)"
                                                                                     Width: =30
                                                                                     X: =9*gal_files_13.TemplateWidth/10
                                                                               - Image4_13:
@@ -6895,6 +6952,16 @@ Screens:
                                                                                                 Visible: =false
                                                                                                 Width: =70
                                                                                                 Y: =(Parent.Height-Self.Height)/2
+                                                                                          - Image1_66:
+                                                                                              Control: Image@2.2.3
+                                                                                              Properties:
+                                                                                                BorderColor: =RGBA(0, 18, 107, 1)
+                                                                                                Height: =15
+                                                                                                HoverFill: =Color.Transparent
+                                                                                                Image: =Cargar_B
+                                                                                                Width: =15
+                                                                                                X: =50
+                                                                                                Y: '=(Parent.Height - Self.Height) / 2 '
                                                                                           - pj_piecejointe_14:
                                                                                               Control: Attachments@2.3.0
                                                                                               Properties:
@@ -6934,7 +7001,7 @@ Screens:
                                                                                                 MaxAttachments: =5
                                                                                                 MaxAttachmentsText: ="Se alcanzo el máximo de archivos"
                                                                                                 NoAttachmentsText: =
-                                                                                                OnAddFile: "=// 1️⃣ Definir el límite y contexto\nSet(varLimiteSeccionBytes, Var_MaxAttachmentSize * 1024 * 1024);\nUpdateContext({ _idActual: ThisItem.ID, _labelActual: ThisItem.Label });\nClear(colErroresAdjuntos);\n\nForAll(\n    GalleryDerechaArchivos.AllItems As Fila, \n    With(\n        { _jsonRaw: JSON(Fila.Image8_1.Image, JSONFormat.IgnoreBinaryData) },\n        If(\n            IsBlank(LookUp(Var_uploadFile_listeAttachmentTicketDinamico As A, A.nombre = Fila.Name && A.label = _labelActual)),\n            With(\n                {\n                    base64Contenido: Mid(_jsonRaw, Find(\",\", _jsonRaw) + 1, Len(_jsonRaw) - Find(\",\", _jsonRaw) - 1)\n                },\n                With(\n                    { \n                        nuevoBytes: Len(base64Contenido) * 0.75, \n                        pesoActualSeccion: Sum(Filter(Var_uploadFile_listeAttachmentTicketDinamico, label = _labelActual), PesoBytes)\n                    },\n                    If(\n                        // --- VALIDACIÓN ÚNICAMENTE DE PESO ---\n                        (pesoActualSeccion + nuevoBytes) > varLimiteSeccionBytes,\n                        Concurrent(\n                            UpdateIf(colFormularioDinamicoNuevoTicket, ID = _idActual, { ExcesoPesoDetectado: true }),\n                            Collect(colErroresAdjuntos, { Tipo: \"TamanoSeccion\" })\n                        ),\n\n                        // --- ÉXITO (CUALQUIER FORMATO ADMITIDO) ---\n                        Concurrent(\n                            Collect(\n                                Var_uploadFile_listeAttachmentTicketDinamico,\n                                {\n                                    nombre: Fila.Name,\n                                    contenido: base64Contenido,\n                                    PesoBytes: nuevoBytes,\n                                    label: _labelActual\n                                }\n                            ),\n                            UpdateIf(\n                                colFormularioDinamicoNuevoTicket, \n                                ID = _idActual, \n                                { ExcesoPesoDetectado: (pesoActualSeccion + nuevoBytes) > varLimiteSeccionBytes }\n                            )\n                        )\n                    )\n                )\n            )\n        )\n    )\n);\n\n// --- CRITICAL: ACTUALIZACIÓN DE ALTURA Y SINCRONIZACIÓN ESPEJO ---\nWith(\n    { \n        _archivosDeEsteLabel: ShowColumns(Filter(Var_uploadFile_listeAttachmentTicketDinamico, label = _labelActual), nombre),\n        _registroMaestro: LookUp(colFormularioDinamicoNuevoTicket, ID = _idActual)\n    },\n    With(\n        {\n            _mostrarExcepcion: _registroMaestro.ExcesoPesoDetectado,\n            _altGal: If(CountRows(_archivosDeEsteLabel) > 3, 135, CountRows(_archivosDeEsteLabel) * 45)\n        },\n        With(\n            {\n                _nuevaAltura: 86 + _altGal + 10 + If(_mostrarExcepcion, 60, 0) + If(IsBlank(ThisItem.TextoGuia), 0, 46)\n            },\n            \n            UpdateIf(\n                colFormularioDinamicoNuevoTicket,\n                ID = _idActual,\n                {\n                    ValorSeleccionad: If(IsEmpty(_archivosDeEsteLabel), Blank(), JSON(_archivosDeEsteLabel, JSONFormat.Compact)),\n                    AlturaCampo: _nuevaAltura\n                }\n            );\n\n            UpdateIf(GaleriaImpares, ID = _idActual, { \n                ValorSeleccionad: If(IsEmpty(_archivosDeEsteLabel), Blank(), JSON(_archivosDeEsteLabel, JSONFormat.Compact)),\n                AlturaCampo: _nuevaAltura, \n                ExcesoPesoDetectado: _mostrarExcepcion \n            });\n            \n            UpdateIf(GaleriaPares, ID = _idActual, { \n                ValorSeleccionad: If(IsEmpty(_archivosDeEsteLabel), Blank(), JSON(_archivosDeEsteLabel, JSONFormat.Compact)),\n                AlturaCampo: _nuevaAltura, \n                ExcesoPesoDetectado: _mostrarExcepcion \n            });\n            \n            ClearCollect(colConsolidada, colFormularioDinamicoNuevoTicket);\n            Select(btnRecalcularPosiciones)\n        )\n    )\n);\n\n// 4️⃣ Manejo de Errores (Se eliminó error de Formato)\nSet(varMensajeError, \n    If(!IsBlank(LookUp(colErroresAdjuntos, Tipo = \"TamanoSeccion\")), \"Límite de 25 MB excedido.\", Blank())\n);\n\nIf(!IsBlank(varMensajeError), UpdateContext({ CloseAlert: true, Mensaje: varMensajeError }));\nReset(Self)"
+                                                                                                OnAddFile: "=// 1️⃣ Definir el límite y contexto\nUpdateContext( { Var_CmcLoadingSpinnerVisible: true });\nSet(varLimiteSeccionBytes, Var_MaxAttachmentSize * 1024 * 1024);\nUpdateContext({ _idActual: ThisItem.ID, _labelActual: ThisItem.Label });\nClear(colErroresAdjuntos);\n\nForAll(\n    GalleryDerechaArchivos.AllItems As Fila, \n    With(\n        { _jsonRaw: JSON(Fila.Image8_1.Image, JSONFormat.IgnoreBinaryData) },\n        If(\n            IsBlank(LookUp(Var_uploadFile_listeAttachmentTicketDinamico As A, A.nombre = Fila.Name && A.label = _labelActual)),\n            With(\n                {\n                    base64Contenido: Mid(_jsonRaw, Find(\",\", _jsonRaw) + 1, Len(_jsonRaw) - Find(\",\", _jsonRaw) - 1)\n                },\n                With(\n                    { \n                        nuevoBytes: Len(base64Contenido) * 0.75, \n                        pesoActualSeccion: Sum(Filter(Var_uploadFile_listeAttachmentTicketDinamico, label = _labelActual), PesoBytes)\n                    },\n                    If(\n                        // --- VALIDACIÓN ÚNICAMENTE DE PESO ---\n                        (pesoActualSeccion + nuevoBytes) > varLimiteSeccionBytes,\n                        Concurrent(\n                            UpdateIf(colFormularioDinamicoNuevoTicket, ID = _idActual, { ExcesoPesoDetectado: true }),\n                            Collect(colErroresAdjuntos, { Tipo: \"TamanoSeccion\" })\n                        ),\n\n                        // --- ÉXITO (CUALQUIER FORMATO ADMITIDO) ---\n                        Concurrent(\n                            Collect(\n                                Var_uploadFile_listeAttachmentTicketDinamico,\n                                {\n                                    nombre: Fila.Name,\n                                    contenido: base64Contenido,\n                                    PesoBytes: nuevoBytes,\n                                    label: _labelActual\n                                }\n                            ),\n                            UpdateIf(\n                                colFormularioDinamicoNuevoTicket, \n                                ID = _idActual, \n                                { ExcesoPesoDetectado: (pesoActualSeccion + nuevoBytes) > varLimiteSeccionBytes }\n                            )\n                        )\n                    )\n                )\n            )\n        )\n    )\n);\n\n// --- CRITICAL: ACTUALIZACIÓN DE ALTURA Y SINCRONIZACIÓN ESPEJO ---\nWith(\n    { \n        _archivosDeEsteLabel: ShowColumns(Filter(Var_uploadFile_listeAttachmentTicketDinamico, label = _labelActual), nombre),\n        _registroMaestro: LookUp(colFormularioDinamicoNuevoTicket, ID = _idActual)\n    },\n    With(\n        {\n            _mostrarExcepcion: _registroMaestro.ExcesoPesoDetectado,\n            _altGal: If(CountRows(_archivosDeEsteLabel) > 3, 135, CountRows(_archivosDeEsteLabel) * 45)\n        },\n        With(\n            {\n                _nuevaAltura: 86 + _altGal + 10 + If(_mostrarExcepcion, 60, 0) + If(IsBlank(ThisItem.TextoGuia), 0, 46)\n            },\n            \n            UpdateIf(\n                colFormularioDinamicoNuevoTicket,\n                ID = _idActual,\n                {\n                    ValorSeleccionad: If(IsEmpty(_archivosDeEsteLabel), Blank(), JSON(_archivosDeEsteLabel, JSONFormat.Compact)),\n                    AlturaCampo: _nuevaAltura\n                }\n            );\n\n            UpdateIf(GaleriaImpares, ID = _idActual, { \n                ValorSeleccionad: If(IsEmpty(_archivosDeEsteLabel), Blank(), JSON(_archivosDeEsteLabel, JSONFormat.Compact)),\n                AlturaCampo: _nuevaAltura, \n                ExcesoPesoDetectado: _mostrarExcepcion \n            });\n            \n            UpdateIf(GaleriaPares, ID = _idActual, { \n                ValorSeleccionad: If(IsEmpty(_archivosDeEsteLabel), Blank(), JSON(_archivosDeEsteLabel, JSONFormat.Compact)),\n                AlturaCampo: _nuevaAltura, \n                ExcesoPesoDetectado: _mostrarExcepcion \n            });\n            \n            ClearCollect(colConsolidada, colFormularioDinamicoNuevoTicket);\n            Select(btnRecalcularPosiciones)\n        )\n    )\n);\n\n// 4️⃣ Manejo de Errores (Se eliminó error de Formato)\nSet(varMensajeError, \n    If(!IsBlank(LookUp(colErroresAdjuntos, Tipo = \"TamanoSeccion\")), \"Límite de 25 MB excedido.\", Blank())\n);\n\nIf(!IsBlank(varMensajeError), UpdateContext({ CloseAlert: true, Mensaje: varMensajeError }));\nReset(Self)"
                                                                                                 PaddingLeft: =If(Self.DisplayMode = DisplayMode.Edit, 5, 0)
                                                                                                 PressedColor: =RGBA(255, 255, 255, 1)
                                                                                                 PressedFill: =RGBA(0, 0, 0, 0)
@@ -6943,16 +7010,18 @@ Screens:
                                                                                                 Width: =100
                                                                                                 X: =-21
                                                                                                 Y: =-40
-                                                                                          - Image1_66:
-                                                                                              Control: Image@2.2.3
-                                                                                              Properties:
-                                                                                                BorderColor: =RGBA(0, 18, 107, 1)
-                                                                                                Height: =15
-                                                                                                HoverFill: =Color.Transparent
-                                                                                                Image: =Cargar_B
-                                                                                                Width: =15
-                                                                                                X: =50
-                                                                                                Y: '=(Parent.Height - Self.Height) / 2 '
+                                                                  - TextCanvas16_17:
+                                                                      Control: Text@0.0.51
+                                                                      Properties:
+                                                                        Align: ='TextCanvas.Align'.Center
+                                                                        FontColor: =RGBA(255, 255, 255, 1)
+                                                                        Height: =45
+                                                                        Text: ="Se alcanzó el número máximo de archivos"
+                                                                        VerticalAlign: =VerticalAlign.Middle
+                                                                        Visible: =If(pj_piecejointe_14.MaxAttachments = CountRows(gal_files_13.AllItems),true,false)
+                                                                        Width: =pj_piecejointe_14.Width
+                                                                        X: =(pj_piecejointe_14.Width - Self.Width) / 2
+                                                                        Y: =95
                                                             - Label18_12:
                                                                 Control: Label@2.5.1
                                                                 Properties:
@@ -7590,7 +7659,7 @@ Screens:
                                                       HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
                                                       HoverColor: =Color.White
                                                       HoverFill: =ColorValue("#A81010")
-                                                      OnSelect: "=// 1. RESETEO Y MARCADO DE ERRORES DINÁMICOS\r\nUpdateContext({ varShowErrors: true });\r\n\r\n// colConsolidada\r\n// colFormularioDinamicoNuevoTicket\r\n\r\nUpdateIf(colConsolidada, true, { HasError: false });\r\n// revisa codigo porque cuando el usuario escoge opciones en el catalogo y su hijo es obligatorio pero solo debe cumplirse cuando haga match con el campo requerido\r\n\r\n/*\r\nUpdateIf(\r\n    colFormularioDinamicoNuevoTicket As Campo;\r\n    Campo.Configuracion = \"Requerido\" && \r\n    (\r\n        IsBlank(Campo.DependeDe) || \r\n        !IsBlank(\r\n            LookUp(\r\n                colFormularioDinamicoNuevoTicket; \r\n                Label = Campo.DependeDe && !IsBlank(Trim(ValorSeleccionad))\r\n            )\r\n        )\r\n    ) && \r\n    (\r\n        // Si no hay archivos Y no se ha activado la excepción\r\n        (IsBlank(Trim(Campo.ValorSeleccionad)) && !Campo.ValorExcepcion) ||\r\n        \r\n        // O si se activó la excepción pero el texto está vacío\r\n        (Campo.ValorExcepcion && IsBlank(Trim(Campo.TextoExcepcion)))\r\n    );\r\n    { HasError: true }\r\n);;\r\n*/\r\nUpdateIf(\r\n    colConsolidada As Campo,\r\n    // REGLA 1: Solo evaluamos campos marcados como \"Requerido\"\r\n    Campo.Configuracion = \"Requerido\" && \r\n    (\r\n        // REGLA 2: El campo debe ser validado SI es un campo base O SI es un hijo cuya condición se cumple\r\n        IsBlank(Campo.DependeDe) || \r\n        With({ _Padre: LookUp(colConsolidada, Label = Campo.DependeDe) },\r\n            If(IsBlank(_Padre), \r\n                false, // Si el padre no existe, el hijo no debería ser requerido\r\n                \r\n                // Lógica de evaluación de la condición del hijo respecto al valor del padre\r\n                With({ \r\n                    _valPadre: _Padre.ValorSeleccionad, \r\n                    _valCondicion: Campo.ValorCondicion, \r\n                    _operador: Coalesce(Campo.Condicion, \"=\") \r\n                },\r\n                    Switch(_operador,\r\n                        Var_JSONOperadores.Igual,  Trim(Lower(Text(_valPadre))) = Trim(Lower(Text(_valCondicion))),\r\n                        Var_JSONOperadores.Mayor,  Value(Coalesce(_valPadre, \"0\")) > Value(Coalesce(_valCondicion, \"0\")),\r\n                        Var_JSONOperadores.Menor,  Value(Coalesce(_valPadre, \"0\")) < Value(Coalesce(_valCondicion, \"0\")),\r\n                        Var_JSONOperadores.MayorIgual,  Value(Coalesce(_valPadre, \"0\")) >= Value(Coalesce(_valCondicion, \"0\")),\r\n                        Var_JSONOperadores.MenorIgual, Value(Coalesce(_valPadre, \"0\")) <= Value(Coalesce(_valCondicion, \"0\")),\r\n                        false\r\n                    )\r\n                )\r\n            )\r\n        )\r\n    ) && \r\n    (\r\n        // REGLA 3: Si cumple lo anterior, verificamos si está vacío (Error)\r\n        // Caso A: El valor principal está vacío y no hay excepción activada  && !Campo.ValorExcepcion\r\n        //(IsBlank(Trim(Text(Campo.ValorSeleccionad))) && !Campo.ExcesoPesoDetectado ) ||\r\n        \r\n        // Caso B: Hay una excepción activada (ej. \"Otros\") pero el texto explicativo está vacío\r\n        //(Campo.ExcesoPesoDetectado && IsBlank(Trim(Campo.TextoExcepcion)))\r\n\r\n\r\n        If(\r\n                Campo.ExcesoPesoDetectado,\r\n                // Si hay exceso, el error depende SOLO de si el texto de excepción está vacío\r\n                IsBlank(Trim(Campo.TextoExcepcion)),\r\n                \r\n                // Si NO hay exceso, el error depende de si el valor seleccionado está vacío\r\n                IsBlank(Campo.ValorSeleccionad) || Trim(Text(Campo.ValorSeleccionad)) = \"\"\r\n            )\r\n    ),\r\n    { HasError: true }\r\n);\r\n\r\n\r\n// 2. CÁLCULO DE ESTADOS LOGICOS\r\nWith(\r\n    {\r\n        // Validación Cabecera Fija\r\n        BaseOK: \r\n            !IsBlank(varGerenciaTipoSolicitudSelected.Value) && \r\n            !IsBlank(varAreaTipoSolicitudSelected.Value) && \r\n            !IsBlank(varSubAreaTipoSolicitudSelected.Value) &&\r\n            !IsBlank(varRolAnalistaTipoSolicitudSelected.Value) &&  \r\n            !IsBlank(varTipoSolicitudSelected.TipoSolicitud),\r\n\r\n        // Validación Visto Bueno (Archivos)\r\n        /*\r\n        ArchivosOK: \r\n            If(\r\n                varTipoSolicitudSelected.VistoBueno;\r\n                CountRows(Filter(Var_uploadFile_listeAttachmentDatosAdjuntos; Tipo = Label20_56.Text)) > 0;\r\n                true\r\n            );\r\n        */\r\n        _confP: LookUp(colFormularioDinamicoCabeceraPaisSociedadNuevoTicket, Etiqueta = \"País\"),\r\n        _confS: LookUp(colFormularioDinamicoCabeceraPaisSociedadNuevoTicket, Etiqueta = \"Sociedad\")\r\n    },\r\n    \r\n    With(\r\n        {\r\n            PaisOK: If(_confP.Obligatorio = \"Sí\", !IsBlank(varPaisNuevoTicketSelected.Nombre), true),\r\n            SociedadOK: If(\r\n                _confS.Obligatorio = \"Sí\",\r\n                If(_confS.Varios, CountRows(colSociedadesMultiplesSeleccionadas) > 0, !IsBlank(varSociedadNuevoTicketSelected.Sociedad)),\r\n                true\r\n            ),\r\n            CamposDinamicosOK: IsEmpty(Filter(colConsolidada, HasError = true)),\r\n            \r\n            ValorSociedadLista: If(_confS.Varios, \"Varios\", varSociedadNuevoTicketSelected.Sociedad),\r\n            ValorSociedadConcat: If(_confS.Varios, Concat(colSociedadesMultiplesSeleccionadas, Sociedad, \";\"), varSociedadNuevoTicketSelected.Sociedad)\r\n        },\r\n\r\n        With(\r\n            {\r\n                AgrupadoExiste: !IsBlank(\r\n                    LookUp(\r\n                        'LCP-001_List_RolGerenciaAreaSubAreaPaisSoc',\r\n                        Gerencia = varGerenciaTipoSolicitudSelected.Value &&\r\n                        Area = varAreaTipoSolicitudSelected.Value &&\r\n                        SubArea = varSubAreaTipoSolicitudSelected.Value &&\r\n                        Pais = varPaisNuevoTicketSelected.Nombre &&\r\n                        Sociedad = ValorSociedadLista\r\n                    ).ID\r\n                )\r\n            },\r\n\r\n            // --- VALIDACIÓN FINAL ---\r\n            If(\r\n                BaseOK && PaisOK && SociedadOK && CamposDinamicosOK && AgrupadoExiste,\r\n\r\n                // --- CASO ÉXITO: GUARDADO ---\r\n                UpdateContext({ varShowErrors: false });\r\n                \r\n                Set(DiasHabiles, varTipoSolicitudSelected.SLA);\r\n                ClearCollect(colFechas, AddColumns(Sequence(DiasHabiles * 3), Fecha, DateAdd(Now(), Value, TimeUnit.Days)));\r\n                ClearCollect(colDiasHabiles, \r\n                    FirstN(Filter(colFechas, Weekday(Fecha, StartOfWeek.Monday) <= 5 && IsBlank(LookUp(colFeriados, FechaCompleta = Fecha))), DiasHabiles)\r\n                );\r\n                Set(Var_FechaVencimientoTicket, Last(colDiasHabiles).Fecha);\r\n\r\n                Set(Var_IdTicket, \r\n                    Patch('LCP-001_List_TicketSolicitudes', Defaults('LCP-001_List_TicketSolicitudes'), {\r\n                        ConfiguracionTicket: varTipoSolicitudSelected.Codigo,\r\n                        Gerencia: varGerenciaTipoSolicitudSelected.Value,\r\n                        Area: varAreaTipoSolicitudSelected.Value,\r\n                        SubArea: varSubAreaTipoSolicitudSelected.Value,\r\n                        Categoria: varRolAnalistaTipoSolicitudSelected.Value,\r\n                        TipoSolicitud: varTipoSolicitudSelected.TipoSolicitud,\r\n                        Descripcion: Gbl_TxtDescripcionNuevoTicket.Text,\r\n                        Prioridad: varTipoSolicitudSelected.Prioridad,\r\n                        AnalistaRol: varTipoSolicitudSelected.AnalistaRol,\r\n                        VistoBueno: varTipoSolicitudSelected.VistoBueno,\r\n                        SLA: varTipoSolicitudSelected.SLA,\r\n                        SolicitanteCorreo: Var_ProfileUser.CorreoUsuario,\r\n                        SolicitanteNombre: Var_ProfileUser.NombreApellido,\r\n                        FechaCreado: Now(),\r\n                        FechaVencimiento: Var_FechaVencimientoTicket,\r\n                        EstadoActual: Var_EstadosApp.EstadoCreado,\r\n                        SolicitantePais: Var_ProfileUser.Pais,\r\n                        SolicitanteSociedad: Var_ProfileUser.Sociedad,\r\n                        Pais: varPaisNuevoTicketSelected.Nombre,\r\n                        Sociedad: ValorSociedadLista,\r\n                        CabeceraPaisSociedad: JSON(ForAll(colFormularioDinamicoCabeceraPaisSociedadNuevoTicket, Patch(ThisRecord, { ValorSeleccionado: If(Etiqueta = \"País\", varPaisNuevoTicketSelected.Nombre, ValorSociedadConcat) })), JSONFormat.Compact),\r\n                        CamposAdicionalesTicket: JSON(colConsolidada, JSONFormat.Compact),\r\n                        LimitePermitidoURL: Gbl_Attachment_AdjuntosAdicionales.URL\r\n                    })\r\n                );\r\n\r\n                Patch('LCP-001_List_TicketSolicitudes', { ID: Var_IdTicket.ID }, { FechaModificado: Var_IdTicket.FechaCreado, Codigo: \"TS_\" & Var_IdTicket.ID });\r\n\r\n\r\n                Concurrent(\r\n                    If(!Gbl_Attachment_AdjuntosAdicionales.ExcesoTamaño,'LCP-001_Flow_SubirAdjuntos'.Run(JSON(RenameColumns(Gbl_Attachment_AdjuntosAdicionales.ArchivosAdjuntos,label,Tipo),JSONFormat.IgnoreBinaryData), \"NUEVOTICKET\", Var_IdTicket.ID)),\r\n                    'LCP-001_Flow_SubirAdjuntos'.Run(JSON(RenameColumns(Var_uploadFile_listeAttachmentTicketDinamico,label,Tipo)), \"DATOS DINAMICOS\", Var_IdTicket.ID)\r\n                    \r\n                    );\r\n\r\n                // --- LIMPIEZA DE VARIABLES Y COLECCIONES ---\r\n\r\n                Clear(colConsolidada);\r\n                Clear(colFormularioDinamicoNuevoTicket);\r\n                Clear(colSociedadesMultiplesSeleccionadas);\r\n                Clear(Var_uploadFile_listeAttachmentDatosAdjuntos);\r\n                \r\n                UpdateContext({\r\n                    varGerenciaTipoSolicitudSelected: Blank(),\r\n                    varAreaTipoSolicitudSelected: Blank(),\r\n                    varSubAreaTipoSolicitudSelected: Blank(),\r\n                    varTipoSolicitudSelected: Blank(),\r\n                    varPaisNuevoTicketSelected: Blank(),\r\n                    varSociedadNuevoTicketSelected: Blank()\r\n                });\r\n                \r\n                Reset(Gbl_TxtDescripcionNuevoTicket);\r\n\r\n                // Navegación con mensaje\r\n                Navigate(Sol_Ticket, Transition.None, { Var_Ctx_MensajeSatisfactorio: \"Ticket creado con éxito\" })\r\n                \r\n                \r\n                ,\r\n\r\n                // --- CASO ERROR: TU COMPONENTE ---\r\n\r\n                UpdateContext({ \r\n                CloseAlert: true, \r\n                Mensaje: If(\r\n                    !AgrupadoExiste, \r\n                    \"No existe un rol configurado para esta combinación de Gerencia, Área, País y Sociedad.\", \r\n                    !PaisOK,\r\n                    \"El campo País es obligatorio para esta configuración.\",\r\n                    !SociedadOK,\r\n                    \"El campo Sociedad es obligatorio o requiere selección múltiple.\",\r\n                    \"Por favor, complete los campos obligatorios marcados en rojo.\"\r\n                ) \r\n                });\r\n\r\n            // Si el error es en la galería, movemos la pantalla hacia ella\r\n            If(!CamposDinamicosOK, SetFocus(TextInput5) )\r\n\r\n            )\r\n        )\r\n    )\r\n)"
+                                                      OnSelect: "=// 1. RESETEO Y MARCADO DE ERRORES DINÁMICOS\r\n\r\nUpdateContext( { Var_CmcLoadingSpinnerVisibleEnviar: true });\r\n\r\nUpdateContext({ varShowErrors: true });\r\n\r\n// colConsolidada\r\n// colFormularioDinamicoNuevoTicket\r\n\r\nUpdateIf(colConsolidada, true, { HasError: false });\r\n// revisa codigo porque cuando el usuario escoge opciones en el catalogo y su hijo es obligatorio pero solo debe cumplirse cuando haga match con el campo requerido\r\n\r\n/*\r\nUpdateIf(\r\n    colFormularioDinamicoNuevoTicket As Campo;\r\n    Campo.Configuracion = \"Requerido\" && \r\n    (\r\n        IsBlank(Campo.DependeDe) || \r\n        !IsBlank(\r\n            LookUp(\r\n                colFormularioDinamicoNuevoTicket; \r\n                Label = Campo.DependeDe && !IsBlank(Trim(ValorSeleccionad))\r\n            )\r\n        )\r\n    ) && \r\n    (\r\n        // Si no hay archivos Y no se ha activado la excepción\r\n        (IsBlank(Trim(Campo.ValorSeleccionad)) && !Campo.ValorExcepcion) ||\r\n        \r\n        // O si se activó la excepción pero el texto está vacío\r\n        (Campo.ValorExcepcion && IsBlank(Trim(Campo.TextoExcepcion)))\r\n    );\r\n    { HasError: true }\r\n);;\r\n*/\r\nUpdateIf(\r\n    colConsolidada As Campo,\r\n    // REGLA 1: Solo evaluamos campos marcados como \"Requerido\"\r\n    Campo.Configuracion = \"Requerido\" && \r\n    (\r\n        // REGLA 2: El campo debe ser validado SI es un campo base O SI es un hijo cuya condición se cumple\r\n        IsBlank(Campo.DependeDe) || \r\n        With({ _Padre: LookUp(colConsolidada, Label = Campo.DependeDe) },\r\n            If(IsBlank(_Padre), \r\n                false, // Si el padre no existe, el hijo no debería ser requerido\r\n                \r\n                // Lógica de evaluación de la condición del hijo respecto al valor del padre\r\n                With({ \r\n                    _valPadre: _Padre.ValorSeleccionad, \r\n                    _valCondicion: Campo.ValorCondicion, \r\n                    _operador: Coalesce(Campo.Condicion, \"=\") \r\n                },\r\n                    Switch(_operador,\r\n                        Var_JSONOperadores.Igual,  Trim(Lower(Text(_valPadre))) = Trim(Lower(Text(_valCondicion))),\r\n                        Var_JSONOperadores.Mayor,  Value(Coalesce(_valPadre, \"0\")) > Value(Coalesce(_valCondicion, \"0\")),\r\n                        Var_JSONOperadores.Menor,  Value(Coalesce(_valPadre, \"0\")) < Value(Coalesce(_valCondicion, \"0\")),\r\n                        Var_JSONOperadores.MayorIgual,  Value(Coalesce(_valPadre, \"0\")) >= Value(Coalesce(_valCondicion, \"0\")),\r\n                        Var_JSONOperadores.MenorIgual, Value(Coalesce(_valPadre, \"0\")) <= Value(Coalesce(_valCondicion, \"0\")),\r\n                        false\r\n                    )\r\n                )\r\n            )\r\n        )\r\n    ) && \r\n    (\r\n        // REGLA 3: Si cumple lo anterior, verificamos si está vacío (Error)\r\n        // Caso A: El valor principal está vacío y no hay excepción activada  && !Campo.ValorExcepcion\r\n        //(IsBlank(Trim(Text(Campo.ValorSeleccionad))) && !Campo.ExcesoPesoDetectado ) ||\r\n        \r\n        // Caso B: Hay una excepción activada (ej. \"Otros\") pero el texto explicativo está vacío\r\n        //(Campo.ExcesoPesoDetectado && IsBlank(Trim(Campo.TextoExcepcion)))\r\n\r\n\r\n        If(\r\n                Campo.ExcesoPesoDetectado,\r\n                // Si hay exceso, el error depende SOLO de si el texto de excepción está vacío\r\n                IsBlank(Trim(Campo.TextoExcepcion)),\r\n                \r\n                // Si NO hay exceso, el error depende de si el valor seleccionado está vacío\r\n                IsBlank(Campo.ValorSeleccionad) || Trim(Text(Campo.ValorSeleccionad)) = \"\"\r\n            )\r\n    ),\r\n    { HasError: true }\r\n);\r\n\r\n\r\n// 2. CÁLCULO DE ESTADOS LOGICOS\r\nWith(\r\n    {\r\n        // Validación Cabecera Fija\r\n        BaseOK: \r\n            !IsBlank(varGerenciaTipoSolicitudSelected.Value) && \r\n            !IsBlank(varAreaTipoSolicitudSelected.Value) && \r\n            !IsBlank(varSubAreaTipoSolicitudSelected.Value) &&\r\n            !IsBlank(varRolAnalistaTipoSolicitudSelected.Value) &&  \r\n            !IsBlank(varTipoSolicitudSelected.TipoSolicitud),\r\n\r\n        // Validación Visto Bueno (Archivos)\r\n        /*\r\n        ArchivosOK: \r\n            If(\r\n                varTipoSolicitudSelected.VistoBueno;\r\n                CountRows(Filter(Var_uploadFile_listeAttachmentDatosAdjuntos; Tipo = Label20_56.Text)) > 0;\r\n                true\r\n            );\r\n        */\r\n        _confP: LookUp(colFormularioDinamicoCabeceraPaisSociedadNuevoTicket, Etiqueta = \"País\"),\r\n        _confS: LookUp(colFormularioDinamicoCabeceraPaisSociedadNuevoTicket, Etiqueta = \"Sociedad\")\r\n    },\r\n    \r\n    With(\r\n        {\r\n            PaisOK: If(_confP.Obligatorio = \"Sí\", !IsBlank(varPaisNuevoTicketSelected.Nombre), true),\r\n            SociedadOK: If(\r\n                _confS.Obligatorio = \"Sí\",\r\n                If(_confS.Varios, CountRows(colSociedadesMultiplesSeleccionadas) > 0, !IsBlank(varSociedadNuevoTicketSelected.Sociedad)),\r\n                true\r\n            ),\r\n            CamposDinamicosOK: IsEmpty(Filter(colConsolidada, HasError = true)),\r\n            \r\n            ValorSociedadLista: If(_confS.Varios, \"Varios\", varSociedadNuevoTicketSelected.Sociedad),\r\n            ValorSociedadConcat: If(_confS.Varios, Concat(colSociedadesMultiplesSeleccionadas, Sociedad, \";\"), varSociedadNuevoTicketSelected.Sociedad)\r\n        },\r\n\r\n        With(\r\n            {\r\n                AgrupadoExiste: !IsBlank(\r\n                    LookUp(\r\n                        'LCP-001_List_RolGerenciaAreaSubAreaPaisSoc',\r\n                        Gerencia = varGerenciaTipoSolicitudSelected.Value &&\r\n                        Area = varAreaTipoSolicitudSelected.Value &&\r\n                        SubArea = varSubAreaTipoSolicitudSelected.Value &&\r\n                        Pais = varPaisNuevoTicketSelected.Nombre &&\r\n                        Sociedad = ValorSociedadLista\r\n                    ).ID\r\n                )\r\n            },\r\n\r\n            // --- VALIDACIÓN FINAL ---\r\n            If(\r\n                BaseOK && PaisOK && SociedadOK && CamposDinamicosOK && AgrupadoExiste,\r\n\r\n                // --- CASO ÉXITO: GUARDADO ---\r\n                UpdateContext({ varShowErrors: false });\r\n                \r\n                Set(DiasHabiles, varTipoSolicitudSelected.SLA);\r\n                ClearCollect(colFechas, AddColumns(Sequence(DiasHabiles * 3), Fecha, DateAdd(Now(), Value, TimeUnit.Days)));\r\n                ClearCollect(colDiasHabiles, \r\n                    FirstN(Filter(colFechas, Weekday(Fecha, StartOfWeek.Monday) <= 5 && IsBlank(LookUp(colFeriados, FechaCompleta = Fecha))), DiasHabiles)\r\n                );\r\n                Set(Var_FechaVencimientoTicket, Last(colDiasHabiles).Fecha);\r\n\r\n                Set(Var_IdTicket, \r\n                    Patch('LCP-001_List_TicketSolicitudes', Defaults('LCP-001_List_TicketSolicitudes'), {\r\n                        ConfiguracionTicket: varTipoSolicitudSelected.Codigo,\r\n                        Gerencia: varGerenciaTipoSolicitudSelected.Value,\r\n                        Area: varAreaTipoSolicitudSelected.Value,\r\n                        SubArea: varSubAreaTipoSolicitudSelected.Value,\r\n                        Categoria: varRolAnalistaTipoSolicitudSelected.Value,\r\n                        TipoSolicitud: varTipoSolicitudSelected.TipoSolicitud,\r\n                        Descripcion: Gbl_TxtDescripcionNuevoTicket.Text,\r\n                        Prioridad: varTipoSolicitudSelected.Prioridad,\r\n                        AnalistaRol: varTipoSolicitudSelected.AnalistaRol,\r\n                        VistoBueno: varTipoSolicitudSelected.VistoBueno,\r\n                        SLA: varTipoSolicitudSelected.SLA,\r\n                        SolicitanteCorreo: Var_ProfileUser.CorreoUsuario,\r\n                        SolicitanteNombre: Var_ProfileUser.NombreApellido,\r\n                        FechaCreado: Now(),\r\n                        FechaVencimiento: Var_FechaVencimientoTicket,\r\n                        EstadoActual: Var_EstadosApp.EstadoCreado,\r\n                        SolicitantePais: Var_ProfileUser.Pais,\r\n                        SolicitanteSociedad: Var_ProfileUser.Sociedad,\r\n                        Pais: varPaisNuevoTicketSelected.Nombre,\r\n                        Sociedad: ValorSociedadLista,\r\n                        CabeceraPaisSociedad: JSON(ForAll(colFormularioDinamicoCabeceraPaisSociedadNuevoTicket, Patch(ThisRecord, { ValorSeleccionado: If(Etiqueta = \"País\", varPaisNuevoTicketSelected.Nombre, ValorSociedadConcat) })), JSONFormat.Compact),\r\n                        CamposAdicionalesTicket: JSON(colConsolidada, JSONFormat.Compact),\r\n                        LimitePermitidoURL: Gbl_Attachment_AdjuntosAdicionales.URL\r\n                    })\r\n                );\r\n\r\n                Patch('LCP-001_List_TicketSolicitudes', { ID: Var_IdTicket.ID }, { FechaModificado: Var_IdTicket.FechaCreado, Codigo: \"TS_\" & Var_IdTicket.ID });\r\n\r\n\r\n                Concurrent(\r\n                    If(!Gbl_Attachment_AdjuntosAdicionales.ExcesoTamaño,'LCP-001_Flow_SubirAdjuntos'.Run(JSON(RenameColumns(Gbl_Attachment_AdjuntosAdicionales.ArchivosAdjuntos,label,Tipo),JSONFormat.IgnoreBinaryData), \"NUEVOTICKET\", Var_IdTicket.ID))\r\n                    ,\r\n                    'LCP-001_Flow_SubirAdjuntos'.Run(JSON(RenameColumns(Var_uploadFile_listeAttachmentTicketDinamico,label,Tipo)), \"DATOS DINAMICOS\", Var_IdTicket.ID)\r\n                    \r\n                    );\r\n\r\n                // --- LIMPIEZA DE VARIABLES Y COLECCIONES ---\r\n\r\n                Clear(colConsolidada);\r\n                Clear(colFormularioDinamicoNuevoTicket);\r\n                Clear(colSociedadesMultiplesSeleccionadas);\r\n                Clear(Var_uploadFile_listeAttachmentDatosAdjuntos);\r\n                \r\n                UpdateContext({\r\n                    varGerenciaTipoSolicitudSelected: Blank(),\r\n                    varAreaTipoSolicitudSelected: Blank(),\r\n                    varSubAreaTipoSolicitudSelected: Blank(),\r\n                    varTipoSolicitudSelected: Blank(),\r\n                    varPaisNuevoTicketSelected: Blank(),\r\n                    varSociedadNuevoTicketSelected: Blank()\r\n                });\r\n                \r\n                Reset(Gbl_TxtDescripcionNuevoTicket);\r\n\r\n                // Navegación con mensaje\r\n                Navigate(Sol_Ticket, Transition.None, { Var_Ctx_MensajeSatisfactorio: \"Ticket creado con éxito\" })\r\n                \r\n                \r\n                ,\r\n\r\n                // --- CASO ERROR: TU COMPONENTE ---\r\n\r\n                UpdateContext({ \r\n                CloseAlert: true, \r\n                Mensaje: If(\r\n                    !AgrupadoExiste, \r\n                    \"No existe un rol configurado para esta combinación de Gerencia, Área, País y Sociedad.\", \r\n                    !PaisOK,\r\n                    \"El campo País es obligatorio para esta configuración.\",\r\n                    !SociedadOK,\r\n                    \"El campo Sociedad es obligatorio o requiere selección múltiple.\",\r\n                    \"Por favor, complete los campos obligatorios marcados en rojo.\"\r\n                ) \r\n                });\r\n\r\n            // Si el error es en la galería, movemos la pantalla hacia ella\r\n            If(!CamposDinamicosOK, SetFocus(TextInput5) )\r\n\r\n            )\r\n        )\r\n    )\r\n);\r\n\r\nUpdateContext( { Var_CmcLoadingSpinnerVisibleEnviar: false })"
                                                       PressedBorderColor: =Self.Fill
                                                       PressedColor: =Color.White
                                                       PressedFill: =ColorValue("#520505")
@@ -7599,6 +7668,23 @@ Screens:
                                                       Width: =96
                                                       X: =40
                                                       Y: =40
+                                          - TextInput5:
+                                              Control: Classic/TextInput@2.3.2
+                                              Properties:
+                                                BorderColor: =RGBA(0, 18, 107, 1)
+                                                BorderStyle: =BorderStyle.None
+                                                BorderThickness: =0
+                                                Font: =Font.'Open Sans'
+                                                Height: =1
+                                                HoverBorderColor: =RGBA(0, 18, 107, 1)
+                                                HoverFill: =RGBA(186, 202, 226, 1)
+                                                LayoutMinHeight: =16
+                                                LayoutMinWidth: =16
+                                                RadiusBottomLeft: =0
+                                                RadiusBottomRight: =0
+                                                RadiusTopLeft: =0
+                                                RadiusTopRight: =0
+                                                Width: =1
                                     - SolCtnAreaTicket_7_CategoriaTicket:
                                         Control: GroupContainer@1.5.0
                                         Variant: ManualLayout
@@ -7779,7 +7865,7 @@ Screens:
                                                           filas * altoFila     // Ajuste exacto para 1 o 2 registros
                                                       )
                                                   )
-                                                Items: =Sort(Filter(col_Adn_TipoSolicitudNuevoTicket, SolTxtBuscarAreaTicket_21.Text in ThisRecord.TipoSolicitud Or IsBlank(SolTxtBuscarAreaTicket_21.Text) , Gerencia = varGerenciaTipoSolicitudSelected.Value, Area = varAreaTipoSolicitudSelected.Value , SubArea =  varSubAreaTipoSolicitudSelected.Value , Estado.Value = "Activo"),ThisRecord.TipoSolicitud,SortOrder.Ascending)
+                                                Items: =Sort(Filter(col_Adn_TipoSolicitudNuevoTicket, SolTxtBuscarAreaTicket_21.Text in ThisRecord.TipoSolicitud Or IsBlank(SolTxtBuscarAreaTicket_21.Text) , Gerencia = varGerenciaTipoSolicitudSelected.Value, Area = varAreaTipoSolicitudSelected.Value , SubArea =  varSubAreaTipoSolicitudSelected.Value , Estado.Value = "Activo" ),ThisRecord.TipoSolicitud,SortOrder.Ascending)
                                                 TemplatePadding: =0
                                                 TemplateSize: =50
                                                 Width: =Parent.Width
@@ -8227,6 +8313,24 @@ Screens:
                                                 TriggerOutput: ='TextInputCanvas.TriggerOutput'.Keypress
                                                 Value: =
                                                 Width: =Parent.Width
+                                    - Gbl_LoadingSpinner_Formulario:
+                                        Control: CanvasComponent
+                                        ComponentName: Gbl_LoadingSpinner
+                                        ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
+                                        Properties:
+                                          Height: =ContainerFormularioDinamico_DatosTicket.Height
+                                          Visible: =Var_CmcLoadingSpinnerVisible
+                                          Width: =Parent.Width
+                                          Y: |+
+                                            =ContainerFormularioDinamico_DatosTicket.Y
+                                    - Gbl_LoadingSpinner_Enviar:
+                                        Control: CanvasComponent
+                                        ComponentName: Gbl_LoadingSpinner
+                                        ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
+                                        Properties:
+                                          Height: =Parent.Height
+                                          Visible: =Var_CmcLoadingSpinnerVisibleEnviar
+                                          Width: =Parent.Width
       - SolTimAlertaTicket_2:
           Control: Timer@2.1.0
           Properties:

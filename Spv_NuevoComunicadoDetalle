@@ -676,12 +676,12 @@ Screens:
                                                                   FocusedBorderThickness: =4
                                                                   Height: =SpvNvCmc_GlrfilesDetalle.TemplateWidth/10
                                                                   HoverBorderColor: =RGBA(0, 0, 0, 0)
-                                                                  HoverColor: =RGBA(16, 110, 190, 1)
+                                                                  HoverColor: =ColorValue(Var_ColorHoverBoton)
                                                                   HoverFill: =RGBA(0, 0, 0, 0)
                                                                   Icon: =Icon.Trash
                                                                   LayoutMinHeight: =0
                                                                   LayoutMinWidth: =20
-                                                                  OnSelect: |
+                                                                  OnSelect: |-
                                                                     =If(!IsEmpty(SpvNvCmc_var_uploadFile_listeAttachmentDetalle),
                                                                     Remove(
                                                                         SpvNvCmc_var_uploadFile_listeAttachmentDetalle,
@@ -695,7 +695,8 @@ Screens:
                                                                                 { Imagen: Blank() }               // 2. Sobrescribimos SOLO la imagen con vacío
                                                                             )
                                                                         )
-                                                                    )
+                                                                    );
+                                                                    UpdateContext({varEditMode: true})
                                                                   PressedBorderColor: =RGBA(0, 0, 0, 0)
                                                                   PressedColor: =RGBA(16, 110, 190, 1)
                                                                   PressedFill: =RGBA(0, 0, 0, 0)
@@ -722,7 +723,7 @@ Screens:
                                                           Control: Attachments@2.3.0
                                                           Properties:
                                                             AddAttachmentColor: =Blank()
-                                                            AddAttachmentText: =If(Self.MaxAttachments = CountRows(SpvNvCmc_GlrfilesDetalle.AllItems),"Se alcanzó el número máximo de archivos","Subir archivo")
+                                                            AddAttachmentText: =If(Self.MaxAttachments = CountRows(SpvNvCmc_GlrfilesDetalle.AllItems),"Subir archivo","Subir archivo")
                                                             AddedItemColor: =Color.Red
                                                             AddedItemFill: =Color.Red
                                                             BorderColor: =RGBA(0, 0, 0, 0)
@@ -731,7 +732,10 @@ Screens:
                                                             DisabledBorderColor: =RGBA(122, 138, 143, 1)
                                                             DisabledColor: =ColorValue("#FCFCFC")
                                                             DisabledFill: =ColorFade(ColorValue("#E96767"),50%)
-                                                            DisplayMode: =If(Self.MaxAttachments = CountRows(SpvNvCmc_GlrfilesDetalle.AllItems),DisplayMode.View,DisplayMode.Edit)
+                                                            DisplayMode: |-
+                                                              =//If(Self.MaxAttachments = CountRows(SpvNvCmc_GlrfilesDetalle.AllItems);DisplayMode.View;DisplayMode.Edit)
+                                                              If(varEditMode, DisplayMode.Edit, DisplayMode.View)
+                                                            DropTargetBorderColor: =Blank()
                                                             DropTargetBorderStyle: =BorderStyle.None
                                                             DropTargetBorderThickness: =0
                                                             DropTargetTextColor: =RGBA(237, 237, 237, 0.5)
@@ -3308,14 +3312,7 @@ Screens:
                                                 HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
                                                 HoverColor: =ColorValue(Var_ColorBlanco)
                                                 HoverFill: =ColorValue(Var_ColorHoverBoton)
-                                                OnSelect: |-
-                                                  =UpdateContext(
-                                                      {
-                                                          var_RangeDatePicker_DateStart: var_RangeDatePicker_DateStart_Modify,
-                                                          var_RangeDatePicker_DateEnd: var_RangeDatePicker_DateEnd_Modify,
-                                                          var_RangeDatePicker:false
-                                                      }
-                                                  )
+                                                OnSelect: "=//UpdateContext(\n//    {\n//        var_RangeDatePicker_DateStart: var_RangeDatePicker_DateStart_Modify;\n//        var_RangeDatePicker_DateEnd: var_RangeDatePicker_DateEnd_Modify;\n//        var_RangeDatePicker:false\n//    }\n//)\nIf(\n    var_RangeDatePicker_DateStart < Today(),\n    \n    // CASO A: Fecha Inválida (Menor a hoy)\n    // 1. Reutilizamos las variables del componente de error global\n    UpdateContext({\n        CloseAlertSpvNuevoComunicado: true,\n        SpvNvCmcMensajeError: \"La fecha de inicio seleccionada no puede ser anterior a la fecha actual.\"\n    });\n    // 2. Reiniciamos las variables de control del DatePicker\n    UpdateContext({var_RangeDatePicker_DateStart: Blank()});\n    UpdateContext({var_RangeDatePicker_DateEnd: Blank()});\n    UpdateContext({var_RangeDatePicker: Blank()}),\n    \n    // CASO B: Fecha Válida\n    // Apagamos cualquier error previo y continuamos el flujo normal\n    UpdateContext({varVisibleErrorGbl: false});\n    \n    // Opcional: Aquí debe ir la variable que cierra el modal del calendario\n    // UpdateContext({varModalCalendarioVisible: false})\n)"
                                                 PressedBorderColor: =Self.PressedFill
                                                 PressedColor: =ColorValue(Var_ColorBlanco)
                                                 PressedFill: =ColorValue(Var_ColorPressedBoton)

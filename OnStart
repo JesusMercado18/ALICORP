@@ -312,7 +312,7 @@ ClearCollect(colMenuAdm;
 };
 {Title: "Comunicados";   Id: 5; Pantalla: Gbl_Comunicado; Ico: comunicados; child: false; itemsSubChild: Table()};
 {Title: "Soluciones";    Id: 6; Pantalla: Blank(); Ico: soluciones; child: false; itemsSubChild: Table()};
-{Title: "Usuarios";    Id: 7; Pantalla: Blank(); Ico: soluciones; child: false; itemsSubChild: Table()}
+{Title: "Usuarios";    Id: 7; Pantalla: Blank(); Ico: usuarios; child: false; itemsSubChild: Table()}
 );;
 
 

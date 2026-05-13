@@ -1598,7 +1598,7 @@ Screens:
                                                                   Size: =Var_FontSizeCuerpoTable
                                                                   Text: |-
                                                                     =//ThisItem.Value.UsuarioCreador & " • Boletín"
-                                                                    ThisItem.UsuarioCreador & ThisItem.ID
+                                                                    ThisItem.UsuarioCreador
                                                                   Width: =Parent.Width - SpvCmc_IcnUsuario.Width - 45
                                                                   X: =40
                                                                   Y: =40
@@ -2184,7 +2184,7 @@ Screens:
           Properties:
             DropShadow: =DropShadow.Semilight
             Fill: =RGBA(255, 255, 255, 1)
-            Height: =CountRows(SpvCmc_GlrGerencia.AllItems) * 47
+            Height: =CountRows(SpvCmc_GlrGerencia.AllItems) * 37
             Visible: =varOpenDropDownSpvCmcGerencia
             Width: =SpvCmc_CtnFiltroGerencia.Width - 2
             X: =SpvCmc_CtnFiltroGerencia.X + SpvCmc_CtnSidebar.Width + 36
@@ -2212,7 +2212,7 @@ Screens:
                         DisabledBorderColor: =RGBA(166, 166, 166, 1)
                         Fill: =Color.Transparent
                         Font: =Font.'Open Sans'
-                        Height: =50
+                        Height: =30
                         HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
                         HoverColor: =ColorValue(Var_ColorGray)
                         HoverFill: =ColorValue(Var_ColorFadeBoton)
