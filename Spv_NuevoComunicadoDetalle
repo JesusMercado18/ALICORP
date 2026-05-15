@@ -3372,3 +3372,4 @@ Screens:
             Width: =480
             X: =Parent.Width - Self.Width - 20
             Y: =Gbl_HeaderSpvNuevoComunicadoDetalle.Height
+
