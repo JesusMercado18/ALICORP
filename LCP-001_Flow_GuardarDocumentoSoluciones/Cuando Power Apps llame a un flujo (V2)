@@ -1,0 +1,88 @@
+{
+  "type": "Request",
+  "kind": "PowerAppV2",
+  "inputs": {
+    "schema": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "title": "NuevoEditado",
+          "type": "string",
+          "x-ms-dynamically-added": true,
+          "description": "Escribir entrada",
+          "x-ms-content-hint": "TEXT"
+        },
+        "text_1": {
+          "title": "Gerencia",
+          "type": "string",
+          "x-ms-dynamically-added": true,
+          "description": "Escribir entrada",
+          "x-ms-content-hint": "TEXT"
+        },
+        "text_2": {
+          "title": "Area",
+          "type": "string",
+          "x-ms-dynamically-added": true,
+          "description": "Escribir entrada",
+          "x-ms-content-hint": "TEXT"
+        },
+        "text_3": {
+          "title": "Subarea",
+          "type": "string",
+          "x-ms-dynamically-added": true,
+          "description": "Escribir entrada",
+          "x-ms-content-hint": "TEXT"
+        },
+        "text_4": {
+          "title": "Descripcion",
+          "type": "string",
+          "x-ms-dynamically-added": true,
+          "description": "Escribir entrada",
+          "x-ms-content-hint": "TEXT"
+        },
+        "text_5": {
+          "title": "Estado",
+          "type": "string",
+          "x-ms-dynamically-added": true,
+          "description": "Escribir entrada",
+          "x-ms-content-hint": "TEXT"
+        },
+        "text_6": {
+          "title": "NombreArchivo",
+          "type": "string",
+          "x-ms-dynamically-added": true,
+          "description": "Escribir entrada",
+          "x-ms-content-hint": "TEXT"
+        },
+        "text_7": {
+          "title": "Autor",
+          "type": "string",
+          "x-ms-dynamically-added": true,
+          "description": "Escribir entrada",
+          "x-ms-content-hint": "TEXT"
+        },
+        "text_9": {
+          "title": "Contenido",
+          "type": "string",
+          "x-ms-dynamically-added": true,
+          "description": "Escribir entrada",
+          "x-ms-content-hint": "TEXT"
+        }
+      },
+      "required": [
+        "text",
+        "text_1",
+        "text_2",
+        "text_3",
+        "text_4",
+        "text_5",
+        "text_6",
+        "text_7",
+        "text_9"
+      ]
+    }
+  },
+  "metadata": {
+    "operationMetadataId": "8c11a2a6-ebba-4256-8b76-70dffcfcb8cb"
+  }
+}
