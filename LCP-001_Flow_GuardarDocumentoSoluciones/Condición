@@ -18,7 +18,7 @@
           "dataset": "@parameters('LCP-001_Site_Ticketing (tk_LCP001_Site_Ticketing)')",
           "table": "@parameters('LCP-001_List_Soluciones (tk_LCP001_List_Soluciones)')",
           "itemId": "@outputs('Crear_elemento')?['body/ID']",
-          "displayName": "@triggerBody()?['text_1']",
+          "displayName": "@outputs('Redactar_NombreFinalDoc')",
           "body": "@triggerBody()?['file']?['contentBytes']"
         },
         "host": {
