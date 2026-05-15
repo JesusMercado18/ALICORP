@@ -8,6 +8,7 @@ Screens:
         UpdateContext({menuSelected: 6});
         UpdateContext({Var_Ctx_MostrarItems : false });
         UpdateContext({Var_Ctx_SpvModal_AgregarSolucion: false});
+        UpdateContext({Var_Ctx_ModalConfirmacionBorrarSolucion: false});
 
         // 2. Refresco de los controles de búsqueda para segmentación y filtros
         Reset(SpvSlc_TxtIBuscarDocumento);
@@ -782,24 +783,14 @@ Screens:
                                                                     )
                                                                   ImagePosition: =ImagePosition.Center
                                                                   OnSelect: |-
-                                                                    =UpdateContext({Var_Ctx_Spv_NuevaSolucion: "Eliminar"});
-                                                                    'LCP-001_Flow_GuardarDocumentoSoluciones'.Run(
-                                                                                Var_Ctx_Spv_NuevaSolucion,
-                                                                                {
-                                                                                    name: "NoAplica",
-                                                                                    contentBytes: "NoAplica"
-                                                                                },
-                                                                                "NoAplica", //& First(Var_uploadFile_listAttachmentSpvNvSolucion).Extension
-                                                                                "NoAplica",
-                                                                                "NoAplica",
-                                                                                "NoAplica",
-                                                                                "NoAplica",
-                                                                                "NoAplica",
-                                                                                "NoAplica",
-                                                                                Var_SpvCmcSolucionSeleccionada.ID
-                                                                            );
-                                                                    Navigate(Gbl_Soluciones);
-                                                                    Refresh('LCP-001_List_Soluciones')
+                                                                    =UpdateContext({
+                                                                        Var_Ctx_Spv_NuevaSolucion: "Eliminar",
+                                                                        Var_Ctx_ModalConfirmacionBorrarSolucion: true
+                                                                    });
+                                                                    // 1. Ocultar posibles errores previos
+                                                                    UpdateContext({Var_Ctx_SpvMostrarErrorSoluciones: false});
+                                                                    Select(SpvSlc_GlrSoluciones);
+                                                                    UpdateContext({Var_Ctx_SpvIDAdjunto: Var_SpvCmcSolucionSeleccionada.ID})
                                                                   Width: =24
                                                                   X: =70
                                                             - SpvSlc_ImgInfEditar:
@@ -2775,20 +2766,6 @@ Screens:
                               Size: =12
                               Text: =ThisItem.Nombre
                               Width: =Parent.TemplateWidth
-      - Gbl_Error_SpvSoluciones:
-          Control: CanvasComponent
-          ComponentName: Gbl_Error
-          ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
-          Properties:
-            Evento_CerrarNotificacion: |-
-              =UpdateContext( { Var_Ctx_SpvMostrarErrorSoluciones : false })
-            Height: =46
-            Input_MostrarOcultarNotificacion: =Var_Ctx_SpvMostrarErrorSoluciones
-            Input_TextoNotificacion: =SpvSlcMensajeError
-            Visible: =Var_Ctx_SpvMostrarErrorSoluciones
-            Width: =480
-            X: =Parent.Width - Self.Width - 20
-            Y: =Gbl_Header_DetalleTicket.Height
       - Spv_btn_MotorPaginacionSoluciones:
           Control: Classic/Button@2.2.0
           Properties:
@@ -2855,3 +2832,54 @@ Screens:
             Text: ="+"
             Visible: =false
             Width: =30
+      - Gbl_LoadingSpinnerSpvCmc_1:
+          Control: CanvasComponent
+          ComponentName: Gbl_LoadingSpinner
+          ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
+          Properties:
+            Height: =SpvSlc_GlrSoluciones.Height
+            Visible: =Var_SpvCmcLoadingSpinnerVisible
+            Width: =SpvSlc_GlrSoluciones.Width
+            X: =SpvSlc_GlrSoluciones.X + SpvSlc_CtnSidebar.Width + 45
+            Y: =SpvSlc_GlrSoluciones.Y + 240
+      - SpvSlc_CtnModalEliminarDoc:
+          Control: GroupContainer@1.5.0
+          Variant: ManualLayout
+          Properties:
+            Fill: =RGBA(0, 0, 0, 0.1)
+            Height: =Parent.Height
+            Visible: =Var_Ctx_ModalConfirmacionBorrarSolucion
+            Width: =Parent.Width
+          Children:
+            - Gbl_Confirmation_Delete_Solucion_1:
+                Control: CanvasComponent
+                ComponentName: Gbl_Confirmation_Delete_Solucion
+                ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
+                Properties:
+                  CerrarModal: |-
+                    =Reset(Gbl_Confirmation_Delete_Solucion_1);
+                    UpdateContext({ Var_Ctx_ModalConfirmacionBorrarSolucion: false })
+                  Guardar: "='LCP-001_Flow_GuardarDocumentoSoluciones'.Run(\r\n                Var_Ctx_Spv_NuevaSolucion,\r\n                {\r\n                    name: \"NoAplica\",\r\n                    contentBytes: \"NoAplica\" // Simulacion Base64 válida para evitar error de esquema en Power Automate\r\n                },\r\n                \"NoAplica\",\r\n                \"NoAplica\",\r\n                \"NoAplica\",\r\n                \"NoAplica\",\r\n                \"NoAplica\",\r\n                \"NoAplica\",\r\n                \"NoAplica\",\r\n                Var_Ctx_SpvIDAdjunto\r\n);\r\n\r\n// 3. Acciones de Éxito Secuenciales\r\nIf(\r\n    !Var_Ctx_SpvMostrarErrorSoluciones,\r\n    UpdateContext({ Var_Ctx_ModalConfirmacionBorrarSolucion: false });\r\n    \r\n    // Mostramos feedback visual reutilizando el componente de alerta\r\n    UpdateContext({\r\n        Var_Ctx_SpvMostrarAlertaSoluciones: true,\r\n        Var_SpvMensajeSatisfactorioSolucion: \"El documento ha sido eliminado con éxito.\"\r\n    });\r\n    \r\n    // Refrescamos en background y volvemos a cargar la vista actual paginada\r\n    Refresh('LCP-001_List_Soluciones');\r\n    Select(Spv_btn_MotorPaginacionSoluciones)\r\n);\r\nUpdateContext({Var_Ctx_ModalConfirmacionBorrarSolucion: false});\r\nNavigate(Gbl_Soluciones)"
+                  Height: =336
+                  IsError: =ColorValue("#6C6C6C")
+                  Observacion: =true
+                  Subtitle: ="¿Estas seguro que quieres eliminar el archivo?"
+                  Title: ="Eliminar documento"
+                  Width: =496
+                  X: =408
+                  Y: =228
+                  btnTitleConfirm: ="Confirmar"
+      - Gbl_Error_SpvSoluciones:
+          Control: CanvasComponent
+          ComponentName: Gbl_Error
+          ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
+          Properties:
+            Evento_CerrarNotificacion: |-
+              =UpdateContext( { Var_Ctx_SpvMostrarErrorSoluciones : false })
+            Height: =46
+            Input_MostrarOcultarNotificacion: =Var_Ctx_SpvMostrarErrorSoluciones
+            Input_TextoNotificacion: =SpvSlcMensajeError
+            Visible: =Var_Ctx_SpvMostrarErrorSoluciones
+            Width: =480
+            X: =Parent.Width - Self.Width - 20
+            Y: =Gbl_Header_DetalleTicket.Height
