@@ -2649,6 +2649,517 @@ Screens:
                           Refresh('LCP-001_List_Soluciones')
                         Visible: =false
                       Children:
+                        - Gerencia_DataCard2:
+                            Control: TypedDataCard@1.0.7
+                            Variant: ClassicTextualEdit
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              DataField: ="Gerencia"
+                              Default: =ThisItem.Gerencia
+                              DisplayName: =DataSourceInfo([@'LCP-001_List_Soluciones'],DataSourceInfo.DisplayName,Gerencia)
+                              MaxLength: =DataSourceInfo([@'LCP-001_List_Soluciones'], DataSourceInfo.MaxLength, Gerencia)
+                              Required: =false
+                              Update: =SpvSlc_LblGerenciaSelNuevaSolucion.Value
+                              Width: =368
+                              X: =0
+                              Y: =0
+                            Children:
+                              - DataCardKey12:
+                                  Control: Label@2.5.1
+                                  MetadataKey: FieldName
+                                  Properties:
+                                    AutoHeight: =true
+                                    BorderColor: =RGBA(0, 0, 0, 1)
+                                    Color: =RGBA(0, 18, 107, 1)
+                                    Font: =Font.'Open Sans'
+                                    Height: =34
+                                    Text: =Parent.DisplayName
+                                    Width: =Parent.Width - 60
+                                    Wrap: =false
+                                    X: =30
+                                    Y: =10
+                              - DataCardValue12:
+                                  Control: Classic/TextInput@2.3.2
+                                  MetadataKey: FieldValue
+                                  Properties:
+                                    BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
+                                    Default: =varGerenciaSelected.Nombre
+                                    DelayOutput: =true
+                                    DisplayMode: =Parent.DisplayMode
+                                    Font: =Font.'Open Sans'
+                                    HoverBorderColor: =RGBA(0, 18, 107, 1)
+                                    HoverFill: =RGBA(186, 202, 226, 1)
+                                    MaxLength: =Parent.MaxLength
+                                    OnChange: =varGerenciaSelected.Nombre
+                                    PaddingLeft: =5
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Tooltip: =Parent.DisplayName
+                                    Width: =Parent.Width - 60
+                                    X: =30
+                                    Y: =DataCardKey12.Y + DataCardKey12.Height + 5
+                              - ErrorMessage12:
+                                  Control: Label@2.5.1
+                                  MetadataKey: ErrorMessage
+                                  Properties:
+                                    AutoHeight: =true
+                                    BorderColor: =RGBA(0, 0, 0, 1)
+                                    Color: =RGBA(168, 0, 0, 1)
+                                    Font: =Font.'Open Sans'
+                                    FontWeight: =FontWeight.Semibold
+                                    Height: =10
+                                    Live: =Live.Assertive
+                                    PaddingBottom: =0
+                                    PaddingLeft: =0
+                                    PaddingRight: =0
+                                    PaddingTop: =0
+                                    Size: =14
+                                    Text: =Parent.Error
+                                    Visible: =Parent.DisplayMode=DisplayMode.Edit
+                                    Width: =Parent.Width - 60
+                                    X: =30
+                                    Y: =DataCardValue12.Y + DataCardValue12.Height
+                              - StarVisible12:
+                                  Control: Label@2.5.1
+                                  MetadataKey: FieldRequired
+                                  Properties:
+                                    Align: =Align.Center
+                                    BorderColor: =RGBA(0, 0, 0, 1)
+                                    Color: =RGBA(0, 18, 107, 1)
+                                    Font: =Font.'Open Sans'
+                                    Height: =DataCardKey12.Height
+                                    Text: ="*"
+                                    Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                                    Width: =30
+                                    Wrap: =false
+                                    Y: =DataCardKey12.Y
+                        - Area_DataCard2:
+                            Control: TypedDataCard@1.0.7
+                            Variant: ClassicTextualEdit
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              DataField: ="Area"
+                              Default: =ThisItem.Area
+                              DisplayName: =DataSourceInfo([@'LCP-001_List_Soluciones'],DataSourceInfo.DisplayName,Area)
+                              MaxLength: =DataSourceInfo([@'LCP-001_List_Soluciones'], DataSourceInfo.MaxLength, Area)
+                              Required: =false
+                              Update: =SpvSlc_LblAreaSelNuevaSolucion.Value
+                              Width: =368
+                              X: =0
+                              Y: =0
+                            Children:
+                              - DataCardKey13:
+                                  Control: Label@2.5.1
+                                  MetadataKey: FieldName
+                                  Properties:
+                                    AutoHeight: =true
+                                    BorderColor: =RGBA(0, 0, 0, 1)
+                                    Color: =RGBA(0, 18, 107, 1)
+                                    Font: =Font.'Open Sans'
+                                    Height: =34
+                                    Text: =Parent.DisplayName
+                                    Width: =Parent.Width - 60
+                                    Wrap: =false
+                                    X: =30
+                                    Y: =10
+                              - DataCardValue13:
+                                  Control: Classic/TextInput@2.3.2
+                                  MetadataKey: FieldValue
+                                  Properties:
+                                    BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
+                                    Default: =varUpdateAreaSelected.Area
+                                    DelayOutput: =true
+                                    DisplayMode: =Parent.DisplayMode
+                                    Font: =Font.'Open Sans'
+                                    HoverBorderColor: =RGBA(0, 18, 107, 1)
+                                    HoverFill: =RGBA(186, 202, 226, 1)
+                                    MaxLength: =Parent.MaxLength
+                                    PaddingLeft: =5
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Tooltip: =Parent.DisplayName
+                                    Width: =Parent.Width - 60
+                                    X: =30
+                                    Y: =DataCardKey13.Y + DataCardKey13.Height + 5
+                              - ErrorMessage13:
+                                  Control: Label@2.5.1
+                                  MetadataKey: ErrorMessage
+                                  Properties:
+                                    AutoHeight: =true
+                                    BorderColor: =RGBA(0, 0, 0, 1)
+                                    Color: =RGBA(168, 0, 0, 1)
+                                    Font: =Font.'Open Sans'
+                                    FontWeight: =FontWeight.Semibold
+                                    Height: =10
+                                    Live: =Live.Assertive
+                                    PaddingBottom: =0
+                                    PaddingLeft: =0
+                                    PaddingRight: =0
+                                    PaddingTop: =0
+                                    Size: =14
+                                    Text: =Parent.Error
+                                    Visible: =Parent.DisplayMode=DisplayMode.Edit
+                                    Width: =Parent.Width - 60
+                                    X: =30
+                                    Y: =DataCardValue13.Y + DataCardValue13.Height
+                              - StarVisible13:
+                                  Control: Label@2.5.1
+                                  MetadataKey: FieldRequired
+                                  Properties:
+                                    Align: =Align.Center
+                                    BorderColor: =RGBA(0, 0, 0, 1)
+                                    Color: =RGBA(0, 18, 107, 1)
+                                    Font: =Font.'Open Sans'
+                                    Height: =DataCardKey13.Height
+                                    Text: ="*"
+                                    Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                                    Width: =30
+                                    Wrap: =false
+                                    Y: =DataCardKey13.Y
+                        - Subarea_DataCard2:
+                            Control: TypedDataCard@1.0.7
+                            Variant: ClassicTextualEdit
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              DataField: ="Subarea"
+                              Default: =ThisItem.Subarea
+                              DisplayName: =DataSourceInfo([@'LCP-001_List_Soluciones'],DataSourceInfo.DisplayName,Subarea)
+                              MaxLength: =DataSourceInfo([@'LCP-001_List_Soluciones'], DataSourceInfo.MaxLength, Subarea)
+                              Required: =false
+                              Update: =SpvSlc_LblSubareaSelNuevaSolucion.Value
+                              Width: =368
+                              X: =0
+                              Y: =0
+                            Children:
+                              - DataCardKey14:
+                                  Control: Label@2.5.1
+                                  MetadataKey: FieldName
+                                  Properties:
+                                    AutoHeight: =true
+                                    BorderColor: =RGBA(0, 0, 0, 1)
+                                    Color: =RGBA(0, 18, 107, 1)
+                                    Font: =Font.'Open Sans'
+                                    Height: =34
+                                    Text: =Parent.DisplayName
+                                    Width: =Parent.Width - 60
+                                    Wrap: =false
+                                    X: =30
+                                    Y: =10
+                              - DataCardValue14:
+                                  Control: Classic/TextInput@2.3.2
+                                  MetadataKey: FieldValue
+                                  Properties:
+                                    BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
+                                    Default: =varUpdateSubAreaSelected.SubArea
+                                    DelayOutput: =true
+                                    DisplayMode: =Parent.DisplayMode
+                                    Font: =Font.'Open Sans'
+                                    HoverBorderColor: =RGBA(0, 18, 107, 1)
+                                    HoverFill: =RGBA(186, 202, 226, 1)
+                                    MaxLength: =Parent.MaxLength
+                                    PaddingLeft: =5
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Tooltip: =Parent.DisplayName
+                                    Width: =Parent.Width - 60
+                                    X: =30
+                                    Y: =DataCardKey14.Y + DataCardKey14.Height + 5
+                              - ErrorMessage14:
+                                  Control: Label@2.5.1
+                                  MetadataKey: ErrorMessage
+                                  Properties:
+                                    AutoHeight: =true
+                                    BorderColor: =RGBA(0, 0, 0, 1)
+                                    Color: =RGBA(168, 0, 0, 1)
+                                    Font: =Font.'Open Sans'
+                                    FontWeight: =FontWeight.Semibold
+                                    Height: =10
+                                    Live: =Live.Assertive
+                                    PaddingBottom: =0
+                                    PaddingLeft: =0
+                                    PaddingRight: =0
+                                    PaddingTop: =0
+                                    Size: =14
+                                    Text: =Parent.Error
+                                    Visible: =Parent.DisplayMode=DisplayMode.Edit
+                                    Width: =Parent.Width - 60
+                                    X: =30
+                                    Y: =DataCardValue14.Y + DataCardValue14.Height
+                              - StarVisible14:
+                                  Control: Label@2.5.1
+                                  MetadataKey: FieldRequired
+                                  Properties:
+                                    Align: =Align.Center
+                                    BorderColor: =RGBA(0, 0, 0, 1)
+                                    Color: =RGBA(0, 18, 107, 1)
+                                    Font: =Font.'Open Sans'
+                                    Height: =DataCardKey14.Height
+                                    Text: ="*"
+                                    Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                                    Width: =30
+                                    Wrap: =false
+                                    Y: =DataCardKey14.Y
+                        - Descripcion_DataCard2:
+                            Control: TypedDataCard@1.0.7
+                            Variant: ClassicTextualEdit
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              DataField: ="Descripcion"
+                              Default: =ThisItem.Descripcion
+                              DisplayName: =DataSourceInfo([@'LCP-001_List_Soluciones'],DataSourceInfo.DisplayName,Descripcion)
+                              MaxLength: =DataSourceInfo([@'LCP-001_List_Soluciones'], DataSourceInfo.MaxLength, Descripcion)
+                              Required: =false
+                              Update: =SpvSlc_TxtDescripcionNuevaSolucion.Text
+                              Width: =368
+                              X: =0
+                              Y: =0
+                            Children:
+                              - DataCardKey15:
+                                  Control: Label@2.5.1
+                                  MetadataKey: FieldName
+                                  Properties:
+                                    AutoHeight: =true
+                                    BorderColor: =RGBA(0, 0, 0, 1)
+                                    Color: =RGBA(0, 18, 107, 1)
+                                    Font: =Font.'Open Sans'
+                                    Height: =34
+                                    Text: =Parent.DisplayName
+                                    Width: =Parent.Width - 60
+                                    Wrap: =false
+                                    X: =30
+                                    Y: =10
+                              - DataCardValue15:
+                                  Control: Classic/TextInput@2.3.2
+                                  MetadataKey: FieldValue
+                                  Properties:
+                                    BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
+                                    Default: =SpvSlc_TxtDescripcionNuevaSolucion.Text
+                                    DelayOutput: =true
+                                    DisplayMode: =Parent.DisplayMode
+                                    Font: =Font.'Open Sans'
+                                    HoverBorderColor: =RGBA(0, 18, 107, 1)
+                                    HoverFill: =RGBA(186, 202, 226, 1)
+                                    MaxLength: =Parent.MaxLength
+                                    PaddingLeft: =5
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Tooltip: =Parent.DisplayName
+                                    Width: =Parent.Width - 60
+                                    X: =30
+                                    Y: =DataCardKey15.Y + DataCardKey15.Height + 5
+                              - ErrorMessage15:
+                                  Control: Label@2.5.1
+                                  MetadataKey: ErrorMessage
+                                  Properties:
+                                    AutoHeight: =true
+                                    BorderColor: =RGBA(0, 0, 0, 1)
+                                    Color: =RGBA(168, 0, 0, 1)
+                                    Font: =Font.'Open Sans'
+                                    FontWeight: =FontWeight.Semibold
+                                    Height: =10
+                                    Live: =Live.Assertive
+                                    PaddingBottom: =0
+                                    PaddingLeft: =0
+                                    PaddingRight: =0
+                                    PaddingTop: =0
+                                    Size: =14
+                                    Text: =Parent.Error
+                                    Visible: =Parent.DisplayMode=DisplayMode.Edit
+                                    Width: =Parent.Width - 60
+                                    X: =30
+                                    Y: =DataCardValue15.Y + DataCardValue15.Height
+                              - StarVisible15:
+                                  Control: Label@2.5.1
+                                  MetadataKey: FieldRequired
+                                  Properties:
+                                    Align: =Align.Center
+                                    BorderColor: =RGBA(0, 0, 0, 1)
+                                    Color: =RGBA(0, 18, 107, 1)
+                                    Font: =Font.'Open Sans'
+                                    Height: =DataCardKey15.Height
+                                    Text: ="*"
+                                    Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                                    Width: =30
+                                    Wrap: =false
+                                    Y: =DataCardKey15.Y
+                        - Estado_DataCard2:
+                            Control: TypedDataCard@1.0.7
+                            Variant: ClassicTextualEdit
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              DataField: ="Estado"
+                              Default: =ThisItem.Estado
+                              DisplayName: =DataSourceInfo([@'LCP-001_List_Soluciones'],DataSourceInfo.DisplayName,Estado)
+                              MaxLength: =DataSourceInfo([@'LCP-001_List_Soluciones'], DataSourceInfo.MaxLength, Estado)
+                              Required: =false
+                              Update: =First(colEstadoSolucionSeleccionadas).Value
+                              Width: =368
+                              X: =0
+                              Y: =0
+                            Children:
+                              - DataCardKey16:
+                                  Control: Label@2.5.1
+                                  MetadataKey: FieldName
+                                  Properties:
+                                    AutoHeight: =true
+                                    BorderColor: =RGBA(0, 0, 0, 1)
+                                    Color: =RGBA(0, 18, 107, 1)
+                                    Font: =Font.'Open Sans'
+                                    Height: =34
+                                    Text: =Parent.DisplayName
+                                    Width: =Parent.Width - 60
+                                    Wrap: =false
+                                    X: =30
+                                    Y: =10
+                              - DataCardValue16:
+                                  Control: Classic/TextInput@2.3.2
+                                  MetadataKey: FieldValue
+                                  Properties:
+                                    BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
+                                    Default: =First(colEstadoSolucionSeleccionadas).Value
+                                    DelayOutput: =true
+                                    DisplayMode: =Parent.DisplayMode
+                                    Font: =Font.'Open Sans'
+                                    HoverBorderColor: =RGBA(0, 18, 107, 1)
+                                    HoverFill: =RGBA(186, 202, 226, 1)
+                                    MaxLength: =Parent.MaxLength
+                                    PaddingLeft: =5
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Tooltip: =Parent.DisplayName
+                                    Width: =Parent.Width - 60
+                                    X: =30
+                                    Y: =DataCardKey16.Y + DataCardKey16.Height + 5
+                              - ErrorMessage16:
+                                  Control: Label@2.5.1
+                                  MetadataKey: ErrorMessage
+                                  Properties:
+                                    AutoHeight: =true
+                                    BorderColor: =RGBA(0, 0, 0, 1)
+                                    Color: =RGBA(168, 0, 0, 1)
+                                    Font: =Font.'Open Sans'
+                                    FontWeight: =FontWeight.Semibold
+                                    Height: =10
+                                    Live: =Live.Assertive
+                                    PaddingBottom: =0
+                                    PaddingLeft: =0
+                                    PaddingRight: =0
+                                    PaddingTop: =0
+                                    Size: =14
+                                    Text: =Parent.Error
+                                    Visible: =Parent.DisplayMode=DisplayMode.Edit
+                                    Width: =Parent.Width - 60
+                                    X: =30
+                                    Y: =DataCardValue16.Y + DataCardValue16.Height
+                              - StarVisible16:
+                                  Control: Label@2.5.1
+                                  MetadataKey: FieldRequired
+                                  Properties:
+                                    Align: =Align.Center
+                                    BorderColor: =RGBA(0, 0, 0, 1)
+                                    Color: =RGBA(0, 18, 107, 1)
+                                    Font: =Font.'Open Sans'
+                                    Height: =DataCardKey16.Height
+                                    Text: ="*"
+                                    Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                                    Width: =30
+                                    Wrap: =false
+                                    Y: =DataCardKey16.Y
+                        - NombreArchivo_DataCard2:
+                            Control: TypedDataCard@1.0.7
+                            Variant: ClassicTextualEdit
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              DataField: ="NombreArchivo"
+                              Default: =ThisItem.NombreArchivo
+                              DisplayName: =DataSourceInfo([@'LCP-001_List_Soluciones'],DataSourceInfo.DisplayName,NombreArchivo)
+                              MaxLength: =DataSourceInfo([@'LCP-001_List_Soluciones'], DataSourceInfo.MaxLength, NombreArchivo)
+                              Required: =false
+                              Update: =SpvSlc_TxtNombreDocNuevaSolucion.Text
+                              Width: =368
+                              X: =0
+                              Y: =0
+                            Children:
+                              - DataCardKey17:
+                                  Control: Label@2.5.1
+                                  MetadataKey: FieldName
+                                  Properties:
+                                    AutoHeight: =true
+                                    BorderColor: =RGBA(0, 0, 0, 1)
+                                    Color: =RGBA(0, 18, 107, 1)
+                                    Font: =Font.'Open Sans'
+                                    Height: =34
+                                    Text: =Parent.DisplayName
+                                    Width: =Parent.Width - 60
+                                    Wrap: =false
+                                    X: =30
+                                    Y: =10
+                              - DataCardValue17:
+                                  Control: Classic/TextInput@2.3.2
+                                  MetadataKey: FieldValue
+                                  Properties:
+                                    BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
+                                    Default: =SpvSlc_TxtNombreDocNuevaSolucion.Text
+                                    DelayOutput: =true
+                                    DisplayMode: =Parent.DisplayMode
+                                    Font: =Font.'Open Sans'
+                                    HoverBorderColor: =RGBA(0, 18, 107, 1)
+                                    HoverFill: =RGBA(186, 202, 226, 1)
+                                    MaxLength: =Parent.MaxLength
+                                    PaddingLeft: =5
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Tooltip: =Parent.DisplayName
+                                    Width: =Parent.Width - 60
+                                    X: =30
+                                    Y: =DataCardKey17.Y + DataCardKey17.Height + 5
+                              - ErrorMessage17:
+                                  Control: Label@2.5.1
+                                  MetadataKey: ErrorMessage
+                                  Properties:
+                                    AutoHeight: =true
+                                    BorderColor: =RGBA(0, 0, 0, 1)
+                                    Color: =RGBA(168, 0, 0, 1)
+                                    Font: =Font.'Open Sans'
+                                    FontWeight: =FontWeight.Semibold
+                                    Height: =10
+                                    Live: =Live.Assertive
+                                    PaddingBottom: =0
+                                    PaddingLeft: =0
+                                    PaddingRight: =0
+                                    PaddingTop: =0
+                                    Size: =14
+                                    Text: =Parent.Error
+                                    Visible: =Parent.DisplayMode=DisplayMode.Edit
+                                    Width: =Parent.Width - 60
+                                    X: =30
+                                    Y: =DataCardValue17.Y + DataCardValue17.Height
+                              - StarVisible17:
+                                  Control: Label@2.5.1
+                                  MetadataKey: FieldRequired
+                                  Properties:
+                                    Align: =Align.Center
+                                    BorderColor: =RGBA(0, 0, 0, 1)
+                                    Color: =RGBA(0, 18, 107, 1)
+                                    Font: =Font.'Open Sans'
+                                    Height: =DataCardKey17.Height
+                                    Text: ="*"
+                                    Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                                    Width: =30
+                                    Wrap: =false
+                                    Y: =DataCardKey17.Y
                         - Datos adjuntos_DataCard3:
                             Control: TypedDataCard@1.0.7
                             Variant: ClassicAttachmentsEdit
@@ -2864,517 +3375,6 @@ Screens:
                                     Width: =30
                                     Wrap: =false
                                     Y: =DataCardKey18.Y
-                        - NombreArchivo_DataCard2:
-                            Control: TypedDataCard@1.0.7
-                            Variant: ClassicTextualEdit
-                            Properties:
-                              BorderColor: =RGBA(0, 18, 107, 1)
-                              DataField: ="NombreArchivo"
-                              Default: =ThisItem.NombreArchivo
-                              DisplayName: =DataSourceInfo([@'LCP-001_List_Soluciones'],DataSourceInfo.DisplayName,NombreArchivo)
-                              MaxLength: =DataSourceInfo([@'LCP-001_List_Soluciones'], DataSourceInfo.MaxLength, NombreArchivo)
-                              Required: =false
-                              Update: =SpvSlc_TxtNombreDocNuevaSolucion.Text
-                              Width: =368
-                              X: =0
-                              Y: =0
-                            Children:
-                              - DataCardKey17:
-                                  Control: Label@2.5.1
-                                  MetadataKey: FieldName
-                                  Properties:
-                                    AutoHeight: =true
-                                    BorderColor: =RGBA(0, 0, 0, 1)
-                                    Color: =RGBA(0, 18, 107, 1)
-                                    Font: =Font.'Open Sans'
-                                    Height: =34
-                                    Text: =Parent.DisplayName
-                                    Width: =Parent.Width - 60
-                                    Wrap: =false
-                                    X: =30
-                                    Y: =10
-                              - DataCardValue17:
-                                  Control: Classic/TextInput@2.3.2
-                                  MetadataKey: FieldValue
-                                  Properties:
-                                    BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
-                                    Default: =SpvSlc_TxtNombreDocNuevaSolucion.Text
-                                    DelayOutput: =true
-                                    DisplayMode: =Parent.DisplayMode
-                                    Font: =Font.'Open Sans'
-                                    HoverBorderColor: =RGBA(0, 18, 107, 1)
-                                    HoverFill: =RGBA(186, 202, 226, 1)
-                                    MaxLength: =Parent.MaxLength
-                                    PaddingLeft: =5
-                                    RadiusBottomLeft: =0
-                                    RadiusBottomRight: =0
-                                    RadiusTopLeft: =0
-                                    RadiusTopRight: =0
-                                    Tooltip: =Parent.DisplayName
-                                    Width: =Parent.Width - 60
-                                    X: =30
-                                    Y: =DataCardKey17.Y + DataCardKey17.Height + 5
-                              - ErrorMessage17:
-                                  Control: Label@2.5.1
-                                  MetadataKey: ErrorMessage
-                                  Properties:
-                                    AutoHeight: =true
-                                    BorderColor: =RGBA(0, 0, 0, 1)
-                                    Color: =RGBA(168, 0, 0, 1)
-                                    Font: =Font.'Open Sans'
-                                    FontWeight: =FontWeight.Semibold
-                                    Height: =10
-                                    Live: =Live.Assertive
-                                    PaddingBottom: =0
-                                    PaddingLeft: =0
-                                    PaddingRight: =0
-                                    PaddingTop: =0
-                                    Size: =14
-                                    Text: =Parent.Error
-                                    Visible: =Parent.DisplayMode=DisplayMode.Edit
-                                    Width: =Parent.Width - 60
-                                    X: =30
-                                    Y: =DataCardValue17.Y + DataCardValue17.Height
-                              - StarVisible17:
-                                  Control: Label@2.5.1
-                                  MetadataKey: FieldRequired
-                                  Properties:
-                                    Align: =Align.Center
-                                    BorderColor: =RGBA(0, 0, 0, 1)
-                                    Color: =RGBA(0, 18, 107, 1)
-                                    Font: =Font.'Open Sans'
-                                    Height: =DataCardKey17.Height
-                                    Text: ="*"
-                                    Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
-                                    Width: =30
-                                    Wrap: =false
-                                    Y: =DataCardKey17.Y
-                        - Estado_DataCard2:
-                            Control: TypedDataCard@1.0.7
-                            Variant: ClassicTextualEdit
-                            Properties:
-                              BorderColor: =RGBA(0, 18, 107, 1)
-                              DataField: ="Estado"
-                              Default: =ThisItem.Estado
-                              DisplayName: =DataSourceInfo([@'LCP-001_List_Soluciones'],DataSourceInfo.DisplayName,Estado)
-                              MaxLength: =DataSourceInfo([@'LCP-001_List_Soluciones'], DataSourceInfo.MaxLength, Estado)
-                              Required: =false
-                              Update: =First(colEstadoSolucionSeleccionadas).Value
-                              Width: =368
-                              X: =0
-                              Y: =0
-                            Children:
-                              - DataCardKey16:
-                                  Control: Label@2.5.1
-                                  MetadataKey: FieldName
-                                  Properties:
-                                    AutoHeight: =true
-                                    BorderColor: =RGBA(0, 0, 0, 1)
-                                    Color: =RGBA(0, 18, 107, 1)
-                                    Font: =Font.'Open Sans'
-                                    Height: =34
-                                    Text: =Parent.DisplayName
-                                    Width: =Parent.Width - 60
-                                    Wrap: =false
-                                    X: =30
-                                    Y: =10
-                              - DataCardValue16:
-                                  Control: Classic/TextInput@2.3.2
-                                  MetadataKey: FieldValue
-                                  Properties:
-                                    BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
-                                    Default: =First(colEstadoSolucionSeleccionadas).Value
-                                    DelayOutput: =true
-                                    DisplayMode: =Parent.DisplayMode
-                                    Font: =Font.'Open Sans'
-                                    HoverBorderColor: =RGBA(0, 18, 107, 1)
-                                    HoverFill: =RGBA(186, 202, 226, 1)
-                                    MaxLength: =Parent.MaxLength
-                                    PaddingLeft: =5
-                                    RadiusBottomLeft: =0
-                                    RadiusBottomRight: =0
-                                    RadiusTopLeft: =0
-                                    RadiusTopRight: =0
-                                    Tooltip: =Parent.DisplayName
-                                    Width: =Parent.Width - 60
-                                    X: =30
-                                    Y: =DataCardKey16.Y + DataCardKey16.Height + 5
-                              - ErrorMessage16:
-                                  Control: Label@2.5.1
-                                  MetadataKey: ErrorMessage
-                                  Properties:
-                                    AutoHeight: =true
-                                    BorderColor: =RGBA(0, 0, 0, 1)
-                                    Color: =RGBA(168, 0, 0, 1)
-                                    Font: =Font.'Open Sans'
-                                    FontWeight: =FontWeight.Semibold
-                                    Height: =10
-                                    Live: =Live.Assertive
-                                    PaddingBottom: =0
-                                    PaddingLeft: =0
-                                    PaddingRight: =0
-                                    PaddingTop: =0
-                                    Size: =14
-                                    Text: =Parent.Error
-                                    Visible: =Parent.DisplayMode=DisplayMode.Edit
-                                    Width: =Parent.Width - 60
-                                    X: =30
-                                    Y: =DataCardValue16.Y + DataCardValue16.Height
-                              - StarVisible16:
-                                  Control: Label@2.5.1
-                                  MetadataKey: FieldRequired
-                                  Properties:
-                                    Align: =Align.Center
-                                    BorderColor: =RGBA(0, 0, 0, 1)
-                                    Color: =RGBA(0, 18, 107, 1)
-                                    Font: =Font.'Open Sans'
-                                    Height: =DataCardKey16.Height
-                                    Text: ="*"
-                                    Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
-                                    Width: =30
-                                    Wrap: =false
-                                    Y: =DataCardKey16.Y
-                        - Descripcion_DataCard2:
-                            Control: TypedDataCard@1.0.7
-                            Variant: ClassicTextualEdit
-                            Properties:
-                              BorderColor: =RGBA(0, 18, 107, 1)
-                              DataField: ="Descripcion"
-                              Default: =ThisItem.Descripcion
-                              DisplayName: =DataSourceInfo([@'LCP-001_List_Soluciones'],DataSourceInfo.DisplayName,Descripcion)
-                              MaxLength: =DataSourceInfo([@'LCP-001_List_Soluciones'], DataSourceInfo.MaxLength, Descripcion)
-                              Required: =false
-                              Update: =SpvSlc_TxtDescripcionNuevaSolucion.Text
-                              Width: =368
-                              X: =0
-                              Y: =0
-                            Children:
-                              - DataCardKey15:
-                                  Control: Label@2.5.1
-                                  MetadataKey: FieldName
-                                  Properties:
-                                    AutoHeight: =true
-                                    BorderColor: =RGBA(0, 0, 0, 1)
-                                    Color: =RGBA(0, 18, 107, 1)
-                                    Font: =Font.'Open Sans'
-                                    Height: =34
-                                    Text: =Parent.DisplayName
-                                    Width: =Parent.Width - 60
-                                    Wrap: =false
-                                    X: =30
-                                    Y: =10
-                              - DataCardValue15:
-                                  Control: Classic/TextInput@2.3.2
-                                  MetadataKey: FieldValue
-                                  Properties:
-                                    BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
-                                    Default: =SpvSlc_TxtDescripcionNuevaSolucion.Text
-                                    DelayOutput: =true
-                                    DisplayMode: =Parent.DisplayMode
-                                    Font: =Font.'Open Sans'
-                                    HoverBorderColor: =RGBA(0, 18, 107, 1)
-                                    HoverFill: =RGBA(186, 202, 226, 1)
-                                    MaxLength: =Parent.MaxLength
-                                    PaddingLeft: =5
-                                    RadiusBottomLeft: =0
-                                    RadiusBottomRight: =0
-                                    RadiusTopLeft: =0
-                                    RadiusTopRight: =0
-                                    Tooltip: =Parent.DisplayName
-                                    Width: =Parent.Width - 60
-                                    X: =30
-                                    Y: =DataCardKey15.Y + DataCardKey15.Height + 5
-                              - ErrorMessage15:
-                                  Control: Label@2.5.1
-                                  MetadataKey: ErrorMessage
-                                  Properties:
-                                    AutoHeight: =true
-                                    BorderColor: =RGBA(0, 0, 0, 1)
-                                    Color: =RGBA(168, 0, 0, 1)
-                                    Font: =Font.'Open Sans'
-                                    FontWeight: =FontWeight.Semibold
-                                    Height: =10
-                                    Live: =Live.Assertive
-                                    PaddingBottom: =0
-                                    PaddingLeft: =0
-                                    PaddingRight: =0
-                                    PaddingTop: =0
-                                    Size: =14
-                                    Text: =Parent.Error
-                                    Visible: =Parent.DisplayMode=DisplayMode.Edit
-                                    Width: =Parent.Width - 60
-                                    X: =30
-                                    Y: =DataCardValue15.Y + DataCardValue15.Height
-                              - StarVisible15:
-                                  Control: Label@2.5.1
-                                  MetadataKey: FieldRequired
-                                  Properties:
-                                    Align: =Align.Center
-                                    BorderColor: =RGBA(0, 0, 0, 1)
-                                    Color: =RGBA(0, 18, 107, 1)
-                                    Font: =Font.'Open Sans'
-                                    Height: =DataCardKey15.Height
-                                    Text: ="*"
-                                    Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
-                                    Width: =30
-                                    Wrap: =false
-                                    Y: =DataCardKey15.Y
-                        - Subarea_DataCard2:
-                            Control: TypedDataCard@1.0.7
-                            Variant: ClassicTextualEdit
-                            Properties:
-                              BorderColor: =RGBA(0, 18, 107, 1)
-                              DataField: ="Subarea"
-                              Default: =ThisItem.Subarea
-                              DisplayName: =DataSourceInfo([@'LCP-001_List_Soluciones'],DataSourceInfo.DisplayName,Subarea)
-                              MaxLength: =DataSourceInfo([@'LCP-001_List_Soluciones'], DataSourceInfo.MaxLength, Subarea)
-                              Required: =false
-                              Update: =SpvSlc_LblSubareaSelNuevaSolucion.Value
-                              Width: =368
-                              X: =0
-                              Y: =0
-                            Children:
-                              - DataCardKey14:
-                                  Control: Label@2.5.1
-                                  MetadataKey: FieldName
-                                  Properties:
-                                    AutoHeight: =true
-                                    BorderColor: =RGBA(0, 0, 0, 1)
-                                    Color: =RGBA(0, 18, 107, 1)
-                                    Font: =Font.'Open Sans'
-                                    Height: =34
-                                    Text: =Parent.DisplayName
-                                    Width: =Parent.Width - 60
-                                    Wrap: =false
-                                    X: =30
-                                    Y: =10
-                              - DataCardValue14:
-                                  Control: Classic/TextInput@2.3.2
-                                  MetadataKey: FieldValue
-                                  Properties:
-                                    BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
-                                    Default: =varUpdateSubAreaSelected.SubArea
-                                    DelayOutput: =true
-                                    DisplayMode: =Parent.DisplayMode
-                                    Font: =Font.'Open Sans'
-                                    HoverBorderColor: =RGBA(0, 18, 107, 1)
-                                    HoverFill: =RGBA(186, 202, 226, 1)
-                                    MaxLength: =Parent.MaxLength
-                                    PaddingLeft: =5
-                                    RadiusBottomLeft: =0
-                                    RadiusBottomRight: =0
-                                    RadiusTopLeft: =0
-                                    RadiusTopRight: =0
-                                    Tooltip: =Parent.DisplayName
-                                    Width: =Parent.Width - 60
-                                    X: =30
-                                    Y: =DataCardKey14.Y + DataCardKey14.Height + 5
-                              - ErrorMessage14:
-                                  Control: Label@2.5.1
-                                  MetadataKey: ErrorMessage
-                                  Properties:
-                                    AutoHeight: =true
-                                    BorderColor: =RGBA(0, 0, 0, 1)
-                                    Color: =RGBA(168, 0, 0, 1)
-                                    Font: =Font.'Open Sans'
-                                    FontWeight: =FontWeight.Semibold
-                                    Height: =10
-                                    Live: =Live.Assertive
-                                    PaddingBottom: =0
-                                    PaddingLeft: =0
-                                    PaddingRight: =0
-                                    PaddingTop: =0
-                                    Size: =14
-                                    Text: =Parent.Error
-                                    Visible: =Parent.DisplayMode=DisplayMode.Edit
-                                    Width: =Parent.Width - 60
-                                    X: =30
-                                    Y: =DataCardValue14.Y + DataCardValue14.Height
-                              - StarVisible14:
-                                  Control: Label@2.5.1
-                                  MetadataKey: FieldRequired
-                                  Properties:
-                                    Align: =Align.Center
-                                    BorderColor: =RGBA(0, 0, 0, 1)
-                                    Color: =RGBA(0, 18, 107, 1)
-                                    Font: =Font.'Open Sans'
-                                    Height: =DataCardKey14.Height
-                                    Text: ="*"
-                                    Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
-                                    Width: =30
-                                    Wrap: =false
-                                    Y: =DataCardKey14.Y
-                        - Area_DataCard2:
-                            Control: TypedDataCard@1.0.7
-                            Variant: ClassicTextualEdit
-                            Properties:
-                              BorderColor: =RGBA(0, 18, 107, 1)
-                              DataField: ="Area"
-                              Default: =ThisItem.Area
-                              DisplayName: =DataSourceInfo([@'LCP-001_List_Soluciones'],DataSourceInfo.DisplayName,Area)
-                              MaxLength: =DataSourceInfo([@'LCP-001_List_Soluciones'], DataSourceInfo.MaxLength, Area)
-                              Required: =false
-                              Update: =SpvSlc_LblAreaSelNuevaSolucion.Value
-                              Width: =368
-                              X: =0
-                              Y: =0
-                            Children:
-                              - DataCardKey13:
-                                  Control: Label@2.5.1
-                                  MetadataKey: FieldName
-                                  Properties:
-                                    AutoHeight: =true
-                                    BorderColor: =RGBA(0, 0, 0, 1)
-                                    Color: =RGBA(0, 18, 107, 1)
-                                    Font: =Font.'Open Sans'
-                                    Height: =34
-                                    Text: =Parent.DisplayName
-                                    Width: =Parent.Width - 60
-                                    Wrap: =false
-                                    X: =30
-                                    Y: =10
-                              - DataCardValue13:
-                                  Control: Classic/TextInput@2.3.2
-                                  MetadataKey: FieldValue
-                                  Properties:
-                                    BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
-                                    Default: =varUpdateAreaSelected.Area
-                                    DelayOutput: =true
-                                    DisplayMode: =Parent.DisplayMode
-                                    Font: =Font.'Open Sans'
-                                    HoverBorderColor: =RGBA(0, 18, 107, 1)
-                                    HoverFill: =RGBA(186, 202, 226, 1)
-                                    MaxLength: =Parent.MaxLength
-                                    PaddingLeft: =5
-                                    RadiusBottomLeft: =0
-                                    RadiusBottomRight: =0
-                                    RadiusTopLeft: =0
-                                    RadiusTopRight: =0
-                                    Tooltip: =Parent.DisplayName
-                                    Width: =Parent.Width - 60
-                                    X: =30
-                                    Y: =DataCardKey13.Y + DataCardKey13.Height + 5
-                              - ErrorMessage13:
-                                  Control: Label@2.5.1
-                                  MetadataKey: ErrorMessage
-                                  Properties:
-                                    AutoHeight: =true
-                                    BorderColor: =RGBA(0, 0, 0, 1)
-                                    Color: =RGBA(168, 0, 0, 1)
-                                    Font: =Font.'Open Sans'
-                                    FontWeight: =FontWeight.Semibold
-                                    Height: =10
-                                    Live: =Live.Assertive
-                                    PaddingBottom: =0
-                                    PaddingLeft: =0
-                                    PaddingRight: =0
-                                    PaddingTop: =0
-                                    Size: =14
-                                    Text: =Parent.Error
-                                    Visible: =Parent.DisplayMode=DisplayMode.Edit
-                                    Width: =Parent.Width - 60
-                                    X: =30
-                                    Y: =DataCardValue13.Y + DataCardValue13.Height
-                              - StarVisible13:
-                                  Control: Label@2.5.1
-                                  MetadataKey: FieldRequired
-                                  Properties:
-                                    Align: =Align.Center
-                                    BorderColor: =RGBA(0, 0, 0, 1)
-                                    Color: =RGBA(0, 18, 107, 1)
-                                    Font: =Font.'Open Sans'
-                                    Height: =DataCardKey13.Height
-                                    Text: ="*"
-                                    Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
-                                    Width: =30
-                                    Wrap: =false
-                                    Y: =DataCardKey13.Y
-                        - Gerencia_DataCard2:
-                            Control: TypedDataCard@1.0.7
-                            Variant: ClassicTextualEdit
-                            Properties:
-                              BorderColor: =RGBA(0, 18, 107, 1)
-                              DataField: ="Gerencia"
-                              Default: =ThisItem.Gerencia
-                              DisplayName: =DataSourceInfo([@'LCP-001_List_Soluciones'],DataSourceInfo.DisplayName,Gerencia)
-                              MaxLength: =DataSourceInfo([@'LCP-001_List_Soluciones'], DataSourceInfo.MaxLength, Gerencia)
-                              Required: =false
-                              Update: =SpvSlc_LblGerenciaSelNuevaSolucion.Value
-                              Width: =368
-                              X: =0
-                              Y: =0
-                            Children:
-                              - DataCardKey12:
-                                  Control: Label@2.5.1
-                                  MetadataKey: FieldName
-                                  Properties:
-                                    AutoHeight: =true
-                                    BorderColor: =RGBA(0, 0, 0, 1)
-                                    Color: =RGBA(0, 18, 107, 1)
-                                    Font: =Font.'Open Sans'
-                                    Height: =34
-                                    Text: =Parent.DisplayName
-                                    Width: =Parent.Width - 60
-                                    Wrap: =false
-                                    X: =30
-                                    Y: =10
-                              - DataCardValue12:
-                                  Control: Classic/TextInput@2.3.2
-                                  MetadataKey: FieldValue
-                                  Properties:
-                                    BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
-                                    Default: =varGerenciaSelected.Nombre
-                                    DelayOutput: =true
-                                    DisplayMode: =Parent.DisplayMode
-                                    Font: =Font.'Open Sans'
-                                    HoverBorderColor: =RGBA(0, 18, 107, 1)
-                                    HoverFill: =RGBA(186, 202, 226, 1)
-                                    MaxLength: =Parent.MaxLength
-                                    OnChange: =varGerenciaSelected.Nombre
-                                    PaddingLeft: =5
-                                    RadiusBottomLeft: =0
-                                    RadiusBottomRight: =0
-                                    RadiusTopLeft: =0
-                                    RadiusTopRight: =0
-                                    Tooltip: =Parent.DisplayName
-                                    Width: =Parent.Width - 60
-                                    X: =30
-                                    Y: =DataCardKey12.Y + DataCardKey12.Height + 5
-                              - ErrorMessage12:
-                                  Control: Label@2.5.1
-                                  MetadataKey: ErrorMessage
-                                  Properties:
-                                    AutoHeight: =true
-                                    BorderColor: =RGBA(0, 0, 0, 1)
-                                    Color: =RGBA(168, 0, 0, 1)
-                                    Font: =Font.'Open Sans'
-                                    FontWeight: =FontWeight.Semibold
-                                    Height: =10
-                                    Live: =Live.Assertive
-                                    PaddingBottom: =0
-                                    PaddingLeft: =0
-                                    PaddingRight: =0
-                                    PaddingTop: =0
-                                    Size: =14
-                                    Text: =Parent.Error
-                                    Visible: =Parent.DisplayMode=DisplayMode.Edit
-                                    Width: =Parent.Width - 60
-                                    X: =30
-                                    Y: =DataCardValue12.Y + DataCardValue12.Height
-                              - StarVisible12:
-                                  Control: Label@2.5.1
-                                  MetadataKey: FieldRequired
-                                  Properties:
-                                    Align: =Align.Center
-                                    BorderColor: =RGBA(0, 0, 0, 1)
-                                    Color: =RGBA(0, 18, 107, 1)
-                                    Font: =Font.'Open Sans'
-                                    Height: =DataCardKey12.Height
-                                    Text: ="*"
-                                    Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
-                                    Width: =30
-                                    Wrap: =false
-                                    Y: =DataCardKey12.Y
             - SpvSlc_CtnSubareaNuevaSol:
                 Control: GroupContainer@1.5.0
                 Variant: ManualLayout
@@ -3619,4 +3619,3 @@ Screens:
             Text: ="+"
             Visible: =false
             Width: =30
-
