@@ -1,5 +1,5 @@
 {
   "type": "Compose",
-  "inputs": "@last(split(triggerBody()['file']['name'], '.'))",
+  "inputs": "@last(split(triggerBody()?['file']?['name'], '.'))",
   "runAfter": {}
 }
