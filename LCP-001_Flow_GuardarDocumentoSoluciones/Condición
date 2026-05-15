@@ -56,7 +56,93 @@
     }
   },
   "else": {
-    "actions": {}
+    "actions": {
+      "Actualizar_elemento": {
+        "type": "OpenApiConnection",
+        "inputs": {
+          "parameters": {
+            "dataset": "@parameters('LCP-001_Site_Ticketing (tk_LCP001_Site_Ticketing)')",
+            "table": "@parameters('LCP-001_List_Soluciones (tk_LCP001_List_Soluciones)')",
+            "id": "@triggerBody()?['text_8']",
+            "item/Gerencia": "@triggerBody()?['text_2']",
+            "item/Area": "@triggerBody()?['text_3']",
+            "item/Subarea": "@triggerBody()?['text_4']",
+            "item/Estado": "@triggerBody()?['text_6']",
+            "item/NombreArchivo": "@outputs('Redactar_NombreFinalDoc')",
+            "item/Descripcion": "@triggerBody()?['text_5']",
+            "item/Autor": "@triggerBody()?['text_7']"
+          },
+          "host": {
+            "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+            "connection": "shared_sharepointonline",
+            "operationId": "PatchItem"
+          }
+        }
+      },
+      "Obtener_datos_adjuntos": {
+        "type": "OpenApiConnection",
+        "inputs": {
+          "parameters": {
+            "dataset": "@parameters('LCP-001_Site_Ticketing (tk_LCP001_Site_Ticketing)')",
+            "table": "@parameters('LCP-001_List_Soluciones (tk_LCP001_List_Soluciones)')",
+            "itemId": "@outputs('Actualizar_elemento')?['body/ID']"
+          },
+          "host": {
+            "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+            "connection": "shared_sharepointonline",
+            "operationId": "GetItemAttachments"
+          }
+        },
+        "runAfter": {
+          "Actualizar_elemento": [
+            "Succeeded"
+          ]
+        }
+      },
+      "Eliminar_datos_adjuntos": {
+        "type": "OpenApiConnection",
+        "inputs": {
+          "parameters": {
+            "dataset": "@parameters('LCP-001_Site_Ticketing (tk_LCP001_Site_Ticketing)')",
+            "table": "@parameters('LCP-001_List_Soluciones (tk_LCP001_List_Soluciones)')",
+            "itemId": "@outputs('Actualizar_elemento')?['body/ID']",
+            "attachmentId": "@outputs('Obtener_datos_adjuntos')?['Id']"
+          },
+          "host": {
+            "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+            "connection": "shared_sharepointonline",
+            "operationId": "DeleteAttachment"
+          }
+        },
+        "runAfter": {
+          "Obtener_datos_adjuntos": [
+            "Succeeded"
+          ]
+        }
+      },
+      "Agregar_datos_adjuntos_actualizado": {
+        "type": "OpenApiConnection",
+        "inputs": {
+          "parameters": {
+            "dataset": "@parameters('LCP-001_Site_Ticketing (tk_LCP001_Site_Ticketing)')",
+            "table": "@parameters('LCP-001_List_Soluciones (tk_LCP001_List_Soluciones)')",
+            "itemId": "@outputs('Actualizar_elemento')?['body/ID']",
+            "displayName": "@outputs('Redactar_NombreFinalDoc')",
+            "body": "@triggerBody()?['file']?['contentBytes']"
+          },
+          "host": {
+            "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+            "connection": "shared_sharepointonline",
+            "operationId": "CreateAttachment"
+          }
+        },
+        "runAfter": {
+          "Eliminar_datos_adjuntos": [
+            "Succeeded"
+          ]
+        }
+      }
+    }
   },
   "runAfter": {
     "Redactar_NombreFinalDoc": [
