@@ -43,7 +43,7 @@
           "item/Area": "@triggerBody()?['text_3']",
           "item/Subarea": "@triggerBody()?['text_4']",
           "item/Estado": "@triggerBody()?['text_6']",
-          "item/NombreArchivo": "@triggerBody()?['text_1']",
+          "item/NombreArchivo": "@outputs('Redactar_NombreFinalDoc')",
           "item/Descripcion": "@triggerBody()?['text_5']",
           "item/Autor": "@triggerBody()?['text_7']"
         },
