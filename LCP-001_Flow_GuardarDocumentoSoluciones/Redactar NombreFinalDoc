@@ -1,0 +1,9 @@
+{
+  "type": "Compose",
+  "inputs": "@concat(triggerBody()['text_NuevoNombreArchivo'], '.', outputs('Redactar_ExtensionOriginal'))",
+  "runAfter": {
+    "Redactar_ExtensionOriginal": [
+      "Succeeded"
+    ]
+  }
+}

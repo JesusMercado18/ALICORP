@@ -1,0 +1,74 @@
+{
+  "type": "If",
+  "expression": {
+    "and": [
+      {
+        "equals": [
+          "@triggerBody()['text']",
+          "@string('Nuevo')"
+        ]
+      }
+    ]
+  },
+  "actions": {
+    "Crear_archivo": {
+      "type": "OpenApiConnection",
+      "inputs": {
+        "parameters": {
+          "dataset": "@parameters('LCP-001_Site_Ticketing (tk_LCP001_Site_Ticketing)')",
+          "folderPath": "@parameters('LCP-001_List_Soluciones (tk_LCP001_List_Soluciones)')",
+          "name": "@outputs('Redactar_NombreFinalDoc')",
+          "body": "@triggerBody()?['file']?['contentBytes']"
+        },
+        "host": {
+          "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+          "connection": "shared_sharepointonline",
+          "operationId": "CreateFile"
+        }
+      },
+      "runtimeConfiguration": {
+        "contentTransfer": {
+          "transferMode": "Chunked"
+        }
+      }
+    },
+    "Crear_elemento": {
+      "type": "OpenApiConnection",
+      "inputs": {
+        "parameters": {
+          "dataset": "@parameters('LCP-001_Site_Ticketing (tk_LCP001_Site_Ticketing)')",
+          "table": "@parameters('LCP-001_List_Soluciones (tk_LCP001_List_Soluciones)')",
+          "item/Gerencia": "@triggerBody()?['text_2']",
+          "item/Area": "@triggerBody()?['text_3']",
+          "item/Subarea": "@triggerBody()?['text_4']",
+          "item/Estado": "@triggerBody()?['text_6']",
+          "item/NombreArchivo": "@outputs('Redactar_NombreFinalDoc')",
+          "item/Descripcion": "@triggerBody()?['text_5']",
+          "item/Autor": "@triggerBody()?['text_7']",
+          "item/{ContentType}/Id": "@triggerBody()?['file']?['contentBytes']"
+        },
+        "host": {
+          "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+          "connection": "shared_sharepointonline",
+          "operationId": "PostItem"
+        }
+      },
+      "runAfter": {
+        "Crear_archivo": [
+          "Succeeded"
+        ]
+      }
+    }
+  },
+  "else": {
+    "actions": {}
+  },
+  "runAfter": {
+    "Redactar_NombreFinalDoc": [
+      "Succeeded"
+    ]
+  },
+  "metadata": {
+    "operationMetadataId": "7e0f9f6d-7779-4982-bae2-99af0d3efcba"
+  }
+}

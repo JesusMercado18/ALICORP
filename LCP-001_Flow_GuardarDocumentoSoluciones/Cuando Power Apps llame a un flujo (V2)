@@ -6,83 +6,89 @@
       "type": "object",
       "properties": {
         "text": {
+          "description": "Introduzca su entrada",
           "title": "NuevoEditado",
           "type": "string",
-          "x-ms-dynamically-added": true,
-          "description": "Escribir entrada",
-          "x-ms-content-hint": "TEXT"
+          "x-ms-content-hint": "TEXT",
+          "x-ms-dynamically-added": true
+        },
+        "file": {
+          "description": "Seleccione el archivo o la imagen",
+          "title": "DocumentoAdjunto",
+          "type": "object",
+          "properties": {
+            "contentBytes": {
+              "type": "string",
+              "format": "byte"
+            },
+            "name": {
+              "type": "string"
+            }
+          },
+          "x-ms-content-hint": "FILE",
+          "x-ms-dynamically-added": true
         },
         "text_1": {
-          "title": "Gerencia",
+          "description": "Introduzca su entrada",
+          "title": "NuevoNombreArchivo",
           "type": "string",
-          "x-ms-dynamically-added": true,
-          "description": "Escribir entrada",
-          "x-ms-content-hint": "TEXT"
+          "x-ms-content-hint": "TEXT",
+          "x-ms-dynamically-added": true
         },
         "text_2": {
-          "title": "Area",
+          "description": "Introduzca su entrada",
+          "title": "Gerencia",
           "type": "string",
-          "x-ms-dynamically-added": true,
-          "description": "Escribir entrada",
-          "x-ms-content-hint": "TEXT"
+          "x-ms-content-hint": "TEXT",
+          "x-ms-dynamically-added": true
         },
         "text_3": {
-          "title": "Subarea",
+          "description": "Introduzca su entrada",
+          "title": "Area",
           "type": "string",
-          "x-ms-dynamically-added": true,
-          "description": "Escribir entrada",
-          "x-ms-content-hint": "TEXT"
+          "x-ms-content-hint": "TEXT",
+          "x-ms-dynamically-added": true
         },
         "text_4": {
-          "title": "Descripcion",
+          "description": "Introduzca su entrada",
+          "title": "Subarea",
           "type": "string",
-          "x-ms-dynamically-added": true,
-          "description": "Escribir entrada",
-          "x-ms-content-hint": "TEXT"
+          "x-ms-content-hint": "TEXT",
+          "x-ms-dynamically-added": true
         },
         "text_5": {
-          "title": "Estado",
+          "description": "Introduzca su entrada",
+          "title": "Descripcion",
           "type": "string",
-          "x-ms-dynamically-added": true,
-          "description": "Escribir entrada",
-          "x-ms-content-hint": "TEXT"
+          "x-ms-content-hint": "TEXT",
+          "x-ms-dynamically-added": true
         },
         "text_6": {
-          "title": "NombreArchivo",
+          "description": "Introduzca su entrada",
+          "title": "Estado",
           "type": "string",
-          "x-ms-dynamically-added": true,
-          "description": "Escribir entrada",
-          "x-ms-content-hint": "TEXT"
+          "x-ms-content-hint": "TEXT",
+          "x-ms-dynamically-added": true
         },
         "text_7": {
+          "description": "Introduzca su entrada",
           "title": "Autor",
           "type": "string",
-          "x-ms-dynamically-added": true,
-          "description": "Escribir entrada",
-          "x-ms-content-hint": "TEXT"
-        },
-        "text_9": {
-          "title": "Contenido",
-          "type": "string",
-          "x-ms-dynamically-added": true,
-          "description": "Escribir entrada",
-          "x-ms-content-hint": "TEXT"
+          "x-ms-content-hint": "TEXT",
+          "x-ms-dynamically-added": true
         }
       },
       "required": [
         "text",
+        "file",
         "text_1",
         "text_2",
         "text_3",
         "text_4",
         "text_5",
         "text_6",
-        "text_7",
-        "text_9"
+        "text_7"
       ]
     }
-  },
-  "metadata": {
-    "operationMetadataId": "8c11a2a6-ebba-4256-8b76-70dffcfcb8cb"
   }
 }
