@@ -237,7 +237,9 @@ ClearCollect(
     ForAll(
         Table(ParseJSON(Var_ProfileUser.RolSistema)); 
         { 
-            Rol: Text(ThisRecord.Value.Rol); 
+            Rol: Text(ThisRecord.Value.Rol)
+            
+            ; 
             JerarquiaRol: 
             Switch(
                 Text(ThisRecord.Value.Rol);
@@ -248,15 +250,15 @@ ClearCollect(
                 "Analista";      50;
                 0
             )
+            
         }
     )
 );;
-// esto se moverá después de hacer el login
+
 Set(
     Var_RolSistema; 
     First(Sort(colRolesUsuario; JerarquiaRol; SortOrder.Descending)).Rol
 );;
-
 // =========================================================================
 // 4. COLECCIONES DE CATÁLOGOS MAESTROS
 // =========================================================================
@@ -301,7 +303,7 @@ ClearCollect(colMenuSol;
 // --- Menú Administrador ---
 ClearCollect(colMenuAdm;
 {Title: "Home";          Id: 1; Pantalla: Gbl_Home; Ico: home; child: false; itemsSubChild: Table()};
-{Title: "Catálogo";      Id: 2; Pantalla: Gbl_Catalogo; Ico: catalogo; child: false; itemsSubChild: Table()};
+{Title: "Catálogo";      Id: 2; Pantalla: Blank(); Ico: catalogo; child: false; itemsSubChild: Table()};
 {Title: "Ticket";        Id: 3; Pantalla: Blank(); Ico: ticket; child: false; itemsSubChild: Table()};
 {Title: "Configuración"; Id: 4; Pantalla: Blank(); Ico: configuracion; child: true; 
         itemsSubChild: [
@@ -339,13 +341,6 @@ ClearCollect(
         }
     )
 );;
-
-// --- Queries SUPERVISOR ---
-
-
-
-
-
 
 // --- Queries ADMINISTRADOR (Mantenidas del Script 1) ---
 ClearCollect(Col_Adm_QueryTicket;

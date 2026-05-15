@@ -1785,6 +1785,14 @@ Screens:
                                                                         Text: =ThisItem.Estado
                                                                         Width: =Parent.Width
                                                                         X: =
+                                          - SpvCmc_RctLineaSeparadora:
+                                              Control: Rectangle@2.3.0
+                                              Properties:
+                                                BorderColor: =RGBA(0, 18, 107, 1)
+                                                Fill: =ColorValue(Var_ColorBordeBoton)
+                                                Height: =0.5
+                                                Width: =Parent.Width
+                                                Y: =174
                                     - SpvCmcCtnBotonesPaginacion:
                                         Control: GroupContainer@1.5.0
                                         Variant: ManualLayout
@@ -1869,7 +1877,15 @@ Screens:
                                                       HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
                                                       HoverColor: =ColorValue(Var_ColorBoton)
                                                       HoverFill: =Color.Transparent
-                                                      OnSelect: "=UpdateContext({Var_SpvCmcLoadingSpinnerVisible: true});\r\n/*Set(\r\n    Var_StartIDSpvComunicados;\r\n    If(\r\n        ThisItem.Value = 1;\r\n        0; // Primera página siempre empieza en 0 para tu flujo\r\n        Last(\r\n            FirstN(\r\n                Table(ParseJSON('LCP-001_Flow_SpvPaginacionComunicados'.Run(\r\n                    Var_GridPageSizeSpvComunicados * (ThisItem.Value - 1);\r\n                    0;\r\n                    Concat(Filter(colQuerysSpvComunicados; mark); query; \" and \");\r\n                    \"NEXT\"\r\n                ).response));\r\n                Var_GridPageSizeSpvComunicados * (ThisItem.Value - 1)\r\n            )\r\n        ).Value.ID\r\n    )\r\n);;\r\n\r\nSet(\r\n    Var_ResponseSpvComunicados;\r\n\r\n        'LCP-001_Flow_SpvPaginacionComunicados'.Run(\r\n            Var_GridPageSizeSpvComunicados;\r\n            Var_StartIDSpvComunicados;\r\n            Concat(Filter(colQuerysSpvComunicados; mark); query; \" and \");\r\n            \"NEXT\"\r\n        \r\n    )\r\n);;\r\n\r\nSet(\r\n    Var_DataSpvComunicados;\r\n    Table(ParseJSON(Var_ResponseSpvComunicados.response))\r\n);;\r\n\r\nClear(objGalleryDataSpvComunicados);;\r\nForAll(\r\n    FirstN(Var_DataSpvComunicados; Var_GridPageSizeSpvComunicados);\r\n    Collect(\r\n        objGalleryDataSpvComunicados;\r\n        {\r\n            ID:                 ThisRecord.Value.ID;\r\n            Gerencia:           ThisRecord.Value.Gerencia;        \r\n            Pais:               ThisRecord.Value.Pais;          \r\n            Cabecera:           ThisRecord.Value.Cabecera;    \r\n            Cuerpo:             ThisRecord.Value.Cuerpo;           \r\n            Imagen:             Text(ThisRecord.Value.ImagenBase64);\r\n            URLimagen:          ThisRecord.Value.URLimagen;\r\n            UsuarioCreador:     ThisRecord.Value.UsuarioCreador; \r\n            FechaCreacion:      ThisRecord.Value.FechaCreacion;\r\n            FechaFin:           ThisRecord.Value.FechaFin;  \r\n            Estado:             ThisRecord.Value.Estado;     \r\n            Creado:             ThisRecord.Value.Creado;      \r\n            FechaInicio:        ThisRecord.Value.FechaInicio;    \r\n            DiaInicio:          ThisRecord.Value.DiaInicio;    \r\n            MesInicio:          ThisRecord.Value.MesInicio;    \r\n            DiaFin:             ThisRecord.Value.DiaFin;     \r\n            MesFin:             ThisRecord.Value.MesFin;     \r\n            EstadoComunicado:   ThisRecord.Value.EstadoComunicado;\r\n            Recurrente:         ThisRecord.Value.Recurrente;\r\n            TipoRecurrente:     ThisRecord.Value.TipoRecurrente;\r\n            EsVisibleHoy:       ThisRecord.Value.EsVisibleHoy\r\n        }\r\n    )\r\n);;\r\n\r\nSet(Var_HasPrevSpvComunicados; ThisItem.Value > 1);;\r\nSet(Var_HasNextSpvComunicados; ThisItem.Value < RoundUp(TotalItemSpvComunicados / Max(Var_GridPageSizeSpvComunicados; 1); 0));;\r\nSet(Var_CurrentPageSpvComunicados; ThisItem.Value);;\r\nUpdateContext({Var_SpvCmcLoadingSpinnerVisible: false});;\r\n*/\r\nSet(Var_CurrentPageSpvComunicados, ThisItem.Value);\r\nUpdateContext({varTotalRegistrosComunicados: Var_GridPageSizeSpvComunicados * ThisItem.Value});\r\nSet(Var_TargetIDSpvComunicados, 0);\r\nSet(Var_DirectionSpvComunicados, \"NEXT\");\r\nSet(Var_IsIndividualSpvComunicados, true);\r\nSelect(Spv_btn_MotorPaginacionComunicados);"
+                                                      OnSelect: |-
+                                                        =UpdateContext({Var_SpvCmcLoadingSpinnerVisible: true});
+
+                                                        Set(Var_CurrentPageSpvComunicados, ThisItem.Value);
+                                                        UpdateContext({varTotalRegistrosComunicados: Var_GridPageSizeSpvComunicados * ThisItem.Value});
+                                                        Set(Var_TargetIDSpvComunicados, 0);
+                                                        Set(Var_DirectionSpvComunicados, "NEXT");
+                                                        Set(Var_IsIndividualSpvComunicados, true);
+                                                        Select(Spv_btn_MotorPaginacionComunicados);
                                                       PressedBorderColor: =Self.Fill
                                                       PressedColor: =ColorValue(Var_ColorPressedBoton)
                                                       PressedFill: =Color.Transparent
@@ -1886,61 +1902,7 @@ Screens:
                                                 Icon: ="ChevronLeft"
                                                 OnSelect: |-
                                                   =UpdateContext({Var_SpvCmcLoadingSpinnerVisible: true});
-                                                  /*Set(
-                                                      Var_ResponseSpvComunicados;
-                                                      'LCP-001_Flow_SpvPaginacionComunicados'.Run(
-                                                          Var_GridPageSizeSpvComunicados;
-                                                          Text(First(SpvCmc_GlrComunicacion.AllItems).ID);
-                                                          Concat(
-                                                              Filter(colQuerysSpvComunicados; mark);
-                                                              query;
-                                                              " and "
-                                                          );
-                                                          "PREV"
-                                                      )
-                                                  );;
 
-                                                  Set(
-                                                      Var_DataSpvComunicados;
-                                                      Table(ParseJSON(Var_ResponseSpvComunicados.response))
-                                                  );;
-
-                                                  Clear(objGalleryDataSpvComunicados);;
-                                                  ForAll(
-                                                      FirstN(Var_DataSpvComunicados; Var_GridPageSizeSpvComunicados);
-                                                      Collect(
-                                                          objGalleryDataSpvComunicados;
-                                                          {
-                                                              ID:                 ThisRecord.Value.ID;
-                                                              Gerencia:           ThisRecord.Value.Gerencia;        
-                                                              Pais:               ThisRecord.Value.Pais;          
-                                                              Cabecera:           ThisRecord.Value.Cabecera;    
-                                                              Cuerpo:             ThisRecord.Value.Cuerpo;           
-                                                              Imagen:             Text(ThisRecord.Value.ImagenBase64);
-                                                              URLimagen:          ThisRecord.Value.URLimagen;
-                                                              UsuarioCreador:     ThisRecord.Value.UsuarioCreador; 
-                                                              FechaCreacion:      ThisRecord.Value.FechaCreacion;
-                                                              FechaFin:           ThisRecord.Value.FechaFin;  
-                                                              Estado:             ThisRecord.Value.Estado;     
-                                                              Creado:             ThisRecord.Value.Creado;      
-                                                              FechaInicio:        ThisRecord.Value.FechaInicio;    
-                                                              DiaInicio:          ThisRecord.Value.DiaInicio;    
-                                                              MesInicio:          ThisRecord.Value.MesInicio;    
-                                                              DiaFin:             ThisRecord.Value.DiaFin;     
-                                                              MesFin:             ThisRecord.Value.MesFin;     
-                                                              EstadoComunicado:   ThisRecord.Value.EstadoComunicado;
-                                                              Recurrente:         ThisRecord.Value.Recurrente;
-                                                              TipoRecurrente:     ThisRecord.Value.TipoRecurrente;
-                                                              EsVisibleHoy:       ThisRecord.Value.EsVisibleHoy
-                                                          }
-                                                      )
-                                                  );;
-
-                                                  Set(Var_HasPrevSpvComunicados; CountRows(Var_DataSpvComunicados) > Var_GridPageSizeSpvComunicados);;
-                                                  Set(Var_HasNextSpvComunicados; true);;
-                                                  Set(Var_CurrentPageSpvComunicados; Var_CurrentPageSpvComunicados - 1);;
-                                                  UpdateContext({Var_SpvCmcLoadingSpinnerVisible: false});;
-                                                  */
                                                   Set(Var_TargetIDSpvComunicados, Max(SpvCmc_GlrComunicacion.AllItems, ID));
                                                   Set(Var_DirectionSpvComunicados, "PREV");
                                                   Set(Var_IsIndividualSpvComunicados, false);
@@ -1964,61 +1926,7 @@ Screens:
                                                 Layout: ='ButtonCanvas.Layout'.IconAfter
                                                 OnSelect: |-
                                                   =UpdateContext({Var_SpvCmcLoadingSpinnerVisible: true});
-                                                  /*Set(
-                                                      Var_ResponseSpvComunicados;
-                                                      'LCP-001_Flow_SpvPaginacionComunicados'.Run(
-                                                          Var_GridPageSizeSpvComunicados;
-                                                          Text(Last(SpvCmc_GlrComunicacion.AllItems).ID);
-                                                          Concat(
-                                                              Filter(colQuerysSpvComunicados; mark);
-                                                              query;
-                                                              " and "
-                                                          );
-                                                          "NEXT"
-                                                      )
-                                                  );;
 
-                                                  Set(
-                                                      Var_DataSpvComunicados;
-                                                      Table(ParseJSON(Var_ResponseSpvComunicados.response))
-                                                  );;
-
-                                                  Clear(objGalleryDataSpvComunicados);;
-                                                  ForAll(
-                                                      FirstN(Var_DataSpvComunicados; Var_GridPageSizeSpvComunicados);
-                                                      Collect(
-                                                          objGalleryDataSpvComunicados;
-                                                          {
-                                                              ID:                 ThisRecord.Value.ID;
-                                                              Gerencia:           ThisRecord.Value.Gerencia;        
-                                                              Pais:               ThisRecord.Value.Pais;          
-                                                              Cabecera:           ThisRecord.Value.Cabecera;    
-                                                              Cuerpo:             ThisRecord.Value.Cuerpo;           
-                                                              Imagen:             Text(ThisRecord.Value.ImagenBase64);
-                                                              URLimagen:          ThisRecord.Value.URLimagen;
-                                                              UsuarioCreador:     ThisRecord.Value.UsuarioCreador; 
-                                                              FechaCreacion:      ThisRecord.Value.FechaCreacion;
-                                                              FechaFin:           ThisRecord.Value.FechaFin;  
-                                                              Estado:             ThisRecord.Value.Estado;     
-                                                              Creado:             ThisRecord.Value.Creado;      
-                                                              FechaInicio:        ThisRecord.Value.FechaInicio;    
-                                                              DiaInicio:          ThisRecord.Value.DiaInicio;    
-                                                              MesInicio:          ThisRecord.Value.MesInicio;    
-                                                              DiaFin:             ThisRecord.Value.DiaFin;     
-                                                              MesFin:             ThisRecord.Value.MesFin;     
-                                                              EstadoComunicado:   ThisRecord.Value.EstadoComunicado;
-                                                              Recurrente:         ThisRecord.Value.Recurrente;
-                                                              TipoRecurrente:     ThisRecord.Value.TipoRecurrente;
-                                                              EsVisibleHoy:       ThisRecord.Value.EsVisibleHoy
-                                                          }
-                                                      )
-                                                  );;
-
-                                                  Set(Var_HasNextSpvComunicados; CountRows(Var_DataSpvComunicados) > Var_GridPageSizeSpvComunicados);;
-                                                  Set(Var_HasPrevSpvComunicados; true);;
-                                                  Set(Var_CurrentPageSpvComunicados; Var_CurrentPageSpvComunicados + 1);;
-                                                  UpdateContext({Var_SpvCmcLoadingSpinnerVisible: false});;
-                                                  */
                                                   Set(Var_TargetIDSpvComunicados, Min(SpvCmc_GlrComunicacion.AllItems, ID));
                                                   Set(Var_DirectionSpvComunicados, "NEXT");
                                                   Set(Var_IsIndividualSpvComunicados, false);

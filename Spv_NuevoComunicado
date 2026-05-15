@@ -320,11 +320,11 @@ Screens:
                                       825,
 
                                       // === CASO 4: UI Media (Gerencia/País no visible + [Evento Único y Seleccionar fecha esta visible]) ===
-                                      !SpvNvCmc_CtnDirigidoOpciones.Visible && SpvNvCmc_CtnTiempoDuracion.Visible && SpvNvCmc_CtnSeleccionarFecha.Visible, 
+                                      !SpvNvCmc_CtnDirigidoOpciones.Visible && SpvNvCmc_CtnTiempoDuracion.Visible && (SpvNvCmc_CtnSeleccionarFecha.Visible || SpvNvCmc_CtnModificarSeleccionarFecha.Visible), 
                                       855,
 
                                       // === CASO 5: UI Media (Gerencia/País visible + [Evento Único y Seleccionar fecha esta visible]) ===
-                                      SpvNvCmc_CtnDirigidoOpciones.Visible && SpvNvCmc_CtnTiempoDuracion.Visible && SpvNvCmc_CtnSeleccionarFecha.Visible, 
+                                      SpvNvCmc_CtnDirigidoOpciones.Visible && SpvNvCmc_CtnTiempoDuracion.Visible && (SpvNvCmc_CtnSeleccionarFecha.Visible || SpvNvCmc_CtnModificarSeleccionarFecha.Visible), 
                                       925,
 
                                       // === CASO 6: UI Media (Gerencia/País + [Evento Único o Recurrente sin expandir]) ===
@@ -523,9 +523,7 @@ Screens:
                                                 RadiusBottomRight: =10
                                                 RadiusTopLeft: =10
                                                 RadiusTopRight: =10
-                                                Width: |-
-                                                  =//1061
-                                                  Parent.Width-5
+                                                Width: =Parent.Width - 5
                                                 X: =3
                                                 Y: =25
                                               Children:
@@ -1294,7 +1292,7 @@ Screens:
                                           BorderStyle: =BorderStyle.None
                                           DropShadow: =DropShadow.None
                                           FillPortions: =0
-                                          Height: =If(SpvNvCmc_CtnSeleccionarFecha.Visible,260,70)
+                                          Height: =If(SpvNvCmc_CtnSeleccionarFecha.Visible || SpvNvCmc_CtnModificarSeleccionarFecha.Visible,260,70)
                                           LayoutMinHeight: =16
                                           LayoutMinWidth: =0
                                           Visible: =If(First(colEstadoTipoPublicacionSeleccionadas).Value = "Evento único",true, false)
@@ -2688,6 +2686,7 @@ Screens:
                                                     "fr"
                                                 )
                                             )
+                                          LayoutMinHeight: =260
                                           LayoutMinWidth: =Parent.Width/3
                                           TemplateSize: =Self.Height/12 - Self.TemplatePadding -1
                                           Width: =Parent.Width/2
@@ -3206,7 +3205,7 @@ Screens:
                                                 HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
                                                 HoverColor: =ColorValue(Var_ColorBlanco)
                                                 HoverFill: =ColorValue(Var_ColorHoverBoton)
-                                                OnSelect: "=//UpdateContext(\n//    {\n//        var_RangeDatePicker_DateStart: var_RangeDatePicker_DateStart_Modify;\n//        var_RangeDatePicker_DateEnd: var_RangeDatePicker_DateEnd_Modify;\n//        var_RangeDatePicker:false\n//    }\n//)\nIf(\n    var_RangeDatePicker_DateStart < Today(),\n    \n    // CASO A: Fecha Inválida (Menor a hoy)\n    // 1. Reutilizamos las variables del componente de error global\n    UpdateContext({\n        CloseAlertSpvNuevoComunicado: true,\n        SpvNvCmcMensajeError: \"La fecha de inicio seleccionada no puede ser anterior a la fecha actual.\"\n    });\n    // 2. Reiniciamos las variables de control del DatePicker\n    UpdateContext({var_RangeDatePicker_DateStart: Blank()});\n    UpdateContext({var_RangeDatePicker_DateEnd: Blank()});\n    UpdateContext({var_RangeDatePicker: Blank()}),\n    \n    // CASO B: Fecha Válida\n    // Apagamos cualquier error previo y continuamos el flujo normal\n    UpdateContext({varVisibleErrorGbl: false});\n    \n    // Opcional: Aquí debe ir la variable que cierra el modal del calendario\n    // UpdateContext({varModalCalendarioVisible: false})\n)"
+                                                OnSelect: "=UpdateContext(\n    {\n        var_RangeDatePicker_DateStart: var_RangeDatePicker_DateStart_Modify,\n        var_RangeDatePicker_DateEnd: var_RangeDatePicker_DateEnd_Modify,\n        var_RangeDatePicker:false\n    }\n);\n//Notify($\"FechaInicio: {DateValue(var_RangeDatePicker_DateStart)} Today: {Today()}\" );;\nIf(\n     DateDiff(var_RangeDatePicker_DateStart,Today(),TimeUnit.Days) > 0,\n     //var_RangeDatePicker_DateStart < Today() ;\n    \n    // CASO A: Fecha Inválida (Menor a hoy)\n    // 1. Reutilizamos las variables del componente de error global\n    UpdateContext({\n        CloseAlertSpvNuevoComunicado: true,\n        SpvNvCmcMensajeError: \"La fecha de inicio seleccionada no puede ser anterior a la fecha actual.\"\n    });\n    // 2. Reiniciamos las variables de control del DatePicker\n    UpdateContext({var_RangeDatePicker_DateStart: Blank()});\n    UpdateContext({var_RangeDatePicker_DateEnd: Blank()});\n    UpdateContext({var_RangeDatePicker: Blank()}),\n    \n    // CASO B: Fecha Válida\n    // Apagamos cualquier error previo y continuamos el flujo normal\n    UpdateContext({varVisibleErrorGbl: false});\n    \n    // Opcional: Aquí debe ir la variable que cierra el modal del calendario\n    // UpdateContext({varModalCalendarioVisible: false})\n)"
                                                 PressedBorderColor: =Self.PressedFill
                                                 PressedColor: =ColorValue(Var_ColorBlanco)
                                                 PressedFill: =ColorValue(Var_ColorPressedBoton)

@@ -3,7 +3,7 @@ Screens:
     Properties:
       LoadingSpinnerColor: =RGBA(56, 96, 178, 1)
       OnVisible: |-
-        =UpdateContext({ menuSelected: 1});
+        =UpdateContext({ menuSelected: 1})
     Children:
       - Anl_ImgLogoBienvenida:
           Control: Image@2.2.3
@@ -173,7 +173,7 @@ Screens:
             Text: ="Ingresar"
             Width: =241
             X: =172
-            Y: =522
+            Y: =513
       - Gbl_Warning_Bienvenida:
           Control: CanvasComponent
           ComponentName: Gbl_Warning

@@ -47,46 +47,14 @@ Screens:
 
         //----Variables respuesta flujo----
         Set(Var_GridPageSizeSpvSoluciones, 5);
-        Set(Var_ResponseSpvSoluciones,
-            'LCP-001_Flow_SpvPaginacionSoluciones'.Run(
-                Var_GridPageSizeSpvSoluciones,
-                0,
-                Concat(
-                    Filter(colQuerysSpvSoluciones, mark),
-                    query,
-                    " and "
-                ),
-                "NEXT"
-            )
-        );
-        //----Variables respuesta flujo----
-        Set(TotalItemSpvSoluciones, Value(ParseJSON(Var_ResponseSpvSoluciones.totalitems)));
-        Set(Var_DataSpvSoluciones, Table(ParseJSON(Var_ResponseSpvSoluciones.response)));
-        //----Datos para llenar galeria de Soluciones---- 
-        Clear(objGalleryDataSpvSoluciones);
-        ForAll(
-            FirstN(Var_DataSpvSoluciones,Var_GridPageSizeSpvSoluciones),
-            Collect(
-                objGalleryDataSpvSoluciones,
-                {
-                    ID:            ThisRecord.Value.ID,
-                    Gerencia:      ThisRecord.Value.Gerencia,
-                    Area:          ThisRecord.Value.Area,
-                    Subarea:       ThisRecord.Value.Subarea,
-                    Estado:        ThisRecord.Value.Estado,
-                    DatosAdjuntos: ThisRecord.Value.DatosAdjuntos,
-                    NombreArchivo: ThisRecord.Value.NombreArchivo,
-                    Descripcion:   ThisRecord.Value.Descripcion,
-                    Autor:         ThisRecord.Value.Autor
-                }
-            )
-        );
-        //----Guardamos el primer ID REAL de todo el dataset----
-        Set(Var_FirstIDSpvSoluciones, Min(objGalleryDataSpvSoluciones, ID));
-        //----Control real de NEXT (Top + 1)----
-        Set(Var_HasPrevSpvSoluciones, false);
-        Set(Var_HasNextSpvSoluciones, CountRows(Var_DataSpvSoluciones) > Var_GridPageSizeSpvSoluciones);
         Set(Var_CurrentPageSpvSoluciones, 1);
+        // Configuración para el motor:
+        Set(Var_TargetIDSpvSoluciones, 0);
+        Set(Var_DirectionSpvSoluciones, "NEXT");
+        Set(Var_IsIndividualSpvSoluciones, false);
+
+        Select(Spv_btn_MotorPaginacionSoluciones); // <--- Ejecuta la lógica
+
         UpdateContext({Var_SpvCmcLoadingSpinnerVisible: false});
     Children:
       - SpvSlc_ScreenContainer:
@@ -337,8 +305,11 @@ Screens:
                                           HoverColor: =ColorValue(Var_ColorBlanco)
                                           HoverFill: =ColorValue(Var_ColorHoverBoton)
                                           OnSelect: |-
-                                            =UpdateContext({ Var_Ctx_SpvModal_AgregarSolucion: !Var_Ctx_SpvModal_AgregarSolucion });
-                                            // 1. Limpieza de Variables de Contexto (Jerarquía: Gerencia > Área > Subárea)
+                                            =// 1. Inicializamos el motor transaccional en modo "Nuevo"
+                                            NewForm(SpvSlc_FrmOcultoAdjuntos);
+                                            UpdateContext({ Var_Ctx_SpvModal_AgregarSolucion: !Var_Ctx_SpvModal_AgregarSolucion });
+
+                                            // 2. Limpieza de Variables de Contexto
                                             UpdateContext({
                                                 varGerenciaSelected: Blank(),
                                                 varUpdateAreaSelected: Blank(),
@@ -349,15 +320,15 @@ Screens:
                                                 varOpenDropDownEstadoSpvSlc: false
                                             });
 
-                                            // 2. Limpieza de Colecciones de Datos (Estados y Archivos Adjuntos)
+                                            // 3. Limpieza de Colecciones
                                             Clear(colEstadoSolucionSeleccionadas);
                                             Clear(Var_uploadFile_listAttachmentSpvNvSolucion);
                                             Clear(SpvSlc_colErroresAdjuntos);
 
-                                            // 3. Reinicio de Controles UI Directos (Solo necesarios si no dependen de las variables anteriores)
+                                            // 4. Reinicio de Controles
                                             Reset(SpvSlc_TxtDescripcionNuevaSolucion);
                                             Reset(SpvSlc_LblCampoSeleccionarEstado);
-                                            Reset(SpvSlc_AtchAdjuntoNuevaSolucion);
+                                            Reset(SpvSlc_AtchAdjuntoNuevaSolucion)
                                           PaddingLeft: =10
                                           PressedBorderColor: =Self.PressedFill
                                           PressedColor: =ColorValue(Var_ColorBlanco)
@@ -588,7 +559,7 @@ Screens:
                                                 BorderColor: =RGBA(0, 18, 107, 1)
                                                 FillPortions: =0
                                                 Height: =350
-                                                Items: =Sort(objGalleryDataSpvSoluciones,Value(ThisRecord.ID), SortOrder.Ascending)
+                                                Items: =Sort(objGalleryDataSpvSoluciones,Value(ThisRecord.ID), SortOrder.Descending)
                                                 LayoutMinHeight: =16
                                                 LayoutMinWidth: =0
                                                 OnSelect: =
@@ -803,7 +774,7 @@ Screens:
                                                                         )
                                                                     )
                                                                   ImagePosition: =ImagePosition.Center
-                                                                  OnSelect: =Download("https://grupoalicorp.sharepoint.com"&ThisItem.RutaAdjunto)
+                                                                  OnSelect: =
                                                                   Width: =24
                                                                   X: =70
                                                             - SpvSlc_ImgInfEditar:
@@ -812,7 +783,8 @@ Screens:
                                                                   BorderColor: =RGBA(0, 18, 107, 1)
                                                                   Height: =24
                                                                   Image: =PENCIL
-                                                                  OnSelect: =Download("https://grupoalicorp.sharepoint.com"&ThisItem.RutaAdjunto)
+                                                                  OnSelect: |-
+                                                                    =UpdateContext({varOpenEditarSolucionSpvSlc: true})
                                                                   Width: =24
                                                                   X: =40
                                                             - SpvSlc_ImgInfDescargar:
@@ -835,19 +807,9 @@ Screens:
                                                                         )
                                                                     )
                                                                   ImagePosition: =ImagePosition.Center
-                                                                  OnSelect: =Download("https://grupoalicorp.sharepoint.com"&ThisItem.RutaAdjunto)
+                                                                  OnSelect: "=//Download(\"https://grupoalicorp.sharepoint.com\"&ThisItem.RutaAdjunto)\r\n//Download(Text(ThisItem.DatosAdjuntos))\r\n// 1. Validamos que la propiedad DatosAdjuntos no venga vacía en el JSON\r\nIf(\r\n    !IsBlank(ThisItem.DatosAdjuntos) And Len(ThisItem.DatosAdjuntos) > 5,\r\n    \r\n    // 2. Si es válida, disparamos la descarga directa usando la URL absoluta\r\n    Download(Text(ThisItem.DatosAdjuntos)),\r\n    \r\n    // 3. Si está vacía o corrupta, usamos el manejador de notificaciones existente\r\n    UpdateContext({\r\n        Var_Ctx_SpvMostrarErrorSoluciones: true,\r\n        SpvSlcMensajeError: \"El documento adjunto no está disponible para su descarga.\"\r\n    })\r\n)"
                                                                   Width: =24
                                                                   X: =10
-                                                            - SpvSlc_BtnInfDescargar:
-                                                                Control: Button@0.0.45
-                                                                Properties:
-                                                                  Appearance: ='ButtonCanvas.Appearance'.Transparent
-                                                                  Height: =SpvSlc_ImgInfDescargar.Height
-                                                                  OnSelect: =Download(Text(ThisItem.DatosAdjuntos))
-                                                                  Text: =
-                                                                  Width: =SpvSlc_ImgInfDescargar.Width
-                                                                  X: =SpvSlc_ImgInfDescargar.X
-                                                                  Y: =SpvSlc_ImgInfDescargar.Y
                                     - SpvSlc_CtnEstados:
                                         Control: GroupContainer@1.5.0
                                         Variant: ManualLayout
@@ -857,6 +819,7 @@ Screens:
                                           Height: =CountRows(SpvSlc_GlrEstados.AllItems) * 37
                                           Visible: =varOpenDropDownEstadoSpvSlc
                                           Width: =SpvSlc_CtnSeleccionarEstado.Width - 2
+                                          X: =SpvSlc_CtnSeleccionarEstado.X
                                           Y: =55
                                         Children:
                                           - SpvSlc_GlrEstados:
@@ -886,30 +849,27 @@ Screens:
                                                       HoverFill: =ColorValue(Var_ColorFadeBoton)
                                                       OnSelect: |-
                                                         =UpdateContext({varEstadoSelectedSpvSlc : ThisItem , varOpenDropDownEstadoSpvSlc: false});
-                                                        IfError(
-                                                            If(
-                                                                IsBlank(Trim(Self.Text)),
-                                                                Patch(
-                                                                    colQuerysSpvSoluciones,
-                                                                    {input: "Estado"},
-                                                                    {
-                                                                        mark: false,
-                                                                        query: ""
-                                                                    }
-                                                                ),
-                                                                Patch(
-                                                                    colQuerysSpvSoluciones,
-                                                                    {input: "Estado"},
-                                                                    {
-                                                                        mark: true,
-                                                                        query: "substringof('" & Self.Text & "', Estado)"
-                                                                    }
-                                                                )
+                                                        If(
+                                                            IsBlank(Trim(Self.Text)),
+                                                            Patch(
+                                                                colQuerysSpvSoluciones,
+                                                                {input: "Estado"},
+                                                                {
+                                                                    mark: false,
+                                                                    query: ""
+                                                                }
                                                             ),
-                                                            false,
-                                                            Select(SpvSlc_BtnRefreshBusquedaEstado),
-                                                            false
-                                                        )
+                                                            Patch(
+                                                                colQuerysSpvSoluciones,
+                                                                {input: "Estado"},
+                                                                {
+                                                                    mark: true,
+                                                                    query: "substringof('" & Self.Text & "', Estado)"
+                                                                }
+                                                            )
+                                                        );
+
+                                                        Select(Spv_btn_MotorPaginacionSoluciones); // <--- Ejecuta la lógica
                                                       PressedBorderColor: =Self.Fill
                                                       PressedColor: =ColorValue(Var_ColorGray)
                                                       PressedFill: =ColorValue(Var_ColorFadeBoton)
@@ -947,84 +907,6 @@ Screens:
                                                 RadiusTopRight: =8
                                                 Width: =2000
                                               Children:
-                                                - SpvSlc_BtnRefreshBusquedaDocumento:
-                                                    Control: Classic/Button@2.2.0
-                                                    Properties:
-                                                      BorderColor: =RGBA(0, 0, 0, 0)
-                                                      BorderStyle: =BorderStyle.None
-                                                      Color: =RGBA(255, 255, 255, 1)
-                                                      DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                                                      DisabledColor: =RGBA(161, 159, 157, 1)
-                                                      DisabledFill: =RGBA(242, 242, 241, 0)
-                                                      Fill: =RGBA(0, 120, 212, 1)
-                                                      Font: =Font.'Segoe UI'
-                                                      HoverBorderColor: =RGBA(0, 0, 0, 0)
-                                                      HoverColor: =RGBA(255, 255, 255, 1)
-                                                      HoverFill: =RGBA(16, 110, 190, 1)
-                                                      OnSelect: |
-                                                        =Set(Var_GridPageSizeSpvSoluciones,5);
-                                                        Set(Var_ResponseSpvSoluciones, 'LCP-001_Flow_SpvPaginacionSoluciones'.Run(Var_GridPageSizeSpvSoluciones,0,
-                                                                Concat(
-                                                                    Filter(
-                                                                        colQuerysSpvSoluciones,
-                                                                        mark
-                                                                    ),
-                                                                    query,
-                                                                    " and "
-                                                                ),
-                                                                "NEXT"
-                                                            )
-                                                        );
-                                                        Set(
-                                                            Var_DataSpvSoluciones,
-                                                            Table(ParseJSON(Var_ResponseSpvSoluciones.response))
-                                                        );
-                                                        Set(
-                                                            TotalItemSpvSoluciones,
-                                                            Value(ParseJSON(Var_ResponseSpvSoluciones.totalitems))
-                                                        );
-                                                        Clear(objGalleryDataSpvSoluciones);
-                                                        ForAll(
-                                                            FirstN(
-                                                                Var_DataSpvSoluciones,
-                                                                Var_GridPageSizeSpvSoluciones
-                                                            ),
-                                                            Collect(
-                                                                objGalleryDataSpvSoluciones,
-                                                                {
-                                                                    ID: ThisRecord.Value.ID,
-                                                                    NombreAdjunto: If(
-                                                                                        // Verificamos si hay adjuntos para evitar errores
-                                                                        Boolean(ThisRecord.Value.Attachments),
-                                                                        Text(First(Table(ThisRecord.Value.AttachmentFiles)).Value.FileName),
-                                                                        Blank()
-                                                                    ),
-                                                                    RutaAdjunto: If(
-                                                                        Boolean(ThisRecord.Value.Attachments),
-                                                                        Text(First(Table(ThisRecord.Value.AttachmentFiles)).Value.ServerRelativeUrl),
-                                                                        Blank()
-                                                                    ),
-                                                                    Estado: ThisRecord.Value.Estado,
-                                                                    Gerencia: ThisRecord.Value.Gerencia,
-                                                                    Torre: ThisRecord.Value.Torre,
-                                                                    Autor: ThisRecord.Value.Autor
-                                                                }
-                                                            )
-                                                        );
-                                                        // Guardamos el primer ID REAL de todo el dataset
-                                                        Set(Var_FirstIDSpvSoluciones,Min(objGalleryDataSpvSoluciones,ID));
-                                                        // Control real de NEXT (Top + 1)
-                                                        Set(Var_HasNextSpvSoluciones,CountRows(Var_DataSpvSoluciones) > Var_GridPageSizeSpvSoluciones);
-                                                      PressedBorderColor: =RGBA(0, 69, 120, 1)
-                                                      PressedColor: =RGBA(255, 255, 255, 1)
-                                                      PressedFill: =RGBA(16, 110, 190, 1)
-                                                      RadiusBottomLeft: =0
-                                                      RadiusBottomRight: =0
-                                                      RadiusTopLeft: =0
-                                                      RadiusTopRight: =0
-                                                      Visible: =false
-                                                      X: =40
-                                                      Y: =4
                                                 - SpvSlc_IcnBuscarDocumento:
                                                     Control: Classic/Icon@2.5.0
                                                     Properties:
@@ -1049,30 +931,27 @@ Screens:
                                                       HoverBorderColor: =RGBA(79, 90, 94, 1)
                                                       HoverFill: =RGBA(0, 0, 0, 0)
                                                       OnChange: |-
-                                                        =IfError(
-                                                            If(
-                                                                IsBlank(Trim(Self.Text)),
-                                                                Patch(
-                                                                    colQuerysSpvSoluciones,
-                                                                    {input: "NombreAdjunto"},
-                                                                    {
-                                                                        mark: false,
-                                                                        query: ""
-                                                                    }
-                                                                ),
-                                                                Patch(
-                                                                    colQuerysSpvSoluciones,
-                                                                    {input: "NombreAdjunto"},
-                                                                    {
-                                                                        mark: true,
-                                                                        query: "substringof('" & Self.Text & "', NombreArchivo)"
-                                                                    }
-                                                                )
+                                                        =UpdateContext({varOpenDropDownEstadoSpvSlc: false});
+                                                        If(
+                                                            IsBlank(Trim(Self.Text)),
+                                                            Patch(
+                                                                colQuerysSpvSoluciones,
+                                                                {input: "NombreAdjunto"},
+                                                                {
+                                                                    mark: false,
+                                                                    query: ""
+                                                                }
                                                             ),
-                                                            false,
-                                                            Select(SpvSlc_BtnRefreshBusquedaDocumento),
-                                                            false
-                                                        )
+                                                            Patch(
+                                                                colQuerysSpvSoluciones,
+                                                                {input: "NombreAdjunto"},
+                                                                {
+                                                                    mark: true,
+                                                                    query: "substringof('" & Self.Text & "', NombreArchivo)"
+                                                                }
+                                                            )
+                                                        );
+                                                        Select(Spv_btn_MotorPaginacionSoluciones); // <--- Ejecuta la lógica
                                                       PaddingLeft: =SpvSlc_IcnBuscarDocumento.Width + 15
                                                       RadiusBottomLeft: =8
                                                       RadiusBottomRight: =8
@@ -1102,84 +981,6 @@ Screens:
                                                 X: =571
                                                 Y: =181
                                               Children:
-                                                - SpvSlc_BtnRefreshBusquedaEstado:
-                                                    Control: Classic/Button@2.2.0
-                                                    Properties:
-                                                      BorderColor: =RGBA(0, 0, 0, 0)
-                                                      BorderStyle: =BorderStyle.None
-                                                      Color: =RGBA(255, 255, 255, 1)
-                                                      DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                                                      DisabledColor: =RGBA(161, 159, 157, 1)
-                                                      DisabledFill: =RGBA(242, 242, 241, 0)
-                                                      Fill: =RGBA(0, 120, 212, 1)
-                                                      Font: =Font.'Segoe UI'
-                                                      HoverBorderColor: =RGBA(0, 0, 0, 0)
-                                                      HoverColor: =RGBA(255, 255, 255, 1)
-                                                      HoverFill: =RGBA(16, 110, 190, 1)
-                                                      OnSelect: |
-                                                        =Set(Var_GridPageSizeSpvSoluciones,5);
-                                                        Set(Var_ResponseSpvSoluciones, 'LCP-001_Flow_SpvPaginacionSoluciones'.Run(Var_GridPageSizeSpvSoluciones,0,
-                                                                Concat(
-                                                                    Filter(
-                                                                        colQuerysSpvSoluciones,
-                                                                        mark
-                                                                    ),
-                                                                    query,
-                                                                    " and "
-                                                                ),
-                                                                "NEXT"
-                                                            )
-                                                        );
-                                                        Set(
-                                                            Var_DataSpvSoluciones,
-                                                            Table(ParseJSON(Var_ResponseSpvSoluciones.response))
-                                                        );
-                                                        Set(
-                                                            TotalItemSpvSoluciones,
-                                                            Value(ParseJSON(Var_ResponseSpvSoluciones.totalitems))
-                                                        );
-                                                        Clear(objGalleryDataSpvSoluciones);
-                                                        ForAll(
-                                                            FirstN(
-                                                                Var_DataSpvSoluciones,
-                                                                Var_GridPageSizeSpvSoluciones
-                                                            ),
-                                                            Collect(
-                                                                objGalleryDataSpvSoluciones,
-                                                                {
-                                                                    ID: ThisRecord.Value.ID,
-                                                                    NombreAdjunto: If(
-                                                                                        // Verificamos si hay adjuntos para evitar errores
-                                                                        Boolean(ThisRecord.Value.Attachments),
-                                                                        Text(First(Table(ThisRecord.Value.AttachmentFiles)).Value.FileName),
-                                                                        Blank()
-                                                                    ),
-                                                                    RutaAdjunto: If(
-                                                                        Boolean(ThisRecord.Value.Attachments),
-                                                                        Text(First(Table(ThisRecord.Value.AttachmentFiles)).Value.ServerRelativeUrl),
-                                                                        Blank()
-                                                                    ),
-                                                                    Estado: ThisRecord.Value.Estado,
-                                                                    Gerencia: ThisRecord.Value.Gerencia,
-                                                                    Torre: ThisRecord.Value.Torre,
-                                                                    Autor: ThisRecord.Value.Autor
-                                                                }
-                                                            )
-                                                        );
-                                                        // Guardamos el primer ID REAL de todo el dataset
-                                                        Set(Var_FirstIDSpvSoluciones,Min(objGalleryDataSpvSoluciones,ID));
-                                                        // Control real de NEXT (Top + 1)
-                                                        Set(Var_HasNextSpvSoluciones,CountRows(Var_DataSpvSoluciones) > Var_GridPageSizeSpvSoluciones);
-                                                      PressedBorderColor: =RGBA(0, 69, 120, 1)
-                                                      PressedColor: =RGBA(255, 255, 255, 1)
-                                                      PressedFill: =RGBA(16, 110, 190, 1)
-                                                      RadiusBottomLeft: =0
-                                                      RadiusBottomRight: =0
-                                                      RadiusTopLeft: =0
-                                                      RadiusTopRight: =0
-                                                      Visible: =false
-                                                      X: =40
-                                                      Y: =4
                                                 - SpvSlc_CtnEstado:
                                                     Control: GroupContainer@1.5.0
                                                     Variant: AutoLayout
@@ -1283,30 +1084,26 @@ Screens:
                                                             LayoutMinHeight: =40
                                                             OnSelect: |-
                                                               =UpdateContext({varRazSpvSlc : true});UpdateContext({varEstadoSelectedSpvSlc:Blank()});SetFocus(SpvSlc_LblCampoSeleccionarEstado);UpdateContext({varRazSpvSlc : false});
-                                                              IfError(
-                                                                  If(
-                                                                      IsBlank(Trim(SpvSlc_LblCampoSeleccionarEstado.Value)),
-                                                                      Patch(
-                                                                          colQuerysSpvSoluciones,
-                                                                          {input: "Estado"},
-                                                                          {
-                                                                              mark: false,
-                                                                              query: ""
-                                                                          }
-                                                                      ),
-                                                                      Patch(
-                                                                          colQuerysSpvSoluciones,
-                                                                          {input: "Estado"},
-                                                                          {
-                                                                              mark: true,
-                                                                              query: "substringof('" & SpvSlc_LblCampoSeleccionarEstado.Value & "', Estado)"
-                                                                          }
-                                                                      )
+                                                              If(
+                                                                  IsBlank(Trim(SpvSlc_LblCampoSeleccionarEstado.Value)),
+                                                                  Patch(
+                                                                      colQuerysSpvSoluciones,
+                                                                      {input: "Estado"},
+                                                                      {
+                                                                          mark: false,
+                                                                          query: ""
+                                                                      }
                                                                   ),
-                                                                  false,
-                                                                  Select(SpvSlc_BtnRefreshBusquedaEstado),
-                                                                  false
-                                                              )
+                                                                  Patch(
+                                                                      colQuerysSpvSoluciones,
+                                                                      {input: "Estado"},
+                                                                      {
+                                                                          mark: true,
+                                                                          query: "substringof('" & SpvSlc_LblCampoSeleccionarEstado.Value & "', Estado)"
+                                                                      }
+                                                                  )
+                                                              );
+                                                              Select(Spv_btn_MotorPaginacionSoluciones); // <--- Ejecuta la lógica
                                                             PaddingBottom: =5
                                                             PaddingLeft: =5
                                                             PaddingRight: =5
@@ -1331,47 +1128,13 @@ Screens:
                                                 FontColor: =ColorValue(Var_ColorBoton)
                                                 Icon: ="ChevronLeft"
                                                 OnSelect: |-
-                                                  =Set(
-                                                      Var_ResponseSpvSoluciones,
-                                                      'LCP-001_Flow_SpvPaginacionSoluciones'.Run(
-                                                          Var_GridPageSizeSpvSoluciones,
-                                                          Text(First(SpvSlc_GlrSoluciones.AllItems).ID),
-                                                          Concat(
-                                                              Filter(colQuerysSpvSoluciones, mark),
-                                                              query,
-                                                              " and "
-                                                          ),
-                                                          "PREV"
-                                                      )
-                                                  );
+                                                  =UpdateContext({Var_SpvCmcLoadingSpinnerVisible: true});
 
-                                                  Set(
-                                                      Var_DataSpvSoluciones,
-                                                      Table(ParseJSON(Var_ResponseSpvSoluciones.response))
-                                                  );
-
-                                                  Clear(objGalleryDataSpvSoluciones);
-                                                  ForAll(
-                                                      FirstN(Var_DataSpvSoluciones, Var_GridPageSizeSpvSoluciones),
-                                                      Collect(
-                                                          objGalleryDataSpvSoluciones,
-                                                          {
-                                                              ID:            ThisRecord.Value.ID,
-                                                              Gerencia:      ThisRecord.Value.Gerencia,
-                                                              Area:          ThisRecord.Value.Area,
-                                                              Subarea:       ThisRecord.Value.Subarea,
-                                                              Estado:        ThisRecord.Value.Estado,
-                                                              DatosAdjuntos: ThisRecord.Value.DatosAdjuntos,
-                                                              NombreArchivo: ThisRecord.Value.NombreArchivo,
-                                                              Descripcion:   ThisRecord.Value.Descripcion,
-                                                              Autor:         ThisRecord.Value.Autor
-                                                          }
-                                                      )
-                                                  );
-
-                                                  Set(Var_HasPrevSpvSoluciones, CountRows(Var_DataSpvSoluciones) > Var_GridPageSizeSpvSoluciones);
-                                                  Set(Var_HasNextSpvSoluciones, true);
-                                                  Set(Var_CurrentPageSpvSoluciones, Var_CurrentPageSpvSoluciones - 1)
+                                                  Set(Var_TargetIDSpvSoluciones, Max(SpvSlc_GlrSoluciones.AllItems, ID));
+                                                  Set(Var_DirectionSpvSoluciones, "PREV");
+                                                  Set(Var_IsIndividualSpvSoluciones, false);
+                                                  Set(Var_CurrentPageSpvSoluciones, Var_CurrentPageSpvSoluciones - 1);
+                                                  Select(Spv_btn_MotorPaginacionSoluciones);
                                                 Text: ="Anterior"
                                                 Y: =9
                                           - SpvSlc_BtnSiguiente:
@@ -1389,47 +1152,13 @@ Screens:
                                                 Icon: ="ChevronRight"
                                                 Layout: ='ButtonCanvas.Layout'.IconAfter
                                                 OnSelect: |-
-                                                  =Set(
-                                                      Var_ResponseSpvSoluciones,
-                                                      'LCP-001_Flow_SpvPaginacionSoluciones'.Run(
-                                                          Var_GridPageSizeSpvSoluciones,
-                                                          Text(Last(SpvSlc_GlrSoluciones.AllItems).ID),
-                                                          Concat(
-                                                              Filter(colQuerysSpvSoluciones, mark),
-                                                              query,
-                                                              " and "
-                                                          ),
-                                                          "NEXT"
-                                                      )
-                                                  );
+                                                  =UpdateContext({Var_SpvCmcLoadingSpinnerVisible: true});
 
-                                                  Set(
-                                                      Var_DataSpvSoluciones,
-                                                      Table(ParseJSON(Var_ResponseSpvSoluciones.response))
-                                                  );
-
-                                                  Clear(objGalleryDataSpvSoluciones);
-                                                  ForAll(
-                                                      FirstN(Var_DataSpvSoluciones, Var_GridPageSizeSpvSoluciones),
-                                                      Collect(
-                                                          objGalleryDataSpvSoluciones,
-                                                          {
-                                                              ID:            ThisRecord.Value.ID,
-                                                              Gerencia:      ThisRecord.Value.Gerencia,
-                                                              Area:          ThisRecord.Value.Area,
-                                                              Subarea:       ThisRecord.Value.Subarea,
-                                                              Estado:        ThisRecord.Value.Estado,
-                                                              DatosAdjuntos: ThisRecord.Value.DatosAdjuntos,
-                                                              NombreArchivo: ThisRecord.Value.NombreArchivo,
-                                                              Descripcion:   ThisRecord.Value.Descripcion,
-                                                              Autor:         ThisRecord.Value.Autor
-                                                          }
-                                                      )
-                                                  );
-
-                                                  Set(Var_HasNextSpvSoluciones, CountRows(Var_DataSpvSoluciones) > Var_GridPageSizeSpvSoluciones);
-                                                  Set(Var_HasPrevSpvSoluciones, true);
-                                                  Set(Var_CurrentPageSpvSoluciones, Var_CurrentPageSpvSoluciones + 1)
+                                                  Set(Var_TargetIDSpvSoluciones, Min(SpvSlc_GlrSoluciones.AllItems, ID));
+                                                  Set(Var_DirectionSpvSoluciones, "NEXT");
+                                                  Set(Var_IsIndividualSpvSoluciones, false);
+                                                  Set(Var_CurrentPageSpvSoluciones, Var_CurrentPageSpvSoluciones + 1);
+                                                  Select(Spv_btn_MotorPaginacionSoluciones);
                                                 Text: ="Siguiente"
                                                 X: |-
                                                   =SpvSlc_CtnPaginacionSoluciones.Width
@@ -1498,7 +1227,15 @@ Screens:
                                                       HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
                                                       HoverColor: =ColorValue(Var_ColorBoton)
                                                       HoverFill: =Color.Transparent
-                                                      OnSelect: "=Set(\r\n    Var_StartIDSpvSoluciones,\r\n    If(\r\n        ThisItem.Value = 1,\r\n        0, // Primera página siempre empieza en 0 para tu flujo\r\n        Last(\r\n            FirstN(\r\n                Table(ParseJSON('LCP-001_Flow_SpvPaginacionSoluciones'.Run(\r\n                    Var_GridPageSizeSpvSoluciones * (ThisItem.Value - 1),\r\n                    0,\r\n                    Concat(Filter(colQuerysSpvSoluciones, mark), query, \" and \"),\r\n                    \"NEXT\"\r\n                ).response)),\r\n                Var_GridPageSizeSpvSoluciones * (ThisItem.Value - 1)\r\n            )\r\n        ).Value.ID\r\n    )\r\n);\r\n\r\nSet(\r\n    Var_ResponseSpvSoluciones,\r\n\r\n        'LCP-001_Flow_SpvPaginacionSoluciones'.Run(\r\n            Var_GridPageSizeSpvSoluciones,\r\n            Var_StartIDSpvSoluciones,\r\n            Concat(Filter(colQuerysSpvSoluciones, mark), query, \" and \"),\r\n            \"NEXT\"\r\n        \r\n    )\r\n);\r\n\r\nSet(\r\n    Var_DataSpvSoluciones,\r\n    Table(ParseJSON(Var_ResponseSpvSoluciones.response))\r\n);\r\n\r\nClear(objGalleryDataSpvSoluciones);\r\nForAll(\r\n    FirstN(Var_DataSpvSoluciones, Var_GridPageSizeSpvSoluciones),\r\n    Collect(\r\n        objGalleryDataSpvSoluciones,\r\n        {\r\n            ID:            ThisRecord.Value.ID,\r\n            Gerencia:      ThisRecord.Value.Gerencia,\r\n            Area:          ThisRecord.Value.Area,\r\n            Subarea:       ThisRecord.Value.Subarea,\r\n            Estado:        ThisRecord.Value.Estado,\r\n            DatosAdjuntos: ThisRecord.Value.DatosAdjuntos,\r\n            NombreArchivo: ThisRecord.Value.NombreArchivo,\r\n            Descripcion:   ThisRecord.Value.Descripcion,\r\n            Autor:         ThisRecord.Value.Autor\r\n        }\r\n    )\r\n);\r\n\r\nSet(Var_HasPrevSpvSoluciones, ThisItem.Value > 1);\r\nSet(Var_HasNextSpvSoluciones, ThisItem.Value < RoundUp(TotalItemSpvSoluciones / Var_GridPageSizeSpvSoluciones, 0));\r\nSet(Var_CurrentPageSpvSoluciones, ThisItem.Value); // Actualiza la página seleccionada"
+                                                      OnSelect: |-
+                                                        =UpdateContext({Var_SpvCmcLoadingSpinnerVisible: true});
+
+                                                        Set(Var_CurrentPageSpvSoluciones, ThisItem.Value);
+                                                        UpdateContext({varTotalRegistrosSoluciones: Var_GridPageSizeSpvSoluciones * ThisItem.Value});
+                                                        Set(Var_TargetIDSpvSoluciones, 0);
+                                                        Set(Var_DirectionSpvSoluciones, "NEXT");
+                                                        Set(Var_IsIndividualSpvSoluciones, true);
+                                                        Select(Spv_btn_MotorPaginacionSoluciones);
                                                       PressedBorderColor: =Self.Fill
                                                       PressedColor: =ColorValue(Var_ColorPressedBoton)
                                                       PressedFill: =Color.Transparent
@@ -1514,7 +1251,7 @@ Screens:
             DisabledBorderColor: =ColorFade(Self.BorderColor, 70%)
             DisabledColor: =ColorFade(Self.Fill, 90%)
             DisabledFill: =ColorFade(Self.Fill, 70%)
-            Duration: =3000
+            Duration: =6000
             Fill: =RGBA(56, 96, 178, 1)
             Font: =Font.'Open Sans'
             HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
@@ -2134,12 +1871,12 @@ Screens:
                               Align: ='TextCanvas.Align'.Start
                               Fill: =RGBA(255, 255, 255, 1)
                               Font: =Font.'Open Sans'
-                              Height: =16
+                              Height: =18
                               PaddingLeft: =2
                               Size: =12
                               Text: ="Descripción"
                               Visible: =!IsBlank(SpvSlc_TxtDescripcionNuevaSolucion.Text)
-                              Width: =70
+                              Width: =75
                               Wrap: =false
                               X: =15
                   - SpvSlc_LblSubTituloModalNuevaSolucion:
@@ -2250,7 +1987,7 @@ Screens:
                         BorderStyle: =BorderStyle.None
                         DropShadow: =DropShadow.None
                         Height: =
-                        LayoutMaxHeight: =If(IsEmpty(Var_uploadFile_listAttachmentSpvNvSolucion),250,110)
+                        LayoutMaxHeight: =If(IsEmpty(Var_uploadFile_listAttachmentSpvNvSolucion),250,250)
                         LayoutMinHeight: =
                         LayoutMinWidth: =0
                         Width: =Parent.Width
@@ -2515,65 +2252,454 @@ Screens:
                             Control: GroupContainer@1.5.0
                             Variant: ManualLayout
                             Properties:
-                              BorderColor: =ColorValue(Var_ColorBoton)
-                              BorderStyle: =BorderStyle.Dashed
+                              BorderColor: =ColorValue(Var_ColorBordeBoton)
                               BorderThickness: =1
-                              Fill: =ColorValue(Var_ColorFadeBoton)
-                              Height: =189
+                              DropShadow: =DropShadow.None
+                              Fill: =RGBA(245, 245, 245, 1)
+                              Height: =If(SpvSlc_GlrInfoAdjuntoNuevaSolucion.Visible, Parent.Height - 20, Parent.Height - 135)
+                              RadiusBottomLeft: =10
+                              RadiusBottomRight: =10
+                              RadiusTopLeft: =10
+                              RadiusTopRight: =10
                               Visible: =CountRows(Var_uploadFile_listAttachmentSpvNvSolucion)=0
                               Width: =Parent.Width - 10
                               X: =5
                               Y: =17
                             Children:
-                              - SpvSlc_LblMensajeAdjuntoNuevaSolucion:
-                                  Control: Text@0.0.51
+                              - SpvSlc_CtnAdjunto:
+                                  Control: GroupContainer@1.5.0
+                                  Variant: ManualLayout
                                   Properties:
-                                    Align: ='TextCanvas.Align'.Center
-                                    Height: =45
-                                    Text: ="Máximo 25 MB por archivo - Formatos .pdf , .doc , .docx ,.xlsx"
-                                    VerticalAlign: =VerticalAlign.Middle
-                                    Width: =SpvSlc_AtchAdjuntoNuevaSolucion.Width
-                                    X: =SpvSlc_AtchAdjuntoNuevaSolucion.X
-                                    Y: =SpvSlc_AtchAdjuntoNuevaSolucion.Y + SpvSlc_AtchAdjuntoNuevaSolucion.Height
-                              - SpvSlc_AtchAdjuntoNuevaSolucion:
-                                  Control: Attachments@2.3.0
+                                    BorderColor: =ColorValue("#E62020")
+                                    BorderThickness: =1
+                                    DropShadow: =DropShadow.None
+                                    Height: =38
+                                    RadiusBottomLeft: =10
+                                    RadiusBottomRight: =10
+                                    RadiusTopLeft: =10
+                                    RadiusTopRight: =10
+                                    Width: =110
+                                    X: =230
+                                    Y: =20
+                                  Children:
+                                    - SpvSlc_AtchAdjuntoNuevaSolucion:
+                                        Control: Attachments@2.3.0
+                                        Properties:
+                                          AddAttachmentColor: =Blank()
+                                          AddAttachmentText: =If(Self.MaxAttachments = CountRows(SpvSlc_GlrInfoAdjuntoNuevaSolucion.AllItems),"Se alcanzó el número máximo de archivos","Subir archivo")
+                                          AddedItemColor: =Color.Red
+                                          AddedItemFill: =Color.Red
+                                          BorderColor: =Blank()
+                                          BorderThickness: =0
+                                          Color: =ColorValue("#E62020")
+                                          DisabledBorderColor: =RGBA(122, 138, 143, 1)
+                                          DisabledColor: =ColorValue("#FCFCFC")
+                                          DisabledFill: =ColorFade(ColorValue("#E96767"),50%)
+                                          DisplayMode: =If(Self.MaxAttachments = CountRows(SpvSlc_GlrInfoAdjuntoNuevaSolucion.AllItems),DisplayMode.View,DisplayMode.Edit)
+                                          DropTargetBackgroundColor: =RGBA(237, 237, 237, 0.5)
+                                          DropTargetBorderColor: =Blank()
+                                          DropTargetBorderStyle: =BorderStyle.None
+                                          DropTargetBorderThickness: =0
+                                          DropTargetTextColor: =RGBA(237, 237, 237, 0.5)
+                                          Fill: =ColorValue("#FAEFEF")
+                                          FocusedBorderColor: =Blank()
+                                          FocusedBorderThickness: =0
+                                          Font: =Font.'Open Sans'
+                                          Height: =100
+                                          HoverColor: =ColorValue(Var_ColorBlanco)
+                                          HoverFill: =ColorValue("#A81010")
+                                          ItemColor: =Blank()
+                                          ItemDisabledColor: =Blank()
+                                          ItemDisabledFill: =Blank()
+                                          ItemErrorColor: =Blank()
+                                          ItemErrorFill: =Blank()
+                                          ItemFill: =Blank()
+                                          ItemHoverColor: =Blank()
+                                          ItemHoverFill: =Blank()
+                                          ItemPressedColor: =Blank()
+                                          ItemPressedFill: =Blank()
+                                          Items: =Blank()
+                                          MaxAttachmentSize: =2500
+                                          MaxAttachments: =1
+                                          MaxAttachmentsText: ="Se alcanzo el máximo de archivos"
+                                          NoAttachmentsText: =
+                                          OnAddFile: |-
+                                            =// 1️⃣ Establecer el límite máximo estricto a 25 MB en bytes
+                                            Set(
+                                                SpvSlc_varLimiteBytes,
+                                                25 * 1024 * 1024
+                                            );
+
+                                            // 2️⃣ Limpiar los errores anteriores
+                                            Clear(SpvSlc_colErroresAdjuntos);
+
+                                            // 3️⃣ Recorrer los archivos que el usuario acaba de adjuntar
+                                            ForAll(
+                                                Self.Attachments As Archivo,
+
+                                                // Verificar que el archivo no esté duplicado en la colección original
+                                                If(
+                                                    IsBlank(
+                                                        LookUp(
+                                                            Var_uploadFile_listAttachmentSpvNvSolucion As A,
+                                                            A.Name = Archivo.Name
+                                                        )
+                                                    ),
+
+                                                    With(
+                                                        {
+                                                            // [LÓGICA ORIGINAL] Validamos si el archivo realmente tiene una extensión
+                                                            varTienePunto: Find(".", Archivo.Name) > 0
+                                                        },
+
+                                                        With(
+                                                            {
+                                                                // [LÓGICA ORIGINAL] Extraemos la extensión con punto
+                                                                varExt: If(
+                                                                    varTienePunto,
+                                                                    "." & Last(Split(Archivo.Name, ".")).Value,
+                                                                    ""
+                                                                ),
+
+                                                                // Calculamos el Base64 para obtener el peso real del archivo
+                                                                base64Contenido: Mid(
+                                                                    JSON(Archivo.Value, JSONFormat.IncludeBinaryData),
+                                                                    Find(",", JSON(Archivo.Value, JSONFormat.IncludeBinaryData)) + 1,
+                                                                    Len(JSON(Archivo.Value, JSONFormat.IncludeBinaryData)) - Find(",", JSON(Archivo.Value, JSONFormat.IncludeBinaryData)) - 1
+                                                                )
+                                                            },
+
+                                                            With(
+                                                                {
+                                                                    // Limpiamos la extensión de puntos para la validación y calculamos peso
+                                                                    extLimpia: Lower(Substitute(varExt, ".", "")),
+                                                                    nuevoBytes: Len(base64Contenido) * 0.75
+                                                                },
+
+                                                                // Validar el Formato de Documento
+                                                                If(
+                                                                    !(extLimpia in ["pdf","doc","docx","xlsx"]),
+                                                                    Collect(SpvSlc_colErroresAdjuntos, { Tipo: "Formato" }),
+
+                                                                    // Validar la Cantidad
+                                                                    If(
+                                                                        CountRows(Var_uploadFile_listAttachmentSpvNvSolucion) >= Self.MaxAttachments,
+                                                                        Collect(SpvSlc_colErroresAdjuntos, { Tipo: "Cantidad" }),
+
+                                                                        // Validar el Tamaño (máx. 25 MB por documento)
+                                                                        If(
+                                                                            nuevoBytes > SpvSlc_varLimiteBytes,
+                                                                            Collect(SpvSlc_colErroresAdjuntos, { Tipo: "Tamano" }),
+
+                                                                            // SI PASA LAS VALIDACIONES: Ejecuta tu [LÓGICA ORIGINAL INTACTA]
+                                                                            Collect(
+                                                                                Var_uploadFile_listAttachmentSpvNvSolucion,
+                                                                                {
+                                                                                    Name: Archivo.Name,
+                                                                                    Value: Archivo.Value,
+                                                                                    CustomName: If(
+                                                                                        varTienePunto,
+                                                                                        Left(Archivo.Name, Len(Archivo.Name) - Len(varExt)),
+                                                                                        Archivo.Name
+                                                                                    ),
+                                                                                    Extension: varExt,
+                                                                                    Id:Text(GUID())
+                                                                                }
+                                                                            )
+                                                                        )
+                                                                    )
+                                                                )
+                                                            )
+                                                        )
+                                                    )
+                                                )
+                                            );
+
+                                            // 4️⃣ Definir el Mensaje de error si la validación falló
+                                            Set(
+                                                SpvSlc_varMensajeError,
+                                                If(
+                                                    !IsBlank(LookUp(SpvSlc_colErroresAdjuntos, Tipo = "Formato")),
+                                                    "Formato no permitido. Solo se aceptan PDF, DOC, DOCX y XLSX.",
+                                                    !IsBlank(LookUp(SpvSlc_colErroresAdjuntos, Tipo = "Cantidad")),
+                                                    "Se alcanzó el número máximo de archivos permitidos.",
+                                                    !IsBlank(LookUp(SpvSlc_colErroresAdjuntos, Tipo = "Tamano")),
+                                                    "El tamaño del archivo no puede superar los 25 MB.",
+                                                    Blank()
+                                                )
+                                            );
+
+                                            // 5️⃣ Mostrar alerta si existe un error
+                                            If(
+                                                !IsBlank(SpvSlc_varMensajeError),
+                                                UpdateContext(
+                                                    {
+                                                        Var_Ctx_SpvMostrarErrorSoluciones: true,
+                                                        SpvSlcMensajeError: SpvSlc_varMensajeError
+                                                    }
+                                                )
+                                            );
+
+                                            // 6️⃣ Limpiar la selección de archivos
+                                            Reset(Self)
+                                          PaddingLeft: =If(Self.DisplayMode = DisplayMode.Edit, 15, 0)
+                                          PaddingRight: =5
+                                          PressedColor: =RGBA(255, 255, 255, 1)
+                                          PressedFill: =RGBA(0, 0, 0, 0)
+                                          Size: =12
+                                          Tooltip: =Blank()
+                                          Width: =Parent.Width + 50
+                                          X: =-30
+                                          Y: =-42
+                              - SpvNvCmc_LblMensajeInformativo_1:
+                                  Control: Label@2.5.1
                                   Properties:
-                                    AddAttachmentColor: =Blank()
-                                    AddAttachmentText: =If(Self.MaxAttachments = CountRows(SpvSlc_GlrInfoAdjuntoNuevaSolucion.AllItems),"Se alcanzó el número máximo de archivos","Selecciona o arrastra tu archivo")
-                                    AddedItemColor: =Color.Red
-                                    AddedItemFill: =Color.Red
-                                    BorderColor: =Blank()
-                                    BorderThickness: =0
-                                    Color: =Color.White
-                                    DisabledColor: =ColorValue(Var_ColorBlanco)
-                                    DisabledFill: =ColorFade(ColorValue(Var_ColorFondoAdjuntos),50%)
-                                    DisplayMode: =If(Self.MaxAttachments = CountRows(SpvSlc_GlrInfoAdjuntoNuevaSolucion.AllItems),DisplayMode.View,DisplayMode.Edit)
-                                    DropTargetBackgroundColor: =RGBA(237, 237, 237, 0.5)
-                                    DropTargetBorderColor: =Blank()
-                                    DropTargetBorderThickness: =0
-                                    DropTargetTextColor: =RGBA(237, 237, 237, 0.5)
-                                    Fill: =ColorValue(Var_ColorFondoAdjuntos)
-                                    FocusedBorderColor: =Blank()
-                                    FocusedBorderThickness: =0
+                                    BorderColor: =RGBA(0, 0, 0, 0)
+                                    BorderStyle: =BorderStyle.None
+                                    BorderThickness: =2
+                                    Color: =RGBA(50, 49, 48, 1)
+                                    DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                                    DisabledColor: =RGBA(161, 159, 157, 1)
+                                    FocusedBorderThickness: =4
                                     Font: =Font.'Open Sans'
-                                    Height: =103
-                                    HoverColor: =ColorValue(Var_ColorBlanco)
-                                    HoverFill: =ColorFade(ColorValue(Var_ColorFondoAdjuntos),20%)
-                                    ItemColor: =Blank()
-                                    ItemDisabledColor: =Blank()
-                                    ItemDisabledFill: =Blank()
-                                    ItemErrorColor: =Blank()
-                                    ItemErrorFill: =Blank()
-                                    ItemFill: =Blank()
-                                    ItemHoverColor: =Blank()
-                                    ItemHoverFill: =Blank()
-                                    ItemPressedColor: =Blank()
-                                    ItemPressedFill: =Blank()
-                                    Items: =Blank()
-                                    MaxAttachmentSize: =25
-                                    MaxAttachments: =5
-                                    MaxAttachmentsText: ="Se alcanzo el máximo de archivos"
-                                    NoAttachmentsText: =
+                                    Height: =20
+                                    Size: =8
+                                    Text: ="Total máximo 25 MB por archivo - Formatos .docx; .pdf"
+                                    Visible: =If(SpvNvCmc_Glrfiles.Visible,false,true)
+                                    Width: =300
+                                    X: =30
+                                    Y: =70
+                              - Image4_2:
+                                  Control: Image@2.2.3
+                                  Properties:
+                                    BorderColor: =RGBA(0, 18, 107, 1)
+                                    Height: =30
+                                    Image: =Cargar
+                                    Visible: =If(SpvNvCmc_Glrfiles.Visible,false,true)
+                                    Width: =30
+                                    X: =22
+                                    Y: =25
+                              - Gbl_LblTitleAttachment_4:
+                                  Control: Label@2.5.1
+                                  Properties:
+                                    AutoHeight: =true
+                                    BorderColor: =RGBA(0, 18, 107, 1)
+                                    Font: =Font.'Open Sans'
+                                    FontWeight: =FontWeight.Bold
+                                    Height: =20
+                                    OnSelect: =//Select(pj_piecejointe_9)
+                                    Size: =10
+                                    Text: ="Adjuntar archivo"
+                                    VerticalAlign: =VerticalAlign.Top
+                                    Visible: =If(SpvNvCmc_Glrfiles.Visible,false,true)
+                                    Wrap: =false
+                                    X: =52
+                                    Y: =26
+                  - SpvSlc_CtnBotonesNuevaSolucion:
+                      Control: GroupContainer@1.5.0
+                      Variant: AutoLayout
+                      Properties:
+                        DropShadow: =DropShadow.None
+                        LayoutAlignItems: =LayoutAlignItems.End
+                        LayoutDirection: =LayoutDirection.Horizontal
+                        LayoutGap: =24
+                        LayoutJustifyContent: =LayoutJustifyContent.SpaceBetween
+                        LayoutMaxHeight: =55
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =16
+                        PaddingBottom: =8
+                        PaddingLeft: =5
+                        PaddingRight: =5
+                        PaddingTop: =8
+                      Children:
+                        - SpvSlc_BtnGuardarBorradorNuevaSolucion:
+                            Control: Classic/Button@2.2.0
+                            Properties:
+                              BorderColor: =ColorValue(Var_ColorBorderBotonSecondary)
+                              BorderThickness: =1
+                              Color: =ColorValue(Var_ColorFontBotonSecondary)
+                              DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                              Fill: =ColorValue(Var_ColorBackgroundBotonSecondary)
+                              FillPortions: =1
+                              Font: =Font.'Open Sans'
+                              Height: =42
+                              HoverBorderColor: =ColorValue(Var_ColorBorderBotonHover)
+                              HoverColor: =ColorValue(Var_ColorFontBotonHover)
+                              HoverFill: =ColorValue(Var_ColorBackgroundBotonHover)
+                              LayoutMinWidth: =120
+                              OnSelect: |-
+                                =UpdateContext({ Var_Ctx_SpvModal_AgregarSolucion: false });
+                                // 1. Limpieza de Variables de Contexto (Jerarquía: Gerencia > Área > Subárea)
+                                UpdateContext({
+                                    varGerenciaSelected: Blank(),
+                                    varUpdateAreaSelected: Blank(),
+                                    varUpdateSubAreaSelected: Blank(),
+                                    varOpenDropDownGerencia: false,
+                                    varOpenDropDownUpdateArea: false,
+                                    varOpenDropDownUpdateSubarea: false,
+                                    varOpenDropDownEstadoSpvSlc: false
+                                });
+
+                                // 2. Limpieza de Colecciones de Datos (Estados y Archivos Adjuntos)
+                                Clear(colEstadoSolucionSeleccionadas);
+                                Clear(Var_uploadFile_listAttachmentSpvNvSolucion);
+                                Clear(SpvSlc_colErroresAdjuntos);
+
+                                // 3. Reinicio de Controles UI Directos (Solo necesarios si no dependen de las variables anteriores)
+                                Reset(SpvSlc_TxtDescripcionNuevaSolucion);
+                                Reset(SpvSlc_LblCampoSeleccionarEstado);
+                                Reset(SpvSlc_AtchAdjuntoNuevaSolucion);
+                              PressedBorderColor: =ColorValue(Var_ColorBorderBotonActive)
+                              PressedColor: =ColorValue(Var_ColorFontBotonActive)
+                              PressedFill: =ColorValue(Var_ColorBackgroundBotonActive)
+                              RadiusBottomLeft: =8
+                              RadiusBottomRight: =8
+                              RadiusTopLeft: =8
+                              RadiusTopRight: =8
+                              Size: =Var_FontSizeBoton
+                              Text: ="Cancelar"
+                              Width: =100
+                        - SpvSlc_BtnPublicarNuevaSolucion:
+                            Control: Classic/Button@2.2.0
+                            Properties:
+                              BorderColor: =ColorValue(Var_ColorHoverBoton)
+                              BorderThickness: =1
+                              Color: =RGBA(255, 255, 255, 1)
+                              DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                              Fill: =ColorValue(Var_ColorBoton)
+                              Font: =Font.'Open Sans'
+                              Height: =42
+                              HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                              HoverColor: =ColorValue(Var_ColorBlanco)
+                              HoverFill: =ColorValue(Var_ColorHoverBoton)
+                              OnSelect: |-
+                                =// 1. Forzar pérdida de foco para garantizar que el OnChange del TextInput se ejecute
+                                SetFocus(SpvSlc_LblTituloModalNuevaSolucion);
+
+                                // 2. Validación secuencial y disparo del motor transaccional
+                                If(
+                                    IsBlank(SpvSlc_LblGerenciaSelNuevaSolucion.Value),
+                                    UpdateContext({Var_Ctx_SpvMostrarErrorSoluciones: true, SpvSlcMensajeError: "Debe seleccionar una Gerencia."}),
+
+                                    IsBlank(SpvSlc_LblAreaSelNuevaSolucion.Value),
+                                    UpdateContext({Var_Ctx_SpvMostrarErrorSoluciones: true, SpvSlcMensajeError: "Debe seleccionar un Área."}),
+
+                                    IsBlank(SpvSlc_LblSubareaSelNuevaSolucion.Value),
+                                    UpdateContext({Var_Ctx_SpvMostrarErrorSoluciones: true, SpvSlcMensajeError: "Debe seleccionar una Subárea."}),
+
+                                    IsEmpty(colEstadoSolucionSeleccionadas),
+                                    UpdateContext({Var_Ctx_SpvMostrarErrorSoluciones: true, SpvSlcMensajeError: "Debe seleccionar un Estado."}),
+
+                                    IsEmpty(Var_uploadFile_listAttachmentSpvNvSolucion),
+                                    UpdateContext({Var_Ctx_SpvMostrarErrorSoluciones: true, SpvSlcMensajeError: "Debes adjuntar al menos un documento válido."}),
+
+                                    IsBlank(SpvSlc_TxtNombreDocNuevaSolucion.Text),
+                                    UpdateContext({Var_Ctx_SpvMostrarErrorSoluciones: true, SpvSlcMensajeError: "Debe ingresar Nombre para el documento."}),
+
+                                    // 3. Si todo es correcto, SOLO enviamos el formulario. La limpieza va en OnSuccess.
+                                    SubmitForm(SpvSlc_FrmOcultoAdjuntos)
+                                )
+                              PressedBorderColor: =Self.PressedFill
+                              PressedColor: =ColorValue(Var_ColorBlanco)
+                              PressedFill: =ColorValue(Var_ColorPressedBoton)
+                              RadiusBottomLeft: =8
+                              RadiusBottomRight: =8
+                              RadiusTopLeft: =8
+                              RadiusTopRight: =8
+                              Size: =Var_FontSizeBoton
+                              Text: ="Guardar"
+                              Width: =170
+                  - SpvSlc_FrmOcultoAdjuntos:
+                      Control: Form@2.4.4
+                      Variant: Classic
+                      Layout: Vertical
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        DataSource: ='LCP-001_List_Soluciones'
+                        FillPortions: =0
+                        Height: =100
+                        LayoutMinHeight: =16
+                        LayoutMinWidth: =16
+                        NumberOfColumns: =1
+                        OnFailure: |-
+                          =UpdateContext({
+                                  Var_Ctx_SpvMostrarErrorSoluciones: true,
+                                  SpvSlcMensajeError: "Ocurrió un error al intentar guardar la solución. Verifique su conexión y vuelva a intentarlo."
+                              })
+                        OnSuccess: |-
+                          =// 1. Mostrar notificación de éxito y cerrar modal
+                          UpdateContext({
+                              Var_Ctx_SpvMostrarAlertaSoluciones: true,
+                              Var_SpvMensajeSatisfactorioSolucion: "Se ha creado una nueva solución exitosamente.",
+                              Var_Ctx_SpvMostrarErrorSoluciones: false,
+                              Var_Ctx_SpvModal_AgregarSolucion: false
+                          });
+
+                          // 2. Limpieza de memoria temporal
+                          Clear(colEstadoSolucionSeleccionadas);
+                          Clear(Var_uploadFile_listAttachmentSpvNvSolucion);
+                          Clear(SpvSlc_colErroresAdjuntos);
+
+                          // 3. Reinicio de controles UI
+                          Reset(SpvSlc_TxtDescripcionNuevaSolucion);
+                          Reset(SpvSlc_LblCampoSeleccionarEstado);
+                          Reset(SpvSlc_AtchAdjuntoNuevaSolucion);
+                          Navigate(Gbl_Soluciones);
+                          // 4. Refrescar la galería principal
+                          Refresh('LCP-001_List_Soluciones')
+                        Visible: =false
+                      Children:
+                        - Datos adjuntos_DataCard3:
+                            Control: TypedDataCard@1.0.7
+                            Variant: ClassicAttachmentsEdit
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              DataField: ="{Attachments}"
+                              Default: =ThisItem.'Datos adjuntos'
+                              DisplayName: =DataSourceInfo([@'LCP-001_List_Soluciones'],DataSourceInfo.DisplayName,'{Attachments}')
+                              Required: =false
+                              Update: |-
+                                =ForAll(
+                                    Var_uploadFile_listAttachmentSpvNvSolucion,
+                                    {
+                                        Name: Name,
+                                        Value: Value,
+                                        Id: Id
+                                    }
+                                )
+                              Width: =368
+                              X: =0
+                              Y: =0
+                            Children:
+                              - DataCardKey18:
+                                  Control: Label@2.5.1
+                                  MetadataKey: FieldName
+                                  Properties:
+                                    AutoHeight: =true
+                                    BorderColor: =RGBA(0, 0, 0, 1)
+                                    Color: =RGBA(0, 18, 107, 1)
+                                    Font: =Font.'Open Sans'
+                                    Height: =34
+                                    Text: =Parent.DisplayName
+                                    Width: =Parent.Width - 60
+                                    Wrap: =false
+                                    X: =30
+                                    Y: =10
+                              - DataCardValue18:
+                                  Control: Attachments@2.3.0
+                                  MetadataKey: FieldValue
+                                  Properties:
+                                    BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
+                                    Font: =Font.'Open Sans'
+                                    HoverFill: =RGBA(186, 202, 226, 1)
+                                    ItemColor: =RGBA(255, 255, 255, 1)
+                                    ItemFill: =RGBA(56, 96, 178, 1)
+                                    ItemHoverFill: =RGBA(186, 202, 226, 1)
+                                    Items: =Var_uploadFile_listAttachmentSpvNvSolucion
+                                    Items.Name: =Name
+                                    Items.Value: =Name
+                                    MaxAttachmentSize: =2500
+                                    MaxAttachments: =1
                                     OnAddFile: |-
                                       =// 1️⃣ Establecer el límite máximo estricto a 25 MB en bytes
                                       Set(
@@ -2653,7 +2779,8 @@ Screens:
                                                                                   Left(Archivo.Name, Len(Archivo.Name) - Len(varExt)),
                                                                                   Archivo.Name
                                                                               ),
-                                                                              Extension: varExt
+                                                                              Extension: varExt,
+                                                                              Id:Text(GUID())
                                                                           }
                                                                       )
                                                                   )
@@ -2692,103 +2819,562 @@ Screens:
 
                                       // 6️⃣ Limpiar la selección de archivos
                                       Reset(Self)
+                                    PaddingBottom: =5
                                     PaddingLeft: =If(Self.DisplayMode = DisplayMode.Edit, 5, 0)
                                     PaddingRight: =5
+                                    PaddingTop: =5
                                     PressedColor: =RGBA(255, 255, 255, 1)
-                                    PressedFill: =RGBA(0, 0, 0, 0)
-                                    Size: =10
-                                    Tooltip: =Blank()
-                                    Width: =Parent.Width - 30
-                                    X: =Parent.Width/20
-                                    Y: =If(CountRows(Var_uploadFile_listAttachmentSpvNvSolucion)>0, 20,20)
-                  - SpvSlc_CtnBotonesNuevaSolucion:
-                      Control: GroupContainer@1.5.0
-                      Variant: AutoLayout
-                      Properties:
-                        DropShadow: =DropShadow.None
-                        LayoutAlignItems: =LayoutAlignItems.End
-                        LayoutDirection: =LayoutDirection.Horizontal
-                        LayoutGap: =24
-                        LayoutJustifyContent: =LayoutJustifyContent.SpaceBetween
-                        LayoutMaxHeight: =55
-                        LayoutMinHeight: =0
-                        LayoutMinWidth: =16
-                        PaddingBottom: =8
-                        PaddingLeft: =5
-                        PaddingRight: =5
-                        PaddingTop: =8
-                      Children:
-                        - SpvSlc_BtnGuardarBorradorNuevaSolucion:
-                            Control: Classic/Button@2.2.0
+                                    PressedFill: =RGBA(0, 18, 107, 1)
+                                    Tooltip: =Parent.DisplayName
+                                    Width: =Parent.Width - 60
+                                    X: =30
+                                    Y: =DataCardKey18.Y + DataCardKey18.Height + 5
+                              - ErrorMessage18:
+                                  Control: Label@2.5.1
+                                  MetadataKey: ErrorMessage
+                                  Properties:
+                                    AutoHeight: =true
+                                    BorderColor: =RGBA(0, 0, 0, 1)
+                                    Color: =RGBA(168, 0, 0, 1)
+                                    Font: =Font.'Open Sans'
+                                    FontWeight: =FontWeight.Semibold
+                                    Height: =10
+                                    Live: =Live.Assertive
+                                    PaddingBottom: =0
+                                    PaddingLeft: =0
+                                    PaddingRight: =0
+                                    PaddingTop: =0
+                                    Size: =14
+                                    Text: =Parent.Error
+                                    Visible: =Parent.DisplayMode=DisplayMode.Edit
+                                    Width: =Parent.Width - 60
+                                    X: =30
+                                    Y: =DataCardValue18.Y + DataCardValue18.Height
+                              - StarVisible18:
+                                  Control: Label@2.5.1
+                                  MetadataKey: FieldRequired
+                                  Properties:
+                                    Align: =Align.Center
+                                    BorderColor: =RGBA(0, 0, 0, 1)
+                                    Color: =RGBA(0, 18, 107, 1)
+                                    Font: =Font.'Open Sans'
+                                    Height: =DataCardKey18.Height
+                                    Text: ="*"
+                                    Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                                    Width: =30
+                                    Wrap: =false
+                                    Y: =DataCardKey18.Y
+                        - NombreArchivo_DataCard2:
+                            Control: TypedDataCard@1.0.7
+                            Variant: ClassicTextualEdit
                             Properties:
-                              BorderColor: =ColorValue(Var_ColorBorderBotonSecondary)
-                              BorderThickness: =1
-                              Color: =ColorValue(Var_ColorFontBotonSecondary)
-                              DisabledBorderColor: =RGBA(166, 166, 166, 1)
-                              Fill: =ColorValue(Var_ColorBackgroundBotonSecondary)
-                              FillPortions: =1
-                              Font: =Font.'Open Sans'
-                              Height: =42
-                              HoverBorderColor: =ColorValue(Var_ColorBorderBotonHover)
-                              HoverColor: =ColorValue(Var_ColorFontBotonHover)
-                              HoverFill: =ColorValue(Var_ColorBackgroundBotonHover)
-                              LayoutMinWidth: =120
-                              OnSelect: |-
-                                =UpdateContext({ Var_Ctx_SpvModal_AgregarSolucion: false });
-                                // 1. Limpieza de Variables de Contexto (Jerarquía: Gerencia > Área > Subárea)
-                                UpdateContext({
-                                    varGerenciaSelected: Blank(),
-                                    varUpdateAreaSelected: Blank(),
-                                    varUpdateSubAreaSelected: Blank(),
-                                    varOpenDropDownGerencia: false,
-                                    varOpenDropDownUpdateArea: false,
-                                    varOpenDropDownUpdateSubarea: false,
-                                    varOpenDropDownEstadoSpvSlc: false
-                                });
-
-                                // 2. Limpieza de Colecciones de Datos (Estados y Archivos Adjuntos)
-                                Clear(colEstadoSolucionSeleccionadas);
-                                Clear(Var_uploadFile_listAttachmentSpvNvSolucion);
-                                Clear(SpvSlc_colErroresAdjuntos);
-
-                                // 3. Reinicio de Controles UI Directos (Solo necesarios si no dependen de las variables anteriores)
-                                Reset(SpvSlc_TxtDescripcionNuevaSolucion);
-                                Reset(SpvSlc_LblCampoSeleccionarEstado);
-                                Reset(SpvSlc_AtchAdjuntoNuevaSolucion);
-                              PressedBorderColor: =ColorValue(Var_ColorBorderBotonActive)
-                              PressedColor: =ColorValue(Var_ColorFontBotonActive)
-                              PressedFill: =ColorValue(Var_ColorBackgroundBotonActive)
-                              RadiusBottomLeft: =8
-                              RadiusBottomRight: =8
-                              RadiusTopLeft: =8
-                              RadiusTopRight: =8
-                              Size: =Var_FontSizeBoton
-                              Text: ="Cancelar"
-                              Width: =100
-                        - SpvSlc_BtnPublicarNuevaSolucion:
-                            Control: Classic/Button@2.2.0
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              DataField: ="NombreArchivo"
+                              Default: =ThisItem.NombreArchivo
+                              DisplayName: =DataSourceInfo([@'LCP-001_List_Soluciones'],DataSourceInfo.DisplayName,NombreArchivo)
+                              MaxLength: =DataSourceInfo([@'LCP-001_List_Soluciones'], DataSourceInfo.MaxLength, NombreArchivo)
+                              Required: =false
+                              Update: =SpvSlc_TxtNombreDocNuevaSolucion.Text
+                              Width: =368
+                              X: =0
+                              Y: =0
+                            Children:
+                              - DataCardKey17:
+                                  Control: Label@2.5.1
+                                  MetadataKey: FieldName
+                                  Properties:
+                                    AutoHeight: =true
+                                    BorderColor: =RGBA(0, 0, 0, 1)
+                                    Color: =RGBA(0, 18, 107, 1)
+                                    Font: =Font.'Open Sans'
+                                    Height: =34
+                                    Text: =Parent.DisplayName
+                                    Width: =Parent.Width - 60
+                                    Wrap: =false
+                                    X: =30
+                                    Y: =10
+                              - DataCardValue17:
+                                  Control: Classic/TextInput@2.3.2
+                                  MetadataKey: FieldValue
+                                  Properties:
+                                    BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
+                                    Default: =SpvSlc_TxtNombreDocNuevaSolucion.Text
+                                    DelayOutput: =true
+                                    DisplayMode: =Parent.DisplayMode
+                                    Font: =Font.'Open Sans'
+                                    HoverBorderColor: =RGBA(0, 18, 107, 1)
+                                    HoverFill: =RGBA(186, 202, 226, 1)
+                                    MaxLength: =Parent.MaxLength
+                                    PaddingLeft: =5
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Tooltip: =Parent.DisplayName
+                                    Width: =Parent.Width - 60
+                                    X: =30
+                                    Y: =DataCardKey17.Y + DataCardKey17.Height + 5
+                              - ErrorMessage17:
+                                  Control: Label@2.5.1
+                                  MetadataKey: ErrorMessage
+                                  Properties:
+                                    AutoHeight: =true
+                                    BorderColor: =RGBA(0, 0, 0, 1)
+                                    Color: =RGBA(168, 0, 0, 1)
+                                    Font: =Font.'Open Sans'
+                                    FontWeight: =FontWeight.Semibold
+                                    Height: =10
+                                    Live: =Live.Assertive
+                                    PaddingBottom: =0
+                                    PaddingLeft: =0
+                                    PaddingRight: =0
+                                    PaddingTop: =0
+                                    Size: =14
+                                    Text: =Parent.Error
+                                    Visible: =Parent.DisplayMode=DisplayMode.Edit
+                                    Width: =Parent.Width - 60
+                                    X: =30
+                                    Y: =DataCardValue17.Y + DataCardValue17.Height
+                              - StarVisible17:
+                                  Control: Label@2.5.1
+                                  MetadataKey: FieldRequired
+                                  Properties:
+                                    Align: =Align.Center
+                                    BorderColor: =RGBA(0, 0, 0, 1)
+                                    Color: =RGBA(0, 18, 107, 1)
+                                    Font: =Font.'Open Sans'
+                                    Height: =DataCardKey17.Height
+                                    Text: ="*"
+                                    Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                                    Width: =30
+                                    Wrap: =false
+                                    Y: =DataCardKey17.Y
+                        - Estado_DataCard2:
+                            Control: TypedDataCard@1.0.7
+                            Variant: ClassicTextualEdit
                             Properties:
-                              BorderColor: =ColorValue(Var_ColorHoverBoton)
-                              BorderThickness: =1
-                              Color: =RGBA(255, 255, 255, 1)
-                              DisabledBorderColor: =RGBA(166, 166, 166, 1)
-                              Fill: =ColorValue(Var_ColorBoton)
-                              Font: =Font.'Open Sans'
-                              Height: =42
-                              HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
-                              HoverColor: =ColorValue(Var_ColorBlanco)
-                              HoverFill: =ColorValue(Var_ColorHoverBoton)
-                              OnSelect: "=// 1. BLOQUE DE VALIDACIÓN SECUENCIAL\r\nIf(\r\n    IsBlank(SpvSlc_LblGerenciaSelNuevaSolucion.Value),\r\n        UpdateContext({Var_Ctx_SpvMostrarErrorSoluciones: true, SpvSlcMensajeError: \"Debe seleccionar una Gerencia.\"}),\r\n    \r\n    IsBlank(SpvSlc_LblAreaSelNuevaSolucion.Value),\r\n        UpdateContext({Var_Ctx_SpvMostrarErrorSoluciones: true, SpvSlcMensajeError: \"Debe seleccionar una Área.\"}),\r\n\r\n    IsBlank(SpvSlc_LblSubareaSelNuevaSolucion.Value),\r\n        UpdateContext({Var_Ctx_SpvMostrarErrorSoluciones: true, SpvSlcMensajeError: \"Debe seleccionar una Subárea.\"}),\r\n\r\n    IsEmpty(colEstadoSolucionSeleccionadas),\r\n        UpdateContext({Var_Ctx_SpvMostrarErrorSoluciones: true, SpvSlcMensajeError: \"Debe seleccionar un Estado.\"}),\r\n    \r\n    IsEmpty(Var_uploadFile_listAttachmentSpvNvSolucion),\r\n        UpdateContext({Var_Ctx_SpvMostrarErrorSoluciones: true, SpvSlcMensajeError: \"Debes adjuntar al menos un documento válido.\"}),\r\n\r\n    IsBlank(SpvSlc_TxtNombreDocNuevaSolucion.Text),\r\n        UpdateContext({Var_Ctx_SpvMostrarErrorSoluciones: true, SpvSlcMensajeError: \"Debe ingresar Nombre para el documento.\"}),\r\n    \r\n    // 2. BLOQUE DE GUARDADO (Ejecutado solo si no hay errores en UI)\r\n    // 2.1 Patch de Metadatos\r\n    Set(\r\n        varNuevoRegistroSolucion,\r\n        IfError(\r\n            Patch(\r\n                'LCP-001_List_Soluciones', \r\n                Defaults('LCP-001_List_Soluciones'),\r\n                {\r\n                    Gerencia: SpvSlc_LblGerenciaSelNuevaSolucion.Value,\r\n                    Area: SpvSlc_LblAreaSelNuevaSolucion.Value,\r\n                    Subarea: SpvSlc_LblSubareaSelNuevaSolucion.Value,\r\n                    Descripcion: Text(SpvSlc_TxtDescripcionNuevaSolucion.Text),\r\n                    Estado: First(colEstadoSolucionSeleccionadas).Value,\r\n                    // Se elimina 'Datos adjuntos' para delegarlo al Flujo\r\n                    NombreArchivo: SpvSlc_TxtNombreDocNuevaSolucion.Text\r\n                }\r\n            ),\r\n            Blank() // Si falla, la variable quedará en blanco\r\n        )\r\n    );\r\n\r\n    // 2.2 Validación de creación de ID y llamada a Power Automate\r\n    If(\r\n        !IsBlank(varNuevoRegistroSolucion.ID),\r\n        \r\n        // Llamada al flujo controlando posibles errores de red/API\r\n        IfError(\r\n            'LCP-001_Flow_SubirAdjuntoRenombrado'.Run(\r\n                Text(varNuevoRegistroSolucion.ID), \r\n                // Concatenamos el texto del input con la extensión guardada en la colección\r\n                SpvSlc_TxtNombreDocNuevaSolucion.Text & First(Var_uploadFile_listAttachmentSpvNvSolucion).Extension, \r\n                {\r\n                    // El registro debe ser plano, sin el nodo \"file: {}\"\r\n                    name: SpvSlc_TxtNombreDocNuevaSolucion.Text & First(Var_uploadFile_listAttachmentSpvNvSolucion).Extension,\r\n                    contentBytes: First(Var_uploadFile_listAttachmentSpvNvSolucion).Value\r\n                }\r\n            ),\r\n            \r\n            // \U0001F534 Manejador de Error del Flujo (Registro creado, pero falló archivo)\r\n            UpdateContext({\r\n                Var_Ctx_SpvMostrarErrorSoluciones: true,\r\n                SpvSlcMensajeError: \"Ocurrió un error al subir el archivo adjunto.\"\r\n            }),\r\n            \r\n            // \U0001F7E2 Manejador de Éxito Total\r\n            Refresh('LCP-001_List_Soluciones');\r\n            Set(SpvSlcAlertaSatisfaccion, true);\r\n            Set(Var_SpvMensajeSatisfactorioSolucion, \"Se ha creado una nueva solución exitosamente.\");\r\n            \r\n            // 2. Limpieza de Colecciones de Datos (Estados y Archivos Adjuntos)\r\n            Clear(colEstadoSolucionSeleccionadas);\r\n            Clear(Var_uploadFile_listAttachmentSpvNvSolucion);\r\n            Clear(SpvSlc_colErroresAdjuntos);\r\n\r\n            // 3. Reinicio de Controles UI Directos (Solo necesarios si no dependen de las variables anteriores)\r\n            Reset(SpvSlc_TxtDescripcionNuevaSolucion);\r\n            Reset(SpvSlc_LblCampoSeleccionarEstado);\r\n            Reset(SpvSlc_AtchAdjuntoNuevaSolucion);\r\n            \r\n            // Cierre del modal y reseteo de validaciones\r\n            UpdateContext({\r\n                Var_Ctx_SpvMostrarErrorSoluciones: false, \r\n                Var_Ctx_SpvModal_AgregarSolucion: false \r\n            })\r\n        ),\r\n        \r\n        // \U0001F534 Manejador de Error del Patch (No se pudo crear el registro)\r\n        UpdateContext({\r\n            Var_Ctx_SpvMostrarErrorSoluciones: true,\r\n            SpvSlcMensajeError: \"Ocurrió un error de red al intentar crear la metadata de la solución.\"\r\n        })\r\n    )\r\n)"
-                              PressedBorderColor: =Self.PressedFill
-                              PressedColor: =ColorValue(Var_ColorBlanco)
-                              PressedFill: =ColorValue(Var_ColorPressedBoton)
-                              RadiusBottomLeft: =8
-                              RadiusBottomRight: =8
-                              RadiusTopLeft: =8
-                              RadiusTopRight: =8
-                              Size: =Var_FontSizeBoton
-                              Text: ="Guardar"
-                              Width: =170
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              DataField: ="Estado"
+                              Default: =ThisItem.Estado
+                              DisplayName: =DataSourceInfo([@'LCP-001_List_Soluciones'],DataSourceInfo.DisplayName,Estado)
+                              MaxLength: =DataSourceInfo([@'LCP-001_List_Soluciones'], DataSourceInfo.MaxLength, Estado)
+                              Required: =false
+                              Update: =First(colEstadoSolucionSeleccionadas).Value
+                              Width: =368
+                              X: =0
+                              Y: =0
+                            Children:
+                              - DataCardKey16:
+                                  Control: Label@2.5.1
+                                  MetadataKey: FieldName
+                                  Properties:
+                                    AutoHeight: =true
+                                    BorderColor: =RGBA(0, 0, 0, 1)
+                                    Color: =RGBA(0, 18, 107, 1)
+                                    Font: =Font.'Open Sans'
+                                    Height: =34
+                                    Text: =Parent.DisplayName
+                                    Width: =Parent.Width - 60
+                                    Wrap: =false
+                                    X: =30
+                                    Y: =10
+                              - DataCardValue16:
+                                  Control: Classic/TextInput@2.3.2
+                                  MetadataKey: FieldValue
+                                  Properties:
+                                    BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
+                                    Default: =First(colEstadoSolucionSeleccionadas).Value
+                                    DelayOutput: =true
+                                    DisplayMode: =Parent.DisplayMode
+                                    Font: =Font.'Open Sans'
+                                    HoverBorderColor: =RGBA(0, 18, 107, 1)
+                                    HoverFill: =RGBA(186, 202, 226, 1)
+                                    MaxLength: =Parent.MaxLength
+                                    PaddingLeft: =5
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Tooltip: =Parent.DisplayName
+                                    Width: =Parent.Width - 60
+                                    X: =30
+                                    Y: =DataCardKey16.Y + DataCardKey16.Height + 5
+                              - ErrorMessage16:
+                                  Control: Label@2.5.1
+                                  MetadataKey: ErrorMessage
+                                  Properties:
+                                    AutoHeight: =true
+                                    BorderColor: =RGBA(0, 0, 0, 1)
+                                    Color: =RGBA(168, 0, 0, 1)
+                                    Font: =Font.'Open Sans'
+                                    FontWeight: =FontWeight.Semibold
+                                    Height: =10
+                                    Live: =Live.Assertive
+                                    PaddingBottom: =0
+                                    PaddingLeft: =0
+                                    PaddingRight: =0
+                                    PaddingTop: =0
+                                    Size: =14
+                                    Text: =Parent.Error
+                                    Visible: =Parent.DisplayMode=DisplayMode.Edit
+                                    Width: =Parent.Width - 60
+                                    X: =30
+                                    Y: =DataCardValue16.Y + DataCardValue16.Height
+                              - StarVisible16:
+                                  Control: Label@2.5.1
+                                  MetadataKey: FieldRequired
+                                  Properties:
+                                    Align: =Align.Center
+                                    BorderColor: =RGBA(0, 0, 0, 1)
+                                    Color: =RGBA(0, 18, 107, 1)
+                                    Font: =Font.'Open Sans'
+                                    Height: =DataCardKey16.Height
+                                    Text: ="*"
+                                    Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                                    Width: =30
+                                    Wrap: =false
+                                    Y: =DataCardKey16.Y
+                        - Descripcion_DataCard2:
+                            Control: TypedDataCard@1.0.7
+                            Variant: ClassicTextualEdit
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              DataField: ="Descripcion"
+                              Default: =ThisItem.Descripcion
+                              DisplayName: =DataSourceInfo([@'LCP-001_List_Soluciones'],DataSourceInfo.DisplayName,Descripcion)
+                              MaxLength: =DataSourceInfo([@'LCP-001_List_Soluciones'], DataSourceInfo.MaxLength, Descripcion)
+                              Required: =false
+                              Update: =SpvSlc_TxtDescripcionNuevaSolucion.Text
+                              Width: =368
+                              X: =0
+                              Y: =0
+                            Children:
+                              - DataCardKey15:
+                                  Control: Label@2.5.1
+                                  MetadataKey: FieldName
+                                  Properties:
+                                    AutoHeight: =true
+                                    BorderColor: =RGBA(0, 0, 0, 1)
+                                    Color: =RGBA(0, 18, 107, 1)
+                                    Font: =Font.'Open Sans'
+                                    Height: =34
+                                    Text: =Parent.DisplayName
+                                    Width: =Parent.Width - 60
+                                    Wrap: =false
+                                    X: =30
+                                    Y: =10
+                              - DataCardValue15:
+                                  Control: Classic/TextInput@2.3.2
+                                  MetadataKey: FieldValue
+                                  Properties:
+                                    BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
+                                    Default: =SpvSlc_TxtDescripcionNuevaSolucion.Text
+                                    DelayOutput: =true
+                                    DisplayMode: =Parent.DisplayMode
+                                    Font: =Font.'Open Sans'
+                                    HoverBorderColor: =RGBA(0, 18, 107, 1)
+                                    HoverFill: =RGBA(186, 202, 226, 1)
+                                    MaxLength: =Parent.MaxLength
+                                    PaddingLeft: =5
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Tooltip: =Parent.DisplayName
+                                    Width: =Parent.Width - 60
+                                    X: =30
+                                    Y: =DataCardKey15.Y + DataCardKey15.Height + 5
+                              - ErrorMessage15:
+                                  Control: Label@2.5.1
+                                  MetadataKey: ErrorMessage
+                                  Properties:
+                                    AutoHeight: =true
+                                    BorderColor: =RGBA(0, 0, 0, 1)
+                                    Color: =RGBA(168, 0, 0, 1)
+                                    Font: =Font.'Open Sans'
+                                    FontWeight: =FontWeight.Semibold
+                                    Height: =10
+                                    Live: =Live.Assertive
+                                    PaddingBottom: =0
+                                    PaddingLeft: =0
+                                    PaddingRight: =0
+                                    PaddingTop: =0
+                                    Size: =14
+                                    Text: =Parent.Error
+                                    Visible: =Parent.DisplayMode=DisplayMode.Edit
+                                    Width: =Parent.Width - 60
+                                    X: =30
+                                    Y: =DataCardValue15.Y + DataCardValue15.Height
+                              - StarVisible15:
+                                  Control: Label@2.5.1
+                                  MetadataKey: FieldRequired
+                                  Properties:
+                                    Align: =Align.Center
+                                    BorderColor: =RGBA(0, 0, 0, 1)
+                                    Color: =RGBA(0, 18, 107, 1)
+                                    Font: =Font.'Open Sans'
+                                    Height: =DataCardKey15.Height
+                                    Text: ="*"
+                                    Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                                    Width: =30
+                                    Wrap: =false
+                                    Y: =DataCardKey15.Y
+                        - Subarea_DataCard2:
+                            Control: TypedDataCard@1.0.7
+                            Variant: ClassicTextualEdit
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              DataField: ="Subarea"
+                              Default: =ThisItem.Subarea
+                              DisplayName: =DataSourceInfo([@'LCP-001_List_Soluciones'],DataSourceInfo.DisplayName,Subarea)
+                              MaxLength: =DataSourceInfo([@'LCP-001_List_Soluciones'], DataSourceInfo.MaxLength, Subarea)
+                              Required: =false
+                              Update: =SpvSlc_LblSubareaSelNuevaSolucion.Value
+                              Width: =368
+                              X: =0
+                              Y: =0
+                            Children:
+                              - DataCardKey14:
+                                  Control: Label@2.5.1
+                                  MetadataKey: FieldName
+                                  Properties:
+                                    AutoHeight: =true
+                                    BorderColor: =RGBA(0, 0, 0, 1)
+                                    Color: =RGBA(0, 18, 107, 1)
+                                    Font: =Font.'Open Sans'
+                                    Height: =34
+                                    Text: =Parent.DisplayName
+                                    Width: =Parent.Width - 60
+                                    Wrap: =false
+                                    X: =30
+                                    Y: =10
+                              - DataCardValue14:
+                                  Control: Classic/TextInput@2.3.2
+                                  MetadataKey: FieldValue
+                                  Properties:
+                                    BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
+                                    Default: =varUpdateSubAreaSelected.SubArea
+                                    DelayOutput: =true
+                                    DisplayMode: =Parent.DisplayMode
+                                    Font: =Font.'Open Sans'
+                                    HoverBorderColor: =RGBA(0, 18, 107, 1)
+                                    HoverFill: =RGBA(186, 202, 226, 1)
+                                    MaxLength: =Parent.MaxLength
+                                    PaddingLeft: =5
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Tooltip: =Parent.DisplayName
+                                    Width: =Parent.Width - 60
+                                    X: =30
+                                    Y: =DataCardKey14.Y + DataCardKey14.Height + 5
+                              - ErrorMessage14:
+                                  Control: Label@2.5.1
+                                  MetadataKey: ErrorMessage
+                                  Properties:
+                                    AutoHeight: =true
+                                    BorderColor: =RGBA(0, 0, 0, 1)
+                                    Color: =RGBA(168, 0, 0, 1)
+                                    Font: =Font.'Open Sans'
+                                    FontWeight: =FontWeight.Semibold
+                                    Height: =10
+                                    Live: =Live.Assertive
+                                    PaddingBottom: =0
+                                    PaddingLeft: =0
+                                    PaddingRight: =0
+                                    PaddingTop: =0
+                                    Size: =14
+                                    Text: =Parent.Error
+                                    Visible: =Parent.DisplayMode=DisplayMode.Edit
+                                    Width: =Parent.Width - 60
+                                    X: =30
+                                    Y: =DataCardValue14.Y + DataCardValue14.Height
+                              - StarVisible14:
+                                  Control: Label@2.5.1
+                                  MetadataKey: FieldRequired
+                                  Properties:
+                                    Align: =Align.Center
+                                    BorderColor: =RGBA(0, 0, 0, 1)
+                                    Color: =RGBA(0, 18, 107, 1)
+                                    Font: =Font.'Open Sans'
+                                    Height: =DataCardKey14.Height
+                                    Text: ="*"
+                                    Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                                    Width: =30
+                                    Wrap: =false
+                                    Y: =DataCardKey14.Y
+                        - Area_DataCard2:
+                            Control: TypedDataCard@1.0.7
+                            Variant: ClassicTextualEdit
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              DataField: ="Area"
+                              Default: =ThisItem.Area
+                              DisplayName: =DataSourceInfo([@'LCP-001_List_Soluciones'],DataSourceInfo.DisplayName,Area)
+                              MaxLength: =DataSourceInfo([@'LCP-001_List_Soluciones'], DataSourceInfo.MaxLength, Area)
+                              Required: =false
+                              Update: =SpvSlc_LblAreaSelNuevaSolucion.Value
+                              Width: =368
+                              X: =0
+                              Y: =0
+                            Children:
+                              - DataCardKey13:
+                                  Control: Label@2.5.1
+                                  MetadataKey: FieldName
+                                  Properties:
+                                    AutoHeight: =true
+                                    BorderColor: =RGBA(0, 0, 0, 1)
+                                    Color: =RGBA(0, 18, 107, 1)
+                                    Font: =Font.'Open Sans'
+                                    Height: =34
+                                    Text: =Parent.DisplayName
+                                    Width: =Parent.Width - 60
+                                    Wrap: =false
+                                    X: =30
+                                    Y: =10
+                              - DataCardValue13:
+                                  Control: Classic/TextInput@2.3.2
+                                  MetadataKey: FieldValue
+                                  Properties:
+                                    BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
+                                    Default: =varUpdateAreaSelected.Area
+                                    DelayOutput: =true
+                                    DisplayMode: =Parent.DisplayMode
+                                    Font: =Font.'Open Sans'
+                                    HoverBorderColor: =RGBA(0, 18, 107, 1)
+                                    HoverFill: =RGBA(186, 202, 226, 1)
+                                    MaxLength: =Parent.MaxLength
+                                    PaddingLeft: =5
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Tooltip: =Parent.DisplayName
+                                    Width: =Parent.Width - 60
+                                    X: =30
+                                    Y: =DataCardKey13.Y + DataCardKey13.Height + 5
+                              - ErrorMessage13:
+                                  Control: Label@2.5.1
+                                  MetadataKey: ErrorMessage
+                                  Properties:
+                                    AutoHeight: =true
+                                    BorderColor: =RGBA(0, 0, 0, 1)
+                                    Color: =RGBA(168, 0, 0, 1)
+                                    Font: =Font.'Open Sans'
+                                    FontWeight: =FontWeight.Semibold
+                                    Height: =10
+                                    Live: =Live.Assertive
+                                    PaddingBottom: =0
+                                    PaddingLeft: =0
+                                    PaddingRight: =0
+                                    PaddingTop: =0
+                                    Size: =14
+                                    Text: =Parent.Error
+                                    Visible: =Parent.DisplayMode=DisplayMode.Edit
+                                    Width: =Parent.Width - 60
+                                    X: =30
+                                    Y: =DataCardValue13.Y + DataCardValue13.Height
+                              - StarVisible13:
+                                  Control: Label@2.5.1
+                                  MetadataKey: FieldRequired
+                                  Properties:
+                                    Align: =Align.Center
+                                    BorderColor: =RGBA(0, 0, 0, 1)
+                                    Color: =RGBA(0, 18, 107, 1)
+                                    Font: =Font.'Open Sans'
+                                    Height: =DataCardKey13.Height
+                                    Text: ="*"
+                                    Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                                    Width: =30
+                                    Wrap: =false
+                                    Y: =DataCardKey13.Y
+                        - Gerencia_DataCard2:
+                            Control: TypedDataCard@1.0.7
+                            Variant: ClassicTextualEdit
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              DataField: ="Gerencia"
+                              Default: =ThisItem.Gerencia
+                              DisplayName: =DataSourceInfo([@'LCP-001_List_Soluciones'],DataSourceInfo.DisplayName,Gerencia)
+                              MaxLength: =DataSourceInfo([@'LCP-001_List_Soluciones'], DataSourceInfo.MaxLength, Gerencia)
+                              Required: =false
+                              Update: =SpvSlc_LblGerenciaSelNuevaSolucion.Value
+                              Width: =368
+                              X: =0
+                              Y: =0
+                            Children:
+                              - DataCardKey12:
+                                  Control: Label@2.5.1
+                                  MetadataKey: FieldName
+                                  Properties:
+                                    AutoHeight: =true
+                                    BorderColor: =RGBA(0, 0, 0, 1)
+                                    Color: =RGBA(0, 18, 107, 1)
+                                    Font: =Font.'Open Sans'
+                                    Height: =34
+                                    Text: =Parent.DisplayName
+                                    Width: =Parent.Width - 60
+                                    Wrap: =false
+                                    X: =30
+                                    Y: =10
+                              - DataCardValue12:
+                                  Control: Classic/TextInput@2.3.2
+                                  MetadataKey: FieldValue
+                                  Properties:
+                                    BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
+                                    Default: =varGerenciaSelected.Nombre
+                                    DelayOutput: =true
+                                    DisplayMode: =Parent.DisplayMode
+                                    Font: =Font.'Open Sans'
+                                    HoverBorderColor: =RGBA(0, 18, 107, 1)
+                                    HoverFill: =RGBA(186, 202, 226, 1)
+                                    MaxLength: =Parent.MaxLength
+                                    OnChange: =varGerenciaSelected.Nombre
+                                    PaddingLeft: =5
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Tooltip: =Parent.DisplayName
+                                    Width: =Parent.Width - 60
+                                    X: =30
+                                    Y: =DataCardKey12.Y + DataCardKey12.Height + 5
+                              - ErrorMessage12:
+                                  Control: Label@2.5.1
+                                  MetadataKey: ErrorMessage
+                                  Properties:
+                                    AutoHeight: =true
+                                    BorderColor: =RGBA(0, 0, 0, 1)
+                                    Color: =RGBA(168, 0, 0, 1)
+                                    Font: =Font.'Open Sans'
+                                    FontWeight: =FontWeight.Semibold
+                                    Height: =10
+                                    Live: =Live.Assertive
+                                    PaddingBottom: =0
+                                    PaddingLeft: =0
+                                    PaddingRight: =0
+                                    PaddingTop: =0
+                                    Size: =14
+                                    Text: =Parent.Error
+                                    Visible: =Parent.DisplayMode=DisplayMode.Edit
+                                    Width: =Parent.Width - 60
+                                    X: =30
+                                    Y: =DataCardValue12.Y + DataCardValue12.Height
+                              - StarVisible12:
+                                  Control: Label@2.5.1
+                                  MetadataKey: FieldRequired
+                                  Properties:
+                                    Align: =Align.Center
+                                    BorderColor: =RGBA(0, 0, 0, 1)
+                                    Color: =RGBA(0, 18, 107, 1)
+                                    Font: =Font.'Open Sans'
+                                    Height: =DataCardKey12.Height
+                                    Text: ="*"
+                                    Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                                    Width: =30
+                                    Wrap: =false
+                                    Y: =DataCardKey12.Y
             - SpvSlc_CtnSubareaNuevaSol:
                 Control: GroupContainer@1.5.0
                 Variant: ManualLayout
@@ -2967,3 +3553,69 @@ Screens:
             Width: =480
             X: =Parent.Width - Self.Width - 20
             Y: =Gbl_Header_DetalleTicket.Height
+      - Spv_btn_MotorPaginacionSoluciones:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =ColorFade(Self.Fill, -15%)
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            Fill: =RGBA(56, 96, 178, 1)
+            Font: =Font.'Open Sans'
+            Height: =34
+            HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+            OnSelect: |-
+              =UpdateContext({Var_SpvCmcLoadingSpinnerVisible: true});
+              //----Flujo----
+              Set(Var_ResponseSpvSoluciones,
+                  'LCP-001_Flow_SpvPaginacionSoluciones'.Run(
+                      Var_GridPageSizeSpvSoluciones,
+                      0,
+                      Concat(
+                          Filter(colQuerysSpvSoluciones, mark),
+                          query,
+                          " and "
+                      ),
+                      "NEXT"
+                  )
+              );
+              //----Variables respuesta flujo----
+              Set(TotalItemSpvSoluciones, Value(ParseJSON(Var_ResponseSpvSoluciones.totalitems)));
+              Set(Var_DataSpvSoluciones, Table(ParseJSON(Var_ResponseSpvSoluciones.response)));
+              //----Datos para llenar galeria de Soluciones---- 
+              Clear(objGalleryDataSpvSoluciones);
+              ForAll(
+                  FirstN(Var_DataSpvSoluciones,Var_GridPageSizeSpvSoluciones),
+                  Collect(
+                      objGalleryDataSpvSoluciones,
+                      {
+                          ID:            ThisRecord.Value.ID,
+                          Gerencia:      ThisRecord.Value.Gerencia,
+                          Area:          ThisRecord.Value.Area,
+                          Subarea:       ThisRecord.Value.Subarea,
+                          Estado:        ThisRecord.Value.Estado,
+                          DatosAdjuntos: ThisRecord.Value.DatosAdjuntos,
+                          NombreArchivo: ThisRecord.Value.NombreArchivo,
+                          Descripcion:   ThisRecord.Value.Descripcion,
+                          Autor:         ThisRecord.Value.Autor
+                      }
+                  )
+              );
+
+              // 4. Actualizar estados de navegación
+              Set(
+                  Var_HasNextSpvSoluciones, 
+                  (Var_CurrentPageSpvSoluciones * Var_GridPageSizeSpvSoluciones) < TotalItemSpvSoluciones
+              );
+              Set(
+                  Var_HasPrevSpvSoluciones, 
+                  Var_CurrentPageSpvSoluciones > 1
+              );
+              UpdateContext({Var_SpvCmcLoadingSpinnerVisible: false});
+            PressedBorderColor: =Self.Fill
+            PressedColor: =Self.Fill
+            PressedFill: =Self.Color
+            Text: ="+"
+            Visible: =false
+            Width: =30
