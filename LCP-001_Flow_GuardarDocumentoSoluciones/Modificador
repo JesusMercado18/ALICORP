@@ -46,7 +46,7 @@
           },
           "runAfter": {
             "Crear_elemento": [
-              "SUCCEEDED"
+              "Succeeded"
             ]
           }
         }
@@ -93,7 +93,7 @@
           },
           "runAfter": {
             "Actualizar_elemento": [
-              "SUCCEEDED"
+              "Succeeded"
             ]
           }
         },
@@ -120,7 +120,7 @@
           },
           "runAfter": {
             "Obtener_datos_adjuntos": [
-              "SUCCEEDED"
+              "Succeeded"
             ]
           }
         },
@@ -142,7 +142,7 @@
           },
           "runAfter": {
             "For_each": [
-              "SUCCEEDED"
+              "Succeeded"
             ]
           }
         }
@@ -172,7 +172,7 @@
   },
   "runAfter": {
     "Redactar_NombreFinalDoc": [
-      "SUCCEEDED"
+      "Succeeded"
     ]
   }
 }

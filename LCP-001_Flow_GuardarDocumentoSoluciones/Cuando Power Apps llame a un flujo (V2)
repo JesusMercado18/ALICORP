@@ -76,6 +76,13 @@
           "type": "string",
           "x-ms-content-hint": "TEXT",
           "x-ms-dynamically-added": true
+        },
+        "text_8": {
+          "description": "Introduzca su entrada",
+          "title": "IDAdjunto",
+          "type": "string",
+          "x-ms-content-hint": "TEXT",
+          "x-ms-dynamically-added": true
         }
       },
       "required": [
@@ -87,7 +94,8 @@
         "text_4",
         "text_5",
         "text_6",
-        "text_7"
+        "text_7",
+        "text_8"
       ]
     }
   }

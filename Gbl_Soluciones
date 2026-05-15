@@ -562,7 +562,14 @@ Screens:
                                                 Items: =Sort(objGalleryDataSpvSoluciones,Value(ThisRecord.ID), SortOrder.Descending)
                                                 LayoutMinHeight: =16
                                                 LayoutMinWidth: =0
-                                                OnSelect: =
+                                                OnSelect: |-
+                                                  =Set(
+                                                      Var_SpvCmcSolucionSeleccionada,
+                                                      LookUp(
+                                                          'LCP-001_List_Soluciones',
+                                                          ID = Value(ThisItem.ID)
+                                                      )
+                                                  );
                                                 TemplatePadding: =10
                                                 TemplateSize: =60
                                               Children:
@@ -774,7 +781,25 @@ Screens:
                                                                         )
                                                                     )
                                                                   ImagePosition: =ImagePosition.Center
-                                                                  OnSelect: =
+                                                                  OnSelect: |-
+                                                                    =UpdateContext({Var_Ctx_Spv_NuevaSolucion: "Eliminar"});
+                                                                    'LCP-001_Flow_GuardarDocumentoSoluciones'.Run(
+                                                                                Var_Ctx_Spv_NuevaSolucion,
+                                                                                {
+                                                                                    name: "NoAplica",
+                                                                                    contentBytes: "NoAplica"
+                                                                                },
+                                                                                "NoAplica", //& First(Var_uploadFile_listAttachmentSpvNvSolucion).Extension
+                                                                                "NoAplica",
+                                                                                "NoAplica",
+                                                                                "NoAplica",
+                                                                                "NoAplica",
+                                                                                "NoAplica",
+                                                                                "NoAplica",
+                                                                                Var_SpvCmcSolucionSeleccionada.ID
+                                                                            );
+                                                                    Navigate(Gbl_Soluciones);
+                                                                    Refresh('LCP-001_List_Soluciones')
                                                                   Width: =24
                                                                   X: =70
                                                             - SpvSlc_ImgInfEditar:
@@ -783,9 +808,7 @@ Screens:
                                                                   BorderColor: =RGBA(0, 18, 107, 1)
                                                                   Height: =24
                                                                   Image: =PENCIL
-                                                                  OnSelect: |-
-                                                                    =UpdateContext({varOpenEditarSolucionSpvSlc: true});
-                                                                    UpdateContext({ Var_Ctx_Spv_NuevaSolucion: "Edicion" });
+                                                                  OnSelect: "=Select(SpvSlc_GlrSoluciones);\r\nUpdateContext({varOpenEditarSolucionSpvSlc: true});\r\nUpdateContext({Var_Ctx_Spv_NuevaSolucion: \"Edicion\"});\r\nUpdateContext({\r\n    varGerenciaSelected: Blank(),\r\n    varUpdateAreaSelected: Blank(),\r\n    varUpdateSubAreaSelected: Blank()\r\n});\r\nReset(SpvSlc_TxtDescripcionNuevaSolucion);\r\n\r\nIf(\r\n    !IsBlank(Var_SpvCmcSolucionSeleccionada),\r\n    \r\n    // 1. CARGA DE CONTEXTOS BÁSICOS (Mapeo a Registros de las Colecciones)\r\n    UpdateContext({ \r\n        varGerenciaSelected: LookUp(col_gblGerencia, Nombre = Var_SpvCmcSolucionSeleccionada.Gerencia),\r\n        varUpdateAreaSelected: LookUp(col_gblGerenciaArea, Area = Var_SpvCmcSolucionSeleccionada.Area),\r\n        varUpdateSubAreaSelected: LookUp(col_gblAreaSubArea, SubArea = Var_SpvCmcSolucionSeleccionada.Subarea)\r\n    });\r\n\r\n    // 2. CARGA DE COLECCIÓN DE ESTADO\r\n    ClearCollect(\r\n        colEstadoSolucionSeleccionadas,\r\n        LookUp(colSpvSlcEstado, Value = Var_SpvCmcSolucionSeleccionada.Estado)\r\n    );\r\n\r\n    // 3. CARGA DE ADJUNTO (Lectura de la Tabla Nativa de SharePoint)\r\n    If(\r\n        // Validamos si la tabla nativa de SharePoint contiene adjuntos\r\n        !IsEmpty(Var_SpvCmcSolucionSeleccionada.'Datos adjuntos'),\r\n        \r\n        With(\r\n            { \r\n                varPrimerAdjunto: First(Var_SpvCmcSolucionSeleccionada.'Datos adjuntos') \r\n            },\r\n            ClearCollect(\r\n                Var_uploadFile_listAttachmentSpvNvSolucion,\r\n                {\r\n                    Name: varPrimerAdjunto.DisplayName,\r\n                    Value: varPrimerAdjunto.Value, // Referencia directa al Blob nativo\r\n                    CustomName: If(\r\n                        Find(\".\", varPrimerAdjunto.DisplayName) > 0,\r\n                        Left(varPrimerAdjunto.DisplayName, Len(varPrimerAdjunto.DisplayName) - Len(Last(Split(varPrimerAdjunto.DisplayName, \".\")).Value) - 1),\r\n                        varPrimerAdjunto.DisplayName\r\n                    ),\r\n                    Extension: If(\r\n                        Find(\".\", varPrimerAdjunto.DisplayName) > 0,\r\n                        \".\" & Last(Split(varPrimerAdjunto.DisplayName, \".\")).Value,\r\n                        \"\"\r\n                    )\r\n                }\r\n            )\r\n        ),\r\n        // Si no hay adjuntos en SharePoint, limpiamos la colección del componente\r\n        Clear(Var_uploadFile_listAttachmentSpvNvSolucion)\r\n    )\r\n);\r\n\r\nUpdateContext({Var_Ctx_SpvModal_AgregarSolucion: true});"
                                                                   Width: =24
                                                                   X: =40
                                                             - SpvSlc_ImgInfDescargar:
@@ -1840,7 +1863,12 @@ Screens:
                                     BorderStyle: =BorderStyle.None
                                     BorderThickness: =0
                                     Color: =RGBA(50, 49, 48, 1)
-                                    Default: =
+                                    Default: |-
+                                      =If(
+                                          Var_Ctx_Spv_NuevaSolucion = "Edicion",
+                                          Var_SpvCmcSolucionSeleccionada.Descripcion,
+                                          ""
+                                      )
                                     DisabledBorderColor: =RGBA(0, 0, 0, 0)
                                     DisabledColor: =RGBA(161, 159, 157, 1)
                                     DisabledFill: =RGBA(0, 0, 0, 0)
@@ -2572,7 +2600,7 @@ Screens:
                               HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
                               HoverColor: =ColorValue(Var_ColorBlanco)
                               HoverFill: =ColorValue(Var_ColorHoverBoton)
-                              OnSelect: "=// 1. BLOQUE DE VALIDACIÓN SECUENCIAL\r\nIf(\r\n    IsBlank(SpvSlc_TxtNombreDocNuevaSolucion.Text),\r\n    UpdateContext({Var_Ctx_SpvMostrarErrorSoluciones: true, SpvSlcMensajeError: \"Debe ingresar el título del documento.\"}),\r\n    \r\n    IsBlank(SpvSlc_LblGerenciaSelNuevaSolucion.Value),\r\n    UpdateContext({Var_Ctx_SpvMostrarErrorSoluciones: true, SpvSlcMensajeError: \"Debe seleccionar una Gerencia.\"}),\r\n\r\n    IsEmpty(colEstadoSolucionSeleccionadas),\r\n    UpdateContext({Var_Ctx_SpvMostrarErrorSoluciones: true, SpvSlcMensajeError: \"Debe seleccionar un Estado.\"}),\r\n    \r\n    IsEmpty(Var_uploadFile_listAttachmentSpvNvSolucion),\r\n    UpdateContext({Var_Ctx_SpvMostrarErrorSoluciones: true, SpvSlcMensajeError: \"Debes adjuntar al menos un documento válido.\"}),\r\n    \r\n    // 2. EJECUCIÓN CON MANEJADOR DE ERRORES INTEGRADO\r\n    UpdateContext({Var_Ctx_SpvMostrarErrorSoluciones: false});\r\n    \r\n    IfError(\r\n        'LCP-001_Flow_GuardarDocumentoSoluciones'.Run(\r\n            Var_Ctx_Spv_NuevaSolucion,\r\n            {\r\n                name: SpvSlc_TxtNombreDocNuevaSolucion.Text & First(Var_uploadFile_listAttachmentSpvNvSolucion).Extension,\r\n                contentBytes: First(Var_uploadFile_listAttachmentSpvNvSolucion).Value\r\n            },\r\n            SpvSlc_TxtNombreDocNuevaSolucion.Text, //& First(Var_uploadFile_listAttachmentSpvNvSolucion).Extension\r\n            varGerenciaSelected.Nombre,\r\n            varUpdateAreaSelected.Area,\r\n            varUpdateSubAreaSelected.SubArea,\r\n            SpvSlc_TxtDescripcionNuevaSolucion.Text,\r\n            First(colEstadoSolucionSeleccionadas).Value,\r\n            Var_ProfileUser.NombreApellido\r\n        ),\r\n        \r\n        UpdateContext({\r\n            Var_Ctx_SpvMostrarErrorSoluciones: true,\r\n            SpvSlcMensajeError: \"Ocurrió un error de red al intentar crear la solución.\"\r\n        })\r\n    );\r\n    \r\n    // 3. SECUENCIA DE ÉXITO (Condicionada a la ausencia de errores)\r\n    If(\r\n        !Var_Ctx_SpvMostrarErrorSoluciones,\r\n        Navigate(Gbl_Soluciones);\r\n        Refresh('LCP-001_List_Soluciones');\r\n        \r\n        // Notificación de éxito reutilizando el componente Gbl_Alerta\r\n        UpdateContext({\r\n            SpvSlcAlertaSatisfaccion: true,\r\n            Var_SpvMensajeSatisfactorioSolucion: \"Se ha creado una nueva solución exitosamente.\"\r\n        });\r\n        \r\n        // Limpieza de colecciones temporales\r\n        Clear(colEstadoSolucionSeleccionadas);\r\n        Clear(Var_uploadFile_listAttachmentSpvNvSolucion);\r\n        Clear(SpvSlc_colErroresAdjuntos);\r\n\r\n        // Reinicio de controles UI\r\n        Reset(SpvSlc_TxtDescripcionNuevaSolucion);\r\n        Reset(SpvSlc_LblCampoSeleccionarEstado);\r\n        Reset(SpvSlc_AtchAdjuntoNuevaSolucion);\r\n        \r\n        // Ocultar modal\r\n        UpdateContext({\r\n            Var_Ctx_SpvModal_AgregarSolucion: false \r\n        });\r\n        \r\n        // Refrescar grilla de paginación\r\n        Select(Spv_btn_MotorPaginacionSoluciones)\r\n    )\r\n)"
+                              OnSelect: "=// 1. BLOQUE DE VALIDACIÓN SECUENCIAL\r\nIf(\r\n    IsBlank(SpvSlc_TxtNombreDocNuevaSolucion.Text),\r\n    UpdateContext({Var_Ctx_SpvMostrarErrorSoluciones: true, SpvSlcMensajeError: \"Debe ingresar el título del documento.\"}),\r\n    \r\n    IsBlank(SpvSlc_LblGerenciaSelNuevaSolucion.Value),\r\n    UpdateContext({Var_Ctx_SpvMostrarErrorSoluciones: true, SpvSlcMensajeError: \"Debe seleccionar una Gerencia.\"}),\r\n\r\n    IsEmpty(colEstadoSolucionSeleccionadas),\r\n    UpdateContext({Var_Ctx_SpvMostrarErrorSoluciones: true, SpvSlcMensajeError: \"Debe seleccionar un Estado.\"}),\r\n    \r\n    IsEmpty(Var_uploadFile_listAttachmentSpvNvSolucion),\r\n    UpdateContext({Var_Ctx_SpvMostrarErrorSoluciones: true, SpvSlcMensajeError: \"Debes adjuntar al menos un documento válido.\"}),\r\n    \r\n    // 2. EJECUCIÓN CON MANEJADOR DE ERRORES INTEGRADO\r\n    UpdateContext({Var_Ctx_SpvMostrarErrorSoluciones: false});\r\n    \r\n    IfError(\r\n        'LCP-001_Flow_GuardarDocumentoSoluciones'.Run(\r\n            Var_Ctx_Spv_NuevaSolucion,\r\n            {\r\n                name: SpvSlc_TxtNombreDocNuevaSolucion.Text & First(Var_uploadFile_listAttachmentSpvNvSolucion).Extension,\r\n                contentBytes: First(Var_uploadFile_listAttachmentSpvNvSolucion).Value\r\n            },\r\n            SpvSlc_TxtNombreDocNuevaSolucion.Text, //& First(Var_uploadFile_listAttachmentSpvNvSolucion).Extension\r\n            varGerenciaSelected.Nombre,\r\n            varUpdateAreaSelected.Area,\r\n            varUpdateSubAreaSelected.SubArea,\r\n            SpvSlc_TxtDescripcionNuevaSolucion.Text,\r\n            First(colEstadoSolucionSeleccionadas).Value,\r\n            Var_ProfileUser.NombreApellido,\r\n            If(Var_Ctx_Spv_NuevaSolucion = \"Nuevo\", \"\", Var_SpvCmcSolucionSeleccionada.ID)\r\n        ),\r\n        \r\n        UpdateContext({\r\n            Var_Ctx_SpvMostrarErrorSoluciones: true,\r\n            SpvSlcMensajeError: \"Ocurrió un error de red al intentar crear la solución.\"\r\n        })\r\n    );\r\n    \r\n    // 3. SECUENCIA DE ÉXITO (Condicionada a la ausencia de errores)\r\n    If(\r\n        !Var_Ctx_SpvMostrarErrorSoluciones,\r\n        Navigate(Gbl_Soluciones);\r\n        Refresh('LCP-001_List_Soluciones');\r\n        \r\n        // Notificación de éxito reutilizando el componente Gbl_Alerta\r\n        UpdateContext({\r\n            SpvSlcAlertaSatisfaccion: true,\r\n            Var_SpvMensajeSatisfactorioSolucion: \"Se ha creado una nueva solución exitosamente.\"\r\n        });\r\n        \r\n        // Limpieza de colecciones temporales\r\n        Clear(colEstadoSolucionSeleccionadas);\r\n        Clear(Var_uploadFile_listAttachmentSpvNvSolucion);\r\n        Clear(SpvSlc_colErroresAdjuntos);\r\n\r\n        // Reinicio de controles UI\r\n        Reset(SpvSlc_TxtDescripcionNuevaSolucion);\r\n        Reset(SpvSlc_LblCampoSeleccionarEstado);\r\n        Reset(SpvSlc_AtchAdjuntoNuevaSolucion);\r\n        \r\n        // Ocultar modal\r\n        UpdateContext({\r\n            Var_Ctx_SpvModal_AgregarSolucion: false \r\n        });\r\n        \r\n        // Refrescar grilla de paginación\r\n        Select(Spv_btn_MotorPaginacionSoluciones)\r\n    )\r\n)"
                               PressedBorderColor: =Self.PressedFill
                               PressedColor: =ColorValue(Var_ColorBlanco)
                               PressedFill: =ColorValue(Var_ColorPressedBoton)
