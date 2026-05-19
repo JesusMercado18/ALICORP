@@ -112,6 +112,8 @@ Screens:
             OnSelect: |-
               =Refresh('LCP-001_List_Usuarios');
 
+              If(Var_ProfileUser.Estado = "Activo",
+              //Si el usuario es activo
               Set(Var_ProfileUser,LookUp('LCP-001_List_Usuarios', CorreoUsuario = Var_EmailUser));
 
               ClearCollect(
@@ -161,6 +163,9 @@ Screens:
 
               Navigate(Gbl_Home, Transition.Push)
 
+              ),
+              //Si el usuario es inactivo
+              UpdateContext({OpenAlertWarnning: true, Var_Ctx_Inactivo: true, Var_Ctx_MensajeInactivo: "Usted no tiene una cuenta activa para ingresar a la aplicación"})
               )
             PressedBorderColor: =Self.Fill
             PressedColor: =Self.Fill
@@ -182,7 +187,12 @@ Screens:
             Evento_CerrarNotificacion: =
             Height: =40
             Input_MostrarOcultarNotificacion: =true
-            Input_TextoNotificacion: ="Estimado usuario no cuenta con roles asignados."
+            Input_TextoNotificacion: |-
+              =
+              If(Var_Ctx_Inactivo,
+              Var_Ctx_MensajeInactivo,
+              "Estimado usuario no cuenta con roles asignados."
+              )
             Visible: =OpenAlertWarnning
             Width: =480
             X: =856

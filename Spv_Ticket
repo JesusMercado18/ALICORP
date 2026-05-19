@@ -1266,6 +1266,7 @@ Screens:
                                                   );
                                                   // dias que ingresa el analista
 
+                                                  Set(Var_SpvTicketTracking, ShowColumns( LookUp('LCP-001_List_TicketSolicitudes', ID = ThisItem.ID ), 'Creado por', FechaModificado ) )   ;
 
                                                   Navigate(Spv_DetalleTicket)
                                                 TemplateSize: =60
@@ -1946,7 +1947,10 @@ Screens:
                                                                     Categoria: Text(ThisRecord.Value.Categoria),
                                                                     SLAEstado: Text(ThisRecord.Value.SLAEstado),
                                                                     Motivo: Text(ThisRecord.Value.Motivo),
-                                                                    MotivoObservacion: Text(ThisRecord.Value.MotivoObservacion)
+                                                                    MotivoObservacion: Text(ThisRecord.Value.MotivoObservacion),
+                                                                    Comentario: Text(ThisRecord.Value.Comentario),
+                                                                    ReAsignado: Boolean(ThisRecord.Value.ReAsignado),
+                                                                    Derivado: Boolean(ThisRecord.Value.Derivado)
                                                                 }
                                                             )
                                                         );

@@ -2073,7 +2073,7 @@ Screens:
                                           LayoutMinWidth: =16
                                         Children:
                                           - SpvSlc_TxtNombreDocNuevaSolucion:
-                                              Control: ModernTextInput@1.0.0
+                                              Control: ModernTextInput@1.1.0
                                               Properties:
                                                 Appearance: =Appearance.Outline
                                                 Default: =ThisItem.CustomName

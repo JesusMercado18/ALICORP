@@ -4,7 +4,7 @@ Screens:
       Fill: =ColorValue(Var_ColorFondoLateral)
       LoadingSpinnerColor: =RGBA(0, 120, 212, 1)
       OnVisible: |-
-        =UpdateContext({ 
+        =UpdateContext({
             menuSelected: 2,
             ctx_TextoBuscadoTemporal: Blank(),
             Var_Ctx_MostrarItemsCatalogoSpv: false,
@@ -1095,7 +1095,7 @@ Screens:
                                                     Variant: Horizontal
                                                     Properties:
                                                       BorderColor: =RGBA(0, 18, 107, 1)
-                                                      Height: =50
+                                                      Height: =80
                                                       Items: |-
                                                         =If(
                                                             !IsBlank(TotalItemSpvCatalogoServicio) && Var_GridPageSizeSpvCatalogoServicio > 0,
@@ -1103,24 +1103,8 @@ Screens:
                                                             [1] // Devuelve una secuencia de una sola página en la renderización inicial
                                                         )
                                                       TemplateSize: =30
-                                                      Width: |-
-                                                        =With(
-                                                            {
-                                                                totalPages: If(
-                                                                    Var_GridPageSizeSpvCatalogoServicio > 0,
-                                                                    RoundUp(TotalItemSpvCatalogoServicio / Var_GridPageSizeSpvCatalogoServicio, 0),
-                                                                    1 // Valor por defecto seguro (1 página) mientras el sistema carga
-                                                                ),
-                                                                maxVisible: 15,
-                                                                itemWidth: Self.TemplateWidth + Self.TemplatePadding
-                                                            },
-                                                            If(
-                                                                totalPages <= maxVisible,
-                                                                (totalPages * itemWidth) + itemWidth, // margen extra
-                                                                maxVisible * itemWidth
-                                                            )
-                                                        )
-                                                      X: =(SpvCtg_CtnPaginacionCatalogoServicio.Width - Self.Width) / 2
+                                                      Width: =481
+                                                      X: =97
                                                     Children:
                                                       - SpvCtg_CtnFocusPaginaCatalogoServicio:
                                                           Control: GroupContainer@1.5.0
@@ -1315,7 +1299,7 @@ Screens:
                                                                   HoverBorderColor: =ColorValue(Var_ColorBoton)
                                                                   HoverColor: =ColorValue(Var_ColorBoton)
                                                                   HoverFill: =Color.Transparent
-                                                                  OnSelect: "=// 1. Guardar el registro seleccionado para referencia global\r\n\r\n\r\nSet(Var_SpvCatalogoServicioSeleccionada, ThisItem);\r\n\r\n// 2. Autocompletar las variables del formulario modal buscando el registro completo en los catálogos.\r\n// Se usa Coalesce para construir un registro on-the-fly como plan de contingencia si el LookUp falla.\r\nUpdateContext({\r\n    varGerenciaSelected: Coalesce(\r\n        LookUp(col_gblGerencia, Nombre = ThisItem.Gerencia),\r\n        { Nombre: ThisItem.Gerencia }\r\n    ),\r\n    varUpdateAreaSelected: Coalesce(\r\n        LookUp(col_gblGerenciaArea, Area = ThisItem.Area),\r\n        { Area: ThisItem.Area }\r\n    ),\r\n    varUpdateSubAreaSelected: Coalesce(\r\n        LookUp(col_gblAreaSubArea, SubArea = ThisItem.SubArea),\r\n        { SubArea: ThisItem.SubArea }\r\n    ),\r\n    varUpdateTipoSolicitud: ThisItem.TipoSolicitud,\r\n    \r\n    // 3. Activar la visibilidad del Modal\r\n    Var_Ctx_SpvModal_VerDetalle: true\r\n});"
+                                                                  OnSelect: "=// 1. Guardar el registro seleccionado para referencia global\r\n\r\nUpdateContext({varOpenDropDownRolAnalistaTipoSolicitud: false});\r\n\r\n//16/05/2026 Al ver la configuracion se colapsan todos los drodowns\r\nUpdateContext({\r\nvarOpenDropDownGerencia: false,\r\nvarOpenDropDownUpdateSubarea: false,\r\nvarOpenDropDownUpdateArea: false}\r\n);\r\n\r\nSet(Var_SpvCatalogoServicioSeleccionada, ThisItem);\r\n\r\n// 2. Autocompletar las variables del formulario modal buscando el registro completo en los catálogos.\r\n// Se usa Coalesce para construir un registro on-the-fly como plan de contingencia si el LookUp falla.\r\nUpdateContext({\r\n    varGerenciaSelected: Coalesce(\r\n        LookUp(col_gblGerencia, Nombre = ThisItem.Gerencia),\r\n        { Nombre: ThisItem.Gerencia }\r\n    ),\r\n    varUpdateAreaSelected: Coalesce(\r\n        LookUp(col_gblGerenciaArea, Area = ThisItem.Area),\r\n        { Area: ThisItem.Area }\r\n    ),\r\n    varUpdateSubAreaSelected: Coalesce(\r\n        LookUp(col_gblAreaSubArea, SubArea = ThisItem.SubArea),\r\n        { SubArea: ThisItem.SubArea }\r\n    ),\r\n    varUpdateTipoSolicitud: ThisItem.TipoSolicitud,\r\n    \r\n    // 3. Activar la visibilidad del Modal\r\n    Var_Ctx_SpvModal_VerDetalle: true\r\n});"
                                                                   PaddingBottom: =0
                                                                   PaddingLeft: =40
                                                                   PaddingRight: =0

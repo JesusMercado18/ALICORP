@@ -50,7 +50,7 @@ Screens:
             ClearCollect(colQuerysSpvComunicados,
                     { input: "ID",               mark: false, query: "" },
                     { input: "Gerencia",         mark: true, query: "(substringof('" & Var_ProfileUser.Gerencia & "', Gerencia) or Gerencia eq 'Todos' or Gerencia eq null)" },
-                    { input: "Pais",             mark: false, query: "" },
+                    { input: "Pais",             mark: true, query: "(substringof('" & Var_ProfileUser.Pais & "', Pais) or Pais eq 'Todos' or Pais eq null)" },
                     { input: "Cabecera",         mark: false, query: "" },
                     { input: "Cuerpo",           mark: false, query: "" },
                     { input: "Imagen",           mark: false, query: "" },
@@ -444,6 +444,24 @@ Screens:
                                           PaddingTop: =8
                                           Width: =Parent.Width
                                         Children:
+                                          - SpvCmc_CtnFiltroOcultos:
+                                              Control: GroupContainer@1.5.0
+                                              Variant: ManualLayout
+                                              Properties:
+                                                BorderStyle: =BorderStyle.None
+                                                DropShadow: =DropShadow.None
+                                                LayoutMinHeight: =16
+                                                LayoutMinWidth: =16
+                                                Visible: |-
+                                                  =If( SpvCmc_CtnFiltroGerencia.Visible && SpvCmc_CtnFiltroEstado.Visible && !Var_OpenMenu,
+                                                      true,
+                                                      SpvCmc_CtnFiltroGerencia.Visible && SpvCmc_CtnFiltroEstado.Visible,
+                                                      false,
+                                                     !SpvCmc_CtnFiltroGerencia.Visible && SpvCmc_CtnFiltroEstado.Visible,
+                                                     true,
+                                                     !SpvCmc_CtnFiltroGerencia.Visible && !SpvCmc_CtnFiltroEstado.Visible,
+                                                     true,
+                                                     false)
                                           - SpvCmc_CtnFiltroFecha:
                                               Control: GroupContainer@1.5.0
                                               Variant: ManualLayout
@@ -451,12 +469,16 @@ Screens:
                                                 BorderColor: =ColorValue(Var_ColorBordeBoton)
                                                 BorderThickness: =1
                                                 DropShadow: =DropShadow.None
-                                                LayoutMinHeight: =35
-                                                LayoutMinWidth: =300
+                                                FillPortions: =0
+                                                Height: =40
+                                                LayoutMinHeight: =40
                                                 RadiusBottomLeft: =8
                                                 RadiusBottomRight: =8
                                                 RadiusTopLeft: =8
                                                 RadiusTopRight: =8
+                                                Width: =395
+                                                X: =40
+                                                Y: =40
                                               Children:
                                                 - SpvCmc_BtnRefreshBusquedaFecha:
                                                     Control: Classic/Button@2.2.0
@@ -591,17 +613,14 @@ Screens:
                                                 - SpvCmc_IcnCalendario:
                                                     Control: Icon@0.0.7
                                                     Properties:
-                                                      Height: =Parent.Height - 10
+                                                      Height: =40
                                                       Icon: ="Calendar"
                                                       IconColor: =ColorValue(Var_ColorBoton)
                                                       IconStyle: ='Icon.IconStyle'.Outline
                                                       Width: =Parent.Height - 10
                                                       X: |-
-                                                        =If(Var_OpenMenu,
-                                                            SpvCmc_LblFechaSeleccionada.X + SpvCmc_CtnSidebar.Width + 15,
-                                                            SpvCmc_LblFechaSeleccionada.X + SpvCmc_CtnSidebar.Width + 255
-                                                        )
-                                                      Y: =5
+                                                        =//245
+                                                        SpvCmc_BtnRefreshBusquedaArea. Width + 195
                                                 - SpvCmc_TimInitialization:
                                                     Control: Timer@2.1.0
                                                     Properties:
@@ -735,9 +754,11 @@ Screens:
                                               Variant: ManualLayout
                                               Properties:
                                                 BorderColor: =ColorValue(Var_ColorBordeBoton)
+                                                BorderStyle: =If(SpvCmc_CtnFiltroDatosGerencia.Visible, BorderStyle.Solid, BorderStyle.None)
                                                 BorderThickness: =1
                                                 ContentLanguage: =""//Steve BOURDIN MOCA by ASI
                                                 DropShadow: =DropShadow.None
+                                                FillPortions: =0
                                                 Height: =If(SpvCmc_GlrGerencia.Visible,34 + SpvCmc_CtnGerencia.Height + 15,36)
                                                 LayoutMinHeight: =35
                                                 LayoutMinWidth: =230
@@ -747,7 +768,18 @@ Screens:
                                                 RadiusBottomRight: =8
                                                 RadiusTopLeft: =8
                                                 RadiusTopRight: =8
-                                                Width: =260
+                                                Visible: |-
+                                                  =Switch(Var_RolSistema,
+                                                      "Administrador",
+                                                          true,
+                                                      "Supervisor",
+                                                          false,
+                                                      "Analista",
+                                                          false,
+                                                      "Solicitante",
+                                                          false
+                                                  )
+                                                Width: =400
                                                 X: =571
                                                 Y: =181
                                               Children:
@@ -769,6 +801,17 @@ Screens:
                                                       RadiusBottomRight: =8
                                                       RadiusTopLeft: =8
                                                       RadiusTopRight: =8
+                                                      Visible: |-
+                                                        =Switch(Var_RolSistema,
+                                                            "Administrador",
+                                                                true,
+                                                            "Supervisor",
+                                                                false,
+                                                            "Analista",
+                                                                false,
+                                                            "Solicitante",
+                                                                false
+                                                        )
                                                       Width: =Parent.Width - 2
                                                       Y: '=0   '
                                                     Children:
@@ -994,6 +1037,7 @@ Screens:
                                                 BorderThickness: =1
                                                 ContentLanguage: =""//Steve BOURDIN MOCA by ASI
                                                 DropShadow: =DropShadow.None
+                                                FillPortions: =0
                                                 Height: =If(SpvCmc_GlrArea.Visible,34 + SpvCmc_CtnGerencia.Height + 15,36)
                                                 LayoutMinHeight: =35
                                                 LayoutMinWidth: =240
@@ -1236,9 +1280,11 @@ Screens:
                                               Variant: ManualLayout
                                               Properties:
                                                 BorderColor: =ColorValue(Var_ColorBordeBoton)
+                                                BorderStyle: =If(SpvCmc_CtnFiltroDatosEstado.Visible, BorderStyle.Solid, BorderStyle.None)
                                                 BorderThickness: =1
                                                 ContentLanguage: =""//Steve BOURDIN MOCA by ASI
                                                 DropShadow: =DropShadow.None
+                                                FillPortions: =0
                                                 Height: =If(SpvCmc_GlrEstado.Visible,34 + SpvCmc_CtnGerencia.Height + 15,36)
                                                 LayoutMinHeight: =35
                                                 LayoutMinWidth: =210
@@ -1248,7 +1294,18 @@ Screens:
                                                 RadiusBottomRight: =8
                                                 RadiusTopLeft: =8
                                                 RadiusTopRight: =8
-                                                Width: =260
+                                                Visible: |-
+                                                  =Switch(Var_RolSistema,
+                                                      "Administrador",
+                                                          true,
+                                                      "Supervisor",
+                                                          true,
+                                                      "Analista",
+                                                          false,
+                                                      "Solicitante",
+                                                          false
+                                                  )
+                                                Width: =220
                                                 X: =571
                                                 Y: =181
                                               Children:
@@ -1270,6 +1327,17 @@ Screens:
                                                       RadiusBottomRight: =8
                                                       RadiusTopLeft: =8
                                                       RadiusTopRight: =8
+                                                      Visible: |-
+                                                        =Switch(Var_RolSistema,
+                                                            "Administrador",
+                                                                true,
+                                                            "Supervisor",
+                                                                true,
+                                                            "Analista",
+                                                                false,
+                                                            "Solicitante",
+                                                                false
+                                                        )
                                                       Width: =Parent.Width - 2
                                                       Y: '=0   '
                                                     Children:
@@ -1470,6 +1538,61 @@ Screens:
                                                       Visible: =false
                                                       X: =40
                                                       Y: =4
+                                    - SpvCmc_CtnSinActividad:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: AutoLayout
+                                        Properties:
+                                          DropShadow: =DropShadow.None
+                                          Fill: =RGBA(255, 255, 255, 1)
+                                          LayoutAlignItems: =LayoutAlignItems.Center
+                                          LayoutDirection: =LayoutDirection.Vertical
+                                          LayoutJustifyContent: =LayoutJustifyContent.Center
+                                          LayoutMinHeight: =16
+                                          LayoutMinWidth: =16
+                                          PaddingBottom: =8
+                                          PaddingLeft: =8
+                                          PaddingRight: =8
+                                          PaddingTop: =8
+                                          Visible: =If(IsEmpty(objGalleryDataSpvComunicados),true,false)
+                                        Children:
+                                          - SpvCmc_ImgSinActvidadCatalogo:
+                                              Control: Image@2.2.3
+                                              Properties:
+                                                BorderColor: =RGBA(0, 0, 0, 0)
+                                                BorderStyle: =BorderStyle.None
+                                                BorderThickness: =2
+                                                DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                                                DisabledFill: =RGBA(0, 0, 0, 0)
+                                                FocusedBorderThickness: =4
+                                                Height: =300
+                                                HoverBorderColor: =RGBA(0, 0, 0, 0)
+                                                HoverFill: =RGBA(0, 0, 0, 0)
+                                                Image: =SinActividadCatalogo
+                                                LayoutMinHeight: =16
+                                                LayoutMinWidth: =16
+                                                PressedBorderColor: =RGBA(0, 0, 0, 0)
+                                                PressedFill: =RGBA(0, 0, 0, 0)
+                                                Width: =300
+                                                X: =40
+                                                Y: =40
+                                          - SpvCmc_LblSinActividadCatalogo:
+                                              Control: Label@2.5.1
+                                              Properties:
+                                                Align: =Align.Center
+                                                BorderColor: =RGBA(0, 0, 0, 0)
+                                                BorderStyle: =BorderStyle.None
+                                                BorderThickness: =2
+                                                Color: =RGBA(50, 49, 48, 1)
+                                                DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                                                DisabledColor: =RGBA(161, 159, 157, 1)
+                                                FocusedBorderThickness: =4
+                                                Font: =Font.'Open Sans'
+                                                LayoutMinHeight: =16
+                                                LayoutMinWidth: =16
+                                                Size: =Var_CuerpoTexto
+                                                Text: ="No hay resultados"
+                                                Width: =235
+                                                Wrap: =false
                                     - SpvCmc_GlrComunicacion:
                                         Control: Gallery@2.15.0
                                         Variant: BrowseLayout_Vertical_TwoTextOneImageVariant_ver5.0
@@ -1485,6 +1608,7 @@ Screens:
                                             Navigate(Spv_NuevoComunicadoDetalle)
                                           ShowScrollbar: =false
                                           TemplateSize: =173
+                                          Visible: =If(IsEmpty(objGalleryDataSpvComunicados),false,true)
                                           Width: =1091
                                           X: =40
                                           Y: =40
@@ -1782,7 +1906,7 @@ Screens:
                                                                         Height: =20
                                                                         OnSelect: =
                                                                         Size: =Var_FontSizeCuerpoTable
-                                                                        Text: =ThisItem.Estado
+                                                                        Text: =ThisItem.EstadoComunicado
                                                                         Width: =Parent.Width
                                                                         X: =
                                           - SpvCmc_RctLineaSeparadora:
@@ -2191,7 +2315,18 @@ Screens:
             RadiusTopRight: =16
             Visible: =var_RangeDatePicker=true&&var_RangeDatePicker_SelectMonthYear<>true
             Width: '=SpvCmc_CtnFiltroFecha.Width '
-            X: =SpvCmc_CtnFiltros.X + SpvCmc_CtnSidebar.Width + 20
+            X: |-
+              =If(SpvCmc_CtnFiltroGerencia.Visible && SpvCmc_CtnFiltroEstado.Visible && Var_OpenMenu,
+                      SpvCmc_CtnFiltros.X + SpvCmc_CtnSidebar.Width + 25,
+                  !SpvCmc_CtnFiltroGerencia.Visible && SpvCmc_CtnFiltroEstado.Visible && !Var_OpenMenu,
+                      SpvCmc_CtnFiltros.X + SpvCmc_CtnSidebar.Width + 620,
+                  !SpvCmc_CtnFiltroGerencia.Visible && SpvCmc_CtnFiltroEstado.Visible && Var_OpenMenu,
+                      SpvCmc_CtnFiltros.X + SpvCmc_CtnSidebar.Width + 440,
+                  !SpvCmc_CtnFiltroGerencia.Visible && !SpvCmc_CtnFiltroEstado.Visible && Var_OpenMenu,
+                      SpvCmc_CtnFiltros.X + SpvCmc_CtnSidebar.Width + 670,
+                  !SpvCmc_CtnFiltroGerencia.Visible && !SpvCmc_CtnFiltroEstado.Visible && !Var_OpenMenu,
+                      SpvCmc_CtnFiltros.X + SpvCmc_CtnSidebar.Width + 850,
+                  SpvCmc_CtnFiltros.X + SpvCmc_CtnSidebar.Width + 210)
             Y: =240
           Children:
             - SpvCmc_CtnMonthYear:
@@ -2361,8 +2496,8 @@ Screens:
                                     Font: =Font.'Open Sans'
                                     Height: |-
                                       =If(Var_OpenMenu,
-                                          Parent.Height - 215,
-                                          Parent.Height - 250
+                                          Parent.Height - 245,//215
+                                          Parent.Height - 245//250
                                       )
                                     OnSelect: =Select(Parent)
                                     PaddingLeft: =12
@@ -2387,12 +2522,12 @@ Screens:
                                     BorderColor: =RGBA(0, 18, 107, 1)
                                     Color: =ColorValue(Var_ColorBoton)
                                     Font: =Font.'Open Sans'
-                                    Height: =Parent.Height - 195
+                                    Height: =Parent.Height - 220 //- 195
                                     OnSelect: =Select(Parent)
                                     PaddingLeft: =3
                                     Text: ="•"
                                     Visible: =ThisItem.Value = Today()
-                                    Width: =Parent.Width - 10
+                                    Width: =Parent.Width + 3
                               - SpvCmc_BtnDate:
                                   Control: Classic/Button@2.2.0
                                   Properties:
@@ -2491,7 +2626,7 @@ Screens:
                                     RadiusTopRight: =4
                                     Size: =10
                                     Text: =Day(ThisItem.Value)
-                                    Width: =Self.Height
+                                    Width: =Self.Height + 10
                                     X: =8
                                     Y: =0.33333333333333337
             - SpvCmc_CtnButtons:
@@ -2878,7 +3013,7 @@ Screens:
                       //Var_GridPageSizeSpvComunicados; 0;
                       If(Var_IsIndividualSpvComunicados, Text(varTotalRegistrosComunicados), Text(Var_GridPageSizeSpvComunicados)),
                       Text(Var_TargetIDSpvComunicados),
-                      Concat( Filter(colQuerysSpvComunicados, mark), query, " and " ),
+                      Concat( Filter(colQuerysSpvComunicados, mark), query, " and " ), //and
                       //"NEXT"
                       Var_DirectionSpvComunicados
                   )

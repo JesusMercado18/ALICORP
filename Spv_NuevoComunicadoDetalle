@@ -1028,6 +1028,7 @@ Screens:
                                                                   Appearance: ='TextInputCanvas.Appearance'.Outline
                                                                   BasePaletteColor: =RGBA(249, 83, 109, 1)
                                                                   BorderStyle: =BorderStyle.None
+                                                                  DisplayMode: =DisplayMode.Disabled
                                                                   FillPortions: =1
                                                                   Font: =Font.'Open Sans'
                                                                   FontSize: =Var_FontSizeFiltros + 3.5
@@ -1180,6 +1181,7 @@ Screens:
                                                                   Appearance: ='TextInputCanvas.Appearance'.Outline
                                                                   BasePaletteColor: =RGBA(249, 83, 109, 1)
                                                                   BorderStyle: =BorderStyle.None
+                                                                  DisplayMode: =DisplayMode.Disabled
                                                                   FillPortions: =1
                                                                   Font: =Font.'Open Sans'
                                                                   FontSize: =Var_FontSizeFiltros + 3.5
@@ -1563,17 +1565,7 @@ Screens:
                                                             HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
                                                             HoverColor: =RGBA(255, 255, 255, 1)
                                                             HoverFill: =RGBA(0, 0, 0, 0)
-                                                            OnSelect: |-
-                                                              =UpdateContext(
-                                                                  {
-                                                                      var_RangeDatePicker: !var_RangeDatePicker,
-                                                                      var_RangePickerDateRef: DateValue("01/" & Month(Now()) & "/" & Year(Now())),
-                                                                      var_RangeDatePicker_DateStart_Modify : var_RangeDatePicker_DateStart,
-                                                                      var_RangeDatePicker_DateEnd_Modify : var_RangeDatePicker_DateEnd
-                                                                  }
-                                                              );
-
-                                                              Select(SpvNvCmc_IcnRefreshMonthDetalle)
+                                                            OnSelect: "=/*\nUpdateContext(\n    {\n        var_RangeDatePicker: !var_RangeDatePicker;\n        var_RangePickerDateRef: DateValue(\"01/\" & Month(Now()) & \"/\" & Year(Now()));\n        var_RangeDatePicker_DateStart_Modify : var_RangeDatePicker_DateStart;\n        var_RangeDatePicker_DateEnd_Modify : var_RangeDatePicker_DateEnd\n    }\n);;\n\nSelect(SpvNvCmc_IcnRefreshMonthDetalle)\n*/\n\nUpdateContext(\n    {\n        var_RangeDatePicker: !var_RangeDatePicker,\n        \n        // CORRECCIÓN: Si hay una fecha de inicio guardada, extrae su mes y año. \n        // Si no hay nada guardada, abre el mes y año actuales.\n        var_RangePickerDateRef: If(\n            !IsBlank(var_RangeDatePicker_DateStart),\n            DateValue(\"01/\" & Month(var_RangeDatePicker_DateStart) & \"/\" & Year(var_RangeDatePicker_DateStart)),\n            DateValue(\"01/\" & Month(Now()) & \"/\" & Year(Now()))\n        ),\n        \n        var_RangeDatePicker_DateStart_Modify : var_RangeDatePicker_DateStart,\n        var_RangeDatePicker_DateEnd_Modify : var_RangeDatePicker_DateEnd\n    }\n);\n\n// Refresca los días del mes y fuerza a la galería de años a posicionarse correctamente\nSelect(SpvNvCmc_IcnRefreshMonthDetalle);\nReset(SpvNvCmc_GlrChangeYearDetalle)"
                                                             PressedBorderColor: =Self.Fill
                                                             PressedColor: =Self.Fill
                                                             PressedFill: =
@@ -1677,6 +1669,8 @@ Screens:
                                                               UpdateContext({varOpenDropDownDiaFin: false});
                                                               UpdateContext({varOpenDropDownMesInicio: false});
                                                               UpdateContext({varOpenDropDownMesFin: false});
+                                                              UpdateContext({varMesInicioSelected: Blank()});
+                                                              UpdateContext({varMesFinSelected: Blank()});
                                                               UpdateContext({varRazDiaInicio : true});
                                                               UpdateContext({varDiaInicioSelected:Blank()});
                                                               SetFocus(SpvNvCmc_LblDiaInicioDetalle);
@@ -2755,8 +2749,13 @@ Screens:
                                     DropShadow: =DropShadow.Semilight
                                     Fill: =RGBA(255, 255, 255, 1)
                                     Height: |-
-                                      =If(varDirigidoSelected.Value = "País",
-                                          CountRows(SpvCmc_GalItemsDirigidoOpcionDetalle.AllItems) * 16 + SpvCmc_TxtItemsDirigidoOpcionDetalle.Height,
+                                      =//If(varDirigidoSelected.Value = "País";
+                                      //    CountRows(SpvCmc_GalItemsDirigidoOpcionDetalle.AllItems) * 13 + SpvCmc_TxtItemsDirigidoOpcionDetalle.Height;
+                                      //   varDirigidoSelected.Value = "Gerencia";
+                                      //    CountRows(SpvCmc_GalItemsDirigidoOpcionDetalle.AllItems) * 37 + SpvCmc_TxtItemsDirigidoOpcionDetalle.Height
+                                      //)
+                                      If(varDirigidoSelected.Value = "País",
+                                          If(CountRows(SpvCmc_GalItemsDirigidoOpcionDetalle.AllItems) = 1, CountRows(SpvCmc_GalItemsDirigidoOpcionDetalle.AllItems) * 37 + SpvCmc_TxtItemsDirigidoOpcionDetalle.Height,CountRows(SpvCmc_GalItemsDirigidoOpcionDetalle.AllItems) * 13 + SpvCmc_TxtItemsDirigidoOpcionDetalle.Height),
                                          varDirigidoSelected.Value = "Gerencia",
                                           CountRows(SpvCmc_GalItemsDirigidoOpcionDetalle.AllItems) * 37 + SpvCmc_TxtItemsDirigidoOpcionDetalle.Height
                                       )
@@ -2791,10 +2790,23 @@ Screens:
                                           BorderColor: =RGBA(0, 18, 107, 1)
                                           Height: =Parent.Height - SpvCmc_TxtItemsDirigidoOpcionDetalle.Height
                                           Items: |-
-                                            =If(varDirigidoSelected.Value="Gerencia",
-                                                Filter(colSpvNvCmcGerencia, SpvCmc_TxtItemsDirigidoOpcionDetalle.Value in ThisRecord.Value Or IsBlank(SpvCmc_TxtItemsDirigidoOpcionDetalle.Value)),
-                                               varDirigidoSelected.Value="País",
-                                                 Filter(colSpvCmcPais, SpvCmc_TxtItemsDirigidoOpcionDetalle.Value in ThisRecord.Value Or IsBlank(SpvCmc_TxtItemsDirigidoOpcionDetalle.Value))
+                                            =//If(varDirigidoSelected.Value="Gerencia";
+                                            //    Filter(colSpvNvCmcGerencia; SpvCmc_TxtItemsDirigidoOpcionDetalle.Value in ThisRecord.Value Or IsBlank(SpvCmc_TxtItemsDirigidoOpcionDetalle.Value));
+                                            //   varDirigidoSelected.Value="País";
+                                            //     Filter(colSpvCmcPais; SpvCmc_TxtItemsDirigidoOpcionDetalle.Value in ThisRecord.Value Or IsBlank(SpvCmc_TxtItemsDirigidoOpcionDetalle.Value))
+                                            //)
+                                            If(Var_RolSistema = "Supervisor",
+                                                If(varDirigidoSelected.Value="Gerencia",
+                                                    Filter(Filter(colSpvNvCmcGerencia,Var_ProfileUser.Gerencia = Value), SpvCmc_TxtItemsDirigidoOpcion.Value in ThisRecord.Value Or IsBlank(SpvCmc_TxtItemsDirigidoOpcion.Value)),
+                                                   varDirigidoSelected.Value="País",
+                                                     Filter(Filter(colSpvCmcPais,Var_ProfileUser.Pais = Value), SpvCmc_TxtItemsDirigidoOpcion.Value in ThisRecord.Value Or IsBlank(SpvCmc_TxtItemsDirigidoOpcion.Value))
+                                                ),
+                                                //Rol Administrador
+                                                If(varDirigidoSelected.Value="Gerencia",
+                                                    Filter(colSpvNvCmcGerencia, SpvCmc_TxtItemsDirigidoOpcion.Value in ThisRecord.Value Or IsBlank(SpvCmc_TxtItemsDirigidoOpcion.Value)),
+                                                   varDirigidoSelected.Value="País",
+                                                    Filter(colSpvCmcPais, SpvCmc_TxtItemsDirigidoOpcion.Value in ThisRecord.Value Or IsBlank(SpvCmc_TxtItemsDirigidoOpcion.Value))
+                                                )
                                             )
                                           TemplateSize: =30
                                           Visible: =varOpenDropDownDirigidoOpcion
@@ -2886,7 +2898,7 @@ Screens:
                                       RGBA(0, 0, 0, 1)
                                     DropShadow: =DropShadow.Semibold
                                     Fill: =RGBA(255, 255, 255, 1)
-                                    Height: =Self.Width - 35
+                                    Height: =Self.Width  - 55
                                     LayoutDirection: =LayoutDirection.Vertical
                                     RadiusBottomLeft: =16
                                     RadiusBottomRight: =16
@@ -2954,7 +2966,10 @@ Screens:
                                                 LayoutMinHeight: =16
                                                 LayoutMinWidth: =16
                                                 OnSelect: |-
-                                                  =UpdateContext({var_RangeDatePicker_SelectMonthYear : true})
+                                                  =//UpdateContext({var_RangeDatePicker_SelectMonthYear : true})
+
+                                                  UpdateContext({var_RangeDatePicker_SelectMonthYear: true});
+                                                    Reset(SpvNvCmc_GlrChangeYearDetalle)
                                                 Size: =12
                                                 Text: =Proper(Text(var_RangePickerDateRef,"mmmm"))&" "&Text(var_RangePickerDateRef,"yyyy")
                                           - SpvNvCmc_IcnnextMonthDetalle:
@@ -3121,7 +3136,7 @@ Screens:
                                                             Color: =RGBA(180, 214, 250, 1)
                                                             Fill: =ColorValue(Var_ColorFadeBoton)
                                                             Font: =Font.'Open Sans'
-                                                            Height: =Parent.Height - 120
+                                                            Height: =Parent.TemplateHeight
                                                             OnSelect: =Select(Parent)
                                                             Text: =""
                                                             Visible: |-
@@ -3372,4 +3387,3 @@ Screens:
             Width: =480
             X: =Parent.Width - Self.Width - 20
             Y: =Gbl_HeaderSpvNuevoComunicadoDetalle.Height
-
