@@ -5,58 +5,61 @@ Screens:
       LoadingSpinnerColor: =RGBA(0, 120, 212, 1)
       OnVisible: |-
         =//----Variables-----
-        UpdateContext({menuSelected: 7});
-        UpdateContext({Var_Ctx_MostrarItems : false });
-        //----Flujo----
+        //UpdateContext({menuSelected: 5});; //Falta agregar el numero de indice que tiene en el menu
+        Reset(AdmUsr_TxtIBuscarDocumento);
+
+        Switch(Var_RolSistema,
+            "Administrador",
+            ClearCollect(colQuerysAdmUsuarios,
+                { input: "ID", mark: false, query: "" },
+                { input: "Codigo", mark: false, query: "" },
+                { input: "Nombre0", mark: false, query: "" },
+                { input: "Apellido", mark: false, query: "" },
+                { input: "Nombre", mark: false, query: "" },// Es NombreApellido
+                { input: "CorreoUsuario", mark: false, query: "" },
+                { input: "RolPerfil", mark: false, query: "" },
+                { input: "RolSistema", mark: false, query: "" }, 
+                { input: "Estado", mark: false, query: "" },
+                { input: "Gerencia", mark: false, query: "" }
+            ),
+            "Supervisor",
+            ClearCollect(colQuerysAdmUsuarios,
+                { input: "ID", mark: false, query: "" },
+                { input: "Codigo", mark: false, query: "" },
+                { input: "Nombre0", mark: false, query: "" },
+                { input: "Apellido", mark: false, query: "" },
+                { input: "Nombre", mark: false, query: "" },
+                { input: "CorreoUsuario", mark: false, query: "" },
+                { input: "RolPerfil", mark: false, query: "" },
+                { input: "RolSistema", mark: false, query: "" }, 
+                { input: "Estado", mark: false, query: "" },
+                { input: "Gerencia", mark: false, query: "" }
+            ),
+            //Resultado predeterminado
+            ClearCollect(colQuerysAdmUsuarios,
+                { input: "ID", mark: false, query: "" },
+                { input: "Codigo", mark: false, query: "" },
+                { input: "Nombre0", mark: false, query: "" },
+                { input: "Apellido", mark: false, query: "" },
+                { input: "Nombre", mark: false, query: "" },
+                { input: "CorreoUsuario", mark: false, query: "" },
+                { input: "RolPerfil", mark: false, query: "" },
+                { input: "RolSistema", mark: false, query: "" }, 
+                { input: "Estado", mark: false, query: "" },
+                { input: "Gerencia", mark: false, query: "(substringof('" & Var_ProfileUser.Gerencia & "', Gerencia))" }
+            )
+        );
+
         Set(Var_GridPageSizeAdmUsuarios, 5);
-        Set(Var_ResponseAdmUsuarios,
-            'LCP-001_Flow_AdmPaginacionUsuarios'.Run(
-                Var_GridPageSizeAdmUsuarios,
-                0,
-                Concat(
-                    Filter(colQuerysAdmUsuarios, mark),
-                    query,
-                    " and "
-                ),
-                "NEXT"
-            )
-        );
-        //----Variables respuesta flujo----
-        Set(TotalItemAdmUsuarios, Value(ParseJSON(Var_ResponseAdmUsuarios.totalitems)));
-        Set(Var_DataAdmUsuarios, Table(ParseJSON(Var_ResponseAdmUsuarios.response)));
-        //----Datos para llenar galeria de comunicados----
-        Clear(objGalleryDataAdmUsuarios);
-        ForAll(
-            FirstN(Var_DataAdmUsuarios,Var_GridPageSizeAdmUsuarios),
-            Collect(
-                objGalleryDataAdmUsuarios,
-                {
-                    ID:                ThisRecord.Value.ID,
-                    Codigo:            ThisRecord.Value.Codigo,
-                    Nombre:            ThisRecord.Value.Nombre,
-                    Apellido:          ThisRecord.Value.Apellido,
-                    CorreoUsuario:     ThisRecord.Value.CorreoUsuario,
-                    RolSistema:        ThisRecord.Value.RolSistema,
-                    EstadoSistema:     ThisRecord.Value.EstadoSistema,
-                    Estado:            ThisRecord.Value.Estado,
-                    Gerencia:          ThisRecord.Value.Gerencia,
-                    RolPerfil:         ThisRecord.Value.RolPerfil,
-                    Vicepresidencia:   ThisRecord.Value.Vicepresidencia,
-                    Direccion:         ThisRecord.Value.Direccion,
-                    Area:              ThisRecord.Value.Area,
-                    Pais:              ThisRecord.Value.Pais,
-                    Sociedad:          ThisRecord.Value.Sociedad,
-                    NombreJefeDirecto: ThisRecord.Value.NombreJefeDirecto,
-                    CorreoJefeDirecto: ThisRecord.Value.CorreoJefeDirecto
-                }
-            )
-        );
-        //----Guardamos el primer ID REAL de todo el dataset----
-        Set(Var_FirstIDAdmUsuarios, Min(objGalleryDataAdmUsuarios, ID));
-        //----Control real de NEXT (Top + 1)----
-        Set(Var_HasPrevAdmUsuarios, false);
-        Set(Var_HasNextAdmUsuarios, CountRows(Var_DataAdmUsuarios) > Var_GridPageSizeAdmUsuarios);
         Set(Var_CurrentPageAdmUsuarios, 1);
+        // Configuración para el motor:
+        Set(Var_TargetIDAdmUsuarios, 0);
+        Set(Var_DirectionAdmUsuarios, "NEXT");
+        Set(Var_IsIndividualAdmUsuarios, false);
+
+        Select(Spv_btn_MotorPaginacionUsuarios); // <--- Ejecuta la lógica
+
+        UpdateContext({Var_SpvCmcLoadingSpinnerVisible: false});
     Children:
       - AdmUsr_ScreenContainer:
           Control: GroupContainer@1.5.0
@@ -380,55 +383,13 @@ Screens:
                                                 FontColor: =ColorValue(Var_ColorBoton)
                                                 Icon: ="ChevronLeft"
                                                 OnSelect: |-
-                                                  =Set(
-                                                      Var_ResponseAdmUsuarios,
-                                                      'LCP-001_Flow_AdmPaginacionUsuarios'.Run(
-                                                          Var_GridPageSizeAdmUsuarios,
-                                                          Text(First(AdmUsr_GlrUsuarios.AllItems).ID),
-                                                          Concat(
-                                                              Filter(colQuerysAdmUsuarios, mark),
-                                                              query,
-                                                              " and "
-                                                          ),
-                                                          "PREV"
-                                                      )
-                                                  );
+                                                  =UpdateContext({Var_SpvCmcLoadingSpinnerVisible: true});
 
-                                                  Set(
-                                                      Var_DataAdmUsuarios,
-                                                      Table(ParseJSON(Var_ResponseAdmUsuarios.response))
-                                                  );
-
-                                                  Clear(objGalleryDataAdmUsuarios);
-                                                  ForAll(
-                                                      FirstN(Var_DataAdmUsuarios, Var_GridPageSizeAdmUsuarios),
-                                                      Collect(
-                                                          objGalleryDataAdmUsuarios,
-                                                          {
-                                                              ID:                ThisRecord.Value.ID,
-                                                              Codigo:            ThisRecord.Value.Codigo,
-                                                              Nombre:            ThisRecord.Value.Nombre,
-                                                              Apellido:          ThisRecord.Value.Apellido,
-                                                              CorreoUsuario:     ThisRecord.Value.CorreoUsuario,
-                                                              RolSistema:        ThisRecord.Value.RolSistema,
-                                                              EstadoSistema:     ThisRecord.Value.EstadoSistema,
-                                                              Estado:            ThisRecord.Value.Estado,
-                                                              Gerencia:          ThisRecord.Value.Gerencia,
-                                                              RolPerfil:         ThisRecord.Value.RolPerfil,
-                                                              Vicepresidencia:   ThisRecord.Value.Vicepresidencia,
-                                                              Direccion:         ThisRecord.Value.Direccion,
-                                                              Area:              ThisRecord.Value.Area,
-                                                              Pais:              ThisRecord.Value.Pais,
-                                                              Sociedad:          ThisRecord.Value.Sociedad,
-                                                              NombreJefeDirecto: ThisRecord.Value.NombreJefeDirecto,
-                                                              CorreoJefeDirecto: ThisRecord.Value.CorreoJefeDirecto
-                                                          }
-                                                      )
-                                                  );
-
-                                                  Set(Var_HasPrevAdmUsuarios, CountRows(Var_DataAdmUsuarios) > Var_GridPageSizeAdmUsuarios);
-                                                  Set(Var_HasNextAdmUsuarios, true);
-                                                  Set(Var_CurrentPageAdmUsuarios, Var_CurrentPageAdmUsuarios - 1)
+                                                  Set(Var_TargetIDSpvUsuarios, Max(AdmUsr_GlrUsuarios.AllItems, ID));
+                                                  Set(Var_DirectionSpvUsuarios, "PREV");
+                                                  Set(Var_IsIndividualSpvUsuarios, false);
+                                                  Set(Var_CurrentPageSpvUsuarios, Var_CurrentPageSpvUsuarios - 1);
+                                                  Select(Spv_btn_MotorPaginacionUsuarios);
                                                 Text: ="Anterior"
                                                 Y: =9
                                           - AdmUsr_BtnSiguiente:
@@ -446,55 +407,13 @@ Screens:
                                                 Icon: ="ChevronRight"
                                                 Layout: ='ButtonCanvas.Layout'.IconAfter
                                                 OnSelect: |-
-                                                  =Set(
-                                                      Var_ResponseAdmUsuarios,
-                                                      'LCP-001_Flow_AdmPaginacionUsuarios'.Run(
-                                                          Var_GridPageSizeAdmUsuarios,
-                                                          Text(Last(AdmUsr_GlrUsuarios.AllItems).ID),
-                                                          Concat(
-                                                              Filter(colQuerysAdmUsuarios, mark),
-                                                              query,
-                                                              " and "
-                                                          ),
-                                                          "NEXT"
-                                                      )
-                                                  );
+                                                  =UpdateContext({Var_SpvCmcLoadingSpinnerVisible: true});
 
-                                                  Set(
-                                                      Var_DataAdmUsuarios,
-                                                      Table(ParseJSON(Var_ResponseAdmUsuarios.response))
-                                                  );
-
-                                                  Clear(objGalleryDataAdmUsuarios);
-                                                  ForAll(
-                                                      FirstN(Var_DataAdmUsuarios, Var_GridPageSizeAdmUsuarios),
-                                                      Collect(
-                                                          objGalleryDataAdmUsuarios,
-                                                          {
-                                                              ID:                ThisRecord.Value.ID,
-                                                              Codigo:            ThisRecord.Value.Codigo,
-                                                              Nombre:            ThisRecord.Value.Nombre,
-                                                              Apellido:          ThisRecord.Value.Apellido,
-                                                              CorreoUsuario:     ThisRecord.Value.CorreoUsuario,
-                                                              RolSistema:        ThisRecord.Value.RolSistema,
-                                                              EstadoSistema:     ThisRecord.Value.EstadoSistema,
-                                                              Estado:            ThisRecord.Value.Estado,
-                                                              Gerencia:          ThisRecord.Value.Gerencia,
-                                                              RolPerfil:         ThisRecord.Value.RolPerfil,
-                                                              Vicepresidencia:   ThisRecord.Value.Vicepresidencia,
-                                                              Direccion:         ThisRecord.Value.Direccion,
-                                                              Area:              ThisRecord.Value.Area,
-                                                              Pais:              ThisRecord.Value.Pais,
-                                                              Sociedad:          ThisRecord.Value.Sociedad,
-                                                              NombreJefeDirecto: ThisRecord.Value.NombreJefeDirecto,
-                                                              CorreoJefeDirecto: ThisRecord.Value.CorreoJefeDirecto
-                                                          }
-                                                      )
-                                                  );
-
-                                                  Set(Var_HasNextAdmUsuarios, CountRows(Var_DataAdmUsuarios) > Var_GridPageSizeAdmUsuarios);
-                                                  Set(Var_HasPrevAdmUsuarios, true);
-                                                  Set(Var_CurrentPageAdmUsuarios, Var_CurrentPageAdmUsuarios + 1)
+                                                  Set(Var_TargetIDAdmUsuarios, Min(AdmUsr_GlrUsuarios.AllItems, ID));
+                                                  Set(Var_DirectionAdmUsuarios, "NEXT");
+                                                  Set(Var_IsIndividualAdmUsuarios, false);
+                                                  Set(Var_CurrentPageAdmUsuarios, Var_CurrentPageAdmUsuarios + 1);
+                                                  Select(Spv_btn_MotorPaginacionUsuarios);
                                                 Text: ="Siguiente"
                                                 X: |-
                                                   =AdmUsr_CtnPaginacionUsuarios.Width
@@ -563,7 +482,15 @@ Screens:
                                                       HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
                                                       HoverColor: =ColorValue(Var_ColorBoton)
                                                       HoverFill: =Color.Transparent
-                                                      OnSelect: "=Set(\r\n    Var_StartIDAdmUsuarios,\r\n    If(\r\n        ThisItem.Value = 1,\r\n        0, // Primera página siempre empieza en 0 para tu flujo\r\n        Last(\r\n            FirstN(\r\n                Table(ParseJSON('LCP-001_Flow_AdmPaginacionUsuarios'.Run(\r\n                    Var_GridPageSizeAdmUsuarios * (ThisItem.Value - 1),\r\n                    0,\r\n                    Concat(Filter(colQuerysAdmUsuarios, mark), query, \" and \"),\r\n                    \"NEXT\"\r\n                ).response)),\r\n                Var_GridPageSizeAdmUsuarios * (ThisItem.Value - 1)\r\n            )\r\n        ).Value.ID\r\n    )\r\n);\r\n\r\nSet(\r\n    Var_ResponseAdmUsuarios,\r\n\r\n        'LCP-001_Flow_AdmPaginacionUsuarios'.Run(\r\n            Var_GridPageSizeAdmUsuarios,\r\n            Var_StartIDAdmUsuarios,\r\n            Concat(Filter(colQuerysAdmUsuarios, mark), query, \" and \"),\r\n            \"NEXT\"\r\n        \r\n    )\r\n);\r\n\r\nSet(\r\n    Var_DataAdmUsuarios,\r\n    Table(ParseJSON(Var_ResponseAdmUsuarios.response))\r\n);\r\n\r\nClear(objGalleryDataAdmUsuarios);\r\nForAll(\r\n    FirstN(Var_DataAdmUsuarios, Var_GridPageSizeAdmUsuarios),\r\n    Collect(\r\n        objGalleryDataAdmUsuarios,\r\n        {\r\n            ID:                ThisRecord.Value.ID,\r\n            Codigo:            ThisRecord.Value.Codigo,\r\n            Nombre:            ThisRecord.Value.Nombre,\r\n            Apellido:          ThisRecord.Value.Apellido,\r\n            CorreoUsuario:     ThisRecord.Value.CorreoUsuario,\r\n            RolSistema:        ThisRecord.Value.RolSistema,\r\n            EstadoSistema:     ThisRecord.Value.EstadoSistema,\r\n            Estado:            ThisRecord.Value.Estado,\r\n            Gerencia:          ThisRecord.Value.Gerencia,\r\n            RolPerfil:         ThisRecord.Value.RolPerfil,\r\n            Vicepresidencia:   ThisRecord.Value.Vicepresidencia,\r\n            Direccion:         ThisRecord.Value.Direccion,\r\n            Area:              ThisRecord.Value.Area,\r\n            Pais:              ThisRecord.Value.Pais,\r\n            Sociedad:          ThisRecord.Value.Sociedad,\r\n            NombreJefeDirecto: ThisRecord.Value.NombreJefeDirecto,\r\n            CorreoJefeDirecto: ThisRecord.Value.CorreoJefeDirecto\r\n        }\r\n    )\r\n);\r\n\r\nSet(Var_HasPrevAdmUsuarios, ThisItem.Value > 1);\r\nSet(Var_HasNextAdmUsuarios, ThisItem.Value < RoundUp(TotalItemAdmUsuarios / Var_GridPageSizeAdmUsuarios, 0));\r\nSet(Var_CurrentPageAdmUsuarios, ThisItem.Value); // Actualiza la página seleccionada"
+                                                      OnSelect: |-
+                                                        =UpdateContext({Var_SpvCmcLoadingSpinnerVisible: true});
+
+                                                        Set(Var_CurrentPageAdmUsuarios, ThisItem.Value);
+                                                        UpdateContext({varTotalRegistrosUsuarios: Var_GridPageSizeAdmUsuarios * ThisItem.Value});
+                                                        Set(Var_TargetIDAdmUsuarios, 0);
+                                                        Set(Var_DirectionAdmUsuarios, "NEXT");
+                                                        Set(Var_IsIndividualAdmUsuarios, true);
+                                                        Select(Spv_btn_MotorPaginacionUsuarios);
                                                       PressedBorderColor: =Self.Fill
                                                       PressedColor: =ColorValue(Var_ColorPressedBoton)
                                                       PressedFill: =Color.Transparent
@@ -579,7 +506,7 @@ Screens:
                                           LayoutAlignItems: =LayoutAlignItems.Stretch
                                           LayoutDirection: =LayoutDirection.Vertical
                                           LayoutOverflowX: =LayoutOverflow.Scroll
-                                          Width: =1028
+                                          Width: =Parent.Width - 10
                                           Y: =AdmUsr_CtnFiltros.Height + 25
                                         Children:
                                           - AdmUsr_CtnCabeceraDatos:
@@ -729,7 +656,7 @@ Screens:
                                                 BorderColor: =RGBA(0, 18, 107, 1)
                                                 FillPortions: =0
                                                 Height: =350
-                                                Items: =Sort(objGalleryDataAdmUsuarios,Value(ThisRecord.ID), SortOrder.Ascending)
+                                                Items: =Sort(objGalleryDataAdmUsuarios,Value(ThisRecord.ID), SortOrder.Descending)
                                                 LayoutMinHeight: =16
                                                 LayoutMinWidth: =If(Gbl_Menu_Spv_Ticket.verMenu,Parent.Width + 150 ,Parent.Width) + 55
                                                 OnSelect: =
@@ -903,6 +830,11 @@ Screens:
                                           Height: =CountRows(AdmUsr_GlrEstados.AllItems) * 37
                                           Visible: =varOpenDropDownEstadoSpvSlc
                                           Width: =AdmUsr_CtnSeleccionarEstado.Width
+                                          X: |-
+                                            =If(Var_OpenMenu,
+                                                AdmUsr_CtnSeleccionarEstado.X + AdmUsr_CtnSidebar.Width - 250,
+                                                AdmUsr_CtnSeleccionarEstado.X + AdmUsr_CtnSidebar.Width - 70
+                                            )
                                           Y: =AdmUsr_CtnSeleccionarEstado.Y + 50
                                         Children:
                                           - AdmUsr_GlrEstados:
@@ -1007,30 +939,27 @@ Screens:
                                                       HoverBorderColor: =RGBA(79, 90, 94, 1)
                                                       HoverFill: =RGBA(0, 0, 0, 0)
                                                       OnChange: |-
-                                                        =IfError(
-                                                            If(
-                                                                IsBlank(Trim(Self.Text)),
-                                                                Patch(
-                                                                    colQuerysAdmUsuarios,
-                                                                    {input: "NombreAdjunto"},
-                                                                    {
-                                                                        mark: false,
-                                                                        query: ""
-                                                                    }
-                                                                ),
-                                                                Patch(
-                                                                    colQuerysAdmUsuarios,
-                                                                    {input: "NombreAdjunto"},
-                                                                    {
-                                                                        mark: true,
-                                                                        query: "substringof('" & Self.Text & "', NombreArchivo)"
-                                                                    }
-                                                                )
+                                                        =UpdateContext({varOpenDropDownEstadoSpvSlc: false});
+                                                        If(
+                                                            IsBlank(Trim(Self.Text)),
+                                                            Patch(
+                                                                colQuerysAdmUsuarios,
+                                                                {input: "Nombre"},
+                                                                {
+                                                                    mark: false,
+                                                                    query: ""
+                                                                }
                                                             ),
-                                                            false,
-                                                            Select(AdmUsr_BtnRefreshBusquedaDocumento),
-                                                            false
-                                                        )
+                                                            Patch(
+                                                                colQuerysAdmUsuarios,
+                                                                {input: "Nombre"},
+                                                                {
+                                                                    mark: true,
+                                                                    query: "substringof('" & Self.Text & "', Nombre)"
+                                                                }
+                                                            )
+                                                        );
+                                                        Select(Spv_btn_MotorPaginacionUsuarios)
                                                       PaddingLeft: =AdmUsr_IcnBuscarDocumento.Width + 15
                                                       RadiusBottomLeft: =8
                                                       RadiusBottomRight: =8
@@ -1038,84 +967,6 @@ Screens:
                                                       RadiusTopRight: =8
                                                       Size: =Var_FontSizeFiltros
                                                       Width: =Parent.Width - 2
-                                                - AdmUsr_BtnRefreshBusquedaDocumento:
-                                                    Control: Classic/Button@2.2.0
-                                                    Properties:
-                                                      BorderColor: =RGBA(0, 0, 0, 0)
-                                                      BorderStyle: =BorderStyle.None
-                                                      Color: =RGBA(255, 255, 255, 1)
-                                                      DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                                                      DisabledColor: =RGBA(161, 159, 157, 1)
-                                                      DisabledFill: =RGBA(242, 242, 241, 0)
-                                                      Fill: =RGBA(0, 120, 212, 1)
-                                                      Font: =Font.'Segoe UI'
-                                                      HoverBorderColor: =RGBA(0, 0, 0, 0)
-                                                      HoverColor: =RGBA(255, 255, 255, 1)
-                                                      HoverFill: =RGBA(16, 110, 190, 1)
-                                                      OnSelect: |
-                                                        =Set(Var_GridPageSizeAdmUsuarios,5);
-                                                        Set(Var_ResponseAdmUsuarios, 'LCP-001_Flow_AdmPaginacionUsuarios'.Run(Var_GridPageSizeAdmUsuarios,0,
-                                                                Concat(
-                                                                    Filter(
-                                                                        colQuerysAdmUsuarios,
-                                                                        mark
-                                                                    ),
-                                                                    query,
-                                                                    " and "
-                                                                ),
-                                                                "NEXT"
-                                                            )
-                                                        );
-                                                        Set(
-                                                            Var_DataAdmUsuarios,
-                                                            Table(ParseJSON(Var_ResponseAdmUsuarios.response))
-                                                        );
-                                                        Set(
-                                                            TotalItemAdmUsuarios,
-                                                            Value(ParseJSON(Var_ResponseAdmUsuarios.totalitems))
-                                                        );
-                                                        Clear(objGalleryDataAdmUsuarios);
-                                                        ForAll(
-                                                            FirstN(
-                                                                Var_DataAdmUsuarios,
-                                                                Var_GridPageSizeAdmUsuarios
-                                                            ),
-                                                            Collect(
-                                                                objGalleryDataAdmUsuarios,
-                                                                {
-                                                                    ID: ThisRecord.Value.ID,
-                                                                    NombreAdjunto: If(
-                                                                                        // Verificamos si hay adjuntos para evitar errores
-                                                                        Boolean(ThisRecord.Value.Attachments),
-                                                                        Text(First(Table(ThisRecord.Value.AttachmentFiles)).Value.FileName),
-                                                                        Blank()
-                                                                    ),
-                                                                    RutaAdjunto: If(
-                                                                        Boolean(ThisRecord.Value.Attachments),
-                                                                        Text(First(Table(ThisRecord.Value.AttachmentFiles)).Value.ServerRelativeUrl),
-                                                                        Blank()
-                                                                    ),
-                                                                    Estado: ThisRecord.Value.Estado,
-                                                                    Gerencia: ThisRecord.Value.Gerencia,
-                                                                    Torre: ThisRecord.Value.Torre,
-                                                                    Autor: ThisRecord.Value.Autor
-                                                                }
-                                                            )
-                                                        );
-                                                        // Guardamos el primer ID REAL de todo el dataset
-                                                        Set(Var_FirstIDAdmUsuarios,Min(objGalleryDataAdmUsuarios,ID));
-                                                        // Control real de NEXT (Top + 1)
-                                                        Set(Var_HasNextAdmUsuarios,CountRows(Var_DataAdmUsuarios) > Var_GridPageSizeAdmUsuarios);
-                                                      PressedBorderColor: =RGBA(0, 69, 120, 1)
-                                                      PressedColor: =RGBA(255, 255, 255, 1)
-                                                      PressedFill: =RGBA(16, 110, 190, 1)
-                                                      RadiusBottomLeft: =0
-                                                      RadiusBottomRight: =0
-                                                      RadiusTopLeft: =0
-                                                      RadiusTopRight: =0
-                                                      Visible: =false
-                                                      X: =40
-                                                      Y: =4
                                                 - AdmUsr_IcnBuscarDocumento:
                                                     Control: Classic/Icon@2.5.0
                                                     Properties:
@@ -1359,3 +1210,80 @@ Screens:
                                                       Visible: =false
                                                       X: =40
                                                       Y: =4
+      - Spv_btn_MotorPaginacionUsuarios:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =ColorFade(Self.Fill, -15%)
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            Fill: =RGBA(56, 96, 178, 1)
+            Font: =Font.'Open Sans'
+            Height: =34
+            HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+            OnSelect: |-
+              =UpdateContext({Var_SpvCmcLoadingSpinnerVisible: true});
+              //----Variables-----
+              UpdateContext({menuSelected: 7});
+              //----Flujo----
+              Set(Var_ResponseAdmUsuarios,
+                  'LCP-001_Flow_AdmPaginacionUsuarios'.Run(
+                      If(Var_IsIndividualAdmUsuarios, Text(varTotalRegistrosUsuarios), Text(Var_GridPageSizeAdmUsuarios)),
+                      Text(Var_TargetIDAdmUsuarios),
+                      Concat( Filter(colQuerysAdmUsuarios, mark), query, " and " ),
+                      Var_DirectionAdmUsuarios
+                  )
+              );
+              //----Variables respuesta flujo----
+              Set(TotalItemAdmUsuarios, Value(ParseJSON(Var_ResponseAdmUsuarios.totalitems)));
+              Set(Var_DataAdmUsuarios, Table(ParseJSON(Var_ResponseAdmUsuarios.response)));
+              //----Datos para llenar galeria de Usuarios----
+              Clear(objGalleryDataAdmUsuarios);
+              ForAll(
+                  If(Var_IsIndividualAdmUsuarios,
+                      LastN(FirstN(Var_DataAdmUsuarios, varTotalRegistrosUsuarios), Min(Var_GridPageSizeAdmUsuarios, CountRows(Var_DataAdmUsuarios) - (Var_GridPageSizeAdmUsuarios * (Var_CurrentPageAdmUsuarios - 1)))),
+                      FirstN(Var_DataAdmUsuarios, Var_GridPageSizeAdmUsuarios)
+                  ),
+                  Collect(
+                      objGalleryDataAdmUsuarios,
+                      {
+                          ID:                ThisRecord.Value.ID,
+                          Codigo:            ThisRecord.Value.Codigo,
+                          Nombre0:           ThisRecord.Value.Nombre0,
+                          Apellido:          ThisRecord.Value.Apellido,
+                          Nombre:            ThisRecord.Value.Nombre, //Es NombreApellido
+                          CorreoUsuario:     ThisRecord.Value.CorreoUsuario,
+                          RolPerfil:         ThisRecord.Value.RolPerfil,
+                          RolSistema:        ThisRecord.Value.RolSistema,
+                          Estado:            ThisRecord.Value.Estado,
+                          Gerencia:          ThisRecord.Value.Gerencia
+                      }
+                  )
+              );
+              // 4. Actualizar estados de navegación
+              Set(
+                  Var_HasNextAdmUsuarios, 
+                  (Var_CurrentPageAdmUsuarios * Var_GridPageSizeAdmUsuarios) < TotalItemAdmUsuarios
+              );
+              Set(
+                  Var_HasPrevAdmUsuarios, 
+                  Var_CurrentPageAdmUsuarios > 1
+              );
+              UpdateContext({Var_SpvCmcLoadingSpinnerVisible: false});
+            PressedBorderColor: =Self.Fill
+            PressedColor: =Self.Fill
+            PressedFill: =Self.Color
+            Text: ="+"
+            Visible: =false
+            Width: =30
+      - Gbl_LoadingSpinnerSpvCmc_2:
+          Control: CanvasComponent
+          ComponentName: Gbl_LoadingSpinner
+          ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
+          Properties:
+            Height: =AdmUsr_GlrUsuarios.Height
+            Visible: =Var_SpvCmcLoadingSpinnerVisible
+            Width: =AdmUsr_GlrUsuarios.Width
+            X: =AdmUsr_GlrUsuarios.X + AdmUsr_CtnSidebar.Width + 45
+            Y: =AdmUsr_GlrUsuarios.Y + 240
