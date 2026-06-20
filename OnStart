@@ -18,10 +18,10 @@ Set(Var_GridPageSizeAdmComunicados; 3);;
 ClearCollect(colAppEstados; 'LCP-001_List_Estado');;
 ClearCollect(colRolSistema; 'LCP-001_List_Rol');;
 
-// construir un objeto de estados
-
-Set(Var_EstadosApp; {
-
+//Variable que guarda todos los estados que puede tomar un Ticket durante la ejecucion del proceso
+//construir un objeto de estados
+Set(Var_EstadosApp; 
+{
 EstadoCreado: LookUp(colAppEstados;Nombre="Creado").Nombre;
 EstadoEnRevision: LookUp(colAppEstados;Nombre="En revisión").Nombre;
 EstadoRechazado: LookUp(colAppEstados;Nombre="Rechazado").Nombre;
@@ -31,10 +31,13 @@ EstadoDerivado: LookUp(colAppEstados;Nombre="Derivado").Nombre;
 EstadoEnEsperaAprobacion: LookUp(colAppEstados;Nombre="En espera de aprobación").Nombre;
 EstadoResuelto: LookUp(colAppEstados;Nombre="Resuelto").Nombre;
 EstadoCerrado: LookUp(colAppEstados;Nombre="Cerrado").Nombre;
-EstadoReactivado: "Reactivado" // INTEGRADO: Nuevo estado de reactivación
-});;
+EstadoReactivado: "Reactivado"; // INTEGRADO: Nuevo estado de reactivación
+//07/06/2026: Jorge Castro -> Se agrega para la creacion de una UDF de reasignacion
+EstadoReasignado: LookUp(colAppEstados;Nombre="Reasignar").Nombre
+}
+);;
 
-// json de roles
+// json de roles      
 
 Set(Var_RolApp; {
 
@@ -110,7 +113,55 @@ Set(Var_JSONOperadores;
 
 }
 );;
+// =========================================================
+// CONFIGURACIÓN CENTRALIZADA DE NOMBRES (EVITA VALORES QUEMADOS)
+// =========================================================
 
+Set(VarModulo; {
+    Solicitante: "Módulo de solicitante";
+    Administracion: "Módulo de administración";
+    Atencion: "Módulo de atención";
+    GestionAprobacion: "Módulo de gestión de aprobación";
+    Cierre: "Módulo de cierre"
+});;
+
+Set(VarFuncionalidad; {
+    // Módulo de solicitante
+    MS_CrearTicket: "Crear Ticket";
+    MS_SubsanaTicket: "Subsana Ticket";
+    
+    // Módulo de administración
+    MAD_ConfigTipoSolicitud: "Configuración Tipo de Solicitud";
+    MAD_ConfigNotificaciones: "Configuración Notificaciones";
+    MAD_ConfigAccesos: "Configuración de Accesos";
+    
+    // Módulo de atención
+    MA_ObservarTicket: "Observar Ticket";
+    MA_AtencionTicket: "Atención Ticket";
+    MA_ReasignarTicket: "Reasignar Ticket";
+    MA_DerivarTicket: "Derivar Ticket";
+    MA_SolicitarAprobacionTicket: "Solicitar aprobación Ticket";
+    MA_ResolverTicket: "Resolver Ticket";
+    MA_RechazarTicket: "Rechazar Ticket";
+    
+    // Módulo de gestión de aprobación
+    MGA_SolicitarReactivarTicket: "Solicitar reactivar Ticket";
+    MGA_ReactivarTicket: "Reactivar Ticket";
+    MGA_RechazarTicket: "Rechazar Ticket";
+    MGA_AprobarTicket: "Aprobar Ticket";
+    
+    // Módulo de cierre
+    MC_NPS: "NPS";
+    MC_RechazarTicket: "Rechazar Ticket";
+    MC_SolucionarTicket: "Solucionar Ticket";
+
+    // Módulo de comunicados
+
+MDC_CrearComunicados: "Crear comunicados";
+
+    // Módulo de soluciones
+MDS_CrearSoluciones: "Crear soluciones"
+});;
 
 // Inicializamos datos globales o genericos
 ClearCollect(col_gblGerencia; 'LCP-001_List_Gerencia');;
@@ -122,8 +173,10 @@ ClearCollect(col_gblRol; 'LCP-001_List_Rol');; // INTEGRADO: Catálogo de roles
 ClearCollect(col_gblPais; 'LCP-001_List_Pais');;
 ClearCollect(col_gblPaisSociedad; 'LCP-001_List_PaisSociedad');;
 ClearCollect(col_gblPaisSubArea; 'LCP-001_List_PaisSubArea');;
-
-
+ClearCollect(col_gblViceprecidencia; 'LCP-001_List_Viceprecidencia');;
+ClearCollect(col_gblViceprecidenciaDireccion; 'LCP-001_List_Viceprecidencia_Direccion');;
+ClearCollect(col_gblDireccion; 'LCP-001_List_Direccion');;
+ClearCollect(col_gblDireccionGerencia; 'LCP-001_List_DireccionGerencia');;
 
     ClearCollect(col_glbMotivosCerrar;ShowColumns('LCP-001_List_MotivosCierre';Codigo; Motivo; Descripcion));;
     ClearCollect(col_glbMotivosDerivar;ShowColumns('LCP-001_List_MotivosDerivacion';Codigo; Motivo; Descripcion));;
@@ -185,6 +238,7 @@ Set(Var_ColorTitulo; "#202020");;
 Set(Var_ColorGridGallery; "#F9F9FB");;
 Set(Var_ColorPuntuacion; "#FFB300");;
 Set(Var_ColorGray; "#6C6C6C");;
+Set(Var_ColorLightGray;"#F5F5F5");;
 Set(Var_ColorLine; "#EFEFF3");;
 Set(Var_ColorLineEstado; "#545454");;
 Set(Var_ColorFondoSeleccionMultiple; "#111928");;
@@ -255,10 +309,77 @@ ClearCollect(
     )
 );;
 
+// Rol del usuario
 Set(
     Var_RolSistema; 
     First(Sort(colRolesUsuario; JerarquiaRol; SortOrder.Descending)).Rol
 );;
+// creamos una coleccción local de las vistas y funcionalidades
+ClearCollect(colMatrizAcceso; 'LCP-001_List_MatrizRolVista');;
+
+// creamos una coleccion de los accesos que tiene el usuario
+ClearCollect(
+    colAccesosUsuario;
+    Filter(
+        AddColumns(
+            colMatrizAcceso;
+            RolesPermitidos; 
+            ForAll(Table(ParseJSON(ThisRecord.Rol)); Text(Value.Value))
+        );
+        Var_RolSistema in RolesPermitidos
+    )
+);;
+
+// construimos un objeto para acceder a las vistas y funciones que retornan un valor booleano
+Set(
+    Var_MatrizAccesosApp;
+    {
+        // ==========================================
+        // MÓDULOS DE LA APP (VISTAS)
+        // ==========================================
+        Mod_Solicitante: !IsBlank(LookUp(colAccesosUsuario; Vista = VarModulo.Solicitante));
+        Mod_Administracion: !IsBlank(LookUp(colAccesosUsuario; Vista = VarModulo.Administracion));
+        Mod_Atencion: !IsBlank(LookUp(colAccesosUsuario; Vista = VarModulo.Atencion));
+        Mod_GestionAprobacion: !IsBlank(LookUp(colAccesosUsuario; Vista = VarModulo.GestionAprobacion));
+        Mod_Cierre: !IsBlank(LookUp(colAccesosUsuario; Vista = VarModulo.Cierre));
+
+        // ==========================================
+        // FUNCIONALIDADES DETALLADAS
+        // ==========================================
+        // Módulo de solicitante
+        CrearTicket: !IsBlank(LookUp(colAccesosUsuario; Funcionalidad = VarFuncionalidad.MS_CrearTicket && Vista = VarModulo.Solicitante  )); // Nuevo ticket
+        SubsanaTicket: !IsBlank(LookUp(colAccesosUsuario; Funcionalidad = VarFuncionalidad.MS_SubsanaTicket  && Vista = VarModulo.Solicitante)); // En revisión
+        
+        // Módulo de administración
+        ConfigTipoSolicitud: !IsBlank(LookUp(colAccesosUsuario; Funcionalidad = VarFuncionalidad.MAD_ConfigTipoSolicitud  && Vista = VarModulo.Administracion));
+        ConfigNotificaciones: !IsBlank(LookUp(colAccesosUsuario; Funcionalidad = VarFuncionalidad.MAD_ConfigNotificaciones  && Vista = VarModulo.Administracion));
+        CrearComunicados: !IsBlank(LookUp(colAccesosUsuario; Funcionalidad = VarFuncionalidad.MDC_CrearComunicados));
+        CrearSoluciones: !IsBlank(LookUp(colAccesosUsuario; Funcionalidad = VarFuncionalidad.MDS_CrearSoluciones));
+        ConfigAccesos: !IsBlank(LookUp(colAccesosUsuario; Funcionalidad = VarFuncionalidad.MAD_ConfigAccesos  && Vista = VarModulo.Administracion));
+        
+        // Módulo de atención del responsable de atención
+        ObservarTicket: !IsBlank(LookUp(colAccesosUsuario; Funcionalidad = VarFuncionalidad.MA_ObservarTicket  && Vista = VarModulo.Atencion )); // Observar ticket
+        AtencionTicket: !IsBlank(LookUp(colAccesosUsuario; Funcionalidad = VarFuncionalidad.MA_AtencionTicket  && Vista = VarModulo.Atencion)); // En proceso
+        ReasignarTicket: !IsBlank(LookUp(colAccesosUsuario; Funcionalidad = VarFuncionalidad.MA_ReasignarTicket  && Vista = VarModulo.Atencion)); // Reasingar 
+        DerivarTicket: !IsBlank(LookUp(colAccesosUsuario; Funcionalidad = VarFuncionalidad.MA_DerivarTicket  && Vista = VarModulo.Atencion)); // Derivar
+        SolicitarAprobacionTicket: !IsBlank(LookUp(colAccesosUsuario; Funcionalidad = VarFuncionalidad.MA_SolicitarAprobacionTicket  && Vista = VarModulo.Atencion)); // En espera de aprobación
+        ResolverTicket: !IsBlank(LookUp(colAccesosUsuario; Funcionalidad = VarFuncionalidad.MA_ResolverTicket  && Vista = VarModulo.Atencion)); // En Espera de aprobación -> Resuelto 
+        // agregar el rechazo del ticket del analista
+        MA_RechazarTicket: !IsBlank(LookUp(colAccesosUsuario; Funcionalidad = VarFuncionalidad.MA_RechazarTicket  && Vista = VarModulo.Atencion));
+        
+        // Módulo de gestión de aprobación
+        SolicitarReactivarTicket: !IsBlank(LookUp(colAccesosUsuario; Funcionalidad = VarFuncionalidad.MGA_SolicitarReactivarTicket  && Vista = VarModulo.GestionAprobacion)); // Analista
+        ReactivarTicket: !IsBlank(LookUp(colAccesosUsuario; Funcionalidad = VarFuncionalidad.MGA_ReactivarTicket  && Vista = VarModulo.GestionAprobacion)); // Supervisor / Gerente 
+        GestionRechazarTicket: !IsBlank(LookUp(colAccesosUsuario; Funcionalidad = VarFuncionalidad.MGA_RechazarTicket  && Vista = VarModulo.GestionAprobacion));
+        GestionAprobarTicket: !IsBlank(LookUp(colAccesosUsuario; Funcionalidad = VarFuncionalidad.MGA_AprobarTicket  && Vista = VarModulo.GestionAprobacion));
+        
+        // Módulo de cierre
+        NPS: !IsBlank(LookUp(colAccesosUsuario; Funcionalidad = VarFuncionalidad.MC_NPS  && Vista = VarModulo.Cierre)); 
+        RechazarTicket: !IsBlank(LookUp(colAccesosUsuario; Funcionalidad = VarFuncionalidad.MC_RechazarTicket  && Vista = VarModulo.Cierre)); // Rechazar solución
+        SolucionarTicket: !IsBlank(LookUp(colAccesosUsuario; Funcionalidad = VarFuncionalidad.MC_SolucionarTicket  && Vista = VarModulo.Cierre)) // Cerrar ticket
+    }
+);;
+
 // =========================================================================
 // 4. COLECCIONES DE CATÁLOGOS MAESTROS
 // =========================================================================
@@ -274,48 +395,7 @@ ClearCollect(colEstadosSpvTicket; 'LCP-001_List_Estado');;
 // 5. COLECCIONES DE NAVEGACIÓN (MENÚS POR ROL)
 // =========================================================================
 // --- Menú Supervisor ---
-ClearCollect(colMenuSpv;
-{Title: "Home";          Id: 1; Pantalla: Gbl_Home; Ico: home; child: false; itemsSubChild: Table()};
-{Title: "Catálogo";      Id: 2; Pantalla: Gbl_Catalogo; Ico: catalogo; child: false; itemsSubChild: Table()};
-{Title: "Ticket";        Id: 3; Pantalla: Spv_Ticket; Ico: ticket; child: false; itemsSubChild: Table()};
-{Title: "Comunicados";   Id: 5; Pantalla: Gbl_Comunicado; Ico: comunicados; child: false; itemsSubChild: Table()};
-{Title: "Soluciones";    Id: 6; Pantalla: Blank(); Ico: soluciones; child: false; itemsSubChild: Table()}
-);;
 
-// --- Menú Analista ---
-ClearCollect(colMenu;
-    {Title: "Home"; Id: 1; Pantalla: Gbl_Home; Ico: home; child: false; itemsSubChild: Table()};
-    {Title: "Catálogo";  Id: 2; Pantalla: Gbl_Catalogo; Ico: catalogo; child: false; itemsSubChild: Table()};
-    {Title: "Ticket"; Id: 3; Pantalla: Anl_Ticket; Ico: ticket; child: false; itemsSubChild: Table()};
-    {Title: "Soluciones"; Id: 5; Pantalla: Blank(); Ico: soluciones; child: false; itemsSubChild: Table()};
-    {Title: "Comunicados"; Id: 6; Pantalla: Gbl_Comunicado; Ico: comunicados; child: false; itemsSubChild: Table()}
-);;
-
-// --- Menú Solicitante ---
-ClearCollect(colMenuSol;
-    {Title: "Home"; Id: 1; Pantalla: Gbl_Home; Ico: home; child: false; itemsSubChild: Table()};
-    {Title: "Catálogo";  Id: 2; Pantalla: Gbl_Catalogo; Ico: catalogo; child: false; itemsSubChild: Table()};
-    {Title: "Ticket"; Id: 3; Pantalla: Sol_Ticket; Ico: ticket; child: false; itemsSubChild: Table()};
-    {Title: "Soluciones"; Id: 5; Pantalla: Blank(); Ico: soluciones; child: false; itemsSubChild: Table()};
-    {Title: "Comunicados"; Id: 6; Pantalla: Gbl_Comunicado; Ico: comunicados; child: false; itemsSubChild: Table()}
-);;
-
-// --- Menú Administrador ---
-ClearCollect(colMenuAdm;
-{Title: "Home";          Id: 1; Pantalla: Gbl_Home; Ico: home; child: false; itemsSubChild: Table()};
-{Title: "Catálogo";      Id: 2; Pantalla: Blank(); Ico: catalogo; child: false; itemsSubChild: Table()};
-{Title: "Ticket";        Id: 3; Pantalla: Blank(); Ico: ticket; child: false; itemsSubChild: Table()};
-{Title: "Configuración"; Id: 4; Pantalla: Blank(); Ico: configuracion; child: true; 
-        itemsSubChild: [
-                        { Title: "Solicitudes"; Id: 4,1; Pantalla: Adm_TipoSolicitudes};
-                        { Title: "Notificaciones";     Id: 4,2; Pantalla: Blank()};
-                        { Title: "Catálogos del sistema"; Id: 4,3; Pantalla: Blank()}
-                       ]
-};
-{Title: "Comunicados";   Id: 5; Pantalla: Gbl_Comunicado; Ico: comunicados; child: false; itemsSubChild: Table()};
-{Title: "Soluciones";    Id: 6; Pantalla: Blank(); Ico: soluciones; child: false; itemsSubChild: Table()};
-{Title: "Usuarios";    Id: 7; Pantalla: Blank(); Ico: usuarios; child: false; itemsSubChild: Table()}
-);;
 
 
 // =========================================================================
@@ -328,6 +408,7 @@ ClearCollect(colSpvCmcArea; ["Créditos Back Office"; "Tesorería Operativa"; "G
 ClearCollect(colSpvCmcEstado; ["Vigente"; "Vencido"]);;
 ClearCollect(colAdmmcEstado; ["Vigente"; "Vencido"]);;
 ClearCollect(colSpvSlcEstado; ["Publicado"; "Borrador"]);;
+ClearCollect(colSpvSlcEstadoUsuario; ["Activo"; "Inactivo"]);;
 ClearCollect(colSpvDirigidoA; ["Todos"; "Gerencia"; "País"]);; // INTEGRADO
 
 // INTEGRADO: Colección global de meses del año generada dinámicamente
@@ -417,4 +498,5 @@ ClearCollect(colQuerysAnlSoluciones;
     { input: "RutaAdjunto"; mark: false; query: "" }; { input: "Estado"; mark: false; query: "" };
     { input: "Gerencia"; mark: false; query: "" }; { input: "Torre"; mark: false; query: "" }; 
     { input: "Autor"; mark: false; query: "" }
-)
+);;
+Set(Var_ProfileUser;LookUp('LCP-001_List_Usuarios'; CorreoUsuario = Var_EmailUser));;

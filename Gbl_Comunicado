@@ -1329,36 +1329,7 @@ Screens:
                                                       HoverFill: =ColorValue(Var_ColorLightGray)
                                                       InputTextPlaceholder: ="Estado"
                                                       Items: =colSpvCmcEstado
-                                                      OnChange: |-
-                                                        =UpdateContext({varSpvCmcEstadoSelected: Self.Selected});
-                                                        UpdateContext({Var_SpvCmcLoadingSpinnerVisible: true});
-                                                        If(IsBlank(Self.Selected),
-                                                            Patch(
-                                                                colQuerysSpvComunicados,
-                                                                LookUp(colQuerysSpvComunicados, input = "Estado"),
-                                                                { mark: false, query: "" }
-                                                            );
-                                                            If(
-                                                                IsBlank(varSpvCmcGerenciaSelectec) And IsBlank(var_RangeDatePicker_DateStart),
-                                                                Patch(
-                                                                    colQuerysSpvComunicados,
-                                                                    LookUp(colQuerysSpvComunicados, input = "EsVisibleHoy"),
-                                                                    { mark: true }
-                                                                )
-                                                            ),
-                                                            Patch(
-                                                                colQuerysSpvComunicados,
-                                                                LookUp(colQuerysSpvComunicados, input = "EsVisibleHoy"),
-                                                                { mark: false }
-                                                            );
-                                                            Patch(
-                                                                colQuerysSpvComunicados,
-                                                                LookUp(colQuerysSpvComunicados, input = "Estado"),
-                                                                { mark: true, query: "Estado eq '" & Self.Selected.Value & "'" }
-                                                            )
-                                                        );
-                                                        Set(Var_CurrentPageSpvComunicados, 1);
-                                                        Select(Spv_btn_MotorPaginacionComunicados)
+                                                      OnChange: "=/*UpdateContext({varSpvCmcEstadoSelected: Self.Selected});;\nUpdateContext({Var_SpvCmcLoadingSpinnerVisible: true});;\nIf(IsBlank(Self.Selected);\n    Patch(\n        colQuerysSpvComunicados;\n        LookUp(colQuerysSpvComunicados; input = \"Estado\");\n        { mark: false; query: \"\" }\n    );;\n    If(\n        IsBlank(varSpvCmcGerenciaSelectec) And IsBlank(var_RangeDatePicker_DateStart);\n        Patch(\n            colQuerysSpvComunicados;\n            LookUp(colQuerysSpvComunicados; input = \"EsVisibleHoy\");\n            { mark: true }\n        )\n    );\n    Patch(\n        colQuerysSpvComunicados;\n        LookUp(colQuerysSpvComunicados; input = \"EsVisibleHoy\");\n        { mark: false }\n    );;\n    Patch(\n        colQuerysSpvComunicados;\n        LookUp(colQuerysSpvComunicados; input = \"Estado\");\n        { mark: true; query: \"Estado eq '\" & Self.Selected.Value & \"'\" }\n    )\n);;\nSet(Var_CurrentPageSpvComunicados; 1);;\nSelect(Spv_btn_MotorPaginacionComunicados)*/\nUpdateContext({varSpvCmcEstadoSelected: Self.Selected});\nUpdateContext({Var_SpvCmcLoadingSpinnerVisible: true});\n\n// 1. Aplicar o limpiar el segmento del filtro de Estado\nIf(\n    IsBlank(varSpvCmcEstadoSelected),\n    Patch(\n        colQuerysSpvComunicados,\n        LookUp(colQuerysSpvComunicados, input = \"Estado\"),\n        { mark: false, query: \"\" }\n    ),\n    Patch(\n        colQuerysSpvComunicados,\n        LookUp(colQuerysSpvComunicados, input = \"Estado\"),\n        { mark: true, query: \"Estado eq '\" & varSpvCmcEstadoSelected.Value & \"'\" }\n    )\n);\n\n// 2. Lógica Unificada: Complemento de filtros y Restauración segura de vista base\nIf(\n    IsBlank(varSpvCmcEstadoSelected) And IsBlank(var_RangeDatePicker_DateStart) And IsBlank(varSpvCmcGerenciaSelectec) And IsBlank(varSpvCmcAreaSelected),\n    // Escenario A: No hay filtros activos -> Restaurar vista inicial según Rol\n    If(\n        Var_RolSistema = Var_RolApp.RolAdministrador Or Var_RolSistema = Var_RolApp.RolSupervisor,\n        Patch(colQuerysSpvComunicados, LookUp(colQuerysSpvComunicados, input = \"EsVisibleHoy\"), { mark: false, query: \"\" });\n        Patch(colQuerysSpvComunicados, LookUp(colQuerysSpvComunicados, input = \"EstadoComunicado\"), { mark: false, query: \"\" });\n        Patch(colQuerysSpvComunicados, LookUp(colQuerysSpvComunicados, input = \"Estado\"), { mark: false, query: \"\" })\n    ,\n        Patch(colQuerysSpvComunicados, LookUp(colQuerysSpvComunicados, input = \"EsVisibleHoy\"), { mark: true, query: \"EsVisibleHoy eq 1\" });\n        Patch(colQuerysSpvComunicados, LookUp(colQuerysSpvComunicados, input = \"Estado\"), { mark: true, query: \"Estado eq 'Vigente'\" });\n        Patch(colQuerysSpvComunicados, LookUp(colQuerysSpvComunicados, input = \"EstadoComunicado\"), { mark: true, query: \"EstadoComunicado eq 'Activo'\" })\n    )\n,\n    // Escenario B: Hay filtros activos -> Deshabilitar EsVisibleHoy para permitir cruce de datos\n    Patch(colQuerysSpvComunicados, LookUp(colQuerysSpvComunicados, input = \"EsVisibleHoy\"), { mark: false, query: \"\" });\n    \n    // Regla de Seguridad: Roles menores siempre ven 'Activo' salvo que la tabla lo dicte diferente\n    If(\n        Var_RolSistema <> Var_RolApp.RolAdministrador And Var_RolSistema <> Var_RolApp.RolSupervisor,\n        Patch(colQuerysSpvComunicados, LookUp(colQuerysSpvComunicados, input = \"EstadoComunicado\"), { mark: true, query: \"EstadoComunicado eq 'Activo'\" })\n    )\n);\n\nSet(Var_CurrentPageSpvComunicados, 1);\nSelect(Spv_btn_MotorPaginacionComunicados)"
                                                       PressedColor: =ColorValue(Var_ColorBoton)
                                                       PressedFill: =RGBA(0, 0, 0, 0)
                                                       SearchFields: =["Value"]
@@ -2454,42 +2425,7 @@ Screens:
                         HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
                         HoverColor: =ColorValue(Var_ColorBlanco)
                         HoverFill: =ColorValue(Var_ColorHoverBoton)
-                        OnSelect: |-
-                          =// 1. Actualizar contexto de calendario
-                          UpdateContext({
-                              var_RangeDatePicker_DateStart: var_RangeDatePicker_DateStart_Modify,
-                              var_RangeDatePicker_DateEnd: var_RangeDatePicker_DateEnd_Modify,
-                              var_RangeDatePicker: false
-                          });
-
-                          // 2. Construir fechas y evaluar Patch en "Creado"
-                          With(
-                              {
-                                  _FechaInicio: Text(var_RangeDatePicker_DateStart_Modify, "yyyy-mm-dd") & "T00:00:00Z",
-                                  _FechaFin: Text(var_RangeDatePicker_DateEnd_Modify, "yyyy-mm-dd") & "T23:59:59Z"
-                              },
-                              If(
-                                  IsBlank(var_RangeDatePicker_DateStart_Modify),
-                                  Patch(
-                                      colQuerysSpvComunicados,
-                                      LookUp(colQuerysSpvComunicados, input = "Creado"),
-                                      { mark: false, query: "" }
-                                  ),
-                                  Patch(
-                                      colQuerysSpvComunicados,
-                                      LookUp(colQuerysSpvComunicados, input = "Creado"),
-                                      { 
-                                          mark: true, 
-                                          query: "Created ge datetime'" & _FechaInicio & "' and Created le datetime'" & _FechaFin & "'" 
-                                      }
-                                  )
-                              )
-                          );
-
-                          Select(Spv_btn_MotorPaginacionComunicados); // <--- Ejecuta la lógica
-                          // 3. Resetear paginación y ejecutar flujo
-                          //Set(Var_CurrentPageSpvComunicados; 1);;
-                          //Select(SpvCmc_BtnRefreshBusquedaFecha);;
+                        OnSelect: "=/*\nUpdateContext({\n    var_RangeDatePicker_DateStart: var_RangeDatePicker_DateStart_Modify;\n    var_RangeDatePicker_DateEnd: var_RangeDatePicker_DateEnd_Modify;\n    var_RangeDatePicker: false\n});;\n\nWith(\n    {\n        _FechaInicio: Text(var_RangeDatePicker_DateStart_Modify; \"yyyy-mm-dd\") & \"T00:00:00Z\";\n        _FechaFin: Text(var_RangeDatePicker_DateEnd_Modify; \"yyyy-mm-dd\") & \"T23:59:59Z\"\n    };\n    If(\n        IsBlank(var_RangeDatePicker_DateStart_Modify);\n        Patch(\n            colQuerysSpvComunicados;\n            LookUp(colQuerysSpvComunicados; input = \"Creado\");\n            { mark: false; query: \"\" }\n        );\n        Patch(\n            colQuerysSpvComunicados;\n            LookUp(colQuerysSpvComunicados; input = \"Creado\");\n            { \n                mark: true; \n                query: \"Created ge datetime'\" & _FechaInicio & \"' and Created le datetime'\" & _FechaFin & \"'\" \n            }\n        )\n    )\n);;\n\nSelect(Spv_btn_MotorPaginacionComunicados);;\n*/\nUpdateContext({\n    var_RangeDatePicker_DateStart: var_RangeDatePicker_DateStart_Modify,\n    var_RangeDatePicker_DateEnd: var_RangeDatePicker_DateEnd_Modify,\n    var_RangeDatePicker: false\n});\nUpdateContext({Var_SpvCmcLoadingSpinnerVisible: true});\n\nWith(\n    {\n        _FechaInicio: Text(var_RangeDatePicker_DateStart, \"yyyy-mm-dd\") & \"T00:00:00Z\",\n        _FechaFin: Text(var_RangeDatePicker_DateEnd, \"yyyy-mm-dd\") & \"T23:59:59Z\"\n    },\n    If(\n        IsBlank(var_RangeDatePicker_DateStart),\n        Patch(\n            colQuerysSpvComunicados,\n            LookUp(colQuerysSpvComunicados, input = \"Creado\"),\n            { mark: false, query: \"\" }\n        ),\n        Patch(\n            colQuerysSpvComunicados,\n            LookUp(colQuerysSpvComunicados, input = \"Creado\"),\n            { mark: true, query: \"Created ge datetime'\" & _FechaInicio & \"' and Created le datetime'\" & _FechaFin & \"'\" }\n        )\n    )\n);\n\nIf(\n    IsBlank(varSpvCmcEstadoSelected) And IsBlank(var_RangeDatePicker_DateStart) And IsBlank(varSpvCmcGerenciaSelectec) And IsBlank(varSpvCmcAreaSelected),\n    If(\n        Var_RolSistema = Var_RolApp.RolAdministrador Or Var_RolSistema = Var_RolApp.RolSupervisor,\n        Patch(colQuerysSpvComunicados, LookUp(colQuerysSpvComunicados, input = \"EsVisibleHoy\"), { mark: false, query: \"\" });\n        Patch(colQuerysSpvComunicados, LookUp(colQuerysSpvComunicados, input = \"EstadoComunicado\"), { mark: false, query: \"\" });\n        Patch(colQuerysSpvComunicados, LookUp(colQuerysSpvComunicados, input = \"Estado\"), { mark: false, query: \"\" })\n    ,\n        Patch(colQuerysSpvComunicados, LookUp(colQuerysSpvComunicados, input = \"EsVisibleHoy\"), { mark: true, query: \"EsVisibleHoy eq 1\" });\n        Patch(colQuerysSpvComunicados, LookUp(colQuerysSpvComunicados, input = \"Estado\"), { mark: true, query: \"Estado eq 'Vigente'\" });\n        Patch(colQuerysSpvComunicados, LookUp(colQuerysSpvComunicados, input = \"EstadoComunicado\"), { mark: true, query: \"EstadoComunicado eq 'Activo'\" })\n    )\n,\n    Patch(colQuerysSpvComunicados, LookUp(colQuerysSpvComunicados, input = \"EsVisibleHoy\"), { mark: false, query: \"\" });\n    \n    If(\n        Var_RolSistema <> Var_RolApp.RolAdministrador And Var_RolSistema <> Var_RolApp.RolSupervisor,\n        Patch(colQuerysSpvComunicados, LookUp(colQuerysSpvComunicados, input = \"EstadoComunicado\"), { mark: true, query: \"EstadoComunicado eq 'Activo'\" })\n    )\n);\n\nSet(Var_CurrentPageSpvComunicados, 1);\nSelect(Spv_btn_MotorPaginacionComunicados)"
                         PressedBorderColor: =Self.PressedFill
                         PressedColor: =ColorValue(Var_ColorBlanco)
                         PressedFill: =ColorValue(Var_ColorPressedBoton)

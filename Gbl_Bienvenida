@@ -2,8 +2,10 @@ Screens:
   Gbl_Bienvenida:
     Properties:
       LoadingSpinnerColor: =RGBA(56, 96, 178, 1)
-      OnVisible: |-
-        =UpdateContext({ menuSelected: 1})
+      OnHidden: |-
+        =//Resetea el combo de rol seleccionado para que cada vez que sale de la pantalla para que en cada inicio este limpio
+        Reset(Gbl_CbxLogin)
+      OnVisible: "=//Resetea el combo de rol seleccionado para que cada vez que entra a la pantalla para que en cada inicio este limpio\r\nReset(Gbl_CbxLogin);\r\n\r\nUpdateContext({ menuSelected: 1});\r\n//Refresh('LCP-001_List_Usuarios');;\r\n//Set(Var_ProfileUser;LookUp('LCP-001_List_Usuarios'; CorreoUsuario = Var_EmailUser));;\r\n\r\nClearCollect(\r\n    colRolesUsuario,\r\n    ForAll(\r\n        Table(ParseJSON(Var_ProfileUser.RolSistema)),\r\n        { \r\n            Rol: Text(ThisRecord.Value.Rol)\r\n            \r\n            , \r\n            JerarquiaRol: \r\n            Switch(\r\n                Text(ThisRecord.Value.Rol),\r\n                \"Administrador\", 90,\r\n                \"Supervisor\",    80,\r\n                \"Gerente\",       70,\r\n                \"Solicitante\",   60,\r\n                \"Analista\",      50,\r\n                0\r\n            )\r\n            \r\n        }\r\n    )\r\n);\r\n// creamos una coleccción local de las vistas y funcionalidades\r\nClearCollect(colMatrizAcceso, 'LCP-001_List_MatrizRolVista');"
     Children:
       - Anl_ImgLogoBienvenida:
           Control: Image@2.2.3
@@ -11,17 +13,19 @@ Screens:
             BorderColor: =RGBA(0, 18, 107, 1)
             Height: =20
             Image: =Logotipo
-            Width: =197
-            X: =194
+            Width: =544
             Y: =184
       - Anl_ImgBienvenidaDerecha:
           Control: Image@2.2.3
           Properties:
             BorderColor: =RGBA(0, 18, 107, 1)
             Height: =768
-            Image: =BienvenidaImagenDerecha
-            Width: =784
-            X: =582
+            Image: |+
+              =//10/06/2026 -> Se actualiza la imagen de Bienvenida de SCS Service Hub
+              BienvenidaCSCServiceHub
+              //BienvenidaImagenDerecha
+            Width: =822
+            X: =544
       - Anl_LblBienvenido:
           Control: Label@2.5.1
           Properties:
@@ -32,7 +36,7 @@ Screens:
             Height: =50
             Size: =25
             Text: ="¡Bienvenido!"
-            Width: =582
+            Width: =544
             Y: =209
       - Anl_ImgUsuario:
           Control: Image@2.2.3
@@ -45,7 +49,7 @@ Screens:
             RadiusTopLeft: =90
             RadiusTopRight: =90
             Width: =136
-            X: =225
+            X: =209
             Y: =285
       - Anl_LblNombreApellidoUsuario:
           Control: Label@2.5.1
@@ -54,9 +58,9 @@ Screens:
             BorderColor: =RGBA(0, 18, 107, 1)
             Font: =Font.'Open Sans'
             FontWeight: =FontWeight.Bold
-            Height: =24
+            Height: =15
             Text: =Var_ProfileUser.NombreApellido
-            Width: =582
+            Width: =554
             Y: =446
       - Anl_LblCargoUsuario:
           Control: Label@2.5.1
@@ -70,9 +74,9 @@ Screens:
             Text: |-
               =//Registro que se toma de la tabla LCP_001_List_Usuarios
               Var_ProfileUser.CargoOrganizacional
-            Width: =582
-            X: =1
-            Y: =470
+            Width: =544
+            X: =5
+            Y: =483
       - Anl_TimerWarningBienvenida:
           Control: Timer@2.1.0
           Properties:
@@ -98,87 +102,6 @@ Screens:
             Visible: =false
             X: =40
             Y: =40
-      - Anl_BtnIngresar:
-          Control: Classic/Button@2.2.0
-          Properties:
-            BorderColor: =ColorFade(Self.Fill, -15%)
-            Color: =RGBA(255, 255, 255, 1)
-            DisabledBorderColor: =RGBA(166, 166, 166, 1)
-            Fill: =ColorValue(Var_ColorBotonIngresar)
-            Font: =Font.'Open Sans'
-            HoverBorderColor: =ColorFade(Self.BorderColor, 80%)
-            HoverColor: =RGBA(255, 255, 255, 1)
-            HoverFill: =ColorFade(ColorValue(Var_ColorBotonIngresar), -20%)
-            OnSelect: |-
-              =Refresh('LCP-001_List_Usuarios');
-
-              If(Var_ProfileUser.Estado = "Activo",
-              //Si el usuario es activo
-              Set(Var_ProfileUser,LookUp('LCP-001_List_Usuarios', CorreoUsuario = Var_EmailUser));
-
-              ClearCollect(
-                  colRolesUsuario,
-                  ForAll(
-                      Table(ParseJSON(Var_ProfileUser.RolSistema)), 
-                      { 
-                          Rol: Text(ThisRecord.Value.Rol), 
-                          JerarquiaRol: 
-                          Switch(
-                              Text(ThisRecord.Value.Rol),
-                              "Administrador", 90,
-                              "Supervisor",    80,
-                              "Gerente",       70,
-                              "Solicitante",   60,
-                              "Analista",      50,
-                              0
-                          )
-                      }
-                  )
-              );
-
-              // Variable que guar el rol con mayor jerarquia
-              Set(
-                  Var_RolSistema, 
-                  First(Sort(colRolesUsuario, JerarquiaRol, SortOrder.Descending)).Rol
-              );
-
-              //Navegar a la pantalla del rol con mayor jerarquia que tenga el usuario
-              If(CountRows(colRolesUsuario) = 0,
-
-              //Si no tiene asignado ningun rol salta un mensaje con componente que diga que no tiene asignado rol
-              Select(Anl_TimerWarningBienvenida),
-
-
-              Switch(Var_RolSistema,
-                  Var_RolApp.RolSupervisor,
-                  ClearCollect(colMenuGeneral,colMenuSpv),
-                  Var_RolApp.RolAnalista,
-                  ClearCollect(colMenuGeneral,colMenu),
-                  Var_RolApp.RolSolicitante,
-                  ClearCollect(colMenuGeneral,colMenuSol),
-                  Var_RolApp.RolAdministrador,
-                  ClearCollect(colMenuGeneral,colMenuAdm)
-              );
-
-
-              Navigate(Gbl_Home, Transition.Push)
-
-              ),
-              //Si el usuario es inactivo
-              UpdateContext({OpenAlertWarnning: true, Var_Ctx_Inactivo: true, Var_Ctx_MensajeInactivo: "Usted no tiene una cuenta activa para ingresar a la aplicación"})
-              )
-            PressedBorderColor: =Self.Fill
-            PressedColor: =Self.Fill
-            PressedFill: =Self.Color
-            RadiusBottomLeft: =5
-            RadiusBottomRight: =5
-            RadiusTopLeft: =5
-            RadiusTopRight: =5
-            Size: =10
-            Text: ="Ingresar"
-            Width: =241
-            X: =172
-            Y: =513
       - Gbl_Warning_Bienvenida:
           Control: CanvasComponent
           ComponentName: Gbl_Warning
@@ -197,3 +120,172 @@ Screens:
             Width: =480
             X: =856
             Y: =60
+      - Anl_BtnIngresar:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =ColorFade(Self.Fill, -15%)
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            Fill: =ColorValue(Var_ColorBotonIngresar)
+            Font: =Font.'Open Sans'
+            Height: =45
+            HoverBorderColor: =ColorFade(Self.BorderColor, 80%)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(ColorValue(Var_ColorBotonIngresar), -20%)
+            OnSelect: "=Refresh('LCP-001_List_Usuarios');\n\nIf(Var_ProfileUser.Estado = \"Activo\",\n//Si el usuario es activo\nSet(Var_ProfileUser,LookUp('LCP-001_List_Usuarios', CorreoUsuario = Var_EmailUser));\n\nClearCollect(\n    colRolesUsuario,\n    ForAll(\n        Table(ParseJSON(Var_ProfileUser.RolSistema)), \n        { \n            Rol: Text(ThisRecord.Value.Rol), \n            JerarquiaRol: \n            Switch(\n                Text(ThisRecord.Value.Rol),\n                \"Administrador\", 90,\n                \"Supervisor\",    80,\n                \"Gerente\",       70,\n                \"Solicitante\",   60,\n                \"Analista\",      50,\n                0\n            )\n        }\n    )\n);\n\n// Variable que guar el rol con mayor jerarquia\nSet(\n    Var_RolSistema, \n    First(Sort(colRolesUsuario, JerarquiaRol, SortOrder.Descending)).Rol\n);\n\n//Navegar a la pantalla del rol con mayor jerarquia que tenga el usuario\nIf(CountRows(colRolesUsuario) = 0,\n\n//Si no tiene asignado ningun rol salta un mensaje con componente que diga que no tiene asignado rol\nSelect(Anl_TimerWarningBienvenida),\n\nClearCollect(\n    colMenuGeneral,\n    \n    // 1. HOME\n    { Title: \"Home\", Id: 1, Pantalla: Gbl_Perfil, Ico: home, child: false, itemsSubChild: Table() },\n    \n    // 2. CATÁLOGO\n    { Title: \"Catálogo\", Id: 2, Pantalla: Gbl_Catalogo, Ico: catalogo, child: false, itemsSubChild: Table() },\n    \n    // 3. TICKET\n    { Title: \"Ticket\", Id: 3, Pantalla: Gbl_Ticket, Ico: ticket, child: false, itemsSubChild: Table() },\n    \n    // 4. CONFIGURACIÓN (Módulo de Administración)\n    If(\n        !IsBlank(LookUp(colAccesosUsuario, Vista = VarModulo.Administracion)),\n        {\n            Title: \"Configuración\", \n            Id: 4, \n            Pantalla: Blank(), \n            Ico: configuracion, \n            child: true, \n            itemsSubChild: Filter(\n                Table(\n                    // Submenú: Solicitudes\n                    If(\n                        !IsBlank(LookUp(colAccesosUsuario, Funcionalidad = VarFuncionalidad.MAD_ConfigTipoSolicitud && Vista = VarModulo.Administracion)),\n                        { Title: \"Solicitudes\", Id: \"4.1\", Pantalla: Adm_TipoSolicitudes },\n                        { Title: \"\", Id: \"4.1\", Pantalla: App.ActiveScreen } \n                    ),\n                    // Submenú: Notificaciones\n                    If(\n                        !IsBlank(LookUp(colAccesosUsuario, Funcionalidad = VarFuncionalidad.MAD_ConfigNotificaciones && Vista = VarModulo.Administracion)),\n                        { Title: \"Notificaciones\", Id: \"4.2\", Pantalla: App.ActiveScreen }, // Cambia por tu pantalla real si la tienes\n                        { Title: \"\", Id: \"4.2\", Pantalla: App.ActiveScreen }\n                    ),\n                    // Submenú: Catálogos del sistema\n                    { Title: \"\", Id: \"4.3\", Pantalla: App.ActiveScreen }, // Se queda vacío temporalmente si no hay pantalla asociada\n                    \n                    // Submenú: Accesos\n                    If(\n                        !IsBlank(LookUp(colAccesosUsuario, Funcionalidad = VarFuncionalidad.MAD_ConfigAccesos && Vista = VarModulo.Administracion)),\n                        { Title: \"Accesos\", Id: \"4.4\", Pantalla: Adm_Accesos },\n                        { Title: \"\", Id: \"4.4\", Pantalla: App.ActiveScreen }\n                    )\n                ),\n                // AQUÍ EL CAMBIO CLAVE: Ahora que el If controla el registro entero, \n                // si el usuario no tiene acceso, el título será \"\" y el Filter lo eliminará.\n                Title <> \"\"\n            )\n        },\n        // Registro de escape homologado si no tiene nada de Administración\n        { Title: \"\", Id: 0, Pantalla: Blank(), Ico: configuracion, child: false, itemsSubChild: Table() }\n    ),\n    \n    // 5. COMUNICADOS\n    { Title: \"Comunicados\", Id: 5, Pantalla: Gbl_Comunicado, Ico: comunicados, child: false, itemsSubChild: Table() },\n    \n    // 6. SOLUCIONES\n    { Title: \"Soluciones\", Id: 6, Pantalla: Blank(), Ico: soluciones, child: false, itemsSubChild: Table() },\n    \n    // 7. USUARIOS\n    { Title: \"Usuarios\", Id: 7, Pantalla: Blank(), Ico: usuarios, child: false, itemsSubChild: Table() }\n);\n\n// LIMPIEZA FINAL DEL MENU PRINCIPAL\nClearCollect(colMenuGeneral, Filter(colMenuGeneral, Title <> \"\"));\n\n\n/*\nSwitch(Var_RolSistema;\n    Var_RolApp.RolSupervisor;\n    ClearCollect(colMenuGeneral;colMenuSpv);\n    Var_RolApp.RolAnalista;\n    ClearCollect(colMenuGeneral;colMenu);\n    Var_RolApp.RolSolicitante;\n    ClearCollect(colMenuGeneral;colMenuSol);\n    Var_RolApp.RolAdministrador;\n    ClearCollect(colMenuGeneral;colMenuAdm)\n);;\n*/\n\nNavigate(Gbl_Perfil, Transition.Push)\n\n),\n//Si el usuario es inactivo\nUpdateContext({OpenAlertWarnning: true, Var_Ctx_Inactivo: true, Var_Ctx_MensajeInactivo: \"Usted no tiene una cuenta activa para ingresar a la aplicación\"})\n)"
+            PressedBorderColor: =Self.Fill
+            PressedColor: =Self.Fill
+            PressedFill: =Self.Color
+            RadiusBottomLeft: =5
+            RadiusBottomRight: =5
+            RadiusTopLeft: =5
+            RadiusTopRight: =5
+            Size: =10
+            Text: ="Ingresar"
+            Visible: |-
+              =//false
+              /*
+              If(
+              Gbl_ComboBox_1.IsOpen;
+              false;
+              true
+              )
+              */
+            Width: =286
+            X: =151
+            Y: =677
+      - Gbl_btnIngresar:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =ColorValue(Var_ColorHoverBoton)
+            BorderThickness: =1
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            DisplayMode: |-
+              =If(
+              Not(IsBlank(Gbl_CbxLogin.Selected.Rol)),
+              DisplayMode.Edit,
+              DisplayMode.Disabled
+              )
+            Fill: =ColorValue(Var_ColorBotonIngresar)
+            Font: =Font.'Open Sans'
+            HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+            HoverColor: =ColorValue(Var_ColorBlanco)
+            HoverFill: =ColorFade(Self.Fill, 0.10)
+            OnSelect: "=//Refresh('LCP-001_List_Usuarios');;\n\nIf(Var_ProfileUser.Estado = \"Activo\",\n\n//Si el usuario es activo\n\n\n// Variable que guar el rol con mayor jerarquia\nSet(\n    Var_RolSistema, \n    Gbl_CbxLogin.Selected.Rol\n);\n\n//Navegar a la pantalla del rol con mayor jerarquia que tenga el usuario\nIf(CountRows(colRolesUsuario) = 0,\n\n//Si no tiene asignado ningun rol salta un mensaje con componente que diga que no tiene asignado rol\nSelect(Anl_TimerWarningBienvenida),\n\n// creamos una coleccion de los accesos que tiene el usuario\nClearCollect(\n    colAccesosUsuario,\n    Filter(\n        AddColumns(\n            colMatrizAcceso,\n            RolesPermitidos, \n            ForAll(Table(ParseJSON(ThisRecord.Rol)), Text(Value.Value))\n        ),\n        Var_RolSistema in RolesPermitidos\n    )\n)\n;\n\n// construimos un objeto para acceder a las vistas y funciones que retornan un valor booleano\nSet(\n    Var_MatrizAccesosApp,\n    {\n        // ==========================================\n        // MÓDULOS DE LA APP (VISTAS)\n        // ==========================================\n        Mod_Solicitante: !IsBlank(LookUp(colAccesosUsuario, Vista = VarModulo.Solicitante)),\n        Mod_Administracion: !IsBlank(LookUp(colAccesosUsuario, Vista = VarModulo.Administracion)),\n        Mod_Atencion: !IsBlank(LookUp(colAccesosUsuario, Vista = VarModulo.Atencion)),\n        Mod_GestionAprobacion: !IsBlank(LookUp(colAccesosUsuario, Vista = VarModulo.GestionAprobacion)),\n        Mod_Cierre: !IsBlank(LookUp(colAccesosUsuario, Vista = VarModulo.Cierre)),\n\n        // ==========================================\n        // FUNCIONALIDADES DETALLADAS\n        // ==========================================\n        // Módulo de solicitante\n        CrearTicket: !IsBlank(LookUp(colAccesosUsuario, Funcionalidad = VarFuncionalidad.MS_CrearTicket && Vista = VarModulo.Solicitante  )), // Nuevo ticket\n        SubsanaTicket: !IsBlank(LookUp(colAccesosUsuario, Funcionalidad = VarFuncionalidad.MS_SubsanaTicket  && Vista = VarModulo.Solicitante)), // En revisión\n        \n        // Módulo de administración\n        ConfigTipoSolicitud: !IsBlank(LookUp(colAccesosUsuario, Funcionalidad = VarFuncionalidad.MAD_ConfigTipoSolicitud  && Vista = VarModulo.Administracion)),\n        ConfigNotificaciones: !IsBlank(LookUp(colAccesosUsuario, Funcionalidad = VarFuncionalidad.MAD_ConfigNotificaciones  && Vista = VarModulo.Administracion)),\n        CrearComunicados: !IsBlank(LookUp(colAccesosUsuario, Funcionalidad = VarFuncionalidad.MDC_CrearComunicados)),\n        CrearSoluciones: !IsBlank(LookUp(colAccesosUsuario, Funcionalidad = VarFuncionalidad.MDS_CrearSoluciones)),\n        ConfigAccesos: !IsBlank(LookUp(colAccesosUsuario, Funcionalidad = VarFuncionalidad.MAD_ConfigAccesos  && Vista = VarModulo.Administracion)),\n        \n        // Módulo de atención del responsable de atención\n        ObservarTicket: !IsBlank(LookUp(colAccesosUsuario, Funcionalidad = VarFuncionalidad.MA_ObservarTicket  && Vista = VarModulo.Atencion )), // Observar ticket\n        AtencionTicket: !IsBlank(LookUp(colAccesosUsuario, Funcionalidad = VarFuncionalidad.MA_AtencionTicket  && Vista = VarModulo.Atencion)), // En proceso\n        ReasignarTicket: !IsBlank(LookUp(colAccesosUsuario, Funcionalidad = VarFuncionalidad.MA_ReasignarTicket  && Vista = VarModulo.Atencion)), // Reasingar \n        DerivarTicket: !IsBlank(LookUp(colAccesosUsuario, Funcionalidad = VarFuncionalidad.MA_DerivarTicket  && Vista = VarModulo.Atencion)), // Derivar\n        SolicitarAprobacionTicket: !IsBlank(LookUp(colAccesosUsuario, Funcionalidad = VarFuncionalidad.MA_SolicitarAprobacionTicket  && Vista = VarModulo.Atencion)), // En espera de aprobación\n        ResolverTicket: !IsBlank(LookUp(colAccesosUsuario, Funcionalidad = VarFuncionalidad.MA_ResolverTicket  && Vista = VarModulo.Atencion)), // En Espera de aprobación -> Resuelto \n        // agregar el rechazo del ticket del analista\n        MA_RechazarTicket: !IsBlank(LookUp(colAccesosUsuario, Funcionalidad = VarFuncionalidad.MA_RechazarTicket  && Vista = VarModulo.Atencion)),\n        \n        // Módulo de gestión de aprobación\n        SolicitarReactivarTicket: !IsBlank(LookUp(colAccesosUsuario, Funcionalidad = VarFuncionalidad.MGA_SolicitarReactivarTicket  && Vista = VarModulo.GestionAprobacion)), // Analista\n        ReactivarTicket: !IsBlank(LookUp(colAccesosUsuario, Funcionalidad = VarFuncionalidad.MGA_ReactivarTicket  && Vista = VarModulo.GestionAprobacion)), // Supervisor / Gerente \n        GestionRechazarTicket: !IsBlank(LookUp(colAccesosUsuario, Funcionalidad = VarFuncionalidad.MGA_RechazarTicket  && Vista = VarModulo.GestionAprobacion)),\n        GestionAprobarTicket: !IsBlank(LookUp(colAccesosUsuario, Funcionalidad = VarFuncionalidad.MGA_AprobarTicket  && Vista = VarModulo.GestionAprobacion)),\n        \n        // Módulo de cierre\n        NPS: !IsBlank(LookUp(colAccesosUsuario, Funcionalidad = VarFuncionalidad.MC_NPS  && Vista = VarModulo.Cierre)), \n        RechazarTicket: !IsBlank(LookUp(colAccesosUsuario, Funcionalidad = VarFuncionalidad.MC_RechazarTicket  && Vista = VarModulo.Cierre)), // Rechazar solución\n        SolucionarTicket: !IsBlank(LookUp(colAccesosUsuario, Funcionalidad = VarFuncionalidad.MC_SolucionarTicket  && Vista = VarModulo.Cierre)) // Cerrar ticket\n    }\n);\n\n// Menú dinámico \nClearCollect(\n    colMenuGeneral,\n    \n    // 1. HOME\n    If(Var_RolSistema <> Var_RolApp.RolSolicitante,\n    { Title: \"Home\", Id: 1, Pantalla: Gbl_Home, Ico: home, child: false, itemsSubChild: Table() },\n    Blank()\n    ),\n    \n    // 2. CATÁLOGO\n    { Title: \"Catálogo\", Id: 2, Pantalla: Gbl_Catalogo, Ico: catalogo, child: false, itemsSubChild: Table() },\n    \n    // 3. TICKET\n    { Title: \"Ticket\", Id: 3, Pantalla: Gbl_Ticket, Ico: ticket, child: false, itemsSubChild: Table() },\n\n    If(Var_RolSistema = Var_RolApp.RolSupervisor,\n    { Title: \"Analistas\", Id: 10, Pantalla: Spv_Analistas, Ico: usuarios, child: false, itemsSubChild: Table() },\n    Blank()\n    ),\n\n    //Spv_Analistas\n    // 9. APROBACIONES\n    { Title: \"Aprobaciones\", Id: 9, Pantalla: Gbl_Ticket, Ico: cheque, child: false, itemsSubChild: Table() },\n\n    // 4. CONFIGURACIÓN (Módulo de Administración)\n    If(\n        !IsBlank(LookUp(colAccesosUsuario, Vista = VarModulo.Administracion)),\n        {\n            Title: \"Configuración\", \n            Id: 4, \n            Pantalla: Blank(), \n            Ico: configuracion, \n            child: true, \n            itemsSubChild: Filter(\n                Table(\n                    // Submenú: Solicitudes\n                    If(\n                        !IsBlank(LookUp(colAccesosUsuario, Funcionalidad = VarFuncionalidad.MAD_ConfigTipoSolicitud && Vista = VarModulo.Administracion)),\n                        { Title: \"Solicitudes\", Id: \"4.1\", Pantalla: Adm_TipoSolicitudes },\n                        { Title: \"\", Id: \"4.1\", Pantalla: App.ActiveScreen } \n                    ),\n                    // Submenú: Notificaciones\n                    If(\n                        !IsBlank(LookUp(colAccesosUsuario, Funcionalidad = VarFuncionalidad.MAD_ConfigNotificaciones && Vista = VarModulo.Administracion)),\n                        { Title: \"Notificaciones\", Id: \"4.2\", Pantalla: App.ActiveScreen }, // Cambia por tu pantalla real si la tienes\n                        { Title: \"\", Id: \"4.2\", Pantalla: App.ActiveScreen }\n                    ),\n                    // Submenú: Catálogos del sistema\n                    { Title: \"\", Id: \"4.3\", Pantalla: App.ActiveScreen }, // Se queda vacío temporalmente si no hay pantalla asociada\n                    \n                    // Submenú: Accesos\n                    If(\n                        !IsBlank(LookUp(colAccesosUsuario, Funcionalidad = VarFuncionalidad.MAD_ConfigAccesos && Vista = VarModulo.Administracion)),\n                        { Title: \"Accesos\", Id: \"4.4\", Pantalla: Adm_Accesos },\n                        { Title: \"\", Id: \"4.4\", Pantalla: App.ActiveScreen }\n                    ),\n                    // Submenú: Accesos\n                    If(\n                        Var_RolSistema = Var_RolApp.RolAdministrador,\n                        { Title: \"Roles y agrupadores\", Id: \"4.5\", Pantalla: Adm_RolesAgrupadores },\n                        { Title: \"\", Id: \"4.5\", Pantalla: App.ActiveScreen }\n                    ),\n                    If(\n                        Var_RolSistema = Var_RolApp.RolAdministrador,\n                        { Title: \"Catálogos Sistema\", Id: \"4.6\", Pantalla: Gbl_CatalogoSistema },\n                        { Title: \"\", Id: \"4.5\", Pantalla: App.ActiveScreen }\n                    )\n                ),\n                // AQUÍ EL CAMBIO CLAVE: Ahora que el If controla el registro entero, \n                // si el usuario no tiene acceso, el título será \"\" y el Filter lo eliminará.\n                Title <> \"\"\n            )\n        },\n        // Registro de escape homologado si no tiene nada de Administración\n        { Title: \"\", Id: 0, Pantalla: Blank(), Ico: configuracion, child: false, itemsSubChild: Table() }\n    ),\n    \n    // 5. COMUNICADOS\n    { Title: \"Comunicados\", Id: 5, Pantalla: Gbl_Comunicado, Ico: comunicados, child: false, itemsSubChild: Table() },\n    \n    // 6. SOLUCIONES\n    { Title: \"Soluciones\", Id: 6, Pantalla: Blank(), Ico: soluciones, child: false, itemsSubChild: Table() },\n    \n    // 7. USUARIOS\n\n    If(Var_RolSistema = Var_RolApp.RolAdministrador,\n    { Title: \"Usuarios\", Id: 7, Pantalla: Adm_Usuarios, Ico: usuarios, child: false, itemsSubChild: Table() },\n    Blank()\n    ),\n\n    // 8. LOGOUT\n    { Title: \"Logout\", Id: 8, Pantalla: Gbl_Bienvenida, Ico: logout, child: false, itemsSubChild: Table() }\n);\n\n// LIMPIEZA FINAL DEL MENU PRINCIPAL\nClearCollect(colMenuGeneral, Filter(colMenuGeneral, Title <> \"\"));\n\n     If(Var_RolSistema = Var_RolApp.RolSolicitante,\n\n        Navigate(Gbl_Ticket, Transition.Push),\n        Navigate(Gbl_Home, Transition.Push)\n     \n     \n     )   \n\n),\n//Si el usuario es inactivo\nUpdateContext({OpenAlertWarnning: true, Var_Ctx_Inactivo: true, Var_Ctx_MensajeInactivo: \"Usted no tiene una cuenta activa para ingresar a la aplicación\"})\n)\n"
+            PressedBorderColor: =Self.PressedFill
+            PressedColor: =ColorValue(Var_ColorBlanco)
+            PressedFill: =ColorFade(Self.Fill, 0.20)
+            RadiusBottomLeft: =8
+            RadiusBottomRight: =8
+            RadiusTopLeft: =8
+            RadiusTopRight: =8
+            Size: =Var_FontSizeBoton - 2
+            Text: ="Ingresar"
+            Visible: |-
+              =If(
+
+              CountRows(colRolesUsuario) = 0
+              ,
+              false,
+              true
+              )
+            Width: =Gbl_CbxLogin.Width
+            X: =143
+            Y: =570
+      - cbxGerencia_34:
+          Control: GroupContainer@1.5.0
+          Variant: ManualLayout
+          Properties:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            DropShadow: =DropShadow.None
+            Height: =60
+            Width: =260
+            X: =143
+            Y: =504
+          Children:
+            - Container58_56:
+                Control: GroupContainer@1.5.0
+                Variant: ManualLayout
+                Properties:
+                  BorderColor: =ColorValue("#6C6C6C")
+                  BorderThickness: =1
+                  DropShadow: =DropShadow.None
+                  Height: =48
+                  RadiusBottomLeft: =8
+                  RadiusBottomRight: =8
+                  RadiusTopLeft: =8
+                  RadiusTopRight: =8
+                  Width: =Parent.Width - 2
+                  X: =1
+                  Y: =(cbxGerencia_34.Height - Self.Height) / 2
+                Children:
+                  - Gbl_CbxLogin:
+                      Control: Classic/ComboBox@2.4.0
+                      Properties:
+                        BorderColor: =ColorValue(Var_ColorGray)
+                        BorderThickness: =1
+                        ChevronBackground: =RGBA(0, 0, 0, 0)
+                        ChevronDisabledBackground: =RGBA(0, 0, 0, 0)
+                        ChevronDisabledFill: =ColorValue(Var_ColorGray)
+                        ChevronFill: =ColorValue(Var_ColorBoton)
+                        ChevronHoverBackground: =
+                        ChevronHoverFill: =ColorValue(Var_ColorBoton)
+                        Color: =ColorValue(Var_ColorGray)
+                        DisplayFields: =["Rol"]
+                        Font: =Font.'Open Sans'
+                        Height: '=Parent.Height '
+                        HoverColor: =ColorValue(Var_ColorGray)
+                        HoverFill: =ColorValue(Var_ColorLightGray)
+                        InputTextPlaceholder: ="Rol"
+                        Items: =colRolesUsuario
+                        NoSelectionText: ="Rol"
+                        OnChange: =
+                        PressedColor: =ColorValue(Var_ColorBoton)
+                        PressedFill: =RGBA(255, 255, 255, 1)
+                        SearchFields: =["Rol"]
+                        SelectMultiple: =false
+                        SelectionColor: =ColorValue(Var_ColorGray)
+                        SelectionFill: =ColorValue(Var_ColorFadeBoton)
+                        Size: =12
+                        Tooltip: =Self.Selected.Rol
+                        Width: =Parent.Width
+                        X: =
+                        Y: =(Parent.Height - Self.Height) / 2
+            - Label16_49:
+                Control: Label@2.5.1
+                Properties:
+                  Align: =Align.Center
+                  BorderColor: =RGBA(0, 18, 107, 1)
+                  Fill: =RGBA(255, 255, 255, 1)
+                  Font: =Font.'Open Sans'
+                  Height: =12
+                  PaddingLeft: =2
+                  PaddingRight: =2
+                  Size: =7
+                  Text: ="Rol"
+                  Visible: =!IsBlank(Gbl_CbxLogin.Selected.Rol)
+                  Width: =30
+                  X: =8
+      - Anl_LblCargoUsuario_1:
+          Control: Label@2.5.1
+          Properties:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 18, 107, 1)
+            Color: =ColorValue("#3b8700")
+            Fill: =RGBA(255, 255, 255, 100)
+            Font: =Font.'Open Sans'
+            Height: =115
+            Size: =10
+            Text: |-
+              =//Registro que se toma de la tabla LCP_001_List_Usuarios
+              "No cuenta con roles asignados, contáctese con el administrador."
+            VerticalAlign: =VerticalAlign.Top
+            Visible: |+
+              =If(
+              CountRows(colRolesUsuario) = 0,
+              true,
+              false
+              )
+            Width: =544
+            Y: =507

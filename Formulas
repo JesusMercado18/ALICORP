@@ -1,0 +1,2091 @@
+// Definición de la función global en App.Formulas
+fxCalcularAncho(texto: Text): Number = With(
+    {
+        _factor: 7 / 16;
+        _maxW: 280;
+        _weights: Table(
+            {
+                Characters: "!;':,. i|";
+                Weight: 4
+            };
+            {
+                Characters: "l1()-[]{}fjrt*";
+                Weight: 5
+            };
+            {
+                Characters: "s_\/czj235^+=<>?aeoxflst6789$uv";
+                Weight: 9
+            };
+            {
+                Characters: "bdghknpqyexz04bcgkpry#&dhnouvaq%m@";
+                Weight: 11
+            };
+            {
+                Characters: "wM";
+                Weight: 15
+            };
+            {
+                Characters: "W";
+                Weight: 17
+            }
+        )
+    };
+    With(
+        {
+            _sumaPura: Sum(
+                AddColumns(
+                    Split(
+                        Lower(texto);
+                        ""
+                    );
+                    CharW;
+                    Coalesce(
+                        LookUp(
+                            _weights;
+                            Find(
+                                Value;
+                                Characters
+                            ) > 0;
+                            Weight
+                        );
+                        10
+                    )
+                );
+                CharW
+            ) * _factor
+        };
+        With(
+            {_anchoFinal: _sumaPura + 22 + (_sumaPura * 0,05)};
+            Min(
+                _anchoFinal;
+                _maxW
+            )
+        )
+    )
+);;
+// Creacion de la coleccion con columna tipada para ordenamiento cronologico
+UDFAprobadoresCheck(
+    //"Aprobado"
+    //"Rechazado"
+    pNuevoEstado: Text
+): Void = 
+{
+	ClearCollect(
+        colAprobadoresCheck;
+        AddColumns(
+            ForAll(
+                Table(ParseJSON(Trim(Var_SpvTicketSeleccionada.AprobadoresCheck)));
+                {
+                    correo: Text(ThisRecord.Value.correo);
+                    nombre: Text(ThisRecord.Value.nombre);
+                    estado: Text(ThisRecord.Value.estado);
+                    fecha: Text(ThisRecord.Value.fecha)
+                }
+            );
+            FechaOrden;
+            If(
+                IsBlank(fecha) Or Len(fecha) < 8;
+                Blank();
+                DateTimeValue(
+                    fecha;
+                    "es-ES"
+                )
+            )
+        )
+    );;
+    With(
+        {
+            varTargetRecord: First(
+                Sort(
+                    Filter(
+                        colAprobadoresCheck;
+                        correo = Var_ProfileUser.CorreoUsuario && IsBlank(estado)
+                    );
+                    FechaOrden;
+                    SortOrder.Descending
+                )
+            )
+        };
+        If(
+            !IsBlank(varTargetRecord.correo);
+            Patch(
+                colAprobadoresCheck;
+                varTargetRecord;
+                {
+                    estado: pNuevoEstado;
+                    fecha: Text(
+                        Now();
+                        "dd/mm/yyyy hh:mm:ss"
+                    )
+                }
+            )
+        )
+    );;
+    Set(
+        Gbl_AprobadoresCheckJsonActualizado;
+        JSON(
+            colAprobadoresCheck;
+            JSONFormat.Compact
+        )
+    )
+};;
+// aqui obtenemos los datos del solicitante, atendido por, responsable de atención de la tabla usuarios para poder calcular su SLA.
+UDFObtenerDatosUsuarioDestino(pCorreo: Text) : Void = 
+{
+	Set(
+        GDatoUsuario;
+        LookUp(
+            'LCP-001_List_Usuarios';
+            CorreoUsuario = pCorreo
+        )
+    );;
+    ClearCollect(
+        colFeriados;
+        AddColumns(
+            Filter(
+                'LCP-001_List_CalendarioFestivo';
+                Pais = GDatoUsuario.Pais && Sociedad = GDatoUsuario.Sociedad
+            );
+            FechaCompleta;
+            If(
+                Len(FechaFestiva) = 10;
+                DateValue(FechaFestiva);
+                Date(
+                    Year(Now());
+                    Value(
+                        Mid(
+                            FechaFestiva;
+                            4;
+                            2
+                        )
+                    );
+                    Value(
+                        Left(
+                            FechaFestiva;
+                            2
+                        )
+                    )
+                )
+            )
+        )
+    )
+};;
+UDFCalcularSLAEstado(pEstadoSiguiente: Text): Void = 
+{
+	If(
+        IsEmpty(
+            Filter(
+                'LCP-001_List_EstadosProceso';
+                EstadoActual = pEstadoSiguiente
+            )
+        );
+        Concurrent(
+            Set(
+                GVar_SLACalculado;
+                0
+            );
+            Set(
+                GFechaVencimientoEstado;
+                Var_SpvTicketSeleccionada.FechaVencimiento
+            )
+        );
+        /* PASO 1: Usamos With para aislar el 'auxSLA' de manera dinámica.
+           Cada caso del Switch solo se encarga de ir a buscar su SLA correspondiente.
+        */
+
+        With(
+            {
+                vAuxSLA: LookUp(
+                    'LCP-001_List_EstadosProceso';
+                    EstadoActual = pEstadoSiguiente
+                ).SLA
+                /*
+                Switch(
+                    pEstadoSiguiente;
+                    
+                    Var_EstadosApp.EstadoObservado;
+                    LookUp('LCP-001_List_EstadosProceso'; EstadoActual = Var_EstadosApp.EstadoObservado && EstadoSiguiente = Var_EstadosApp.EstadoEnRevision).SLA;
+                    
+                    Var_EstadosApp.EstadoDerivado;
+                    LookUp('LCP-001_List_EstadosProceso'; EstadoActual = Var_EstadosApp.EstadoEnRevision && EstadoSiguiente = Blank()).SLA;
+                    
+                    Var_EstadosApp.EstadoEnProceso;
+                    LookUp('LCP-001_List_EstadosProceso'; EstadoActual = Var_EstadosApp.EstadoEnProceso && EstadoSiguiente = Blank()).SLA;
+                    
+                    Var_EstadosApp.EstadoEnEsperaAprobacion;
+                    LookUp('LCP-001_List_EstadosProceso'; EstadoActual = Var_EstadosApp.EstadoEnEsperaAprobacion && EstadoSiguiente = Var_EstadosApp.EstadoEnProceso).SLA;
+                    
+                    Var_EstadosApp.EstadoResuelto;
+                    LookUp('LCP-001_List_EstadosProceso'; EstadoActual = Var_EstadosApp.EstadoResuelto && EstadoSiguiente = Var_EstadosApp.EstadoCerrado).SLA;
+                    
+                    // Caso por defecto si no coincide con ninguno de los anteriores
+                    0
+                )
+                */
+
+            };
+            /* PASO 2: Lógica unificada para procesar el SLA. 
+               Se ejecuta UNA SOLA VEZ usando la variable calculada 'vAuxSLA'.
+            */
+
+            Set(
+                GVar_SLACalculado;
+                If(
+                    IsBlank(vAuxSLA) || vAuxSLA = 0;
+                    0;
+                    If(
+                        Value(Spv_TxtAsignarSLATiempoAtencionDetalleTicket_1.Text) <> vAuxSLA;
+                        Value(Spv_TxtAsignarSLATiempoAtencionDetalleTicket_1.Text);
+                        vAuxSLA
+                    )
+                )
+            );;
+            /* PASO 3: Lógica unificada para el cálculo de fechas y días hábiles.
+            */If(
+                GVar_SLACalculado = 0;
+                Set(
+                    GFechaVencimientoEstado;
+                    Var_SpvTicketSeleccionada.FechaVencimiento
+                );
+                // Si el SLA es mayor a 0, generamos la colección de días laborables
+
+                ClearCollect(
+                    colFechas;
+                    AddColumns(
+                        Sequence(GVar_SLACalculado * 3);
+                        Fecha;
+                        DateAdd(
+                            Now();
+                            Value;
+                            TimeUnit.Days
+                        )
+                    )
+                );;
+                ClearCollect(
+                    colDiasHabiles;
+                    FirstN(
+                        Filter(
+                            colFechas;
+                            Weekday(
+                                Fecha;
+                                StartOfWeek.Monday
+                            ) <= 5 && IsBlank(
+                                LookUp(
+                                    colFeriados;
+                                    FechaCompleta = Fecha
+                                )
+                            )
+                        );
+                        GVar_SLACalculado
+                    )
+                );;
+                Set(
+                    GFechaVencimientoEstado;
+                    Last(colDiasHabiles).Fecha
+                )
+            )
+        )
+    )
+};;
+UDFEstadoCreado(
+    pOperacionCatalogo: Boolean;
+    pMotivo: Text;
+    pMotivoObservacion: Text;
+    pComentarioHtml: Text;
+    pLimitePermitidoURL: Text
+): Void = 
+{
+	// 0. Reset de banderas de error
+Concurrent(
+        Set(
+            _varErrorUDFAccionEstado;
+            false
+        );
+        Set(
+            _varError;
+            Blank()
+        )
+    );;
+    IfError(
+        // 1. Sección Ejecución de Acción Estado
+
+        If(
+                //Variable que verifica si esta activo el Modal con selecciones
+
+            pOperacionCatalogo;
+            true
+        );
+        // 2. Manejo de error
+
+        Concurrent(
+            Set(
+                _varErrorUDFAccionEstado;
+                true
+            );
+            Set(
+                _varError;
+                {
+                    Fecha: Now();
+                    Usuario: {
+                        Codigo: Var_ProfileUser.Codigo;
+                        Nombre: Var_ProfileUser.NombreApellido
+                    };
+                    CodigoTicket: Var_SpvTicketSeleccionada.Codigo;
+                    Error: FirstError.Message
+                }
+            )
+        )
+    )
+};;
+UDFEstadoEnRevision(
+    pOperacionCatalogo: Boolean;
+    pOperacionCatalogoSimple: Boolean;
+    pMotivo: Text;
+    pMotivoObservacion: Text;
+    pComentarioHtml: Text;
+    pLimitePermitidoURL: Text;
+    // Estado del responsable activo/inactivo
+    pCorreoAtendidoPor: Text;
+    pNombreAtendidoPor: Text
+): Void = 
+{
+	// 0. Reset de banderas de error
+Concurrent(
+        Set(
+            _varErrorUDFAccionEstado;
+            false
+        );
+        Set(
+            _varError;
+            Blank()
+        )
+    );;
+    IfError(
+        // 1. Sección Ejecución de Acción Estado
+
+        If (
+            //Variable que verifica si esta activo el Modal sin selecciones
+
+            pOperacionCatalogoSimple;
+            Patch(
+                'LCP-001_List_TicketSolicitudes';
+                LookUp(
+                    'LCP-001_List_TicketSolicitudes';
+                    ID = Var_SpvTicketSeleccionada.ID
+                );
+                {
+                    EstadoActual: Var_EstadosApp.EstadoEnRevision;
+                    NombreModificador: Var_ProfileUser.NombreApellido;
+                    CorreoModificador: Var_ProfileUser.CorreoUsuario;
+                    // El motivo es temporal porque no hay catalogo y se usa para disponibilizar el comentario que se ingresa en el modal en tracking.
+
+                    Motivo: Var_EstadosApp.EstadoRechazado;
+                    MotivoObservacion: pMotivoObservacion;
+                    Comentario: pComentarioHtml;
+                    FechaModificado: Now();
+                    Accionador: Var_RolSistema;
+                    CorreoAtendidoPor: pCorreoAtendidoPor;
+                    NombreAtendidoPor: pNombreAtendidoPor;
+                    Evento: Var_EventoTrazabilidadApp.Estado;
+                    FechaVencimientoEstado: GFechaVencimientoEstado;
+                    SLAEstado: GVar_SLACalculado;
+                    NombreComentario: Var_ProfileUser.NombreApellido;
+                    CorreoComentario: Var_ProfileUser.CorreoUsuario;
+                    Rechazado: true;
+                    Derivado: false;
+                    VistoBueno: false;
+                    VariosAprobadores: false;
+                    Aprobacion: false;
+                    ReAsignado: false;
+                    ReApertura: false;
+                    SolSubsanado: true;
+                    // cuando se rechaza el ticket desde resuelto esta variable permanece en true?  
+CambioNivelConfidencialidad: false;
+                    ReasignadoAprobador: false
+                }
+            );
+                //Variable que verifica si esta activo el Modal con selecciones
+
+            pOperacionCatalogo;
+            Patch(
+                'LCP-001_List_TicketSolicitudes';
+                LookUp(
+                    'LCP-001_List_TicketSolicitudes';
+                    ID = Var_SpvTicketSeleccionada.ID
+                );
+                {
+                    EstadoActual: Var_EstadosApp.EstadoEnRevision;
+                    // El motivo es temporal porque no hay catalogo y se usa para disponibilizar el comentario que se ingresa en el modal en tracking.
+
+                    Motivo: Var_EstadosApp.EstadoRechazado;
+                    MotivoObservacion: pMotivoObservacion;
+                    Comentario: pComentarioHtml;
+                    FechaModificado: Now();
+                    Accionador: Var_RolSistema;
+                    Evento: Var_EventoTrazabilidadApp.Estado;
+                    FechaVencimientoEstado: GFechaVencimientoEstado;
+                    SLAEstado: GVar_SLACalculado;
+                    Rechazado: true;
+                    Derivado: false;
+                    VistoBueno: false;
+                    VariosAprobadores: false;
+                    Aprobacion: false;
+                    ReAsignado: false;
+                    ReApertura: false;
+                    SolSubsanado: false;
+                    CambioNivelConfidencialidad: false;
+                    ReasignadoAprobador: false
+                }
+            );
+            Notify("Ejecutar UDF");;
+            Patch(
+                'LCP-001_List_TicketSolicitudes';
+                LookUp(
+                    'LCP-001_List_TicketSolicitudes';
+                    ID = Var_SpvTicketSeleccionada.ID
+                );
+                {
+                    EstadoActual: Var_EstadosApp.EstadoEnRevision;
+                    NombreModificador: Var_ProfileUser.NombreApellido;
+                    CorreoModificador: Var_ProfileUser.CorreoUsuario;
+                    Comentario: pComentarioHtml;
+                    Motivo: Blank();
+                    MotivoObservacion: Blank();
+                    FechaModificado: Now();
+                    Accionador: Var_RolSistema;
+                    SLAEstado: GVar_SLACalculado;
+                    Evento: Var_EventoTrazabilidadApp.Estado;
+                    FechaVencimientoEstado: GFechaVencimientoEstado;
+                    CorreoAtendidoPor: pCorreoAtendidoPor;
+                    NombreAtendidoPor: pNombreAtendidoPor;
+                    LimitePermitidoURL: pLimitePermitidoURL;
+                    NombreComentario: Var_ProfileUser.NombreApellido;
+                    CorreoComentario: Var_ProfileUser.CorreoUsuario;
+                    Rechazado: false;
+                    VistoBueno: false;
+                    VariosAprobadores: false;
+                    Aprobacion: false;
+                    ReAsignado: false;
+                    ReApertura: false;
+                    SolSubsanado: true;
+                    CambioNivelConfidencialidad: false;
+                    ReasignadoAprobador: false
+                }
+            )
+        );
+        // 2. Manejo de error
+
+        Concurrent(
+            Set(
+                _varErrorUDFAccionEstado;
+                true
+            );
+            Set(
+                _varError;
+                {
+                    Fecha: Now();
+                    Usuario: {
+                        Codigo: Var_ProfileUser.Codigo;
+                        Nombre: Var_ProfileUser.NombreApellido
+                    };
+                    CodigoTicket: Var_SpvTicketSeleccionada.Codigo;
+                    Error: FirstError.Message
+                }
+            )
+        )
+    )
+};;
+UDFEstadoRechazado(
+    pOperacionCatalogo: Boolean;
+    pOperacionCatalogoSimple: Boolean;
+    pMotivo: Text;
+    pMotivoObservacion: Text;
+    pComentarioHtml: Text;
+    pLimitePermitidoURL: Text;
+    pCorreoAtendidoPor: Text;
+    pNombreAtendidoPor: Text
+): Void = 
+{
+	// 0. Reset de banderas de error
+Concurrent(
+        Set(
+            _varErrorUDFAccionEstado;
+            false
+        );
+        Set(
+            _varError;
+            Blank()
+        )
+    );;
+    IfError(
+        // 1. Sección Ejecución de Acción Estado
+
+        If(
+                //15/06/2026
+//REQ_CC2_04 segun el requisito al rechazar o aprobar debe ir al estado En Proceso
+
+            And(
+                pOperacionCatalogoSimple;
+                varPantallaSeleccionada = "Aprobaciones"
+            );
+            Patch(
+                'LCP-001_List_TicketSolicitudes';
+                LookUp(
+                    'LCP-001_List_TicketSolicitudes';
+                    ID = Var_SpvTicketSeleccionada.ID
+                );
+                {
+                    NombreModificador: Var_ProfileUser.NombreApellido;
+                    CorreoModificador: Var_ProfileUser.CorreoUsuario;
+                    EstadoActual: Var_EstadosApp.EstadoEnProceso;
+                    Motivo: pMotivo;
+                    MotivoObservacion: pMotivoObservacion;
+                    Comentario: pComentarioHtml;
+                    FechaModificado: Now();
+                    Accionador: Var_RolSistema;
+                    LimitePermitidoURL: pLimitePermitidoURL;
+                    Evento: Var_EventoTrazabilidadApp.Estado;
+                    //15/06/2026
+
+                    //REQ_CC2_04 Siguientes tres columnas agregadas por el requerimiento
+FechaVencimientoEstado: GFechaVencimientoEstado;
+                    SLAEstado: GVar_SLACalculado;
+                    AprobadoresCheck: Gbl_AprobadoresCheckJsonActualizado;
+                    Derivado: false;
+                    Rechazado: true;
+                    VistoBueno: false;
+                    VariosAprobadores: false;
+                    Aprobacion: false;
+                    ReAsignado: false;
+                    ReApertura: false;
+                    SolSubsanado: false;
+                    CambioNivelConfidencialidad: false;
+                    ReasignadoAprobador: false
+                }
+            );
+                //Variable que verifica si esta activo el Modal con selecciones
+
+            pOperacionCatalogo;
+            Patch(
+                'LCP-001_List_TicketSolicitudes';
+                LookUp(
+                    'LCP-001_List_TicketSolicitudes';
+                    ID = Var_SpvTicketSeleccionada.ID
+                );
+                {
+                    NombreModificador: Var_ProfileUser.NombreApellido;
+                    CorreoModificador: Var_ProfileUser.CorreoUsuario;
+                    EstadoActual: Var_EstadosApp.EstadoRechazado;
+                    Motivo: pMotivo;
+                    MotivoObservacion: pMotivoObservacion;
+                    Comentario: pComentarioHtml;
+                    FechaModificado: Now();
+                    Accionador: Var_RolSistema;
+                    LimitePermitidoURL: pLimitePermitidoURL;
+                    Evento: Var_EventoTrazabilidadApp.Estado;
+                    Derivado: false;
+                    Rechazado: true;
+                    VistoBueno: false;
+                    VariosAprobadores: false;
+                    Aprobacion: false;
+                    ReAsignado: false;
+                    ReApertura: false;
+                    SolSubsanado: false;
+                    CambioNivelConfidencialidad: false;
+                    ReasignadoAprobador: false
+                }
+            );
+                // Cuando el solicitante rechaza la solución desde el estado Resuelto a En Revisión
+
+            pOperacionCatalogoSimple;
+            Patch(
+                'LCP-001_List_TicketSolicitudes';
+                LookUp(
+                    'LCP-001_List_TicketSolicitudes';
+                    ID = Var_SpvTicketSeleccionada.ID
+                );
+                {
+                    EstadoActual: Var_EstadosApp.EstadoEnRevision;
+                    // El motivo es temporal porque no hay catalogo y se usa para disponibilizar el comentario que se ingresa en el modal en tracking.
+
+                    Motivo: Var_EstadosApp.EstadoRechazado;
+                    MotivoObservacion: pMotivoObservacion;
+                    Comentario: pComentarioHtml;
+                    FechaModificado: Now();
+                    Accionador: Var_RolSistema;
+                    Evento: Var_EventoTrazabilidadApp.Estado;
+                    FechaVencimientoEstado: GFechaVencimientoEstado;
+                    SLAEstado: GVar_SLACalculado;
+                    CorreoAtendidoPor: pCorreoAtendidoPor;
+                    NombreAtendidoPor: pNombreAtendidoPor;
+                    Rechazado: true;
+                    Derivado: false;
+                    VistoBueno: false;
+                    VariosAprobadores: false;
+                    Aprobacion: false;
+                    ReAsignado: false;
+                    ReApertura: false;
+                    SolSubsanado: false;
+                    CambioNivelConfidencialidad: false;
+                    ReasignadoAprobador: false
+                }
+            )
+        );
+        // 2. Manejo de error
+
+        Concurrent(
+            Set(
+                _varErrorUDFAccionEstado;
+                true
+            );
+            Set(
+                _varError;
+                {
+                    Fecha: Now();
+                    Usuario: {
+                        Codigo: Var_ProfileUser.Codigo;
+                        Nombre: Var_ProfileUser.NombreApellido
+                    };
+                    CodigoTicket: Var_SpvTicketSeleccionada.Codigo;
+                    Error: FirstError.Message
+                }
+            )
+        )
+    )
+};;
+UDFEstadoEnProceso(
+    pOperacionCatalogo: Boolean;
+    pOperacionCatalogoSimple: Boolean;
+    pMotivo: Text;
+    pMotivoObservacion: Text;
+    pComentarioHtml: Text;
+    pLimitePermitidoURL: Text;
+    pBotonAprobar:Boolean
+): Void = 
+{
+	// 0. Reset de banderas de error
+Concurrent(
+        Set(
+            _varErrorUDFAccionEstado;
+            false
+        );
+        Set(
+            _varError;
+            Blank()
+        )
+    );;
+    IfError(
+        // 1. Sección Ejecución de Acción Estado
+
+        If(
+            pBotonAprobar;
+            Patch(
+                'LCP-001_List_TicketSolicitudes';
+                LookUp(
+                    'LCP-001_List_TicketSolicitudes';
+                    ID = Var_SpvTicketSeleccionada.ID
+                );
+                {
+                    NombreModificador: Var_ProfileUser.NombreApellido;
+                    CorreoModificador: Var_ProfileUser.CorreoUsuario;
+                    EstadoActual: Var_EstadosApp.EstadoEnProceso;
+                    Comentario: pComentarioHtml;
+                    FechaModificado: Now();
+                    FechaVencimientoEstado: GFechaVencimientoEstado;
+                    SLAEstado: GVar_SLACalculado;
+                    Motivo: Blank();
+                    MotivoObservacion: Blank();
+                    LimitePermitidoURL: pLimitePermitidoURL;
+                    Accionador: Var_RolSistema;
+                    Evento: Var_EventoTrazabilidadApp.Estado;
+                    Derivado: false;
+                    Aprobacion: true;
+                    AprobadoresCheck: Gbl_AprobadoresCheckJsonActualizado;
+                    Rechazado: false;
+                    VistoBueno: false;
+                    VariosAprobadores: false;
+                    ReAsignado: false;
+                    ReApertura: false;
+                    SolSubsanado: false;
+                    CambioNivelConfidencialidad: false;
+                    ReasignadoAprobador: false
+                }
+            );
+                //Variable que verifica si esta activo el Modal con selecciones
+
+            pOperacionCatalogo;
+            true;
+            pOperacionCatalogoSimple;
+            true;
+            Var_SpvTicketSeleccionada.Estado = Var_EstadosApp.EstadoEnEsperaAprobacion;//(valida que sea el aprobador asignado)
+
+            true;
+            Var_SpvTicketSeleccionada.Estado = Var_EstadosApp.EstadoEnRevision;
+                //Notify("UDF EN PROCESO");;
+//Sucede cuando el Tikcket pasa en Proceso desde Revision
+
+            Patch(
+                'LCP-001_List_TicketSolicitudes';
+                LookUp(
+                    'LCP-001_List_TicketSolicitudes';
+                    ID = Var_SpvTicketSeleccionada.ID
+                );
+                {
+                    NombreModificador: Var_ProfileUser.NombreApellido;
+                    CorreoModificador: Var_ProfileUser.CorreoUsuario;
+                    EstadoActual: Var_EstadosApp.EstadoEnProceso;
+                    Comentario: pComentarioHtml;
+                    Motivo: Blank();
+                    MotivoObservacion: Blank();
+                    FechaModificado: Now();
+                    FechaVencimientoEstado: GFechaVencimientoEstado;
+                    SLAEstado: GVar_SLACalculado;
+                    LimitePermitidoURL: pLimitePermitidoURL;
+                    Accionador: Var_RolSistema;
+                    Evento: Var_EventoTrazabilidadApp.Estado;
+                    Derivado: false;
+                    Rechazado: false;
+                    VistoBueno: false;
+                    VariosAprobadores: false;
+                    Aprobacion: false;
+                    ReAsignado: false;
+                    ReApertura: false;
+                    SolSubsanado: false;
+                    CambioNivelConfidencialidad: false;
+                    ReasignadoAprobador: false
+                }
+            )
+        );
+        // 2. Manejo de error
+
+        Concurrent(
+            Set(
+                _varErrorUDFAccionEstado;
+                true
+            );
+            Set(
+                _varError;
+                {
+                    Fecha: Now();
+                    Usuario: {
+                        Codigo: Var_ProfileUser.Codigo;
+                        Nombre: Var_ProfileUser.NombreApellido
+                    };
+                    CodigoTicket: Var_SpvTicketSeleccionada.Codigo;
+                    Error: FirstError.Message
+                }
+            )
+        )
+    )
+};;
+UDFEstadoObservado(
+    pOperacionCatalogo: Boolean;
+    pMotivo: Text;
+    pMotivoObservacion: Text;
+    pComentarioHtml: Text;
+    pLimitePermitidoURL: Text
+): Void = 
+{
+	// 0. Reset de banderas de error
+Concurrent(
+        Set(
+            _varErrorUDFAccionEstado;
+            false
+        );
+        Set(
+            _varError;
+            Blank()
+        )
+    );;
+    IfError(
+        // 1. Sección Ejecución de Acción Estado
+
+        If(
+            //Variable que verifica si esta activo el Modal con selecciones
+
+            pOperacionCatalogo;
+            Patch(
+                'LCP-001_List_TicketSolicitudes';
+                LookUp(
+                    'LCP-001_List_TicketSolicitudes';
+                    ID = Var_SpvTicketSeleccionada.ID
+                );
+                {
+                    EstadoActual: Var_EstadosApp.EstadoObservado;
+                    LimitePermitidoURL: pLimitePermitidoURL;
+                    Motivo: pMotivo;
+                    MotivoObservacion: pMotivoObservacion;
+                    Comentario: pComentarioHtml;
+                    FechaModificado: Now();
+                    Accionador: Var_RolSistema;
+                    Evento: Var_EventoTrazabilidadApp.Estado;
+                    FechaVencimientoEstado: GFechaVencimientoEstado;
+                    SLAEstado: GVar_SLACalculado;
+                    Derivado: false;
+                    Rechazado: false;
+                    VistoBueno: false;
+                    VariosAprobadores: false;
+                    Aprobacion: false;
+                    ReAsignado: false;
+                    ReApertura: false;
+                    SolSubsanado: false;
+                    CambioNivelConfidencialidad: false;
+                    ReasignadoAprobador: false
+                }
+            )
+        );
+        // 2. Manejo de error
+
+        Concurrent(
+            Set(
+                _varErrorUDFAccionEstado;
+                true
+            );
+            Set(
+                _varError;
+                {
+                    Fecha: Now();
+                    Usuario: {
+                        Codigo: Var_ProfileUser.Codigo;
+                        Nombre: Var_ProfileUser.NombreApellido
+                    };
+                    CodigoTicket: Var_SpvTicketSeleccionada.Codigo;
+                    Error: FirstError.Message
+                }
+            )
+        )
+    )
+};;
+// UDF Derivar TICKET
+UDFEstadoDerivado(
+    pOperacionCatalogo: Boolean;
+    pMotivo: Text;
+    pMotivoObservacion: Text;
+    pComentarioHtml: Text;
+    pLimitePermitidoURL: Text;
+    pCorreoAtendidoPor: Text;
+    pNombreAtendidoPor: Text;
+    pCorreoAtendidoPorAnterior: Text;
+    pNombreAtendidoPorAnterior: Text;
+    pGerencia: Text;
+    pArea: Text;
+    pSubArea: Text;
+    pPais: Text;
+    pSociedad: Text;
+    pNivelDeConfidencialidad: Text;
+    pCambioNivelConfidencialidad: Boolean
+): Void = 
+{
+	// 0. Reset de banderas de error
+Concurrent(
+        Set(
+            _varErrorUDFAccionEstado;
+            false
+        );
+        Set(
+            _varError;
+            Blank()
+        )
+    );;
+    IfError(
+        // 1. Sección Ejecución de Acción Estado
+
+        If(
+                //Variable que verifica si esta activo el Modal con selecciones
+
+            pOperacionCatalogo;
+            Patch(
+                'LCP-001_List_TicketSolicitudes';
+                LookUp(
+                    'LCP-001_List_TicketSolicitudes';
+                    ID = Var_SpvTicketSeleccionada.ID
+                );
+                {
+                    Gerencia: pGerencia;
+                    Area: pArea;
+                    SubArea: pSubArea;
+                    Pais: pPais;
+                    Sociedad: pSociedad;
+                    NivelDeConfidencialidad: pNivelDeConfidencialidad;
+                    //Si no se selecciona el 'atendido por' se queda en el estado 'Derivado' si se ha seleccionado pasa 'EnRevision', si queda en 'Derivado' el balanceador se encargara de asignar el atendido por y pasar el ticket a 'EnRevision'
+
+                    EstadoActual: If(
+                        IsBlank(pCorreoAtendidoPor);
+                        Var_EstadosApp.EstadoDerivado;
+                        Var_EstadosApp.EstadoEnRevision
+                    );
+                    Motivo: pMotivo;
+                    MotivoObservacion: pMotivoObservacion;
+                    Comentario: pComentarioHtml;
+                    LimitePermitidoURL: pLimitePermitidoURL;
+                    FechaModificado: Now();
+                    Accionador: Var_RolSistema;
+                    Evento: Var_EventoTrazabilidadApp.Estado;
+                    // Nuevo Analista
+
+                    CorreoAtendidoPor: pCorreoAtendidoPor;
+                    NombreAtendidoPor: pNombreAtendidoPor;
+                    // Analista anterior
+
+                    AtendidoCorreoAnterior: pCorreoAtendidoPorAnterior;
+                    AtendidoNombreAnterior: pNombreAtendidoPorAnterior;
+                    FechaVencimientoEstado: GFechaVencimientoEstado;
+                    SLAEstado: GVar_SLACalculado;
+                    Derivado: true;
+                    Rechazado: false;
+                    VistoBueno: false;
+                    VariosAprobadores: false;
+                    Aprobacion: false;
+                    ReAsignado: false;
+                    ReApertura: false;
+                    SolSubsanado: false;
+                    CambioNivelConfidencialidad: pCambioNivelConfidencialidad;
+                    ReasignadoAprobador: false
+                }
+            )
+        );
+        // 2. Manejo de error
+
+        Concurrent(
+            Set(
+                _varErrorUDFAccionEstado;
+                true
+            );
+            Set(
+                _varError;
+                {
+                    Fecha: Now();
+                    Usuario: {
+                        Codigo: Var_ProfileUser.Codigo;
+                        Nombre: Var_ProfileUser.NombreApellido
+                    };
+                    CodigoTicket: Var_SpvTicketSeleccionada.Codigo;
+                    Error: FirstError.Message
+                }
+            )
+        )
+    )
+};;
+// UDF REASIGNAR TICKET
+
+UDFReasignar(
+    pOperacionCatalogo: Boolean;
+    pMotivo: Text;
+    pMotivoObservacion: Text;
+    pComentarioHtml: Text;
+    pLimitePermitidoURL: Text;
+    pCorreoAtendidoPor: Text;
+    pNombreAtendidoPor: Text;
+    pCorreoAtendidoPorAnterior: Text;
+    pNombreAtendidoPorAnterior: Text;
+    pGerencia: Text;
+    pArea: Text;
+    pSubArea: Text;
+    pPais: Text;
+    pSociedad: Text;
+    pNivelDeConfidencialidad: Text;
+    pCambioNivelConfidencialidad: Boolean
+): Void = 
+{
+	// 0. Reset de banderas de error
+Concurrent(
+        Set(
+            _varErrorUDFAccionEstado;
+            false
+        );
+        Set(
+            _varError;
+            Blank()
+        )
+    );;
+    IfError(
+        // 1. Sección Ejecución de Acción Estado
+
+        If(
+                //Variable que verifica si esta activo el Modal con selecciones
+
+            pOperacionCatalogo;
+            Patch(
+                'LCP-001_List_TicketSolicitudes';
+                LookUp(
+                    'LCP-001_List_TicketSolicitudes';
+                    ID = Var_SpvTicketSeleccionada.ID
+                );
+                {
+                    Gerencia: pGerencia;
+                    Area: pArea;
+                    SubArea: pSubArea;
+                    Pais: pPais;
+                    Sociedad: pSociedad;
+                    NivelDeConfidencialidad: pNivelDeConfidencialidad;
+                    //Si no se selecciona el 'atendido por' se queda en el estado 'Derivado' si se ha seleccionado pasa 'EnRevision', si queda en 'Derivado' el balanceador se encargara de asignar el atendido por y pasar el ticket a 'EnRevision'
+
+                    EstadoActual: Var_EstadosApp.EstadoEnRevision;
+                    Motivo: pMotivo;
+                    MotivoObservacion: pMotivoObservacion;
+                    Comentario: pComentarioHtml;
+                    LimitePermitidoURL: pLimitePermitidoURL;
+                    FechaModificado: Now();
+                    Accionador: Var_RolSistema;
+                    Evento: Var_EventoTrazabilidadApp.Estado;
+                    // Nuevo Analista
+
+                    CorreoAtendidoPor: pCorreoAtendidoPor;
+                    NombreAtendidoPor: pNombreAtendidoPor;
+                    // Analista anterior
+
+                    AtendidoCorreoAnterior: pCorreoAtendidoPorAnterior;
+                    AtendidoNombreAnterior: pNombreAtendidoPorAnterior;
+                    FechaVencimientoEstado: GFechaVencimientoEstado;
+                    SLAEstado: GVar_SLACalculado;
+                    Derivado: false;
+                    Rechazado: false;
+                    VistoBueno: false;
+                    VariosAprobadores: false;
+                    Aprobacion: false;
+                    ReAsignado: true;
+                    ReApertura: false;
+                    SolSubsanado: false;
+                    CambioNivelConfidencialidad: pCambioNivelConfidencialidad;
+                    ReasignadoAprobador: false
+                }
+            )
+        );
+        // 2. Manejo de error
+
+        Concurrent(
+            Set(
+                _varErrorUDFAccionEstado;
+                true
+            );
+            Set(
+                _varError;
+                {
+                    Fecha: Now();
+                    Usuario: {
+                        Codigo: Var_ProfileUser.Codigo;
+                        Nombre: Var_ProfileUser.NombreApellido
+                    };
+                    CodigoTicket: Var_SpvTicketSeleccionada.Codigo;
+                    Error: FirstError.Message
+                }
+            )
+        )
+    )
+};;
+// UDF Cambio de nivel de confidencialidad
+
+UDFNivelConfidencialidad(
+    pContactoRespaldo: Text
+): Void = 
+{
+	// 0. Reset de banderas de error
+Concurrent(
+        Set(
+            _varErrorUDFAccionEstado;
+            false
+        );
+        Set(
+            _varError;
+            Blank()
+        )
+    );;
+    IfError(
+        // 1. Sección Ejecución de Acción Estado
+
+        Patch(
+            'LCP-001_List_TicketSolicitudes';
+            LookUp(
+                'LCP-001_List_TicketSolicitudes';
+                ID = Var_SpvTicketSeleccionada.ID
+            );
+            {
+                FechaModificado: Now();
+                Accionador: Var_RolSistema;
+                ContactoDeRespaldo: pContactoRespaldo;
+                Evento: "Respaldo";
+                Derivado: false;
+                Rechazado: false;
+                VistoBueno: false;
+                VariosAprobadores: false;
+                Aprobacion: false;
+                ReAsignado: false;
+                ReApertura: false;
+                SolSubsanado: false;
+                CambioNivelConfidencialidad: false;
+                ReasignadoAprobador: false
+            }
+        );
+        // 2. Manejo de error
+
+        Concurrent(
+            Set(
+                _varErrorUDFAccionEstado;
+                true
+            );
+            Set(
+                _varError;
+                {
+                    Fecha: Now();
+                    Usuario: {
+                        Codigo: Var_ProfileUser.Codigo;
+                        Nombre: Var_ProfileUser.NombreApellido
+                    };
+                    CodigoTicket: Var_SpvTicketSeleccionada.Codigo;
+                    Error: FirstError.Message
+                }
+            )
+        )
+    )
+};;
+UDFEstadoEnEsperaAprobacion(
+    pOperacionCatalogo: Boolean;
+    pMotivo: Text;
+    pMotivoObservacion: Text;
+    pComentarioHtml: Text;
+    pLimitePermitidoURL: Text;
+    pAprobadorCorreo: Text;
+    pAprobadorNombre: Text;
+    //13/06/2026
+    //REQ_CC2_15 Se agrega la bandera para cubrir el requerimiento
+    pAprobadorInactivo: Boolean;
+    pAprobadorCorreoAnterior: Text;
+    pAprobadorNombreAnterior: Text
+): Void = 
+{
+	// 0. Reset de banderas de error
+Concurrent(
+        Set(
+            _varErrorUDFAccionEstado;
+            false
+        );
+        Set(
+            _varError;
+            Blank()
+        )
+    );;
+    IfError(
+        // 1. Sección Ejecución de Acción Estado
+
+        If(
+                //Variable que verifica si esta activo el Modal con selecciones
+
+            pOperacionCatalogo;
+            true;
+            pAprobadorInactivo;
+            Patch(
+                'LCP-001_List_TicketSolicitudes';
+                LookUp(
+                    'LCP-001_List_TicketSolicitudes';
+                    ID = Var_SpvTicketSeleccionada.ID
+                );
+                {
+                    EstadoActual: Var_EstadosApp.EstadoEnEsperaAprobacion;
+                    Comentario: pComentarioHtml;
+                    Motivo: Blank();
+                    MotivoObservacion: Blank();
+                    FechaModificado: Now();
+                    FechaVencimientoEstado: GFechaVencimientoEstado;
+                    SLAEstado: GVar_SLACalculado;
+                    LimitePermitidoURL: pLimitePermitidoURL;
+                    Accionador: Var_RolSistema;
+                    // Aprobador anterior
+
+                    AprobadorCorreoAnterior: pAprobadorCorreoAnterior;
+                    AprobadorNombreAnterior: pAprobadorNombreAnterior;
+                    AprobadorCorreo: pAprobadorCorreo;
+                    AprobadorNombre: pAprobadorNombre;
+                    CorreoAtendidoPor: pAprobadorCorreo;
+                    // revisar columna
+NombreAtendidoPor: pAprobadorNombre;
+                    //AprobadoresCheck:   JSON(ClearCollect(colConsolidadoAprobadores; colAprobadoresCheck; [{  correo: First(colUsuariosSeleccionadas)CorreoUsuario ; nombre: First(colUsuariosSeleccionadas).Nombre ; estado: "" ; fecha: Text(Now(); "dd/mm/yyyy hh:mm:ss") }]);JSONFormatCompact);
+
+                    AprobadoresCheck: JSON(
+                        DropColumns(
+                            ClearCollect(
+                                colConsolidadoAprobadores;
+                                colAprobadoresCheck;
+                                [
+                                    {
+                                        correo: pAprobadorCorreo;
+                                        nombre: pAprobadorNombre;
+                                        estado: "";
+                                        fecha: Text(
+                                            Now();
+                                            "dd/mm/yyyy hh:mm:ss"
+                                        )
+                                    }
+                                ]
+                            );
+                            FechaOrden
+                        );
+                        JSONFormat.Compact
+                    );
+                    Evento: Var_EventoTrazabilidadApp.Estado;
+                    Derivado: false;
+                    Rechazado: false;
+                    VistoBueno: false;
+                    VariosAprobadores: false;
+                    Aprobacion: false;
+                    ReAsignado: false;
+                    ReApertura: false;
+                    SolSubsanado: false;
+                    CambioNivelConfidencialidad: false;
+                    //REQ_CC2_15 Se acuerda la creacion de una nueva bandera
+
+                    ReasignadoAprobador: true
+                }
+            );
+            Patch(
+                'LCP-001_List_TicketSolicitudes';
+                LookUp(
+                    'LCP-001_List_TicketSolicitudes';
+                    ID = Var_SpvTicketSeleccionada.ID
+                );
+                {
+                    EstadoActual: Var_EstadosApp.EstadoEnEsperaAprobacion;
+                    Comentario: pComentarioHtml;
+                    Motivo: Blank();
+                    MotivoObservacion: Blank();
+                    FechaModificado: Now();
+                    FechaVencimientoEstado: GFechaVencimientoEstado;
+                    SLAEstado: GVar_SLACalculado;
+                    LimitePermitidoURL: pLimitePermitidoURL;
+                    Accionador: Var_RolSistema;
+                    AprobadorCorreo: pAprobadorCorreo;
+                    AprobadorNombre: pAprobadorNombre;
+                    CorreoAtendidoPor: pAprobadorCorreo;
+                    // revisar columna
+NombreAtendidoPor: pAprobadorNombre;
+                    //AprobadoresCheck:   JSON(ClearCollect(colConsolidadoAprobadores; colAprobadoresCheck; [{  correo: First(colUsuariosSeleccionadas)CorreoUsuario ; nombre: First(colUsuariosSeleccionadas).Nombre ; estado: "" ; fecha: Text(Now(); "dd/mm/yyyy hh:mm:ss") }]);JSONFormatCompact);
+
+                    AprobadoresCheck: JSON(
+                        DropColumns(
+                            ClearCollect(
+                                colConsolidadoAprobadores;
+                                colAprobadoresCheck;
+                                [
+                                    {
+                                        correo: pAprobadorCorreo;
+                                        nombre: pAprobadorNombre;
+                                        estado: "";
+                                        fecha: Text(
+                                            Now();
+                                            "dd/mm/yyyy hh:mm:ss"
+                                        )
+                                    }
+                                ]
+                            );
+                            FechaOrden
+                        );
+                        JSONFormat.Compact
+                    );
+                    Evento: Var_EventoTrazabilidadApp.Estado;
+                    Derivado: false;
+                    Rechazado: false;
+                    VistoBueno: false;
+                    VariosAprobadores: false;
+                    Aprobacion: true;
+                    ReAsignado: false;
+                    ReApertura: false;
+                    SolSubsanado: false;
+                    CambioNivelConfidencialidad: false;
+                    ReasignadoAprobador: false
+                }
+            )
+        );
+        // 2. Manejo de error
+
+        Concurrent(
+            Set(
+                _varErrorUDFAccionEstado;
+                true
+            );
+            Set(
+                _varError;
+                {
+                    Fecha: Now();
+                    Usuario: {
+                        Codigo: Var_ProfileUser.Codigo;
+                        Nombre: Var_ProfileUser.NombreApellido
+                    };
+                    CodigoTicket: Var_SpvTicketSeleccionada.Codigo;
+                    Error: FirstError.Message
+                }
+            )
+        )
+    )
+};;
+UDFEstadoResuelto(
+    pOperacionCatalogo: Boolean;
+    pMotivo: Text;
+    pMotivoObservacion: Text;
+    pComentarioHtml: Text;
+    pLimitePermitidoURL: Text
+): Void = 
+{
+	// 0. Reset de banderas de error
+Concurrent(
+        Set(
+            _varErrorUDFAccionEstado;
+            false
+        );
+        Set(
+            _varError;
+            Blank()
+        )
+    );;
+    IfError(
+        // 1. Sección Ejecución de Acción Estado
+
+        If(
+                //Variable que verifica si esta activo el Modal con selecciones
+
+            pOperacionCatalogo;
+            true;
+            Patch(
+                'LCP-001_List_TicketSolicitudes';
+                LookUp(
+                    'LCP-001_List_TicketSolicitudes';
+                    ID = Var_SpvTicketSeleccionada.ID
+                );
+                {
+                    EstadoActual: Var_EstadosApp.EstadoResuelto;
+                    Comentario: pComentarioHtml;
+                    Motivo: Blank();
+                    MotivoObservacion: Blank();
+                    FechaModificado: Now();
+                    FechaVencimientoEstado: GFechaVencimientoEstado;
+                    SLAEstado: GVar_SLACalculado;
+                    LimitePermitidoURL: pLimitePermitidoURL;
+                    Accionador: Var_RolSistema;
+                    Evento: Var_EventoTrazabilidadApp.Estado;
+                    Derivado: false;
+                    Rechazado: false;
+                    VistoBueno: false;
+                    VariosAprobadores: false;
+                    Aprobacion: false;
+                    ReAsignado: false;
+                    ReApertura: false;
+                    SolSubsanado: false;
+                    CambioNivelConfidencialidad: false;
+                    ReasignadoAprobador: false
+                }
+            )
+        );
+        // 2. Manejo de error
+
+        Concurrent(
+            Set(
+                _varErrorUDFAccionEstado;
+                true
+            );
+            Set(
+                _varError;
+                {
+                    Fecha: Now();
+                    Usuario: {
+                        Codigo: Var_ProfileUser.Codigo;
+                        Nombre: Var_ProfileUser.NombreApellido
+                    };
+                    CodigoTicket: Var_SpvTicketSeleccionada.Codigo;
+                    Error: FirstError.Message
+                }
+            )
+        )
+    )
+};;
+UDFEstadoCerrado(
+    pOperacionCatalogo: Boolean;
+    pOperacionCatalogoSimple: Boolean;
+    pMotivo: Text;
+    pMotivoObservacion: Text;
+    pComentarioHtml: Text;
+    pLimitePermitidoURL: Text;
+    pCorreoAtendidoPor: Text;
+    pNombreAtendidoPor: Text;
+    pCalificacion: Number
+): Void = 
+{
+	// 0. Reset de banderas de error
+Concurrent(
+        Set(
+            _varErrorUDFAccionEstado;
+            false
+        );
+        Set(
+            _varError;
+            Blank()
+        )
+    );;
+    IfError(
+        // 1. Sección Ejecución de Acción Estado
+
+        If(
+                //Variable que verifica si esta activo el Modal con selecciones
+
+            pOperacionCatalogo;
+            true;
+            pOperacionCatalogoSimple;
+            Patch(
+                'LCP-001_List_TicketSolicitudes';
+                LookUp(
+                    'LCP-001_List_TicketSolicitudes';
+                    ID = Var_SpvTicketSeleccionada.ID
+                );
+                {
+                    EstadoActual: Var_EstadosApp.EstadoCerrado;
+                    //Motivo: Gbl_Confirmation_Update_1.ValorMotivo;
+
+                    //MotivoObservacion: Gbl_Confirmation_Update_1.ValorMotivo;
+Motivo: Blank();
+                    MotivoObservacion: Blank();
+                    Comentario: pComentarioHtml;
+                    Puntuacion: pCalificacion;
+                    FechaModificado: Now();
+                    Accionador: Var_RolSistema;
+                    Evento: Var_EventoTrazabilidadApp.Estado;
+                    CorreoAtendidoPor: pCorreoAtendidoPor;
+                    NombreAtendidoPor: pNombreAtendidoPor;
+                    NombreComentario: Var_ProfileUser.NombreApellido;
+                    CorreoComentario: Var_ProfileUser.CorreoUsuario;
+                    Rechazado: false;
+                    Derivado: false;
+                    VistoBueno: false;
+                    VariosAprobadores: false;
+                    Aprobacion: false;
+                    ReAsignado: false;
+                    ReApertura: false;
+                    SolSubsanado: false;
+                    CambioNivelConfidencialidad: false;
+                    ReasignadoAprobador: false
+                }
+            );
+            Patch(
+                'LCP-001_List_TicketSolicitudes';
+                LookUp(
+                    'LCP-001_List_TicketSolicitudes';
+                    ID = Var_SpvTicketSeleccionada.ID
+                );
+                {
+                    EstadoActual: Var_EstadosApp.EstadoCerrado;
+                    //Motivo: Gbl_Confirmation_Update_1.ValorMotivo;
+
+                    //MotivoObservacion: Gbl_Confirmation_Update_1.ValorMotivo;
+Motivo: Blank();
+                    MotivoObservacion: Blank();
+                    Comentario: pComentarioHtml;
+                    Puntuacion: pCalificacion;
+                    FechaModificado: Now();
+                    Accionador: Var_RolSistema;
+                    Evento: Var_EventoTrazabilidadApp.Estado;
+                    CorreoAtendidoPor: pCorreoAtendidoPor;
+                    NombreAtendidoPor: pNombreAtendidoPor;
+                    NombreComentario: Var_ProfileUser.NombreApellido;
+                    CorreoComentario: Var_ProfileUser.CorreoUsuario;
+                    Rechazado: false;
+                    Derivado: false;
+                    VistoBueno: false;
+                    VariosAprobadores: false;
+                    Aprobacion: false;
+                    ReAsignado: false;
+                    ReApertura: false;
+                    SolSubsanado: false;
+                    CambioNivelConfidencialidad: false;
+                    ReasignadoAprobador: false
+                }
+            )
+        );
+        // 2. Manejo de error
+
+        Concurrent(
+            Set(
+                _varErrorUDFAccionEstado;
+                true
+            );
+            Set(
+                _varError;
+                {
+                    Fecha: Now();
+                    Usuario: {
+                        Codigo: Var_ProfileUser.Codigo;
+                        Nombre: Var_ProfileUser.NombreApellido
+                    };
+                    CodigoTicket: Var_SpvTicketSeleccionada.Codigo;
+                    Error: FirstError.Message
+                }
+            )
+        )
+    )
+};;
+UDFEstadoReactivado(
+    pVar_Ctx_Reactivar: Boolean; //true para realizar la reactivacion
+    pVar_Ctx_SolicitarReactivar: Boolean; //true para SOLICITAR la reactivacion
+    pOperacionCatalogo: Boolean; //Cuando se abre el modal con selecciones
+    pMotivo: Text;
+    pMotivoObservacion: Text;
+    pComentarioHtml: Text;
+    pLimitePermitidoURL: Text
+): Void = 
+{
+	// 0. Reset de banderas de error
+Concurrent(
+        Set(
+            _varErrorUDFAccionEstado;
+            false
+        );
+        Set(
+            _varError;
+            Blank()
+        )
+    );;
+    IfError(
+        // 1. Sección Ejecución de Acción Estado
+
+        If(
+                //Variable que verifica si esta activo el Modal con selecciones
+
+            And(
+                pOperacionCatalogo;
+                pVar_Ctx_SolicitarReactivar
+            );
+            Patch(
+                'LCP-001_List_TicketSolicitudes';
+                LookUp(
+                    'LCP-001_List_TicketSolicitudes';
+                    ID = Var_SpvTicketSeleccionada.ID
+                );
+                {
+                    Motivo: pMotivo;
+                    MotivoObservacion: pMotivoObservacion;
+                    Comentario: pComentarioHtml;
+                    LimitePermitidoURL: pLimitePermitidoURL;
+                    FechaModificado: Now();
+                    Accionador: Var_RolSistema;
+                    Evento: Var_EventoTrazabilidadApp.Estado;
+                    Derivado: false;
+                    Rechazado: false;
+                    VistoBueno: false;
+                    VariosAprobadores: false;
+                    Aprobacion: false;
+                    ReAsignado: false;
+                    ReApertura: true;
+                    SolSubsanado: false;
+                    CambioNivelConfidencialidad: false;
+                    ReasignadoAprobador: false
+                }
+            )
+        );
+        // 2. Manejo de error
+
+        Concurrent(
+            Set(
+                _varErrorUDFAccionEstado;
+                true
+            );
+            Set(
+                _varError;
+                {
+                    Fecha: Now();
+                    Usuario: {
+                        Codigo: Var_ProfileUser.Codigo;
+                        Nombre: Var_ProfileUser.NombreApellido
+                    };
+                    CodigoTicket: Var_SpvTicketSeleccionada.Codigo;
+                    Error: FirstError.Message
+                }
+            )
+        )
+    )
+};;
+UDFEstadoReasignado(
+    pOperacionCatalogo: Boolean;
+    pMotivo: Text;
+    pMotivoObservacion: Text;
+    pComentarioHtml: Text;
+    pLimitePermitidoURL: Text
+): Void = 
+{
+	// 0. Reset de banderas de error
+Concurrent(
+        Set(
+            _varErrorUDFAccionEstado;
+            false
+        );
+        Set(
+            _varError;
+            Blank()
+        )
+    );;
+    IfError(
+        // 1. Sección Ejecución de Acción Estado
+
+        If(
+                //Variable que verifica si esta activo el Modal con selecciones
+
+            pOperacionCatalogo;
+            true
+        );
+        // 2. Manejo de error
+
+        Concurrent(
+            Set(
+                _varErrorUDFAccionEstado;
+                true
+            );
+            Set(
+                _varError;
+                {
+                    Fecha: Now();
+                    Usuario: {
+                        Codigo: Var_ProfileUser.Codigo;
+                        Nombre: Var_ProfileUser.NombreApellido
+                    };
+                    CodigoTicket: Var_SpvTicketSeleccionada.Codigo;
+                    Error: FirstError.Message
+                }
+            )
+        )
+    )
+};;
+// UDF Obtener Catalogo
+
+
+UDFObtenerCatalogo(pCatalogo: Text): Void = 
+{
+	ClearCollect(
+        colDatosDinámicos;
+        Switch(
+            pCatalogo;
+            "Tipo de solicitud";
+            ForAll(
+                'LCP-001_List_TipoSolicitud';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Tipo de acción Tipo Tarjeta";
+            ForAll(
+                'LCP-001_List_TipoAccionTipoTarjeta';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Tipo de acción usuario";
+            ForAll(
+                'LCP-001_List_TipoAccionUsuario';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Tipo de anulación";
+            ForAll(
+                'LCP-001_List_TipoAnulacion';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Tipo de ausentismo";
+            ForAll(
+                'LCP-001_List_TipoAusentismo';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Tipo acción";
+            ForAll(
+                'LCP-001_List_TipoAccion';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Tipo de carga";
+            ForAll(
+                'LCP-001_List_TipoCarga';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Tipo de colaborador";
+            ForAll(
+                'LCP-001_List_TipoColaborador';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Tipo de compra";
+            ForAll(
+                'LCP-001_List_TipoCompra';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Tipo de consulta";
+            ForAll(
+                'LCP-001_List_TipoConsulta';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Tipo de documento Transporte";
+            ForAll(
+                'LCP-001_List_TipoDocumentoTransporte';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Tipo de Nota";
+            ForAll(
+                'LCP-001_List_TipoNota';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Tipo de documento de consulta";
+            ForAll(
+                'LCP-001_List_TipoDocumentoConsulta';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Tipo de duplicado";
+            ForAll(
+                'LCP-001_List_TipoDuplicado';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Tipo de moneda";
+            ForAll(
+                'LCP-001_List_TipoMoneda';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Tipo de operación";
+            ForAll(
+                'LCP-001_List_TipoOperacion';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Tipo de Pago";
+            ForAll(
+                'LCP-001_List_TipoPago';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Tipo de periodo";
+            ForAll(
+                'LCP-001_List_TipoPeriodo';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Tipo de proveedor";
+            ForAll(
+                'LCP-001_List_TipoProveedor';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Tipo de servicio";
+            ForAll(
+                'LCP-001_List_TipoServicio';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Tipo Documento de Identidad";
+            ForAll(
+                'LCP-001_List_TipoDocumentoIdentidad';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Tipo Solicitud Operación";
+            ForAll(
+                'LCP-001_List_TipoSolicitudOperacion';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Motivo del Documento";
+            ForAll(
+                'LCP-001_List_MotivoDocumento';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Modalidad";
+            ForAll(
+                'LCP-001_List_Modalidad';
+                {Valor: ThisRecord.Nombre}
+            );
+// Nuevos catálogos agregados según documento funcional
+
+            "¿Quién asume el impuesto a la renta?";
+            ForAll(
+                'LCP-001_List_AsumeImpuestoRenta';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Detalle del requerimiento";
+            ForAll(
+                'LCP-001_List_DetalleRequerimiento';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Mes";
+            ForAll(
+                'LCP-001_List_Mes';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Nacionalidad";
+            ForAll(
+                'LCP-001_List_Nacionalidad';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Motivo de solicitud de duplicado";
+            ForAll(
+                'LCP-001_List_MotivoSolicitudDuplicado';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Modalidad de Capacitación";
+            ForAll(
+                'LCP-001_List_ModalidadCapacitacion';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Ambiente";
+            ForAll(
+                'LCP-001_List_Ambiente';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Origen Proveedor";
+            ForAll(
+                'LCP-001_List_OrigenProveedor';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Submotivo Mutuo Discenso";
+            ForAll(
+                'LCP-001_List_SubmotivoMutuoDiscenso';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Imputación";
+            ForAll(
+                'LCP-001_List_Imputacion';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Moneda de la cuenta";
+            ForAll(
+                'LCP-001_List_MonedaCuenta';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Condición de pago del proveedor";
+            ForAll(
+                'LCP-001_List_CondicionPagoProveedor';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Nómina";
+            ForAll(
+                'LCP-001_List_Nomina';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Proveedores";
+            ForAll(
+                'LCP-001_List_MaestroProveedores';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Condición de solicitud";
+            ForAll(
+                'LCP-001_List_CondicionSolicitud';
+                {Valor: ThisRecord.Nombre}
+            );
+// Catálogos adicionales requeridos en la lista oficial final
+
+            "Sede de entrega";
+            ForAll(
+                'LCP-001_List_SedeEntrega';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Tipo de acción";
+            ForAll(
+                'LCP-001_List_TipodeAccion';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Motivo de anulación";
+            ForAll(
+                'LCP-001_List_MotivoAnulacion';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Tipo de acción Cesados";
+            ForAll(
+                'LCP-001_List_TipoAccionCesados';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Tipo anticipo";
+            ForAll(
+                'LCP-001_List_TipoAnticipo';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Año a consultar";
+            ForAll(
+                'LCP-001_List_AnioConsulta';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Cartera de cliente";
+            ForAll(
+                'LCP-001_List_Cliente';
+                {Valor: ThisRecord.Nombre}
+            );//REVISAR DATOS
+
+            "Vicepresidencia";
+            ForAll(
+                'LCP-001_List_Viceprecidencia';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Tipo Pago ChqPost";
+            ForAll(
+                'LCP-001_List_TipoPagoChqPost';
+                {Valor: ThisRecord.Nombre}
+            );
+            "MONEDAS";
+            ForAll(
+                'LCP-001_List_MonedaSolUsdEur';
+                {Valor: ThisRecord.Nombre}
+            );//REVISAR  ¿Que variable de entorno corresponde a este catalogo?
+
+            "MONEDA";
+            ForAll(
+                'LCP-001_List_MonedaSolUsd';
+                {Valor: ThisRecord.Nombre}
+            );//REVISAR  ¿Que variable de entorno corresponde a este catalogo?
+
+            "EMPLEADO CORPORATIVA";
+            ForAll(
+                'LCP-001_List_Colaboradores';
+                {Valor: ThisRecord.Nombre}
+            );//REVISAR VARIABLE DE ENTORNO Y DATOS
+
+            "Motivo de Cese";
+            ForAll(
+                'LCP-001_List_MotivoCese';
+                {Valor: ThisRecord.Nombre}
+            );
+            "UNIDAD DE TIEMPO";
+            ForAll(
+                'LCP-001_List_UnidadTiempo';
+                {Valor: ThisRecord.Nombre}
+            );
+            "BOLETA DE PAGO";
+            ForAll(
+                'LCP-001_List_BoletaPago';
+                {Valor: ThisRecord.Nombre}
+            );
+            "TIPO DE DESCUENTO";
+            ForAll(
+                'LCP-001_List_TipoDescuento';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Cooperativa";
+            ForAll(
+                'LCP-001_List_Cooperativa';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Concesionario";
+            ForAll(
+                'LCP-001_List_Concesionario';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Tipo de retención";
+            ForAll(
+                'LCP-001_List_TipoRetencion';
+                {Valor: ThisRecord.Nombre}
+            );
+            "¿Para quién es la exclusión?";
+            ForAll(
+                'LCP-001_List_AplicaExclusion';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Banco";
+            ForAll(
+                'LCP-001_List_Banco';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Medio comunicativo";
+            ForAll(
+                'LCP-001_List_MedioComunicativo';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Motivo de Priorización";
+            ForAll(
+                'LCP-001_List_MoritoPriorizacion';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Motivo Consulta";
+            ForAll(
+                'LCP-001_List_MotivoConsulta';
+                {Valor: ThisRecord.Nombre}
+            );
+            "¿Para quién es el registro o consulta?";
+            ForAll(
+                'LCP-001_List_ParaQuienRegistroConsulta';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Tipo de capacitación";
+            ForAll(
+                'LCP-001_List_TipoCapacitacion';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Tipo de fondo solicitado";
+            ForAll(
+                'LCP-001_List_TipoFondoSolicitado';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Tipo de tarjeta";
+            ForAll(
+                'LCP-001_List_TipoTarjeta';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Usuario a capacitar";
+            ForAll(
+                'LCP-001_List_UsuarioCapacitar';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Tipo de solicitud Proveedores";
+            ForAll(
+                'LCP-001_List_TipoSolicitudProveedores';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Tipo de proveedor origen";
+            ForAll(
+                'LCP-001_List_TipoProveedorOrigen';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Tipo de operación Confirming";
+            ForAll(
+                'LCP-001_List_TipoOperacionConfirming';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Tipo de consulta Proveedor";
+            ForAll(
+                'LCP-001_List_TipoConsultaProveedor';
+                {Valor: ThisRecord.Nombre}
+            );
+            "Tipo de solicitud Creación Proveedor";
+            ForAll(
+                'LCP-001_List_TipoSolicitudCreacionProveedor';
+                {Valor: ThisRecord.Nombre}
+            );
+            Table({Valor: ""})
+        )
+    )
+};;
+
+// UDF NIVEL DE CONFIDENCIALIDAD (DERIVAR Y REASIGNAR)
+
+UDFBuscarUsuariosNivelConfincialidad(pNivelConfidencial: Text ;  pGerencia : Text ; pArea : Text; pSubArea : Text) : Void = {
+
+Set(Var_RolSpv;
+
+    Switch(pNivelConfidencial; 
+    "Público"; 
+    LookUp(
+        'LCP-001_List_RolGerenciaAreaSubAreaPaisSoc';
+        And(
+        Gerencia = pGerencia;
+        Area = pArea;
+        SubArea = pSubArea;
+        Rol = Var_RolApp.RolAnalista
+        )
+    ).RolGeneralNombre;
+    "Restringido";
+    LookUp(
+        'LCP-001_List_RolGerenciaAreaSubAreaPaisSoc';
+        And(
+                Rol = Var_RolApp.RolSupervisor;
+                Or(
+                    // Casuística 1: Por Gerencia, Área y SubÁrea
+                    And(
+                        Gerencia = pGerencia;
+                        Area = pArea;
+                        SubArea = pSubArea
+                    );
+                    // Casuística 2: Por Gerencia y Área (cuando no aplique SubÁrea)
+                    And(
+                        Gerencia = pGerencia;
+                        Area = pArea
+                    )
+                )
+            )
+    ).RolGeneralNombre
+    ; 
+    "Alta Gerencia";
+    
+    LookUp(
+        'LCP-001_List_RolGerenciaAreaSubAreaPaisSoc';
+        And(
+        Gerencia = pGerencia;
+        Rol = Var_RolApp.RolGerente
+        )
+    ).RolGeneralNombre
+    )
+     
+)
+
+
+
+}

@@ -2,10 +2,9 @@ Screens:
   Gbl_Home:
     Properties:
       LoadingSpinnerColor: =RGBA(56, 96, 178, 1)
-      OnVisible: |-
-        =UpdateContext({ menuSelected: 1});
+      OnVisible: "=// Busqueda de agrupadores para Analistas, Supervisores y Gerentes\r\n\r\nIf(Var_RolSistema in [Var_RolApp.RolAnalista,Var_RolApp.RolGerente,Var_RolApp.RolSupervisor],\r\nSet(Var_AgrupadorTicket, Filter('LCP-001_List_AgrupadorUsuario' , Usuario  = Var_EmailUser ).RolCompuesto );\r\n\r\nClear(colAgrupadorTicket);\r\n\r\nForAll(Var_AgrupadorTicket As groupTicket, \r\nWith(\r\n    { \r\n    datosFiltros: \r\n    Filter('LCP-001_List_RolGerenciaAreaSubAreaPaisSoc', RolGeneralNombre = groupTicket.RolCompuesto , Rol = Var_RolSistema)\r\n    },\r\n    Collect(colAgrupadorTicket, datosFiltros \r\n    )\r\n    )\r\n);\r\n\r\nConcurrent(ClearCollect(colAgrupadorGerencia, Distinct(Table(\r\n                {Gerencia: Var_ProfileUser.Gerencia},\r\n                colAgrupadorTicket\r\n            ),Gerencia)),\r\n            ClearCollect(colAgrupadorArea, Distinct(Table(\r\n                {Area: Var_ProfileUser.Area},\r\n                colAgrupadorTicket\r\n            ),Area)),\r\n            ClearCollect(colAgrupadorSubArea, Distinct(Table(\r\n                {SubArea: Var_ProfileUser.SubArea},\r\n                colAgrupadorTicket\r\n            ),SubArea)),\r\n            ClearCollect(colAgrupadorPais, Distinct(Table(\r\n                {Pais: Var_ProfileUser.Pais},\r\n                colAgrupadorTicket\r\n            ),Pais)),\r\n            ClearCollect(colAgrupadorSociedad, Distinct(Table(\r\n                {Sociedad: Var_ProfileUser.Sociedad},\r\n                colAgrupadorTicket\r\n            ),Sociedad)))\r\n\r\n);\r\n// Busqueda de agrupadores para Analistas, Supervisores y Gerentes\r\n\r\n\r\n//===CAMBIO CC2 UNIFICACION ACCIONES POR ROL== inicio del odata, revisar según el rol que corresponda\r\nIf(\r\n    //15/06/2026\r\n    //REQ_CC2_04 Se incluye caso para cubrir el requerimiento\r\n    varPantallaSeleccionada = \"Aprobaciones\",\r\n    ClearCollect(\r\n        colQuerysSpvTicket,\r\n        { input: \"ID\", mark: false, query: \"\" },\r\n        { input: \"Gerencia\", mark: false, query: \"\" },\r\n        { input: \"Area\", mark: false, query: \"\" },\r\n        { input: \"Subarea\", mark: false, query: \"\" },\r\n        { input: \"Pais\", mark: false, query: \"\" },\r\n        { input: \"Sociedad\", mark: false, query: \"\" },\r\n        { input: \"Prioridad\", mark: false, query: \"\" },\r\n        { input: \"AnalistaRol\", mark: false, query: \"\" },\r\n        { input: \"Aprobacion\", mark: false, query: \"\" },\r\n        { input: \"SLA\", mark: false, query: \"\" },\r\n        { input: \"SolicitanteCorreo\", mark: false, query: \"\" },\r\n        { input: \"SolicitanteNombre\", mark: false, query: \"\" },\r\n        { input: \"SolicitantePais\", mark: false, query: \"\" },\r\n        { input: \"NombreAtendidoPor\", mark: false, query: \"\" },\r\n        { input: \"CorreoAtendidoPor\", mark: false, query: \"\" },\r\n        { input: \"Codigo\", mark: false, query: \"\" },\r\n        { input: \"SolicitanteNombre\", mark: false, query: \"\" },\r\n        { input: \"FechaCreado\", mark: false, query: \"\" },\r\n        { input: \"Estado\", mark: false, query: \"\" },\r\n        { input: \"Categoria\", mark: false, query: \"\" },\r\n        { input: \"Prioridad\", mark: false, query: \"\" },\r\n        { input: \"AprobadorNombre\", mark: false, query: \"\" },\r\n        { input: \"TipoRequerimiento\", mark: false, query: \"\" },\r\n        //REQ_CC2_04\r\n        { input: \"EstadoActual\", mark: true, query: \"(EstadoActual eq '\" & Var_EstadosApp.EstadoEnEsperaAprobacion & \"'\" },\r\n        { input: \"AnalistaCorreo\", mark: false, query: \"\" },\r\n        //REQ_CC2_04\r\n        { input: \"AprobadorCorreo\", mark: true, query: \"AprobadorCorreo eq '\" & Var_ProfileUser.CorreoUsuario & \"')\" },\r\n        { input: \"AprobadorNombre\", mark: false, query: \"\" }\r\n        \r\n    ),\r\n    //> 01/06/2026\r\n    Var_RolSistema in [Var_RolApp.RolGerente],\r\n    ClearCollect(\r\n        colQuerysSpvTicket,\r\n        { input: \"ID\", mark: false, query: \"\" },\r\n        { input: \"Gerencia\", mark: true, query: \"(\"&Concat(colAgrupadorGerencia, \"Gerencia eq '\" & Value & \"'\", \" or \")&\")\" },\r\n        { input: \"Area\", mark: false, query: \"Area eq '\" & Var_ProfileUser.Area & \"'\" },\r\n        { input: \"Subarea\", mark: false, query: \"\" },\r\n        { input: \"Pais\", mark: false, query: \"\" },\r\n        { input: \"Sociedad\", mark: false, query: \"\" },\r\n        { input: \"Prioridad\", mark: false, query: \"\" },\r\n        { input: \"AnalistaRol\", mark: false, query: \"\" },\r\n        { input: \"Aprobacion\", mark: false, query: \"\" },\r\n        { input: \"SLA\", mark: false, query: \"\" },\r\n        { input: \"SolicitanteCorreo\", mark: false, query: \"\" },\r\n        { input: \"SolicitanteNombre\", mark: false, query: \"\" },\r\n        { input: \"SolicitantePais\", mark: false, query: \"\" },\r\n        { input: \"NombreAtendidoPor\", mark: false, query: \"\" },\r\n        { input: \"CorreoAtendidoPor\", mark: false, query: \"\" },\r\n        { input: \"Codigo\", mark: false, query: \"\" },\r\n        { input: \"SolicitanteNombre\", mark: false, query: \"\" },\r\n        { input: \"FechaCreado\", mark: false, query: \"\" },\r\n        { input: \"Estado\", mark: false, query: \"\" },\r\n        { input: \"Categoria\", mark: false, query: \"\" },\r\n        { input: \"Prioridad\", mark: false, query: \"\" },\r\n        { input: \"AprobadorNombre\", mark: false, query: \"\" },\r\n        { input: \"TipoRequerimiento\", mark: false, query: \"\" },\r\n        { input: \"EstadoActual\", mark: false, query: \"\" },\r\n        { input: \"SolicitanteCorreo\", mark: true, query: \r\n        \"(SolicitanteCorreo eq '\" & Var_ProfileUser.CorreoUsuario & \"' or CorreoAtendidoPor eq '\" & Var_ProfileUser.CorreoUsuario & \"' or ContactoDeRespaldo eq '\" & Var_ProfileUser.CorreoUsuario & \"')\"  },\r\n        { input: \"NivelDeConfidencialidad\" , mark: true, query: \"(NivelDeConfidencialidad eq 'Alta Gerencia')\" }\r\n    ),\r\n    Var_RolSistema in [Var_RolApp.RolAdministrador],\r\n    ClearCollect(\r\n        colQuerysSpvTicket,\r\n        { input: \"ID\", mark: false, query: \"\" },\r\n        { input: \"Gerencia\", mark: false, query: \"\" },\r\n        { input: \"Area\", mark: false, query: \"\" },\r\n        { input: \"Subarea\", mark: false, query: \"\" },\r\n        { input: \"Pais\", mark: false, query: \"\" },\r\n        { input: \"Sociedad\", mark: false, query: \"\" },\r\n        { input: \"Prioridad\", mark: false, query: \"\" },\r\n        { input: \"AnalistaRol\", mark: false, query: \"\" },\r\n        { input: \"Aprobacion\", mark: false, query: \"\" },\r\n        { input: \"SLA\", mark: false, query: \"\" },\r\n        { input: \"SolicitanteCorreo\", mark: false, query: \"\" },\r\n        { input: \"SolicitanteNombre\", mark: false, query: \"\" },\r\n        { input: \"SolicitantePais\", mark: false, query: \"\" },\r\n        { input: \"NombreAtendidoPor\", mark: false, query: \"\" },\r\n        { input: \"CorreoAtendidoPor\", mark: false, query: \"\" },\r\n        { input: \"Codigo\", mark: false, query: \"\" },\r\n        { input: \"SolicitanteNombre\", mark: false, query: \"\" },\r\n        { input: \"FechaCreado\", mark: false, query: \"\" },\r\n        { input: \"Estado\", mark: false, query: \"\" },\r\n        { input: \"Categoria\", mark: false, query: \"\" },\r\n        { input: \"Prioridad\", mark: false, query: \"\" },\r\n        { input: \"AprobadorNombre\", mark: false, query: \"\" },\r\n        { input: \"TipoRequerimiento\", mark: false, query: \"\" },\r\n        { input: \"EstadoActual\", mark: false, query: \"\" },\r\n        { input: \"AnalistaCorreo\", mark: false, query: \"\" }\r\n    ),\r\n    Var_RolSistema in [Var_RolApp.RolSupervisor],\r\n    ClearCollect(\r\n        colQuerysSpvTicket,\r\n        { input: \"ID\", mark: false, query: \"\" },\r\n        { input: \"Gerencia\", mark: true, query: \"(\"&Concat(colAgrupadorGerencia, \"Gerencia eq '\" & Value & \"'\", \" or \")&\")\" },\r\n        { input: \"Area\", mark: true, query: \"(\"&Concat(colAgrupadorArea, \"Area eq '\" & Value & \"'\", \" or \")&\")\" },\r\n        { input: \"Subarea\", mark: true, query: \"(\"&Concat(colAgrupadorSubArea, \"SubArea eq '\" & Value & \"'\", \" or \")&\")\" },\r\n        { input: \"Pais\", mark: false, query: \"\" },\r\n        { input: \"Sociedad\", mark: false, query: \"\" },\r\n        { input: \"Prioridad\", mark: false, query: \"\" },\r\n        { input: \"AnalistaRol\", mark: false, query: \"\" },\r\n        { input: \"Aprobacion\", mark: false, query: \"\" },\r\n        { input: \"SLA\", mark: false, query: \"\" },\r\n        { input: \"SolicitanteCorreo\", mark: false, query: \"\" },\r\n        { input: \"SolicitanteNombre\", mark: false, query: \"\" },\r\n        { input: \"SolicitantePais\", mark: false, query: \"\" },\r\n        { input: \"NombreAtendidoPor\", mark: false, query: \"\" },\r\n        { input: \"CorreoAtendidoPor\", mark: false, query: \"\" },\r\n        { input: \"Codigo\", mark: false, query: \"\" },\r\n        { input: \"SolicitanteNombre\", mark: false, query: \"\" },\r\n        { input: \"FechaCreado\", mark: false, query: \"\" },\r\n        { input: \"Estado\", mark: false, query: \"\" },\r\n        { input: \"Categoria\", mark: false, query: \"\" },\r\n        { input: \"Prioridad\", mark: false, query: \"\" },\r\n        { input: \"AprobadorNombre\", mark: false, query: \"\" },\r\n        { input: \"TipoRequerimiento\", mark: false, query: \"\" },\r\n        { input: \"EstadoActual\", mark: false, query: \"\" },\r\n        { input: \"SolicitanteCorreo\", mark: true, query: \r\n        \"(SolicitanteCorreo eq '\" & Var_ProfileUser.CorreoUsuario & \"' or CorreoAtendidoPor eq '\" & Var_ProfileUser.CorreoUsuario & \"' or ContactoDeRespaldo eq '\" & Var_ProfileUser.CorreoUsuario & \"')\"  },\r\n        { input: \"NivelDeConfidencialidad\" , mark: true, query: \"(NivelDeConfidencialidad eq 'Restringido')\" }\r\n    ),\r\n    Var_RolSistema in [Var_RolApp.RolAnalista],\r\n    ClearCollect(\r\n        colQuerysSpvTicket,\r\n        { input: \"Codigo\", mark: false, query: \"\" },\r\n        { input: \"SolicitanteCorreo\", mark: true, query: \r\n        \"(SolicitanteCorreo eq '\" & Var_ProfileUser.CorreoUsuario & \"' or CorreoAtendidoPor eq '\" & Var_ProfileUser.CorreoUsuario & \"' or ContactoDeRespaldo eq '\" & Var_ProfileUser.CorreoUsuario & \"')\"  },\r\n        { input: \"FechaCreado\", mark: false, query: \"\" },\r\n        { input: \"EstadoActual\", mark: false, query: \"\" },\r\n        { input: \"Area\", mark: true, query: \"(\"&Concat(colAgrupadorArea, \"Area eq '\" & Value & \"'\", \" or \")&\")\" },//If( IsEmpty(colAreasTicket); \"NA\"; Concat(colAreasTicket; \"Area eq '\" & Value & \"'\"; \" or \")) colAgrupadorGerencia\r\n            //SubArea\r\n        { input: \"SubArea\", mark: true, query: \"(\"&Concat(colAgrupadorSubArea, \"SubArea eq '\" & Value & \"'\", \" or \")&\")\" },\r\n        { input: \"Prioridad\", mark: false, query: \"\" },\r\n        { input: \"AprobadorNombre\", mark: false, query: \"\" },\r\n        { input: \"TipoSolicitud\", mark: false, query: \"\" },\r\n        { input: \"Gerencia\", mark: true, query: \"(\"&Concat(colAgrupadorGerencia, \"Gerencia eq '\" & Value & \"'\", \" or \")&\")\" }, //If( IsEmpty(col_AdmGerenciasTicket); \"NA\"; Concat( col_AdmGerenciasTicket; \"Gerencia eq '\" & Nombre & \"'\"; \" or \"))\r\n        { input: \"ID\", mark: false, query: \"\" },\r\n        { input: \"AnalistaCorreo\", mark: false, query: \"\" },\r\n        { input: \"NivelDeConfidencialidad\" , mark: true, query: \"(NivelDeConfidencialidad eq 'Público')\" }\r\n    ),\r\n    Var_RolSistema in [Var_RolApp.RolSolicitante],\r\n    ClearCollect(\r\n        colQuerysSpvTicket,\r\n        { input: \"Codigo\", mark: false, query: \"\" },\r\n        { input: \"SolicitanteNombre\", mark: false, query: \"\" },\r\n        { input: \"FechaCreado\", mark: false, query: \"\" },\r\n        { input: \"EstadoActual\", mark: false, query: \"\" },\r\n        { input: \"Area\", mark: false, query: \"\" },\r\n            //SubArea\r\n        { input: \"SubArea\", mark: false, query: \"\" },\r\n        { input: \"Prioridad\", mark: false, query: \"\" },\r\n        { input: \"AprobadorNombre\", mark: false, query: \"\" },\r\n        { input: \"TipoSolicitud\", mark: false, query: \"\" },\r\n        { input: \"Gerencia\", mark: false, query: \"\" },\r\n        { input: \"ID\", mark: false, query: \"\" },\r\n        { input: \"SolicitanteCorreo\", mark: true, query: \r\n        \"(SolicitanteCorreo eq '\" & Var_ProfileUser.CorreoUsuario & \"' or ContactoDeRespaldo eq '\" & Var_ProfileUser.CorreoUsuario & \"')\"  \r\n        }\r\n    );\r\n    \r\n);\r\n//============================================ fin del odata\r\n\r\nUpdateContext({ menuSelected: 1});\r\n\r\nReset(DatePicker2);\r\nReset(DatePicker_SegTicket);\r\nReset(DatePicker_SegTicket_1);\r\n\r\n// GRAFICO 1\r\n/*Set(\r\n    varFechaFiltro;\r\n    DateAdd(\r\n        Today();\r\n        -30;\r\n        TimeUnit.Days\r\n    )\r\n);;*/\r\n\r\nSet(varRespuestaFlujo,'LCP-001_Flow_GlbHomeBoards'.Run(Text(DatePicker2.SelectedDate,\"yyyy-mm-dd\") & \"T00:00:00Z\",\"1\").ticketsjson);\r\n\r\nClearCollect(colMonthlyTickets,ForAll(Table(ParseJSON(varRespuestaFlujo)),{idmes: Value(Value.idmes),mes: Text(Value.mes),tickets: Value(Value.tickets)}));\r\n\r\n// 1️⃣ SIMULACIÓN FIEL DE DATAVERSE (12 MESES CON EL PICO DE ABRIL)\r\n/*ClearCollect(\r\n    colMonthlyTickets_demo; // Usamos el mismo nombre para que coincida con tu control de imagen\r\n    { idmes: \"1\"; mes: \"Enero\"; tickets: \"100\" };\r\n    { idmes: \"2\"; mes: \"Febrero\"; tickets: \"145\" };\r\n    { idmes: \"3\"; mes: \"Marzo\"; tickets: \"175\" };\r\n    { idmes: \"4\"; mes: \"Abril\"; tickets: \"300\" }; // El pico notable del reporte original\r\n    { idmes: \"5\"; mes: \"Mayo\"; tickets: \"210\" };\r\n    { idmes: \"6\"; mes: \"Junio\"; tickets: \"225\" };\r\n    { idmes: \"7\"; mes: \"Julio\"; tickets: \"300\" };\r\n    { idmes: \"8\"; mes: \"Agosto\"; tickets: \"1000\" };\r\n    { idmes: \"9\"; mes: \"Septiembre\"; tickets: \"380\" };\r\n    { idmes: \"10\"; mes: \"Octubre\"; tickets: \"300\" };\r\n    { idmes: \"11\"; mes: \"Noviembre\"; tickets: \"250\" };\r\n    { idmes: \"12\"; mes: \"Diciembre\"; tickets: \"280\" }\r\n);;*/\r\n\r\n// Control de proporciones dinámicas según la cantidad real de registros\r\nUpdateContext({\r\n    varTotalRegistros: CountRows(colMonthlyTickets),\r\n    varMaxTickets: Max(colMonthlyTickets, tickets),\r\n    varCanvasWidth: 1200,\r\n    varCanvasHeight: 240,\r\n    varPaddingX: 45 \r\n});\r\n\r\n// 4️⃣ Replicar EXACTAMENTE las líneas horizontales fijas\r\n\r\nSet(\r\n    varEscalaMax,\r\n    RoundUp(varMaxTickets / 100, 0) * 100\r\n);\r\n\r\n// 2️⃣ Transformar los puntos (CORREGIDO: Sin comillas en X e Y para igualar a Dataverse)\r\nClearCollect(\r\n    colChartPoints,\r\n    With(\r\n        {\r\n            YMinChart: 40,\r\n            YMaxChart: 190,\r\n            AnchoUtil: varCanvasWidth - (varPaddingX * 2),\r\n            StepX: (varCanvasWidth - (varPaddingX * 2)) / If(varTotalRegistros > 1, varTotalRegistros - 1, 1)\r\n        },\r\n        AddColumns(\r\n            colMonthlyTickets,\r\n            X, varPaddingX + (StepX * (idmes - Min(colMonthlyTickets, idmes))), // <-- X sin comillas\r\n            Y, If(varEscalaMax > 0, YMaxChart - ((tickets / varEscalaMax) * (YMaxChart - YMinChart)), YMaxChart) // <-- Y sin comillas\r\n        )\r\n    )\r\n);\r\n\r\n\r\n// 3️⃣ Compilar cadenas del SVG con sustitución regional (Comas por puntos)\r\nSet(\r\n    varSvgPoints,\r\n    Concat(\r\n        colChartPoints,\r\n        Substitute(Text(Coalesce(X, 0)), \",\", \".\") & \",\" & Substitute(Text(Coalesce(Y, 0)), \",\", \".\") & \" \"\r\n    )\r\n);\r\n\r\nSet(\r\n    varSvgDots,\r\n    Concat(\r\n        colChartPoints,\r\n        \"<circle cx='\" & Substitute(Text(Coalesce(X,0)),\",\",\".\") & \r\n        \"' cy='\" & Substitute(Text(Coalesce(Y,0)),\",\",\".\") & \r\n        \"' r='4' fill='#3B82F6' stroke='#ffffff' stroke-width='2' />\"\r\n    )\r\n);\r\n\r\n// Agrupar meses fijos inferiores alineados perfectamente\r\nSet(\r\n    varSvgLabels,\r\n    Concat(\r\n        Filter(colChartPoints, !IsBlank(mes)), \r\n        \"<text x='\" & Substitute(Text(Coalesce(X,0)),\",\",\".\") & \r\n        \"' y='220' text-anchor='middle' font-family='Segoe UI, Arial' font-size='11' fill='#A0AEC0'>\" & \r\n        mes & \r\n        \"</text>\"\r\n    )\r\n);\r\n\r\n\r\n\r\nClearCollect(\r\n    colLineasFijasY,\r\n    ForAll(\r\n        Sequence(5),\r\n        { \r\n            ValorLabel: Round(varEscalaMax * (Value / 5),0)\r\n        }\r\n    )\r\n);\r\n\r\n/*ClearCollect(\r\n    colLineasFijasY;\r\n    { ValorLabel: \"100\";  PercentY: 0,10 };\r\n    { ValorLabel: \"125\";  PercentY: 0,30 };\r\n    { ValorLabel: \"300\";  PercentY: 0,55 };\r\n    { ValorLabel: \"500\";  PercentY: 0,75 };\r\n    { ValorLabel: \"1000\"; PercentY: 0,95 }\r\n);;*/\r\n\r\nSet(\r\n    varSvgYAxis,\r\n    Concat(\r\n        colLineasFijasY,\r\n        With(\r\n            {\r\n                YPos: 190 - ( (ValorLabel / varEscalaMax) * (190 - 40) )\r\n            },\r\n            \"<line x1='0' y1='\" & Substitute(Text(YPos),\",\",\".\") & \"' x2='1200' y2='\" & Substitute(Text(YPos),\",\",\".\") & \"' stroke='#F1F5F9' stroke-width='0.8' />\" &\r\n            \"<text x='20' y='\" & Substitute(Text(YPos + 4),\",\",\".\") & \"' text-anchor='start' font-family='Segoe UI, Arial' font-size='11' fill='#9CA3AF'>\" & ValorLabel & \"</text>\"\r\n        )\r\n    )\r\n);\r\n\r\n// 5️⃣ Tooltip del Pico Máximo\r\nWith(\r\n    { PicoMax: First(Sort(colChartPoints, tickets, SortOrder.Descending)) },\r\n    Set(\r\n        varSvgTooltipPico,\r\n        \"<g>\r\n            <rect x='\" & Substitute(Text(PicoMax.X - 45),\",\",\".\") & \"' y='\" & Substitute(Text(PicoMax.Y - 32),\",\",\".\") & \"' width='90' height='22' rx='4' fill='#3B82F6' />\r\n            <polygon points='\" & Substitute(Text(PicoMax.X),\",\",\".\") & \",\" & Substitute(Text(PicoMax.Y - 4),\",\",\".\") & \" \" & Substitute(Text(PicoMax.X - 5),\",\",\".\") & \",\" & Substitute(Text(PicoMax.Y - 10),\",\",\".\") & \" \" & Substitute(Text(PicoMax.X + 5),\",\",\".\") & \",\" & Substitute(Text(PicoMax.Y - 10),\",\",\".\") & \"' fill='#3B82F6' />\r\n            <text x='\" & Substitute(Text(PicoMax.X),\",\",\".\") & \"' y='\" & Substitute(Text(PicoMax.Y - 17),\",\",\".\") & \"' font-family='Segoe UI, Arial' font-weight='600' font-size='11' fill='#ffffff' text-anchor='middle'>\" & Text(Value(PicoMax.tickets), \"#,##0.00\") & \"</text>\r\n        </g>\"\r\n    )\r\n);\r\n\r\n// GRAFICO 2\r\n\r\nSet(varRespuestaFlujo2,'LCP-001_Flow_GlbHomeBoards'.Run(Text(DatePicker_SegTicket.SelectedDate,\"yyyy-mm-dd\") & \"T00:00:00Z\",\"2\").ticketsjson);\r\n\r\nSet(varKPI, ParseJSON(varRespuestaFlujo2));\r\n\r\nSet(varTicketsTotales, Value(varKPI.ticketstotales));\r\nSet(varTicketsCreados, Value(varKPI.ticketscreados));\r\nSet(varTicketsRevision, Value(varKPI.ticketsrevision));\r\nSet(varTicketsCerrados, Value(varKPI.ticketscerrados));\r\nSet(\r\n    varPorcentajeResuelto,\r\n        Value(varKPI.porcentajeresuelto)\r\n);\r\n\r\n/*Set(varTicketsTotales; 164);;\r\nSet(varTicketsCreados; 132);;\r\nSet(varTicketsRevision; 132);;\r\nSet(varTicketsCerrados; 132);;\r\nSet(varPorcentajeResuelto; 75);;*/\r\n\r\n/*Set(varGaugeArc; varPorcentajeResuelto * 5,20);;*/\r\nSet(varGaugeArc, Text(varPorcentajeResuelto, \"0.00\") & \"%\");\r\n\r\n// GRAFICO 3\r\nSet(varRespuestaFlujo3,'LCP-001_Flow_GlbHomeBoards'.Run(Text(DatePicker_SegTicket_1.SelectedDate,\"yyyy-mm-dd\") & \"T00:00:00Z\",\"3\").ticketsjson);\r\n\r\nSet(varDonut, ParseJSON(varRespuestaFlujo3));\r\n\r\nClearCollect(\r\n    colDonut,\r\n    {\r\n        Estado:\"Baja\",\r\n        Valor:Value(varDonut.baja),\r\n        Color:\"#7C6BF0\"\r\n    },\r\n    {\r\n        Estado:\"No vistas\",\r\n        Valor:223.22,\r\n        Color:\"#F28C85\"\r\n    },\r\n    {\r\n        Estado:\"Media\",\r\n        Valor:Value(varDonut.media),\r\n        Color:\"#45B6D1\"\r\n    },\r\n    {\r\n        Estado:\"Alta\",\r\n        Valor:Value(varDonut.alta),\r\n        Color:\"#F5AC4A\"\r\n    }\r\n)\r\n;\r\n\r\nSet(\r\n    varTotalDonut,\r\n    Sum(colDonut, Valor)\r\n)\r\n;\r\n\r\nSet(varRadio,180);\r\nSet(varCircunferencia,2 * Pi() * varRadio);\r\n\r\nClearCollect(\r\n    colDonutCalc,\r\n\r\n    AddColumns(\r\n        colDonut,\r\n\r\n        Porcentaje,\r\n        Valor / varTotalDonut,\r\n\r\n        Dash,\r\n        (Valor / varTotalDonut) * varCircunferencia\r\n    )\r\n)\r\n;\r\n\r\nClear(colDonutFinal);\r\n\r\nForAll(\r\n    Sequence(CountRows(colDonutCalc)),\r\n\r\n    Collect(\r\n        colDonutFinal,\r\n\r\n        Patch(\r\n            Last(\r\n                FirstN(\r\n                    colDonutCalc,\r\n                    Value\r\n                )\r\n            ),\r\n\r\n            {\r\n                Orden: Value\r\n            }\r\n        )\r\n    )\r\n)\r\n;\r\n\r\nClear(colDonutSVG);\r\n\r\nForAll(\r\n    colDonutFinal As item,\r\n\r\n    Collect(\r\n        colDonutSVG,\r\n\r\n        {\r\n            Orden:item.Orden,\r\n            Estado:item.Estado,\r\n            Valor:item.Valor,\r\n            Color:item.Color,\r\n            Dash:item.Dash,\r\n\r\n            Offset:\r\n            -Sum(\r\n                Filter(\r\n                    colDonutFinal,\r\n                    Orden < item.Orden\r\n                ),\r\n                Dash\r\n            )\r\n        }\r\n    )\r\n)\r\n;"
     Children:
-      - Container40_6:
+      - Container40_7:
           Control: GroupContainer@1.5.0
           Variant: AutoLayout
           Properties:
@@ -15,7 +14,7 @@ Screens:
             LayoutDirection: =LayoutDirection.Vertical
             Width: =Parent.Width
           Children:
-            - Container44_6:
+            - Container44_7:
                 Control: GroupContainer@1.5.0
                 Variant: AutoLayout
                 Properties:
@@ -25,7 +24,7 @@ Screens:
                   LayoutMinHeight: =16
                   LayoutMinWidth: =16
                 Children:
-                  - Container50_12:
+                  - Container50_14:
                       Control: GroupContainer@1.5.0
                       Variant: AutoLayout
                       Properties:
@@ -41,22 +40,23 @@ Screens:
                         RadiusTopRight: =0
                         Width: =If(Var_OpenMenu,250,70)
                       Children:
-                        - Gbl_Menu_12:
+                        - Gbl_Menu_13:
                             Control: CanvasComponent
                             ComponentName: Gbl_Menu
                             ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
                             Properties:
                               Height: =Parent.Height
+                              OnSeleccionar: =Set(varPantallaSeleccionada, Self.PantallaSeleccionada.Title)
                               RolUsuario: =Var_RolSistema
                               Width: =If(Var_OpenMenu,250,70)
                               WidthMenu: =100
                               btnHome: =Gbl_Home
                               displayNameUser: =Var_ProfileUser.'Nombre (Nombre0)'
                               itemsMenu: =colMenuGeneral
-                              menuSelected: =""
+                              menuSelected: ="Home"
                               openMenu: =Set(Var_OpenMenu, !Var_OpenMenu)
                               verMenu: =Var_OpenMenu
-                  - Container50_13:
+                  - Container50_15:
                       Control: GroupContainer@1.5.0
                       Variant: AutoLayout
                       Properties:
@@ -69,7 +69,7 @@ Screens:
                         PaddingLeft: =20
                         PaddingRight: =20
                       Children:
-                        - Gbl_Header_11:
+                        - Gbl_Header_15:
                             Control: CanvasComponent
                             ComponentName: Gbl_Header
                             ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
@@ -77,7 +77,7 @@ Screens:
                               AlignInContainer: =AlignInContainer.End
                               Height: =60
                               Perfil: =Gbl_Home
-                        - Container14_17:
+                        - Container14_22:
                             Control: GroupContainer@1.5.0
                             Variant: ManualLayout
                             Properties:
@@ -88,7 +88,7 @@ Screens:
                               LayoutMinWidth: =16
                               X: =40
                               Y: =40
-                        - containerLink_5:
+                        - containerLink_6:
                             Control: GroupContainer@1.5.0
                             Variant: AutoLayout
                             Properties:
@@ -108,7 +108,7 @@ Screens:
                               RadiusTopRight: =0
                               Width: =Parent.Width
                             Children:
-                              - btnExportarTicket_36:
+                              - btnExportarTicket_37:
                                   Control: Classic/Button@2.2.0
                                   Properties:
                                     Align: =Align.Left
@@ -139,7 +139,7 @@ Screens:
                                     Width: '=Len(Self.Text) * 8.5 '
                                     X: =40
                                     Y: =40
-                              - ctnNuevoTicket_8:
+                              - ctnNuevoTicket_9:
                                   Control: GroupContainer@1.5.0
                                   Variant: ManualLayout
                                   Properties:
@@ -156,7 +156,7 @@ Screens:
                                     RadiusTopRight: =0
                                     Width: =11
                                   Children:
-                                    - icoExportarTicket_6:
+                                    - icoExportarTicket_7:
                                         Control: Classic/Icon@2.5.0
                                         Properties:
                                           BorderColor: =RGBA(0, 18, 107, 1)
@@ -164,9 +164,9 @@ Screens:
                                           Height: =13
                                           Icon: =Icon.ChevronRight
                                           Width: =11
-                                          X: =(ctnNuevoTicket_8.Width - Self.Width) / 2
+                                          X: =(ctnNuevoTicket_9.Width - Self.Width) / 2
                                           Y: =6
-                              - Label6_7:
+                              - Label6_11:
                                   Control: Label@2.5.1
                                   Properties:
                                     AlignInContainer: =AlignInContainer.Center
@@ -182,10 +182,10 @@ Screens:
                                     PaddingBottom: =3
                                     PaddingLeft: =6
                                     Size: =Var_TituloNavBar
-                                    Text: ="Perfil"
+                                    Text: ="Home"
                                     Width: =1152
                                     X: =76
-                        - Container14_18:
+                        - Container14_23:
                             Control: GroupContainer@1.5.0
                             Variant: ManualLayout
                             Properties:
@@ -194,7 +194,23 @@ Screens:
                               Height: =16
                               LayoutMinHeight: =16
                               LayoutMinWidth: =16
-                        - Container7_5:
+                        - Container1_12:
+                            Control: GroupContainer@1.5.0
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              FillPortions: =0
+                              Height: =50
+                              LayoutAlignItems: =LayoutAlignItems.Center
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutJustifyContent: =LayoutJustifyContent.SpaceBetween
+                              LayoutMinHeight: =16
+                              LayoutMinWidth: =16
+                              PaddingLeft: =3
+                              PaddingRight: =8
+                              X: =40
+                              Y: =40
+                        - Container7_6:
                             Control: GroupContainer@1.5.0
                             Variant: AutoLayout
                             Properties:
@@ -204,336 +220,531 @@ Screens:
                               LayoutDirection: =LayoutDirection.Vertical
                               LayoutMinHeight: =16
                               LayoutMinWidth: =16
-                              PaddingBottom: =8
-                              PaddingLeft: =8
-                              PaddingRight: =8
-                              PaddingTop: =8
                               RadiusBottomLeft: =24
                               RadiusBottomRight: =24
                               RadiusTopLeft: =24
                               RadiusTopRight: =24
                               Width: =Parent.Width
                             Children:
-                              - Container14_19:
+                              - Container53:
                                   Control: GroupContainer@1.5.0
                                   Variant: AutoLayout
                                   Properties:
                                     DropShadow: =DropShadow.None
+                                    FillPortions: =0
+                                    Height: =50
                                     LayoutAlignItems: =LayoutAlignItems.Center
-                                    LayoutDirection: =LayoutDirection.Vertical
-                                    LayoutGap: =15
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutJustifyContent: =LayoutJustifyContent.SpaceBetween
                                     LayoutMinHeight: =16
                                     LayoutMinWidth: =16
                                     PaddingBottom: =8
-                                    PaddingLeft: =8
-                                    PaddingRight: =8
+                                    PaddingLeft: =16
+                                    PaddingRight: =16
                                     PaddingTop: =8
                                   Children:
-                                    - Container54_2:
-                                        Control: GroupContainer@1.5.0
-                                        Variant: ManualLayout
+                                    - Label3_9:
+                                        Control: Label@2.5.1
                                         Properties:
-                                          DropShadow: =DropShadow.None
-                                          FillPortions: =0
-                                          Height: =150
+                                          BorderColor: =RGBA(0, 18, 107, 1)
+                                          Font: =Font.'Open Sans'
+                                          FontWeight: =FontWeight.Bold
                                           LayoutMinHeight: =16
                                           LayoutMinWidth: =16
+                                          OnSelect: =
+                                          PaddingLeft: =0
+                                          PaddingRight: =0
+                                          Size: =14
+                                          Text: ="Tickets"
+                                          Width: =600
+                                          Wrap: =false
+                                    - DatePicker2:
+                                        Control: ModernDatePicker@1.0.0
+                                        Properties:
+                                          Appearance: =Appearance.Outline
+                                          DefaultDate: |-
+                                            =DateAdd(
+                                                    Today(),
+                                                -30,
+                                                TimeUnit.Days
+                                            )
+                                          Format: =DatePickerFormat.Short
+                                          LayoutMinHeight: =16
+                                          LayoutMinWidth: =16
+                                          OnChange: |-
+                                            =Set(
+                                                varFechaFiltro,
+                                                DatePicker2.SelectedDate
+                                            );
+
+                                            Set(
+                                                varRespuestaFlujo,
+                                                'LCP-001_Flow_GlbHomeBoards'.Run(Text(varFechaFiltro,"yyyy-mm-dd") & "T00:00:00Z",
+                                                    "1"
+                                                ).ticketsjson
+                                            );
+
+                                            ClearCollect(
+                                                colMonthlyTickets,
+                                                ForAll(
+                                                    Table(ParseJSON(varRespuestaFlujo)),
+                                                    {
+                                                        idmes: Value(Value.idmes),
+                                                        mes: Text(Value.mes),
+                                                        tickets: Value(Value.tickets)
+                                                    }
+                                                )
+                                            );
+
+                                            Navigate(Gbl_Home)
+                                          Placeholder: ="dd/mm/aa"
+                                          Width: =150
+                              - Label3_8:
+                                  Control: Label@2.5.1
+                                  Properties:
+                                    BorderColor: =RGBA(0, 18, 107, 1)
+                                    Font: =Font.'Open Sans'
+                                    FontWeight: =FontWeight.Bold
+                                    LayoutMinHeight: =16
+                                    LayoutMinWidth: =16
+                                    OnSelect: =
+                                    PaddingLeft: =0
+                                    Size: =Var_TituloBold
+                                    Text: ="Home"
+                                    Width: =600
+                                    Wrap: =false
+                              - Image10:
+                                  Control: Image@2.2.3
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Stretch
+                                    BorderColor: =RGBA(0, 18, 107, 1)
+                                    FillPortions: =1
+                                    Image: |-
+                                      ="data:image/svg+xml;utf8," &
+                                      EncodeUrl(
+                                      "
+                                      <svg width='100%' height='100%' viewBox='0 0 1200 240' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg' style='background-color: #ffffff;'>
+
+                                      <defs>
+                                        <linearGradient id='areaGrad' x1='0' y1='0' x2='0' y2='1'>
+                                          <stop offset='0%' stop-color='#3B82F6' stop-opacity='0.12'/>
+                                          <stop offset='100%' stop-color='#3B82F6' stop-opacity='0.0'/>
+                                        </linearGradient>
+                                      </defs>
+
+                                      " & varSvgYAxis & "
+
+                                      <path d='M " & varSvgPoints & " L " & Substitute(Text(varCanvasWidth - varPaddingX),",",".") & " 190 L " & Substitute(Text(varPaddingX),",",".") & " 190 Z' fill='url(#areaGrad)'/>
+
+                                      <polyline
+                                          fill='none'
+                                          stroke='#3B82F6'
+                                          stroke-width='2.5'
+                                          stroke-linecap='round'
+                                          stroke-linejoin='round'
+                                          points='" & varSvgPoints & "' />
+
+                                      " & varSvgDots & "
+
+                                      " & varSvgLabels & "
+
+                                      " & varSvgTooltipPico & "
+
+                                      </svg>
+                                      "
+                                      )
+                                    LayoutMinHeight: =16
+                                    LayoutMinWidth: =16
+                        - Container34:
+                            Control: GroupContainer@1.5.0
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              LayoutAlignItems: =LayoutAlignItems.Center
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutGap: =16
+                              LayoutJustifyContent: =LayoutJustifyContent.Center
+                              LayoutMinHeight: =16
+                              LayoutMinWidth: =16
+                              PaddingBottom: =16
+                              PaddingLeft: =1
+                              PaddingRight: =1
+                              PaddingTop: =16
+                            Children:
+                              - Container54:
+                                  Control: GroupContainer@1.5.0
+                                  Variant: ManualLayout
+                                  Properties:
+                                    Fill: =RGBA(255, 255, 255, 1)
+                                    LayoutMinHeight: =16
+                                    LayoutMinWidth: =16
+                                    RadiusBottomLeft: =24
+                                    RadiusBottomRight: =24
+                                    RadiusTopLeft: =24
+                                    RadiusTopRight: =24
+                                  Children:
+                                    - Image12:
+                                        Control: Image@2.2.3
+                                        Properties:
+                                          BorderColor: =RGBA(0, 18, 107, 1)
+                                          Height: =250
+                                          Image: |-
+                                            ="data:image/svg+xml;utf8," &
+                                            EncodeUrl(
+                                            "<svg width='100%' height='100%' viewBox='0 0 600 220' xmlns='http://www.w3.org/2000/svg' style='background-color:#ffffff;'>
+                                            <defs>
+                                              <linearGradient id='gaugeGrad' x1='0' y1='0' x2='1' y2='0'>
+                                                <stop offset='0%' stop-color='#f5c4c4'/>
+                                                <stop offset='100%' stop-color='#e53935'/>
+                                              </linearGradient>
+                                            </defs>
+
+                                            <!-- Subtítulo -->
+                                            <text x='20' y='18' font-size='12' fill='#9CA3AF' font-family='sans-serif'>Los últimos 7 días</text>
+
+                                            <!-- Total -->
+                                            <text x='20' y='85' font-size='42' font-weight='700' fill='#111827' font-family='sans-serif'>" & Text(varTicketsTotales) & "</text>
+                                            <text x='20' y='103' font-size='12' fill='#9CA3AF' font-family='sans-serif'>Tickets totales</text>
+
+                                            <!-- Tickets creados -->
+                                            <rect x='20' y='110' width='26' height='26' rx='5' fill='#FEF2F2'/>
+                                            <text x='33' y='128' text-anchor='middle' font-size='18' fill='#e53935' font-family='sans-serif'>🎫</text>
+                                            <text x='54' y='129' font-size='13' font-weight='500' fill='#111827' font-family='sans-serif'>Tickets creados</text>
+                                            <text x='54' y='144' font-size='13' fill='#6B7280' font-family='sans-serif'>" & Text(varTicketsCreados) & "</text>
+
+                                            <!-- Tickets en revisión -->
+                                            <rect x='20' y='151' width='26' height='26' rx='5' fill='#EFF6FF'/>
+                                            <text x='33' y='170' text-anchor='middle' font-size='18' fill='#1D6FE8' font-family='sans-serif'>✅</text>
+                                            <text x='54' y='165' font-size='13' font-weight='500' fill='#111827' font-family='sans-serif'>Tickets en revisión</text>
+                                            <text x='54' y='178' font-size='13' fill='#6B7280' font-family='sans-serif'>" & Text(varTicketsRevision) & "</text>
+
+                                            <!-- Tickets cerrados -->
+                                            <rect x='20' y='188' width='26' height='26' rx='5' fill='#F5F3FF'/>
+                                            <text x='33' y='208' text-anchor='middle' font-size='18' fill='#7C3AED' font-family='sans-serif'>🔓</text>
+                                            <text x='54' y='199' font-size='13' font-weight='500' fill='#111827' font-family='sans-serif'>Tickets cerrados</text>
+                                            <text x='54' y='214' font-size='13' fill='#6B7280' font-family='sans-serif'>" & Text(varTicketsCerrados) & "</text>
+
+                                            <!-- Gauge: fondo -->
+                                            <!-- <path d='M 362,245 A 110,110 0 1,1 518,245' fill='none' stroke='#f5c4c4' stroke-width='22' stroke-linecap='round'/> -->
+
+                                            <!-- Gauge: fill dinámico -->
+                                            <path d='M 362,245 A 110,110 0 1,1 518,245' fill='none' stroke='url(#gaugeGrad)' stroke-width='22' stroke-linecap='round'
+                                              stroke-dasharray='" & Substitute(Text(varGaugeArc), ",", ".") & " 520'/>
+
+                                            <!-- Texto central gauge -->
+                                            <text x='440' y='180' text-anchor='middle' font-size='36' font-weight='700' fill='#000000' font-family='sans-serif'>" & Text(varGaugeArc) & "</text>
+                                            <text x='440' y='140' text-anchor='middle' font-size='12' fill='#000000' font-family='sans-serif'>Tickets resueltos</text>
+
+                                            </svg>"
+                                            )
+                                          Width: =486
+                                          X: =14
+                                    - Container53_1:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: AutoLayout
+                                        Properties:
+                                          DropShadow: =DropShadow.None
+                                          Height: =50
+                                          LayoutAlignItems: =LayoutAlignItems.Center
+                                          LayoutDirection: =LayoutDirection.Horizontal
+                                          LayoutJustifyContent: =LayoutJustifyContent.SpaceBetween
+                                          PaddingBottom: =8
+                                          PaddingLeft: =16
+                                          PaddingRight: =16
+                                          PaddingTop: =8
                                         Children:
-                                          - Label1_66:
+                                          - Label3_12:
                                               Control: Label@2.5.1
                                               Properties:
                                                 BorderColor: =RGBA(0, 18, 107, 1)
                                                 Font: =Font.'Open Sans'
-                                                FontWeight: =FontWeight.Semibold
-                                                Height: =26
-                                                Size: =Var_Subtitle
-                                                Text: ="Mi Perfil"
-                                                X: =6
-                                                Y: =12
-                                          - Image14_2:
+                                                FontWeight: =FontWeight.Bold
+                                                LayoutMinHeight: =16
+                                                LayoutMinWidth: =16
+                                                OnSelect: =
+                                                PaddingLeft: =0
+                                                PaddingRight: =0
+                                                Size: =12
+                                                Text: ="Seguimiento de Tickets"
+                                                Width: =280
+                                                Wrap: =false
+                                          - Label_Fecha:
+                                              Control: Label@2.5.1
+                                              Properties:
+                                                Height: =20
+                                                PaddingLeft: =0
+                                                PaddingRight: =0
+                                                Size: =8
+                                                Text: ="FECHA:"
+                                                Width: =40
+                                                X: =60
+                                                Y: =100
+                                          - DatePicker_SegTicket:
+                                              Control: ModernDatePicker@1.0.0
+                                              Properties:
+                                                AccessibleLabel: =
+                                                Appearance: =Appearance.Outline
+                                                DefaultDate: |-
+                                                  =DateAdd(
+                                                          Today(),
+                                                      -7,
+                                                      TimeUnit.Days
+                                                  )
+                                                Format: =DatePickerFormat.Short
+                                                OnChange: |-
+                                                  =Set(
+                                                      varFechaFiltroDB2,
+                                                      DatePicker_SegTicket.SelectedDate
+                                                  );
+
+                                                  Set(
+                                                      varRespuestaFlujo,
+                                                      'LCP-001_Flow_GlbHomeBoards'.Run(Text(varFechaFiltroDB2,"yyyy-mm-dd") & "T00:00:00Z",
+                                                          "1"
+                                                      ).ticketsjson
+                                                  );
+
+                                                  ClearCollect(
+                                                      colMonthlyTickets,
+                                                      ForAll(
+                                                          Table(ParseJSON(varRespuestaFlujo)),
+                                                          {
+                                                              idmes: Value(Value.idmes),
+                                                              mes: Text(Value.mes),
+                                                              tickets: Value(Value.tickets)
+                                                          }
+                                                      )
+                                                  );
+
+                                                  Navigate(Gbl_Home)
+                                                Placeholder: ="dd/mm/aa"
+                                                Width: =150
+                                                X: =40
+                                                Y: =40
+                              - Container54_1:
+                                  Control: GroupContainer@1.5.0
+                                  Variant: ManualLayout
+                                  Properties:
+                                    Fill: =RGBA(255, 255, 255, 1)
+                                    LayoutMinHeight: =16
+                                    LayoutMinWidth: =16
+                                    RadiusBottomLeft: =24
+                                    RadiusBottomRight: =24
+                                    RadiusTopLeft: =24
+                                    RadiusTopRight: =24
+                                  Children:
+                                    - Container53_3:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: AutoLayout
+                                        Properties:
+                                          DropShadow: =DropShadow.None
+                                          Height: =192
+                                          LayoutAlignItems: =LayoutAlignItems.Center
+                                          LayoutDirection: =LayoutDirection.Horizontal
+                                          LayoutJustifyContent: =LayoutJustifyContent.SpaceBetween
+                                          PaddingBottom: =8
+                                          PaddingLeft: =16
+                                          PaddingRight: =16
+                                          PaddingTop: =8
+                                          Width: =528
+                                          Y: =60
+                                        Children:
+                                          - Image7:
                                               Control: Image@2.2.3
                                               Properties:
-                                                BorderColor: =RGBA(102, 102, 102, 1)
-                                                BorderThickness: =2
-                                                Height: =71
-                                                Image: =User().Image
-                                                RadiusBottomLeft: =Self.Width / 2
-                                                RadiusBottomRight: =Self.Width / 2
-                                                RadiusTopLeft: =Self.Width / 2
-                                                RadiusTopRight: =Self.Width / 2
-                                                Width: =71
-                                                X: =20
-                                                Y: =50
-                                          - Container16:
-                                              Control: GroupContainer@1.5.0
-                                              Variant: AutoLayout
+                                                BorderColor: =RGBA(0, 18, 107, 1)
+                                                Height: =192
+                                                Image: |-
+                                                  ="data:image/svg+xml;utf8," &
+                                                  EncodeUrl(
+
+                                                  "<svg xmlns='http://www.w3.org/2000/svg'
+                                                  viewBox='0 0 500 500'>
+
+                                                  <g transform='translate(250,250)'>
+
+                                                  " &
+
+                                                  Concat(
+                                                      colDonutSVG,
+
+                                                      "<circle
+                                                          cx='0'
+                                                          cy='0'
+                                                          r='180'
+                                                          fill='none'
+                                                          stroke='" & Color & "'
+                                                          stroke-width='55'
+                                                          stroke-dasharray='" &
+                                                              Substitute(Text(Dash,"[$-en-US]0.00"),",",".") &
+                                                              " " &
+                                                              Substitute(Text(varCircunferencia,"[$-en-US]0.00"),",",".") &
+                                                          "'
+                                                          stroke-dashoffset='" &
+                                                              Substitute(Text(Offset,"[$-en-US]0.00"),",",".") &
+                                                          "'
+                                                          transform='rotate(-90)'/>"
+                                                  )
+
+                                                  &
+
+                                                  "<circle
+                                                  cx='0'
+                                                  cy='0'
+                                                  r='55'
+                                                  fill='white'/>
+
+                                                  <text
+                                                  x='0'
+                                                  y='0'
+                                                  text-anchor='middle'
+                                                  dominant-baseline='middle'
+                                                  font-size='70'
+                                                  font-weight='700'>
+                                                  " & Text(varTotalDonut,"[$-en-US]0.00") & "
+                                                  </text>
+                                                  </g>
+
+                                                  </svg>"
+                                                  )
+                                                Width: =239
+                                                X: =40
+                                                Y: =40
+                                          - Gallery8:
+                                              Control: Gallery@2.15.0
+                                              Variant: Vertical
                                               Properties:
-                                                DropShadow: =DropShadow.None
-                                                Height: =Image14_2.Height
-                                                LayoutDirection: =LayoutDirection.Vertical
-                                                LayoutJustifyContent: =LayoutJustifyContent.Center
-                                                Width: =800
-                                                X: =Image14_2.Width  + Image14_2.X + 8
-                                                Y: =Image14_2.Y
+                                                BorderColor: =RGBA(0, 18, 107, 1)
+                                                Fill: =RGBA(255,255,255,0)
+                                                Height: =180
+                                                Items: =Sort(colDonutSVG,Orden,SortOrder.Descending)
+                                                LayoutMinHeight: =16
+                                                LayoutMinWidth: =16
+                                                ShowScrollbar: =false
+                                                TemplateSize: =38
+                                                Width: =220
                                               Children:
-                                                - Label9_5:
+                                                - Label_Valor:
                                                     Control: Label@2.5.1
                                                     Properties:
-                                                      AlignInContainer: =AlignInContainer.Stretch
-                                                      AutoHeight: =true
-                                                      BorderColor: =RGBA(0, 18, 107, 1)
-                                                      Font: =Font.'Open Sans'
+                                                      Align: =Align.Right
+                                                      FontWeight: =FontWeight.Bold
+                                                      Height: =16
+                                                      PaddingLeft: =0
+                                                      PaddingRight: =0
+                                                      Size: =8
+                                                      Text: =Text(ThisItem.Valor,"0.00") & " %"
+                                                      Width: =80
+                                                      X: =130
+                                                      Y: =10
+                                                - Label_Estado:
+                                                    Control: Label@2.5.1
+                                                    Properties:
                                                       FontWeight: =FontWeight.Semibold
-                                                      Text: =Var_ProfileUser.NombreApellido
-                                                      Width: =378
-                                                      X: =40
-                                                      Y: =40
-                                                - Label9_6:
-                                                    Control: Label@2.5.1
+                                                      Height: =20
+                                                      PaddingLeft: =0
+                                                      PaddingRight: =0
+                                                      Size: =10
+                                                      Text: =ThisItem.Estado
+                                                      Width: =90
+                                                      X: =25
+                                                      Y: =8
+                                                - Rect_Color:
+                                                    Control: Rectangle@2.3.0
                                                     Properties:
-                                                      AlignInContainer: =AlignInContainer.Stretch
-                                                      AutoHeight: =true
-                                                      BorderColor: =RGBA(0, 18, 107, 1)
-                                                      Font: =Font.'Open Sans'
-                                                      Size: =9
-                                                      Text: =$"{Proper(Lower(Var_ProfileUser.Pais))}, {Var_ProfileUser.Sociedad}"
-                                                      Width: =600
-                                                      X: =40
-                                                      Y: =40
-                                    - Container8_6:
+                                                      Fill: =ColorValue(ThisItem.Color)
+                                                      Height: =12
+                                                      Width: =12
+                                                      X: =5
+                                                      Y: =12
+                                                - Separator2:
+                                                    Control: Rectangle@2.3.0
+                                                    Properties:
+                                                      Fill: =RGBA(240,240,240,1)
+                                                      Height: =1
+                                                      Width: =Parent.TemplateWidth-10
+                                                      X: =5
+                                                      Y: =Parent.TemplateHeight-1
+                                    - Container53_2:
                                         Control: GroupContainer@1.5.0
-                                        Variant: ManualLayout
+                                        Variant: AutoLayout
                                         Properties:
-                                          BorderColor: =ColorValue("#E4E7E9")
-                                          BorderThickness: =1
                                           DropShadow: =DropShadow.None
-                                          FillPortions: =0
-                                          Height: =220
-                                          LayoutMinWidth: =225
-                                          RadiusBottomLeft: =12
-                                          RadiusBottomRight: =12
-                                          RadiusTopLeft: =12
-                                          RadiusTopRight: =12
-                                          Width: =1049
-                                          X: =40
-                                          Y: =40
+                                          Height: =60
+                                          LayoutAlignItems: =LayoutAlignItems.Center
+                                          LayoutDirection: =LayoutDirection.Horizontal
+                                          LayoutJustifyContent: =LayoutJustifyContent.SpaceBetween
+                                          PaddingBottom: =8
+                                          PaddingLeft: =16
+                                          PaddingRight: =16
+                                          PaddingTop: =8
+                                          Width: =528
                                         Children:
-                                          - Label14_24:
+                                          - Label3_14:
                                               Control: Label@2.5.1
                                               Properties:
                                                 BorderColor: =RGBA(0, 18, 107, 1)
                                                 Font: =Font.'Open Sans'
-                                                FontWeight: =FontWeight.Semibold
-                                                Height: =35
-                                                Size: =Var_CuerpoTexto
-                                                Text: ="Información Personal"
-                                                Width: =234
-                                                X: =24
-                                                Y: =21
-                                          - Label15_21:
+                                                FontWeight: =FontWeight.Bold
+                                                LayoutMinHeight: =16
+                                                LayoutMinWidth: =16
+                                                OnSelect: =
+                                                PaddingLeft: =0
+                                                PaddingRight: =0
+                                                Size: =12
+                                                Text: ="Tickets solucionados por prioridad"
+                                                Width: =280
+                                                Wrap: =false
+                                          - Label_Fecha_1:
                                               Control: Label@2.5.1
                                               Properties:
-                                                BorderColor: =RGBA(0, 18, 107, 1)
-                                                Color: =ColorValue(Var_ColorGray)
-                                                Font: =Font.'Open Sans'
-                                                Size: =Var_TextoPerfil
-                                                Text: ="Nombre"
-                                                Width: =168
-                                                X: =24
-                                                Y: =56
-                                          - Label15_22:
-                                              Control: Label@2.5.1
+                                                Height: =20
+                                                PaddingLeft: =0
+                                                PaddingRight: =0
+                                                Size: =8
+                                                Text: ="FECHA:"
+                                                Width: =40
+                                                X: =60
+                                                Y: =100
+                                          - DatePicker_SegTicket_1:
+                                              Control: ModernDatePicker@1.0.0
                                               Properties:
-                                                BorderColor: =RGBA(0, 18, 107, 1)
-                                                Color: =ColorValue(Var_ColorGray)
-                                                Font: =Font.'Open Sans'
-                                                Size: =Var_TextoPerfil
-                                                Text: ="Código colaborador"
-                                                X: =302
-                                                Y: =56
-                                          - Label15_23:
-                                              Control: Label@2.5.1
-                                              Properties:
-                                                BorderColor: =RGBA(0, 18, 107, 1)
-                                                Color: =ColorValue(Var_ColorGray)
-                                                Font: =Font.'Open Sans'
-                                                Size: =Var_TextoPerfil
-                                                Text: ="Correo"
-                                                X: =580
-                                                Y: =56
-                                          - Label14_25:
-                                              Control: Label@2.5.1
-                                              Properties:
-                                                BorderColor: =RGBA(0, 18, 107, 1)
-                                                Font: =Font.'Open Sans'
-                                                Size: =Var_TextoPerfil
-                                                Text: =Var_ProfileUser.Codigo
-                                                VerticalAlign: =VerticalAlign.Top
-                                                Width: =250
-                                                X: =302
-                                                Y: =83
-                                          - Label14_26:
-                                              Control: Label@2.5.1
-                                              Properties:
-                                                BorderColor: =RGBA(0, 18, 107, 1)
-                                                Font: =Font.'Open Sans'
-                                                Size: =Var_TextoPerfil
-                                                Text: =Var_ProfileUser.NombreApellido
-                                                VerticalAlign: =VerticalAlign.Top
-                                                Width: =250
-                                                X: =24
-                                                Y: =83
-                                          - Label14_27:
-                                              Control: Label@2.5.1
-                                              Properties:
-                                                BorderColor: =RGBA(0, 18, 107, 1)
-                                                Font: =Font.'Open Sans'
-                                                Size: =Var_TextoPerfil
-                                                Text: =Var_ProfileUser.CorreoUsuario
-                                                VerticalAlign: =VerticalAlign.Top
-                                                Width: =250
-                                                X: =580
-                                                Y: =83
-                                          - Label15_24:
-                                              Control: Label@2.5.1
-                                              Properties:
-                                                BorderColor: =RGBA(0, 18, 107, 1)
-                                                Color: =ColorValue(Var_ColorGray)
-                                                Font: =Font.'Open Sans'
-                                                Size: =Var_TextoPerfil
-                                                Text: ="Posición del colaborador"
-                                                Width: =250
-                                                X: =24
-                                                Y: =139
-                                          - Label15_25:
-                                              Control: Label@2.5.1
-                                              Properties:
-                                                BorderColor: =RGBA(0, 18, 107, 1)
-                                                Color: =ColorValue(Var_ColorGray)
-                                                Font: =Font.'Open Sans'
-                                                Size: =Var_TextoPerfil
-                                                Text: ="Rol de mayor jerarquía"
-                                                Width: =180
-                                                X: =302
-                                                Y: =139
-                                          - Label14_28:
-                                              Control: Label@2.5.1
-                                              Properties:
-                                                BorderColor: =RGBA(0, 18, 107, 1)
-                                                Font: =Font.'Open Sans'
-                                                Size: =Var_TextoPerfil
-                                                Text: =Var_ProfileUser.CargoOrganizacional
-                                                VerticalAlign: =VerticalAlign.Top
-                                                Width: =250
-                                                X: =24
-                                                Y: =166
-                                          - Label14_29:
-                                              Control: Label@2.5.1
-                                              Properties:
-                                                BorderColor: =RGBA(0, 18, 107, 1)
-                                                Font: =Font.'Open Sans'
-                                                Size: =Var_TextoPerfil
-                                                Text: |-
-                                                  =//Rol Mayor Jerarquia
-                                                  Var_RolSistema
-                                                VerticalAlign: =VerticalAlign.Top
-                                                Width: =250
-                                                X: =302
-                                                Y: =166
-                                    - Container20_3:
-                                        Control: GroupContainer@1.5.0
-                                        Variant: ManualLayout
-                                        Properties:
-                                          BorderColor: =ColorValue("#E4E7E9")
-                                          BorderThickness: =1
-                                          DropShadow: =DropShadow.None
-                                          FillPortions: =0
-                                          Height: =157
-                                          RadiusBottomLeft: =12
-                                          RadiusBottomRight: =12
-                                          RadiusTopLeft: =12
-                                          RadiusTopRight: =12
-                                          Width: =1143
-                                          X: =20
-                                          Y: =362
-                                        Children:
-                                          - Label16_3:
-                                              Control: Label@2.5.1
-                                              Properties:
-                                                BorderColor: =RGBA(0, 18, 107, 1)
-                                                Font: =Font.'Open Sans'
-                                                FontWeight: =FontWeight.Semibold
-                                                Height: =35
-                                                Size: =Var_CuerpoTexto
-                                                Text: ="Organización"
-                                                X: =24
-                                                Y: =20
-                                          - Label15_26:
-                                              Control: Label@2.5.1
-                                              Properties:
-                                                BorderColor: =RGBA(0, 18, 107, 1)
-                                                Color: =ColorValue(Var_ColorGray)
-                                                Font: =Font.'Open Sans'
-                                                Size: =Var_TextoPerfil
-                                                Text: ="Vicepresidencia"
-                                                Width: =120
-                                                X: =24
-                                                Y: =56
-                                          - Label15_27:
-                                              Control: Label@2.5.1
-                                              Properties:
-                                                BorderColor: =RGBA(0, 18, 107, 1)
-                                                Color: =ColorValue(Var_ColorGray)
-                                                Font: =Font.'Open Sans'
-                                                Size: =Var_TextoPerfil
-                                                Text: ="Gerencia"
-                                                Width: =115
-                                                X: =302
-                                                Y: =56
-                                          - Label15_28:
-                                              Control: Label@2.5.1
-                                              Properties:
-                                                BorderColor: =RGBA(0, 18, 107, 1)
-                                                Color: =ColorValue(Var_ColorGray)
-                                                Font: =Font.'Open Sans'
-                                                Size: =Var_TextoPerfil
-                                                Text: ="Área"
-                                                Width: =115
-                                                X: =580
-                                                Y: =56
-                                          - Label14_30:
-                                              Control: Label@2.5.1
-                                              Properties:
-                                                BorderColor: =RGBA(0, 18, 107, 1)
-                                                Font: =Font.'Open Sans'
-                                                Height: =60
-                                                Size: =Var_TextoPerfil
-                                                Text: =Var_ProfileUser.Vicepresidencia
-                                                VerticalAlign: =VerticalAlign.Top
-                                                Width: =250
-                                                X: =24
-                                                Y: =83
-                                          - Label14_31:
-                                              Control: Label@2.5.1
-                                              Properties:
-                                                BorderColor: =RGBA(0, 18, 107, 1)
-                                                Font: =Font.'Open Sans'
-                                                Height: =60
-                                                Size: =Var_TextoPerfil
-                                                Text: =Var_ProfileUser.Gerencia
-                                                VerticalAlign: =VerticalAlign.Top
-                                                Width: =250
-                                                X: =302
-                                                Y: =83
-                                          - Label14_32:
-                                              Control: Label@2.5.1
-                                              Properties:
-                                                BorderColor: =RGBA(0, 18, 107, 1)
-                                                Font: =Font.'Open Sans'
-                                                Height: =60
-                                                Size: =Var_TextoPerfil
-                                                Text: =Var_ProfileUser.Area
-                                                VerticalAlign: =VerticalAlign.Top
-                                                Width: =199
-                                                X: =580
-                                                Y: =83
+                                                AccessibleLabel: =
+                                                Appearance: =Appearance.Outline
+                                                DefaultDate: |-
+                                                  =DateAdd(
+                                                          Today(),
+                                                      -7,
+                                                      TimeUnit.Days
+                                                  )
+                                                Format: =DatePickerFormat.Short
+                                                OnChange: |-
+                                                  =Set(
+                                                      varFechaFiltroDB3,
+                                                      DatePicker_SegTicket_1.SelectedDate
+                                                  );
+
+                                                  Set(
+                                                      varRespuestaFlujo,
+                                                      'LCP-001_Flow_GlbHomeBoards'.Run(Text(varFechaFiltroDB3,"yyyy-mm-dd") & "T00:00:00Z",
+                                                          "1"
+                                                      ).ticketsjson
+                                                  );
+
+                                                  ClearCollect(
+                                                      colMonthlyTickets,
+                                                      ForAll(
+                                                          Table(ParseJSON(varRespuestaFlujo)),
+                                                          {
+                                                              idmes: Value(Value.idmes),
+                                                              mes: Text(Value.mes),
+                                                              tickets: Value(Value.tickets)
+                                                          }
+                                                      )
+                                                  );
+
+                                                  Navigate(Gbl_Home)
+                                                Placeholder: ="dd/mm/aa"
+                                                Width: =150
+                                                X: =40
+                                                Y: =40

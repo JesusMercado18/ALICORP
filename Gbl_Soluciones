@@ -98,10 +98,11 @@ Screens:
                             ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
                             Properties:
                               Height: =768
+                              OnSeleccionar: =Set(varPantallaSeleccionada, Self.PantallaSeleccionada.Title)
                               RolUsuario: =Var_RolSistema
                               Width: =If(Gbl_MenuSpvSoluciones.verMenu,250,70)
                               WidthMenu: =Parent.Width
-                              btnHome: =Gbl_Home
+                              btnHome: =Gbl_Perfil
                               displayNameUser: =Var_ProfileUser.'Nombre (Nombre0)'
                               itemsMenu: =colMenuGeneral
                               menuSelected: ="Soluciones"
@@ -129,7 +130,7 @@ Screens:
                             Properties:
                               AlignInContainer: =AlignInContainer.End
                               Height: =60
-                              Perfil: =Gbl_Home
+                              Perfil: =Gbl_Perfil
                               X: =726
                         - SpvSlc_CtnPaginaActual:
                             Control: GroupContainer@1.5.0
@@ -164,7 +165,7 @@ Screens:
                                     HoverColor: =ColorValue(Var_ColorNavegarCabecera)
                                     HoverFill: =Color.Transparent
                                     LayoutMinWidth: =50
-                                    OnSelect: =Navigate(Gbl_Home)
+                                    OnSelect: =Navigate(Gbl_Perfil)
                                     PressedBorderColor: =Self.Fill
                                     PressedColor: =ColorValue(Var_ColorNavegarCabecera)
                                     PressedFill: =
@@ -350,6 +351,31 @@ Screens:
                                           FocusedBorderThickness: =4
                                           Height: =20
                                           Icon: =Icon.Add
+                                          OnSelect: |-
+                                            =// 1. Apertura de Modal
+                                            UpdateContext({ Var_Ctx_SpvModal_AgregarSolucion: !Var_Ctx_SpvModal_AgregarSolucion });
+                                            UpdateContext({ Var_Ctx_Spv_NuevaSolucion: "Nuevo" });
+
+                                            // 2. Limpieza de Variables de Contexto (Menús Desplegables)
+                                            UpdateContext({
+                                                varGerenciaSelected: Blank(),
+                                                varUpdateAreaSelected: Blank(),
+                                                varUpdateSubAreaSelected: Blank(),
+                                                varOpenDropDownGerencia: false,
+                                                varOpenDropDownUpdateArea: false,
+                                                varOpenDropDownUpdateSubarea: false,
+                                                varOpenDropDownEstadoSpvSlc: false
+                                            });
+
+                                            // 3. Limpieza de Colecciones
+                                            Clear(colEstadoSolucionSeleccionadas);
+                                            Clear(Var_uploadFile_listAttachmentSpvNvSolucion);
+                                            Clear(SpvSlc_colErroresAdjuntos);
+
+                                            // 4. Reinicio de Controles
+                                            Reset(SpvSlc_TxtDescripcionNuevaSolucion);
+                                            Reset(SpvSlc_LblCampoSeleccionarEstado);
+                                            Reset(SpvSlc_AtchAdjuntoNuevaSolucion)
                                           PressedBorderColor: =RGBA(0, 0, 0, 0)
                                           PressedColor: =ColorValue(Var_ColorBoton)
                                           PressedFill: =RGBA(0, 0, 0, 0)
@@ -647,7 +673,7 @@ Screens:
                                                                         OnSelect: =Select(SpvSlc_GlrSoluciones)
                                                                         Size: =Var_FontSizeCuerpoTable
                                                                         Text: =ThisItem.NombreArchivo
-                                                                        Tooltip: =ThisItem.NombreArchivo
+                                                                        Tooltip: =Self.Text
                                                                         Width: =Parent.Width - SpvSlc_IcnDocumentoCargado.Width
                                                                         Wrap: =false
                                                                         X: =30
@@ -677,10 +703,10 @@ Screens:
                                                                   BorderColor: =RGBA(0, 18, 107, 1)
                                                                   Font: =Font.'Open Sans'
                                                                   OnSelect: =Select(SpvSlc_GlrSoluciones)
-                                                                  Overflow: =Overflow.Scroll
+                                                                  PaddingBottom: =15
                                                                   Size: =Var_FontSizeCuerpoTable
                                                                   Text: =ThisItem.Descripcion
-                                                                  Tooltip: =ThisItem.Descripcion
+                                                                  Tooltip: =Self.Text
                                                                   Width: =Parent.Width
                                                                   Wrap: =false
                                                       - SpvSlc_CtnInfoGerencia:
@@ -699,10 +725,10 @@ Screens:
                                                                   BorderColor: =RGBA(0, 18, 107, 1)
                                                                   Font: =Font.'Open Sans'
                                                                   OnSelect: =Select(SpvSlc_GlrSoluciones)
-                                                                  Overflow: =Overflow.Scroll
+                                                                  PaddingBottom: =15
                                                                   Size: =Var_FontSizeCuerpoTable
                                                                   Text: =ThisItem.Gerencia
-                                                                  Tooltip: =ThisItem.Gerencia
+                                                                  Tooltip: =Self.Text
                                                                   Wrap: =false
                                                       - SpvSlc_CtnInfoArea:
                                                           Control: GroupContainer@1.5.0
@@ -723,12 +749,12 @@ Screens:
                                                                   FontWeight: =FontWeight.Semibold
                                                                   Height: =30
                                                                   OnSelect: =Select(SpvSlc_GlrSoluciones)
+                                                                  PaddingBottom: =8
                                                                   PaddingLeft: =10
                                                                   Size: =Var_FontSizeCuerpoTable
                                                                   Text: =ThisItem.Area
-                                                                  Tooltip: =ThisItem.Area
+                                                                  Tooltip: =Self.Text
                                                                   Wrap: =false
-                                                                  X: =1
                                                       - SpvSlc_CtnInfoSubarea:
                                                           Control: GroupContainer@1.5.0
                                                           Variant: ManualLayout
@@ -746,10 +772,10 @@ Screens:
                                                                   BorderColor: =RGBA(0, 18, 107, 1)
                                                                   Font: =Font.'Open Sans'
                                                                   OnSelect: =Select(SpvSlc_GlrSoluciones)
-                                                                  Overflow: =Overflow.Scroll
+                                                                  PaddingBottom: =17
                                                                   Size: =Var_FontSizeCuerpoTable
                                                                   Text: =ThisItem.Subarea
-                                                                  Tooltip: =ThisItem.Subarea
+                                                                  Tooltip: =Self.Text
                                                                   Wrap: =false
                                                       - SpvSlc_CtnInfAcciones:
                                                           Control: GroupContainer@1.5.0
@@ -789,8 +815,7 @@ Screens:
                                                                     });
                                                                     // 1. Ocultar posibles errores previos
                                                                     UpdateContext({Var_Ctx_SpvMostrarErrorSoluciones: false});
-                                                                    Select(SpvSlc_GlrSoluciones);
-                                                                    UpdateContext({Var_Ctx_SpvIDAdjunto: Var_SpvCmcSolucionSeleccionada.ID})
+                                                                    Select(SpvSlc_GlrSoluciones)
                                                                   Width: =24
                                                                   X: =70
                                                             - SpvSlc_ImgInfEditar:
@@ -834,7 +859,6 @@ Screens:
                                           Height: =CountRows(SpvSlc_GlrEstados.AllItems) * 37
                                           Visible: =varOpenDropDownEstadoSpvSlc
                                           Width: =SpvSlc_CtnSeleccionarEstado.Width - 2
-                                          X: =SpvSlc_CtnSeleccionarEstado.X
                                           Y: =55
                                         Children:
                                           - SpvSlc_GlrEstados:
@@ -1292,7 +1316,7 @@ Screens:
             Input_TextoNotificacion: =Var_SpvMensajeSatisfactorioSolucion
             Width: =480
             X: =Parent.Width - Self.Width - 20
-            Y: =Gbl_Header_DetalleTicket.Height
+            Y: =Gbl_Header_7.Height
       - SpvSlc_CtnModalSolucion:
           Control: GroupContainer@1.5.0
           Variant: ManualLayout
@@ -2859,7 +2883,7 @@ Screens:
                   CerrarModal: |-
                     =Reset(Gbl_Confirmation_Delete_Solucion_1);
                     UpdateContext({ Var_Ctx_ModalConfirmacionBorrarSolucion: false })
-                  Guardar: "='LCP-001_Flow_GuardarDocumentoSoluciones'.Run(\r\n                Var_Ctx_Spv_NuevaSolucion,\r\n                {\r\n                    name: \"NoAplica\",\r\n                    contentBytes: \"NoAplica\" // Simulacion Base64 válida para evitar error de esquema en Power Automate\r\n                },\r\n                \"NoAplica\",\r\n                \"NoAplica\",\r\n                \"NoAplica\",\r\n                \"NoAplica\",\r\n                \"NoAplica\",\r\n                \"NoAplica\",\r\n                \"NoAplica\",\r\n                Var_Ctx_SpvIDAdjunto\r\n);\r\n\r\n// 3. Acciones de Éxito Secuenciales\r\nIf(\r\n    !Var_Ctx_SpvMostrarErrorSoluciones,\r\n    UpdateContext({ Var_Ctx_ModalConfirmacionBorrarSolucion: false });\r\n    \r\n    // Mostramos feedback visual reutilizando el componente de alerta\r\n    UpdateContext({\r\n        Var_Ctx_SpvMostrarAlertaSoluciones: true,\r\n        Var_SpvMensajeSatisfactorioSolucion: \"El documento ha sido eliminado con éxito.\"\r\n    });\r\n    \r\n    // Refrescamos en background y volvemos a cargar la vista actual paginada\r\n    Refresh('LCP-001_List_Soluciones');\r\n    Select(Spv_btn_MotorPaginacionSoluciones)\r\n);\r\nUpdateContext({Var_Ctx_ModalConfirmacionBorrarSolucion: false});\r\nNavigate(Gbl_Soluciones)"
+                  Guardar: "='LCP-001_Flow_GuardarDocumentoSoluciones'.Run(\r\n                Var_Ctx_Spv_NuevaSolucion,\r\n                {\r\n                    name: \"NoAplica\",\r\n                    contentBytes: \"NoAplica\" // Simulacion Base64 válida para evitar error de esquema en Power Automate\r\n                },\r\n                \"NoAplica\",\r\n                \"NoAplica\",\r\n                \"NoAplica\",\r\n                \"NoAplica\",\r\n                \"NoAplica\",\r\n                \"NoAplica\",\r\n                \"NoAplica\",\r\n                Var_SpvCmcSolucionSeleccionada.ID\r\n);\r\n\r\n// 3. Acciones de Éxito Secuenciales\r\nIf(\r\n    !Var_Ctx_SpvMostrarErrorSoluciones,\r\n    UpdateContext({ Var_Ctx_ModalConfirmacionBorrarSolucion: false });\r\n    \r\n    // Mostramos feedback visual reutilizando el componente de alerta\r\n    UpdateContext({\r\n        Var_Ctx_SpvMostrarAlertaSoluciones: true,\r\n        Var_SpvMensajeSatisfactorioSolucion: \"El documento ha sido eliminado con éxito.\"\r\n    });\r\n    \r\n    // Refrescamos en background y volvemos a cargar la vista actual paginada\r\n    Refresh('LCP-001_List_Soluciones');\r\n    Select(Spv_btn_MotorPaginacionSoluciones)\r\n);\r\nUpdateContext({Var_Ctx_ModalConfirmacionBorrarSolucion: false});\r\nNavigate(Gbl_Soluciones)"
                   Height: =336
                   IsError: =ColorValue("#6C6C6C")
                   Observacion: =true
@@ -2882,4 +2906,4 @@ Screens:
             Visible: =Var_Ctx_SpvMostrarErrorSoluciones
             Width: =480
             X: =Parent.Width - Self.Width - 20
-            Y: =Gbl_Header_DetalleTicket.Height
+            Y: =Gbl_Header_7.Height
