@@ -145,10 +145,11 @@ Screens:
                             ComponentLibraryUniqueName: tk_lcp001componentesticketing_44d3d
                             Properties:
                               Height: =768
+                              OnSeleccionar: =Set(varPantallaSeleccionada, Self.PantallaSeleccionada.Title)
                               RolUsuario: =Var_RolSistema
                               Width: =If(Gbl_MenuSpvCmc.verMenu,250,70)
                               WidthMenu: =Parent.Width
-                              btnHome: =Gbl_Home
+                              btnHome: =Gbl_Perfil
                               displayNameUser: =Var_ProfileUser.'Nombre (Nombre0)'
                               itemsMenu: =colMenuGeneral
                               menuSelected: ="Comunicados"
@@ -177,7 +178,7 @@ Screens:
                             Properties:
                               AlignInContainer: =AlignInContainer.End
                               Height: =60
-                              Perfil: =Gbl_Home
+                              Perfil: =Gbl_Perfil
                               X: =726
                         - SpvCmc_Espaciado1:
                             Control: GroupContainer@1.5.0
@@ -221,7 +222,7 @@ Screens:
                                     HoverColor: =ColorValue(Var_ColorNavegarCabecera)
                                     HoverFill: =Color.Transparent
                                     LayoutMinWidth: =50
-                                    OnSelect: =Navigate(Gbl_Home)
+                                    OnSelect: =Navigate(Gbl_Perfil)
                                     PressedBorderColor: =Self.Fill
                                     PressedColor: =ColorValue(Var_ColorNavegarCabecera)
                                     PressedFill: =
@@ -342,7 +343,9 @@ Screens:
                                     RadiusBottomRight: =10
                                     RadiusTopLeft: =10
                                     RadiusTopRight: =10
-                                    Visible: =If(Var_RolSistema in [Var_RolApp.RolSupervisor,Var_RolApp.RolAdministrador],true,false)
+                                    Visible: |-
+                                      =//If(Var_RolSistema in [Var_RolApp.RolSupervisor;Var_RolApp.RolAdministrador];true;false)
+                                      Var_MatrizAccesosApp.CrearComunicados
                                     Width: =225
                                   Children:
                                     - SpvCmc_BtnNuevoComunicado:
