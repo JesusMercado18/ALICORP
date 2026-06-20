@@ -1312,7 +1312,7 @@ Screens:
                                                       BorderColor: =ColorValue(Var_ColorGray)
                                                       BorderThickness: =1
                                                       ChevronBackground: =RGBA(0, 0, 0, 0)
-                                                      ChevronDisabledBackground: =RGBA(242, 242, 241, 0)
+                                                      ChevronDisabledBackground: =RGBA(255, 255, 255, 1)
                                                       ChevronDisabledFill: =ColorValue(Var_ColorGray)
                                                       ChevronFill: =ColorValue(Var_ColorBoton)
                                                       ChevronHoverBackground: =RGBA(0, 0, 0, 0)
@@ -1323,7 +1323,6 @@ Screens:
                                                       DisabledColor: =RGBA(161, 159, 157, 1)
                                                       DisabledFill: =RGBA(242, 242, 241, 0)
                                                       DisplayFields: =["Value"]
-                                                      Fill: =RGBA(0, 0, 0, 0)
                                                       Font: =Font.'Segoe UI'
                                                       Height: '=Parent.Height '
                                                       HoverColor: =ColorValue(Var_ColorGray)
@@ -1338,7 +1337,7 @@ Screens:
                                                                 colQuerysSpvComunicados,
                                                                 LookUp(colQuerysSpvComunicados, input = "Estado"),
                                                                 { mark: false, query: "" }
-                                                            ),
+                                                            );
                                                             If(
                                                                 IsBlank(varSpvCmcGerenciaSelectec) And IsBlank(var_RangeDatePicker_DateStart),
                                                                 Patch(
@@ -1351,7 +1350,7 @@ Screens:
                                                                 colQuerysSpvComunicados,
                                                                 LookUp(colQuerysSpvComunicados, input = "EsVisibleHoy"),
                                                                 { mark: false }
-                                                            ),
+                                                            );
                                                             Patch(
                                                                 colQuerysSpvComunicados,
                                                                 LookUp(colQuerysSpvComunicados, input = "Estado"),
