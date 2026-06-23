@@ -1638,7 +1638,7 @@ Screens:
                                                 Visible: =If(!IsEmpty(colEstadoRecurrenteSeleccionadas),true,false)
                                                 Width: =150
                                                 X: =If(First(colEstadoRecurrenteSeleccionadas).Value = "Recurrente mensual",2,180)
-                                                Y: =SpvNvCmc_LblTiempoRecurrenciaHasta.Y + 25
+                                                Y: =SpvNvCmc_LblTiempoRecurrenciaHasta.Y + 23
                                               Children:
                                                 - SpvNvCmc_CtnDiaFin:
                                                     Control: GroupContainer@1.5.0
@@ -1752,7 +1752,7 @@ Screens:
                                                 BorderColor: =ColorValue(Var_ColorBordeBoton)
                                                 BorderThickness: =1
                                                 DropShadow: =DropShadow.None
-                                                Height: =40
+                                                Height: =42
                                                 RadiusBottomLeft: =10
                                                 RadiusBottomRight: =10
                                                 RadiusTopLeft: =10
@@ -1760,7 +1760,7 @@ Screens:
                                                 Visible: =If(First(colEstadoRecurrenteSeleccionadas).Value = "Recurrente mensual",false,true)
                                                 Width: =150
                                                 X: =2
-                                                Y: =SpvNvCmc_LblTiempoRecurrenciaHasta.Y + 25
+                                                Y: =SpvNvCmc_LblTiempoRecurrenciaHasta.Y + 23
                                               Children:
                                                 - SpvNvCmc_CtnMesFin:
                                                     Control: GroupContainer@1.5.0
@@ -1769,7 +1769,7 @@ Screens:
                                                       BorderColor: =ColorValue(Var_ColorBordeBoton)
                                                       BorderStyle: =BorderStyle.None
                                                       DropShadow: =DropShadow.None
-                                                      Height: =Parent.Height - 1
+                                                      Height: '=Parent.Height '
                                                       RadiusBottomLeft: =8
                                                       RadiusBottomRight: =8
                                                       RadiusTopLeft: =8
@@ -1782,9 +1782,10 @@ Screens:
                                                           Variant: AutoLayout
                                                           Properties:
                                                             BorderColor: =ColorValue(Var_ColorBordeBoton)
+                                                            BorderStyle: =BorderStyle.None
                                                             DropShadow: =DropShadow.None
                                                             Fill: =RGBA(255, 255, 255, 0.8)
-                                                            Height: =Parent.Height
+                                                            Height: =Parent.Height - 2
                                                             LayoutAlignItems: =LayoutAlignItems.Center
                                                             LayoutDirection: =LayoutDirection.Horizontal
                                                             LayoutGap: =20
@@ -1808,7 +1809,7 @@ Screens:
                                                                   FillPortions: =1
                                                                   Font: =Font.'Open Sans'
                                                                   FontSize: =Var_FontSizeFiltros + 3.5
-                                                                  Height: =40
+                                                                  Height: =38
                                                                   LayoutMinHeight: =16
                                                                   LayoutMinWidth: =16
                                                                   OnChange: |-
@@ -2217,62 +2218,6 @@ Screens:
                                                             PaddingTop: =8
                                                             Visible: =ThisItem in colEstadoRecurrenteSeleccionadas
                                                             Width: =Parent.Width
-                                          - SpvNvCmc_LblDiaFinCabecera:
-                                              Control: Text@0.0.51
-                                              Properties:
-                                                Align: ='TextCanvas.Align'.Start
-                                                Fill: =RGBA(255, 255, 255, 1)
-                                                Font: =Font.'Open Sans'
-                                                Height: =19
-                                                PaddingLeft: =2
-                                                Size: =12
-                                                Text: ="Día fin"
-                                                Visible: =!IsBlank(SpvNvCmc_LblDiaFin.Value)
-                                                Width: =40
-                                                X: =SpvNvCmc_CtnDiaFinRecurrente.X + 8
-                                                Y: =SpvNvCmc_CtnDiaFinRecurrente.Y - 10
-                                          - SpvNvCmc_LblMesFinCabecera:
-                                              Control: Text@0.0.51
-                                              Properties:
-                                                Align: ='TextCanvas.Align'.Start
-                                                Fill: =RGBA(255, 255, 255, 1)
-                                                Font: =Font.'Open Sans'
-                                                Height: =19
-                                                PaddingLeft: =2
-                                                Size: =12
-                                                Text: ="Mes fin"
-                                                Visible: =!IsBlank(SpvNvCmc_LblMesFin.Value)
-                                                Width: =47
-                                                X: =SpvNvCmc_CtnMesFinRecurrente.X + 8
-                                                Y: =SpvNvCmc_CtnMesFinRecurrente.Y - 10
-                                          - SpvNvCmc_LblDiaInicioCabecera:
-                                              Control: Text@0.0.51
-                                              Properties:
-                                                Align: ='TextCanvas.Align'.Start
-                                                Fill: =RGBA(255, 255, 255, 1)
-                                                Font: =Font.'Open Sans'
-                                                Height: =19
-                                                PaddingLeft: =2
-                                                Size: =12
-                                                Text: ="Día inicio"
-                                                Visible: =!IsBlank(SpvNvCmc_LblDiaInicio.Value)
-                                                Width: =55
-                                                X: =SpvNvCmc_CtnDiainicioRecurrente.X + 8
-                                                Y: =SpvNvCmc_CtnDiainicioRecurrente.Y - 10
-                                          - SpvNvCmc_LblMesInicioCabecera:
-                                              Control: Text@0.0.51
-                                              Properties:
-                                                Align: ='TextCanvas.Align'.Start
-                                                Fill: =RGBA(255, 255, 255, 1)
-                                                Font: =Font.'Open Sans'
-                                                Height: =19
-                                                PaddingLeft: =2
-                                                Size: =12
-                                                Text: ="Mes inicio"
-                                                Visible: =!IsBlank(SpvNvCmc_LblMesInicio.Value)
-                                                Width: =60
-                                                X: =SpvNvCmc_CtnMesinicioRecurrente.X + 8
-                                                Y: =SpvNvCmc_CtnMesinicioRecurrente.Y - 10
                                           - SpvNvCmc_LblTipoRecurrenciaTitulo:
                                               Control: Text@0.0.51
                                               Properties:
@@ -2310,6 +2255,66 @@ Screens:
                                                 Visible: =SpvNvCmc_CtnDiaFinRecurrente.Visible
                                                 Width: =180
                                                 Y: =150
+                                          - SpvNvCmc_LblDiaFinCabecera:
+                                              Control: Text@0.0.51
+                                              Properties:
+                                                Align: ='TextCanvas.Align'.Start
+                                                Fill: =RGBA(255, 255, 255, 1)
+                                                Font: =Font.'Open Sans'
+                                                Height: =19
+                                                PaddingLeft: =2
+                                                PaddingTop: =2
+                                                Size: =12
+                                                Text: ="Día fin"
+                                                Visible: =!IsBlank(SpvNvCmc_LblDiaFin.Value)
+                                                Width: =40
+                                                X: =SpvNvCmc_CtnDiaFinRecurrente.X + 8
+                                                Y: =SpvNvCmc_CtnDiaFinRecurrente.Y - 10
+                                          - SpvNvCmc_LblDiaInicioCabecera:
+                                              Control: Text@0.0.51
+                                              Properties:
+                                                Align: ='TextCanvas.Align'.Start
+                                                Fill: =RGBA(255, 255, 255, 1)
+                                                Font: =Font.'Open Sans'
+                                                Height: =19
+                                                PaddingLeft: =2
+                                                PaddingTop: =2
+                                                Size: =12
+                                                Text: ="Día inicio"
+                                                Visible: =!IsBlank(SpvNvCmc_LblDiaInicio.Value)
+                                                Width: =55
+                                                X: =SpvNvCmc_CtnDiainicioRecurrente.X + 8
+                                                Y: =SpvNvCmc_CtnDiainicioRecurrente.Y - 10
+                                          - SpvNvCmc_LblMesInicioCabecera:
+                                              Control: Text@0.0.51
+                                              Properties:
+                                                Align: ='TextCanvas.Align'.Start
+                                                Fill: =RGBA(255, 255, 255, 1)
+                                                Font: =Font.'Open Sans'
+                                                Height: =19
+                                                PaddingLeft: =2
+                                                PaddingTop: =2
+                                                Size: =12
+                                                Text: ="Mes inicio"
+                                                Visible: =!IsBlank(SpvNvCmc_LblMesInicio.Value)
+                                                Width: =60
+                                                X: =SpvNvCmc_CtnMesinicioRecurrente.X + 8
+                                                Y: =SpvNvCmc_CtnMesinicioRecurrente.Y - 10
+                                          - SpvNvCmc_LblMesFinCabecera:
+                                              Control: Text@0.0.51
+                                              Properties:
+                                                Align: ='TextCanvas.Align'.Start
+                                                Fill: =RGBA(255, 255, 255, 1)
+                                                Font: =Font.'Open Sans'
+                                                Height: =19
+                                                PaddingLeft: =2
+                                                PaddingTop: =2
+                                                Size: =12
+                                                Text: ="Mes fin"
+                                                Visible: =!IsBlank(SpvNvCmc_LblMesFin.Value)
+                                                Width: =47
+                                                X: =SpvNvCmc_CtnMesFinRecurrente.X + 8
+                                                Y: =SpvNvCmc_CtnMesFinRecurrente.Y - 10
                                     - SpvNvCmc_CtnSeparacion:
                                         Control: GroupContainer@1.5.0
                                         Variant: ManualLayout
@@ -2611,9 +2616,9 @@ Screens:
                                             //   varDirigidoSelected.Value="País";
                                             //     Filter(colSpvCmcPais; SpvCmc_TxtItemsDirigidoOpcion.Value in ThisRecord.Value Or IsBlank(SpvCmc_TxtItemsDirigidoOpcion.Value))
                                             //)
-                                            If(Var_RolSistema = "Supervisor",
+                                            If(Var_RolSistema = Var_RolApp.RolSupervisor,
                                                 If(varDirigidoSelected.Value="Gerencia",
-                                                    Filter(Filter(colSpvNvCmcGerencia,Var_ProfileUser.Gerencia = Value), SpvCmc_TxtItemsDirigidoOpcion.Value in ThisRecord.Value Or IsBlank(SpvCmc_TxtItemsDirigidoOpcion.Value)),
+                                                    Filter(Filter(colSpvNvCmcGerencia,Upper(Var_ProfileUser.Gerencia) = Value), SpvCmc_TxtItemsDirigidoOpcion.Value in ThisRecord.Value Or IsBlank(SpvCmc_TxtItemsDirigidoOpcion.Value)),
                                                    varDirigidoSelected.Value="País",
                                                      Filter(Filter(colSpvCmcPais,Var_ProfileUser.Pais = Value), SpvCmc_TxtItemsDirigidoOpcion.Value in ThisRecord.Value Or IsBlank(SpvCmc_TxtItemsDirigidoOpcion.Value))
                                                 ),

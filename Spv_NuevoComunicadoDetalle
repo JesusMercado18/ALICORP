@@ -2215,62 +2215,6 @@ Screens:
                                                                   PaddingTop: =5
                                                                   Visible: =!IsBlank(varMesInicioSelected)
                                                                   Width: =25
-                                          - SpvNvCmc_LblDiaFinCabeceraDetalle:
-                                              Control: Text@0.0.51
-                                              Properties:
-                                                Align: ='TextCanvas.Align'.Start
-                                                Fill: =RGBA(255, 255, 255, 1)
-                                                Font: =Font.'Open Sans'
-                                                Height: =19
-                                                PaddingLeft: =2
-                                                Size: =12
-                                                Text: ="Día fin"
-                                                Visible: =!IsBlank(SpvNvCmc_LblDiaFinDetalle.Value)
-                                                Width: =40
-                                                X: =SpvNvCmc_CtnDiaFinRecurrente.X + 8
-                                                Y: =SpvNvCmc_CtnDiaFinRecurrente.Y - 10
-                                          - SpvNvCmc_LblMesFinCabeceraDetalle:
-                                              Control: Text@0.0.51
-                                              Properties:
-                                                Align: ='TextCanvas.Align'.Start
-                                                Fill: =RGBA(255, 255, 255, 1)
-                                                Font: =Font.'Open Sans'
-                                                Height: =19
-                                                PaddingLeft: =2
-                                                Size: =12
-                                                Text: ="Mes fin"
-                                                Visible: =!IsBlank(SpvNvCmc_LblMesFinDetalle.Value)
-                                                Width: =47
-                                                X: =SpvNvCmc_CtnMesFinRecurrenteDetalle.X + 8
-                                                Y: =SpvNvCmc_CtnMesFinRecurrenteDetalle.Y - 10
-                                          - SpvNvCmc_LblDiaInicioCabeceraDetalle:
-                                              Control: Text@0.0.51
-                                              Properties:
-                                                Align: ='TextCanvas.Align'.Start
-                                                Fill: =RGBA(255, 255, 255, 1)
-                                                Font: =Font.'Open Sans'
-                                                Height: =19
-                                                PaddingLeft: =2
-                                                Size: =12
-                                                Text: ="Día inicio"
-                                                Visible: =!IsBlank(SpvNvCmc_LblDiaInicioDetalle.Value)
-                                                Width: =55
-                                                X: =SpvNvCmc_CtnDiainicioRecurrente.X + 8
-                                                Y: =SpvNvCmc_CtnDiainicioRecurrente.Y - 10
-                                          - SpvNvCmc_LblMesInicioCabeceraDetalle:
-                                              Control: Text@0.0.51
-                                              Properties:
-                                                Align: ='TextCanvas.Align'.Start
-                                                Fill: =RGBA(255, 255, 255, 1)
-                                                Font: =Font.'Open Sans'
-                                                Height: =19
-                                                PaddingLeft: =2
-                                                Size: =12
-                                                Text: ="Mes inicio"
-                                                Visible: =!IsBlank(SpvNvCmc_LblMesInicioDetalle.Value)
-                                                Width: =60
-                                                X: =SpvNvCmc_CtnMesinicioRecurrenteDetalle.X + 8
-                                                Y: =SpvNvCmc_CtnMesinicioRecurrenteDetalle.Y - 10
                                           - SpvNvCmc_LblTipoRecurrenciaTituloDetalle:
                                               Control: Text@0.0.51
                                               Properties:
@@ -2308,6 +2252,66 @@ Screens:
                                                 Visible: =SpvNvCmc_CtnDiaFinRecurrenteDetalle.Visible
                                                 Width: =180
                                                 Y: =150
+                                          - SpvNvCmc_LblDiaInicioCabeceraDetalle:
+                                              Control: Text@0.0.51
+                                              Properties:
+                                                Align: ='TextCanvas.Align'.Start
+                                                Fill: =RGBA(255, 255, 255, 1)
+                                                Font: =Font.'Open Sans'
+                                                Height: =19
+                                                PaddingLeft: =2
+                                                PaddingTop: =2
+                                                Size: =12
+                                                Text: ="Día inicio"
+                                                Visible: =!IsBlank(SpvNvCmc_LblDiaInicioDetalle.Value)
+                                                Width: =55
+                                                X: =SpvNvCmc_CtnDiainicioRecurrente.X + 8
+                                                Y: =SpvNvCmc_CtnDiainicioRecurrente.Y - 10
+                                          - SpvNvCmc_LblDiaFinCabeceraDetalle:
+                                              Control: Text@0.0.51
+                                              Properties:
+                                                Align: ='TextCanvas.Align'.Start
+                                                Fill: =RGBA(255, 255, 255, 1)
+                                                Font: =Font.'Open Sans'
+                                                Height: =19
+                                                PaddingLeft: =2
+                                                PaddingTop: =2
+                                                Size: =12
+                                                Text: ="Día fin"
+                                                Visible: =!IsBlank(SpvNvCmc_LblDiaFinDetalle.Value)
+                                                Width: =40
+                                                X: =SpvNvCmc_CtnDiaFinRecurrente.X + 8
+                                                Y: =SpvNvCmc_CtnDiaFinRecurrente.Y - 10
+                                          - SpvNvCmc_LblMesInicioCabeceraDetalle:
+                                              Control: Text@0.0.51
+                                              Properties:
+                                                Align: ='TextCanvas.Align'.Start
+                                                Fill: =RGBA(255, 255, 255, 1)
+                                                Font: =Font.'Open Sans'
+                                                Height: =19
+                                                PaddingLeft: =2
+                                                PaddingTop: =2
+                                                Size: =12
+                                                Text: ="Mes inicio"
+                                                Visible: =!IsBlank(SpvNvCmc_LblMesInicioDetalle.Value)
+                                                Width: =60
+                                                X: =SpvNvCmc_CtnMesinicioRecurrenteDetalle.X + 8
+                                                Y: =SpvNvCmc_CtnMesinicioRecurrenteDetalle.Y - 10
+                                          - SpvNvCmc_LblMesFinCabeceraDetalle:
+                                              Control: Text@0.0.51
+                                              Properties:
+                                                Align: ='TextCanvas.Align'.Start
+                                                Fill: =RGBA(255, 255, 255, 1)
+                                                Font: =Font.'Open Sans'
+                                                Height: =19
+                                                PaddingLeft: =2
+                                                PaddingTop: =2
+                                                Size: =12
+                                                Text: ="Mes fin"
+                                                Visible: =!IsBlank(SpvNvCmc_LblMesFinDetalle.Value)
+                                                Width: =47
+                                                X: =SpvNvCmc_CtnMesFinRecurrenteDetalle.X + 8
+                                                Y: =SpvNvCmc_CtnMesFinRecurrenteDetalle.Y - 10
                                     - SpvNvCmc_CtnSeparacionDetalle:
                                         Control: GroupContainer@1.5.0
                                         Variant: ManualLayout
